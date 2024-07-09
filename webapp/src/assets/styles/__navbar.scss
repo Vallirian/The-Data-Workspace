@@ -1,0 +1,8 @@
+@import './_color';
+@import './_spacing';
+
+.arc-navbar {
+    background-color: $white;
+    border-bottom: 0.5px solid $gray-50;
+    height: $row-height-0;
+}
