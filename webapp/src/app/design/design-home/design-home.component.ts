@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { UtilServiceService } from '../../services/util-service.service';
 
 @Component({
   selector: 'app-design-home',
@@ -8,5 +9,14 @@ import { Component } from '@angular/core';
   styleUrl: './design-home.component.scss'
 })
 export class DesignHomeComponent {
+  greeing: string = 'Hello'
+  constructor(
+    private utilService: UtilServiceService
+  ) {
+    this.greeing = utilService.getGreeting();
+  }
 
+  get userName() {
+    return 'John Doe';
+  }
 }
