@@ -5,6 +5,8 @@ body {
 
 @import './assets/styles/_color';
 @import './assets/styles/_navbar';
+@import './assets/styles/_layout';
+@import './assets/styles/_background';
 
 .app-container {
     display: flex;
@@ -15,5 +17,19 @@ body {
 
 .arc-content-container {
     background-color: $gray-10;
-    flex: 1;
+    height: 100%;
+    width: 100%;
+}
+
+
+
+// test
+.test {
+    background-color:aquamarine;
+    border: 1px solid $gray-50;
+}
+
+.test1 {
+    background-color:dodgerblue;
+    border: 1px solid $gray-50;
 }
