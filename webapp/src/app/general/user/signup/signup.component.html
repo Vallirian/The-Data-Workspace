@@ -10,22 +10,22 @@
         </div>
     </div>
     <div class="centered-container container-fluid">
-        <form class="row g-3 w-50">
+        <form [formGroup]="signupForm" class="row g-3 w-50">
             <div class="col-12">
-              <input type="email" class="form-control" placeholder="Email">
+              <input formControlName="email" type="email" class="form-control" placeholder="Email">
             </div>
             <div class="col-12">
-                <input type="text" class="form-control" placeholder="Name">
+                <input formControlName="username" type="text" class="form-control" placeholder="Name">
             </div>
             <div class="col-12">
-                <input type="password" class="form-control" placeholder="Password">
+                <input formControlName="password" type="password" class="form-control" placeholder="Password">
             </div>
             <div class="col-12">
-                <input type="text" class="form-control" placeholder="Company">
+                <input formControlName="tenantDisplayName" type="text" class="form-control" placeholder="Company">
             </div>
               
             <div class="col-12 d-flex flex-column mt-5">
-              <button type="submit" class="btn btn-primary flex-fill">Sign in</button>
+              <button (click)="onSignup()" type="submit" class="btn btn-primary flex-fill">Sign up</button>
               <p class="text-center mt-2">
                   Already have an account? <a href="/login">Login</a>
               </p>

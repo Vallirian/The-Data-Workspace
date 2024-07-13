@@ -1,0 +1,12 @@
+<div *ngFor="let notification of notificationService.notificationSignal()"  
+    class="alert alert-dismissible fade show" 
+    role="alert" 
+    [ngClass]="{
+        'alert-danger': notification.type === 'error',
+        'alert-success': notification.type === 'success',
+        'alert-primary': notification.type === 'info',
+        'dismissed': notification.dismissed
+    }">
+        {{notification.message}}
+    <button (click)="dismissNotification(notification)" type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
