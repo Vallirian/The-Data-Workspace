@@ -35,3 +35,4 @@ services:
       - ../../webapp:/app
       - /app/node_modules # separate volume for node_modules to avoid unnecessary npm installs
     command: ng serve --host 0.0.0.0 --port 4200
+

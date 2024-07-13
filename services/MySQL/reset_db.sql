@@ -1,0 +1,4 @@
+DROP DATABASE mydatabase;
+CREATE DATABASE mydatabase;
+
+SHOW DATABASES;
