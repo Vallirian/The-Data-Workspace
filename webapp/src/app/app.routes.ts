@@ -8,7 +8,10 @@ export const routes: Routes = [
     {
         path: 'design',
         component: DesignHomeComponent,
-        children: []
+        data: { title: 'Design Home', breadcrumb: null },
+        children: [
+            
+        ]
     },
     {path: 'signup', component: SignupComponent, pathMatch: 'full'}, 
     {path: 'login', component: LoginComponent, pathMatch: 'full'},

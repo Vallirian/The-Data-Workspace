@@ -31,6 +31,26 @@ body {
     max-width: 350px;
 }
 
+// buttoms
+.icon-button-primary {
+    color: $blue-60;
+    border: none;
+    cursor: pointer;
+    margin-left: $padding-1;
+    margin-top: $padding-0;
+    height: fit-content;
+
+    display: flex;
+    align-items: center;
+
+    &:hover {
+        background-color: $gray-30;
+    }
+
+    &:active {
+        background-color: $gray-50;
+    }
+}
 
 
 // test

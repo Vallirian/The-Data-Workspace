@@ -1,14 +1,27 @@
-import { ApplicationConfig } from '@angular/core';
+import { ApplicationConfig, inject } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideClientHydration } from '@angular/platform-browser';
-import { provideHttpClient } from '@angular/common/http';
+import { HttpHandlerFn, HttpRequest, provideHttpClient, withInterceptors } from '@angular/common/http';
+import { AuthService } from './services/auth.service';
+
+function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) {
+  const authToken = inject(AuthService).getToken();
+
+  // Clone the request to add the authentication header.
+  const headers = req.headers.append('Authorization', `Bearer ${authToken}`);
+  const authReq = req.clone({ headers });
+
+  return next(authReq);
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes), 
     provideClientHydration(),
-    provideHttpClient()
+    provideHttpClient(
+      withInterceptors([authInterceptor])
+    )
   ]
 };

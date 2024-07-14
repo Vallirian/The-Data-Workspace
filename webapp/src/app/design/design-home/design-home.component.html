@@ -1,30 +1,40 @@
-{{greeing}}, {{userName}}
+<div class="container-fluid mt-3">
+    <p class="fs-4 text-center">{{greeing}}, {{userName}}</p>
+</div>
 
-Workspaces
-<button>+</button>
-
-<!-- Button trigger modal -->
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-    Launch demo modal
-  </button>
+<div class="container-fluid mt-3 p-5">
+  <div class="d-flex">
+    <p class="fs-6 text-left">Workspaces</p>
+    <span class="icon-button-primary">
+      <svg data-bs-toggle="modal" data-bs-target="#createWorkspaceModal" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+        <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+      </svg>
+    </span>
+  </div>
+  <app-profile-picture [name]="'hi'"></app-profile-picture>
   
-  <!-- Modal -->
-  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+</div>
 
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
-        <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          ...
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Save changes</button>
-        </div>
+
+<!-- workspace create modal -->
+<div class="modal fade" id="createWorkspaceModal" tabindex="-1" aria-labelledby="createWorkspaceModalLable" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+      <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="createWorkspaceModalLable">Create Workspace</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="workspaceCreationForm" class="row g-3 w-50">
+          <div class="col-12">
+            <input formControlName="displayName" type="text" class="form-control" placeholder="Name">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button (click)="createWorkspace()" type="button" class="btn btn-primary" data-bs-dismiss="modal">Save changes</button>
       </div>
     </div>
-
   </div>
+</div>
