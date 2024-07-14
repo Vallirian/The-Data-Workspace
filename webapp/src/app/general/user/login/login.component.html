@@ -10,19 +10,24 @@
         </div>
     </div>
     <div class="centered-container container-fluid">
-        <form class="row g-3 w-50">
+        <form [formGroup]="loginForm" class="row g-3 w-50">
             <div class="col-12">
-              <input type="email" class="form-control" placeholder="Email">
+              <input formControlName="email" type="email" class="form-control" placeholder="Email">
             </div>
             <div class="col-12">
-                <input type="password" class="form-control" placeholder="Password">
+                <input formControlName="password" type="password" class="form-control" placeholder="Password">
             </div>              
             <div class="col-12 d-flex flex-column mt-5">
-              <button type="submit" class="btn btn-primary flex-fill">Log in</button>
+              <button (click)="onLogin()" type="submit" class="btn btn-primary flex-fill">Log in</button>
               <p class="text-center mt-2">
                   Don't have an account? <a href="/signup">Sign up</a>
               </p>
+              <p *ngIf="loginFormError && loginForm.touched" class="text-center text-danger mt-2">
+                {{loginFormError}}
+              </p>
             </div>
           </form>
+          {{loginFormError}}
+
     </div>
 </div>
