@@ -10,6 +10,11 @@ export interface UserLoginInteface {
     password: string;
 }
 
+export interface UserInterface {
+    id: string;
+    username: string;
+}
+
 export interface NotificationInterface {
     id: string;
     message: string;

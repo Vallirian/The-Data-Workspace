@@ -16,4 +16,40 @@ export class UtilService {
     });
     return uuid;
   }
+
+  getGreeting(): string {
+    const hour = new Date().getHours();
+    if (hour < 12) {
+      return 'Good morning';
+    } else if (hour < 18) {
+      return 'Good afternoon';
+    } else {
+      return 'Good evening';
+    }
+  }
+
+  b64ToString(base64String: string): string | null {
+    // Attempt to decode a Base64 encoded string
+    try {
+      console.log('Decoding Base64 string:', base64String);
+      return atob(base64String);
+    } catch (e) {
+      console.error('Error decoding Base64 string', e);
+      return null;
+    }
+  }
+
+  b64ToJson(base64String: string): any {
+    try {
+      const json = this.b64ToString(base64String);
+      if (json !== null) {
+        return JSON.parse(json);
+      } else {
+        return null;
+      }
+    } catch (e) {
+      console.error('Error parsing JSON from Base64 string:', e);
+      return null;
+    }
+  }
 }

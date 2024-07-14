@@ -1,8 +1,10 @@
 import { HttpClient } from '@angular/common/http';
-import { Inject, inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { Inject, inject, Injectable, PLATFORM_ID, signal, Signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
-import { UserLoginInteface, UserRegisterInteface } from '../interfaces/main-interface';
+import { UserInterface, UserLoginInteface, UserRegisterInteface } from '../interfaces/main-interface';
 import { isPlatformBrowser } from '@angular/common';
+import { UtilService } from './util.service';
+import { JwtService } from './jwt.service';
 
 
 @Injectable({
@@ -12,12 +14,26 @@ export class AuthService {
 
   private authTokenUrl = 'http://localhost:8000/api/token';
   private signupBaseUrl = 'http://localhost:8000/api/user';
+  
+  private token: string | null = null;
+  currentUser = signal<UserInterface | null | undefined>(undefined)
 
   constructor(
     private http: HttpClient,
+    private utilService: UtilService,
+    private jwtService: JwtService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
-    // const token = localStorage.getItem('access_token');
+    if (isPlatformBrowser(this.platformId)) {
+      this.token = localStorage.getItem('access_token');
+    }
+    if (this.token) {
+      const decodedToken = jwtService.decodeJwt(this.token);
+      this.currentUser.set({
+        username: decodedToken.username,
+        id: decodedToken.user_id
+      });
+    }
   }
 
   getToken(): string | null {
