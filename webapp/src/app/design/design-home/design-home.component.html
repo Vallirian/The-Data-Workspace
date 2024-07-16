@@ -1,3 +1,4 @@
+{{workSpacesList | json}}
 <div class="container-fluid mt-3">
     <p class="fs-4 text-center">{{greeing}}, {{userName}}</p>
 </div>
@@ -11,7 +12,14 @@
       </svg>
     </span>
   </div>
-  <app-profile-picture [name]="'hi'"></app-profile-picture>
+  @for (ws of workSpacesList; track ws.id) {
+    <div class="card" style="width: 18rem;">
+      <app-profile-picture [name]="ws.displayName" [uid]="ws.id" class="card-img-top"></app-profile-picture>
+      <div class="card-body">
+        <p class="card-text">{{ws.displayName}}</p>
+      </div>
+    </div>
+  }
   
 </div>
 
@@ -21,7 +29,7 @@
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
       <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="createWorkspaceModalLable">Create Workspace</h1>
+        <h1 class="modal-title fs-5" id="createWorkspaceModalLable">Create New Workspace</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -32,8 +40,8 @@
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button (click)="createWorkspace()" type="button" class="btn btn-primary" data-bs-dismiss="modal">Save changes</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button (click)="createWorkspace()" type="button" class="btn btn-primary" data-bs-dismiss="modal">Create</button>
       </div>
     </div>
   </div>

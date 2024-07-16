@@ -23,3 +23,9 @@ export interface NotificationInterface {
     remainingTime: number;
     intervalId?: any; // Make it optional as it will be used internally
 }
+
+// Workspace
+export interface WorkspaceListInterface {
+    id: string;
+    displayName: string;
+}

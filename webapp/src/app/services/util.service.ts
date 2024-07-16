@@ -17,6 +17,17 @@ export class UtilService {
     return uuid;
   }
 
+  getPastelColor(uuid: string): string {
+    // Generate a pastel color based on a UUID
+    let hash = 0;
+    for (let i = 0; i < uuid.length; i++) {
+      hash = uuid.charCodeAt(i) + ((hash << 5) - hash);
+    }
+
+    let color = 'hsl(' + (hash % 360) + ', 100%, 85%)'; // 100% Saturation, 85% Lightness for pastel
+    return color;
+  }
+
   getGreeting(): string {
     const hour = new Date().getHours();
     if (hour < 12) {
