@@ -10,28 +10,32 @@ from table.serializers import TableTypeSerializer
 class TableTypeViewSet(viewsets.ModelViewSet):
     serializer_class = TableTypeSerializer
 
-    def get_queryset(self):
+    def get_queryset(self, workspace_pk=None):
         user = self.request.user
-        workspace_id = self.request.query_params.get('workspace', None)
-        if user.is_authenticated and user.tenant and workspace_id:
-            workspace = Workspace.objects.get(pk=workspace_id)
+        if user.is_authenticated and user.tenant and workspace_pk:
+            workspace = Workspace.objects.get(pk=workspace_pk)
             return TableType.objects.filter(tenant=user.tenant, workspace=workspace)
         else:
             return TableType.objects.none()
         
-    def get_object(self):
-        queryset = self.get_queryset()
+    def get_object(self, workspace_pk=None):
+        queryset = self.get_queryset(workspace_pk)
         obj = get_object_or_404(queryset, pk=self.kwargs["id"])
         return obj
     
-    def list(self, request):
-        queryset = self.get_queryset()
+    def list(self, request, workspace_pk=None):
+        queryset = self.get_queryset(workspace_pk=workspace_pk)
         serializer = TableTypeSerializer(queryset, many=True)
 
         return Response(serializer.data)
     
-    def create(self, request):
-        serializer = TableTypeSerializer(data=request.data, context={"request": request})
+    def detail(self, request, workspace_pk=None):
+        table = self.get_object(workspace_pk=workspace_pk)
+        serializer = TableTypeSerializer(table)
+        return Response(serializer.data)
+    
+    def create(self, request, workspace_pk=None):
+        serializer = TableTypeSerializer(data=request.data, context={"request": request, "workspace_id": workspace_pk})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

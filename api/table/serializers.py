@@ -8,11 +8,10 @@ from table.models import TableType
 class TableTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = TableType
-        fields = ["id", "displayName", "workspace"]
+        fields = ["id", "displayName"]
         extra_kwargs = {
             "displayName": {"required": True}, 
             "id": {"read_only": True},
-            "workspace_id": {"required": True},
             "description": {"required": False},
         }
     
@@ -20,7 +19,7 @@ class TableTypeSerializer(serializers.ModelSerializer):
         with transaction.atomic():
             # get the tenant from user.tenant
             tenant = self.context['request'].user.tenant
-            workspace = self.context['request'].data['workspace_id']
+            workspace = Workspace.objects.get(pk=self.context['workspace_id'])
             instance = self.Meta.model(**validated_data, tenant=tenant, workspace=workspace)
             instance.save()
             return instance
