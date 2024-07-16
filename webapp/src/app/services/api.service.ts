@@ -22,4 +22,13 @@ export class ApiService {
     return this.http.get<WorkspaceListInterface[]>(`${this.baseUrl}/workspace/`);
   }
 
+  getWorkspace(id: string) {
+    return this.http.get<WorkspaceListInterface>(`${this.baseUrl}/workspace/${id}`);
+  }
+
+  // Table API
+  createTable(workspaceId: string, data: {displayName: string, description: string}) {
+    return this.http.post(`${this.baseUrl}/workspace/${workspaceId}/table/`, data);
+  }
+
 }

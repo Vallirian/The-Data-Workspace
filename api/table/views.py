@@ -4,36 +4,34 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from workspace.models import Workspace
-from workspace.serializers import WorkspaceSerializer
+from table.models import TableType
+from table.serializers import TableTypeSerializer
 
-class WorkspaceViewSet(viewsets.ModelViewSet):
-    serializer_class = WorkspaceSerializer
+class TableTypeViewSet(viewsets.ModelViewSet):
+    serializer_class = TableTypeSerializer
 
     def get_queryset(self):
         user = self.request.user
-        if user.is_authenticated and user.tenant:
-            return Workspace.objects.filter(tenant=user.tenant)
+        workspace_id = self.request.query_params.get('workspace', None)
+        if user.is_authenticated and user.tenant and workspace_id:
+            workspace = Workspace.objects.get(pk=workspace_id)
+            return TableType.objects.filter(tenant=user.tenant, workspace=workspace)
         else:
-            return Workspace.objects.none() # when user is not authenticated or tenant is not set
-
+            return TableType.objects.none()
+        
     def get_object(self):
         queryset = self.get_queryset()
-        obj = get_object_or_404(queryset, pk=self.kwargs["pk"])
+        obj = get_object_or_404(queryset, pk=self.kwargs["id"])
         return obj
     
     def list(self, request):
         queryset = self.get_queryset()
-        serializer = WorkspaceSerializer(queryset, many=True)
+        serializer = TableTypeSerializer(queryset, many=True)
 
         return Response(serializer.data)
     
-    def detail(self, request, pk):
-        workspace = self.get_object()
-        serializer = WorkspaceSerializer(workspace)
-        return Response(serializer.data)
-    
     def create(self, request):
-        serializer = WorkspaceSerializer(data=request.data, context={"request": request})
+        serializer = TableTypeSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

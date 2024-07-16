@@ -7,6 +7,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { NotificationInterface, WorkspaceListInterface } from '../../interfaces/main-interface';
 import { NotificationService } from '../../services/notification.service';
+import { Router, RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-design-home',
@@ -14,6 +15,7 @@ import { NotificationService } from '../../services/notification.service';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    RouterOutlet,
     ProfilePictureComponent,
   ],
   templateUrl: './design-home.component.html',
@@ -35,7 +37,8 @@ export class DesignHomeComponent {
     private authService: AuthService,
     private formBuilder: FormBuilder,
     private apiService: ApiService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private router: Router
   ) {
     this.greeing = utilService.getGreeting();
   }
@@ -82,5 +85,9 @@ export class DesignHomeComponent {
 
   get userName() {
     return String(this.authService.currentUser()?.username);
+  }
+
+  navigateToWorkspace(workspaceId: string) {
+    this.router.navigate(['design/workspace', workspaceId]);
   }
 }

@@ -13,7 +13,7 @@
   </div>
   <div class="d-flex">
     @for (ws of workSpacesList; track ws.id) {
-      <div class="card m-1" style="width: 8rem;">
+      <div (click)="navigateToWorkspace(ws.id)" class="card m-1" style="width: 8rem;">
         <app-profile-picture [name]="ws.displayName" [uid]="ws.id" class="card-img-top"></app-profile-picture>
         <div class="card-body">
           <p class="card-text">{{ws.displayName}}</p>
@@ -21,7 +21,6 @@
       </div>
     }
   </div>
-  
 </div>
 
 
