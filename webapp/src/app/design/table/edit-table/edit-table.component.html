@@ -1,1 +1,48 @@
-<p>edit-table works!</p>
+<div class="full-section">
+    <div class="full-section container-fluid pattern-dots-1 preview-section">
+        hi
+    </div>
+    <div class="full-section container-fluid working-section d-flex flex-column">
+        <div>
+            <ul class="nav nav-underline nav-fill">
+                <li class="nav-item">
+                    <a class="nav-link" [class.active]="selectedSection === 'section-details'" (click)="selectedSection = 'section-details'" aria-current="true">Details</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" [class.active]="selectedSection === 'section-columns'" (click)="selectedSection = 'section-columns'">Columns</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" [class.active]="selectedSection === 'section-automations'" (click)="selectedSection = 'section-automations'">Automations</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="container-fluid mt-3">
+            <ng-container [ngSwitch]="selectedSection">
+                <ng-container *ngSwitchCase="'section-details'">
+                    <ng-container *ngTemplateOutlet="__section_details"></ng-container>
+                </ng-container>
+                <ng-container *ngSwitchCase="'section-columns'">
+                    <ng-container *ngTemplateOutlet="__section_columns"></ng-container>
+                </ng-container>
+                <ng-container *ngSwitchCase="'section-automations'">
+                    <ng-container *ngTemplateOutlet="__section_automations"></ng-container>
+                </ng-container>
+            </ng-container>
+        </div>
+
+    </div>
+</div>
+
+
+<ng-template #__section_details>
+    hi details
+</ng-template>
+
+<ng-template #__section_columns>
+    hi columns
+</ng-template>
+
+<ng-template #__section_automations>
+    hi automations
+</ng-template>

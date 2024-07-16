@@ -49,6 +49,22 @@ body {
     }
 }
 
+// customizations
+.nav-link {
+    color: $black;
+    cursor: pointer;
+
+    &:hover {
+        color: $black;
+    }
+}
+
+.nav-item {
+    .active {
+        border-bottom: 1px solid $gray-60;
+    }
+}
+
 
 // test
 .test {
