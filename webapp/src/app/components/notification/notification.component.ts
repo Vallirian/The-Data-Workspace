@@ -1,7 +1,7 @@
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
-import { NotificationService } from '../../services/notification.service';
+import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
 import { NotificationInterface } from '../../interfaces/main-interface';
 import { CommonModule } from '@angular/common';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-notification',
@@ -13,19 +13,29 @@ import { CommonModule } from '@angular/common';
   styleUrl: './notification.component.scss'
 })
 export class NotificationComponent {
-  notificationService = inject(NotificationService);
-  @Input() dismissalTime = 5000;
-  @Output() notificationDismissed = new EventEmitter<NotificationInterface>();
+  notification?: NotificationInterface;
+  timeoutId?: number;
 
-  private intervals: Map<string, any> = new Map();
+  constructor(
+    private notificationService: NotificationService
+  ) { }
 
-  ngOnInit() {}
 
-  ngOnDestroy() {
-    this.intervals.forEach(clearInterval);
+  ngOnInit(): void {
+    this.notificationService.getNotification().subscribe({
+      next: (notification: NotificationInterface) => {
+        this.notification = notification;
+        this.resetTimeout();
+      }
+    });
   }
 
-  dismissNotification(notification: NotificationInterface) {
-    this.notificationService.dismissNotification(notification);
+  resetTimeout() {
+    if (this.timeoutId) {
+      window.clearTimeout(this.timeoutId);
+    }
+    this.timeoutId = window.setTimeout(() => {
+      this.notification = undefined;
+    }, this.notification?.remainingTime );
   }
 }

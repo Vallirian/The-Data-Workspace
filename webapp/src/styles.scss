@@ -4,10 +4,10 @@ body {
 }
 
 @import './assets/styles/_color';
-@import './assets/styles/_navbar';
 @import './assets/styles/_layout';
 @import './assets/styles/_background';
 @import './assets/styles/_spacing';
+@import './assets/styles/_navbar';
 
 .app-container {
     display: flex;
@@ -16,19 +16,16 @@ body {
     width: 100vw;
 }
 
+.arc-navbar {
+    background-color: $white;
+    border-bottom: 0.5px solid $gray-30;
+    height: $row-height-01;
+}
+
 .arc-content-container {
     background-color: $gray-10;
     height: 100%;
     width: 100%;
-}
-
-#notification {
-    position: fixed;
-    bottom: 0;
-    left: $row-height-0;
-    z-index: 1000;
-    width: 100%;
-    max-width: 350px;
 }
 
 // buttoms

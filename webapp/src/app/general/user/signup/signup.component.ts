@@ -1,23 +1,26 @@
 import { Component } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ValidateService } from '../../../services/validate.service';
-import { NotificationService } from '../../../services/notification.service';
 import { Router } from '@angular/router';
+import { NotificationInterface } from '../../../interfaces/main-interface';
+import { NotificationService } from '../../../services/notification.service';
 
 @Component({
   selector: 'app-signup',
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
   ],
   templateUrl: './signup.component.html',
   styleUrl: './signup.component.scss'
 })
 
 export class SignupComponent {
+  notifications: NotificationInterface[] = [];
+
   signupForm = this.formBuilder.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(8)]],
@@ -31,8 +34,8 @@ export class SignupComponent {
     private formBuilder: FormBuilder,
     private authService: AuthService,
     private validateService: ValidateService,
-    private notficationService: NotificationService,
-    private router: Router
+    private router: Router,
+    private notificationService: NotificationService
   ) {}
 
   onSignup() {
@@ -69,11 +72,11 @@ export class SignupComponent {
       tenantDisplayName: signupFormValue.tenantDisplayName!
     }).subscribe({
       next: res => {
-        this.notficationService.addSuccessNotification('Signup successful, welcome!');
+        this.notificationService.addNotification({message: 'Signup successful', type: 'success', dismissed: false, remainingTime: 5000});
         this.router.navigate(['/login']);
       },
       error: err => {
-        this.notficationService.addErrorNotification('Signup failed, please try again.');
+        this.notificationService.addNotification({message: err || 'Failed to signup', type: 'error', dismissed: false, remainingTime: 5000});
       }
     })
   }

@@ -1,10 +1,10 @@
 <div class="app-container">
   <div class="arc-navbar container-fluid">
-    navbar
+    <app-navbar></app-navbar>
   </div>
   <div class="arc-content-container">
     <router-outlet></router-outlet>
   </div>
 </div>
-<app-notification (notificationDismissed)="notificationService.dismissNotification" id="notification">
-</app-notification>
+
+<app-notification></app-notification>

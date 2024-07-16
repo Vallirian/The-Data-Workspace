@@ -1,3 +1,4 @@
+from datetime import datetime
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
@@ -21,8 +22,11 @@ class WorkspaceViewSet(viewsets.ModelViewSet):
         return obj
     
     def list(self, request):
+        print('request came in', datetime.now())
         queryset = self.get_queryset()
         serializer = WorkspaceSerializer(queryset, many=True)
+        print('request processed', datetime.now())
+
         return Response(serializer.data)
     
     def create(self, request):

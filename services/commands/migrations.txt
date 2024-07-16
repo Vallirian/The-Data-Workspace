@@ -1,1 +1,1 @@
-(env) (base) naol@Naols-MBP docker % docker compose exec -it api python manage.py makemigrations workspace user tenant
+docker compose exec -it api python manage.py makemigrations workspace user tenant

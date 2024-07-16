@@ -30,7 +30,8 @@ export class ProfilePictureComponent {
   ];
 
   ngOnInit(): void {
-    this.initial = this.name ? this.name[0].toUpperCase() : '';
+    // this.initial = this.name ? this.name[0].toUpperCase() : '';
+    this.initial = this.name ? this.name : '';
     this.backgroundColor = this.utilService.getPastelColor(this.uid) ||  this.getRandomColor(); // Set a random color from the palette
   }
 

@@ -1,4 +1,3 @@
-{{workSpacesList | json}}
 <div class="container-fluid mt-3">
     <p class="fs-4 text-center">{{greeing}}, {{userName}}</p>
 </div>
@@ -12,14 +11,16 @@
       </svg>
     </span>
   </div>
-  @for (ws of workSpacesList; track ws.id) {
-    <div class="card" style="width: 18rem;">
-      <app-profile-picture [name]="ws.displayName" [uid]="ws.id" class="card-img-top"></app-profile-picture>
-      <div class="card-body">
-        <p class="card-text">{{ws.displayName}}</p>
+  <div class="d-flex">
+    @for (ws of workSpacesList; track ws.id) {
+      <div class="card m-1" style="width: 8rem;">
+        <app-profile-picture [name]="ws.displayName" [uid]="ws.id" class="card-img-top"></app-profile-picture>
+        <div class="card-body">
+          <p class="card-text">{{ws.displayName}}</p>
+        </div>
       </div>
-    </div>
-  }
+    }
+  </div>
   
 </div>
 

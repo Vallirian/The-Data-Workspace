@@ -16,7 +16,6 @@ export interface UserInterface {
 }
 
 export interface NotificationInterface {
-    id: string;
     message: string;
     type: 'success' | 'error' | 'info';
     dismissed: boolean;

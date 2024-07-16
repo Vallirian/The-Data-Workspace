@@ -1,0 +1,18 @@
+<div class="container-fluid navbar-container row">
+    <div class="col">
+        Column
+    </div>
+    <div class="col d-flex justify-content-center">
+        Column
+    </div>
+    <div class="col d-flex justify-content-end">
+        <div class="navbar-profile-picture" [style.background-color]="backgroundColor">
+            <span type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {{ initial }}
+            </span>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" (click)="logout()">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</div>

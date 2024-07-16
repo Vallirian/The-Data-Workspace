@@ -43,6 +43,22 @@ export class AuthService {
     return null;
   }
 
+  saveToken(token: string): void {
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('access_token', token);
+    }
+  
+  }
+
+  refreshToken() {
+    if (!isPlatformBrowser(this.platformId)) {
+      return new Observable();
+    }
+
+    const refreshToken = localStorage.getItem('refresh_token');
+    return this.http.post(`${this.authTokenUrl}/refresh/`, { refreshToken });
+  }
+
   signup(user: UserRegisterInteface): Observable<any> {
     return this.http.post(`${this.signupBaseUrl}/register/`, user);
   }
