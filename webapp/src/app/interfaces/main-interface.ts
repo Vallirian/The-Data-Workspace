@@ -28,3 +28,10 @@ export interface WorkspaceListInterface {
     id: string;
     displayName: string;
 }
+
+// Table
+export interface TableListInterface {
+    id: string;
+    displayName: string;
+    description: string;
+}

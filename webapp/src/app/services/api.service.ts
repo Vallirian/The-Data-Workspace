@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { WorkspaceListInterface } from '../interfaces/main-interface';
+import { TableListInterface, WorkspaceListInterface } from '../interfaces/main-interface';
 
 @Injectable({
   providedIn: 'root'
@@ -27,8 +27,12 @@ export class ApiService {
   }
 
   // Table API
+  listTables(workspaceId: string) {
+    return this.http.get<TableListInterface[]>(`${this.baseUrl}/workspace/${workspaceId}/table/`);
+  }
+
   createTable(workspaceId: string, data: {displayName: string, description: string}) {
-    return this.http.post(`${this.baseUrl}/workspace/${workspaceId}/table/`, data);
+    return this.http.post<TableListInterface>(`${this.baseUrl}/workspace/${workspaceId}/table/`, data);
   }
 
 }
