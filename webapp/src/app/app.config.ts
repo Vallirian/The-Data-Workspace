@@ -7,6 +7,11 @@ import { HttpHandlerFn, HttpRequest, provideHttpClient, withInterceptors } from 
 import { AuthService } from './services/auth.service';
 
 function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) {
+  if (req.url.endsWith('/register/')) {
+    // If it is a registration request, skip the interceptor logic
+    return next(req);
+  }
+
   const authToken = inject(AuthService).getToken();
 
   // Clone the request to add the authentication header.

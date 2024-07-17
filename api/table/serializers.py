@@ -3,11 +3,12 @@ from rest_framework import serializers
 
 from tenant.models import Tenant
 from workspace.models import Workspace
-from table.models import TableType
+from table.models import Table
+from table.raw_table_sql_operations import create_raw_table
 
-class TableTypeSerializer(serializers.ModelSerializer):
+class TableSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TableType
+        model = Table
         fields = ["id", "displayName"]
         extra_kwargs = {
             "displayName": {"required": True}, 
@@ -19,10 +20,9 @@ class TableTypeSerializer(serializers.ModelSerializer):
         with transaction.atomic():
             # create table type
             tenant = self.context['request'].user.tenant
-            workspace = Workspace.objects.get(pk=self.context['workspace_id'])
-            instance = self.Meta.model(**validated_data, tenant=tenant, workspace=workspace)
+            instance = self.Meta.model(**validated_data, tenant=tenant)
             instance.save()
 
             # create raw table
-            create_dynamic_table(instance.id)
+            create_raw_table(instance.id)
             return instance

@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { ProfilePictureComponent } from '../../components/profile-picture/profile-picture.component';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
-import { NotificationInterface, WorkspaceListInterface } from '../../interfaces/main-interface';
+import { NotificationInterface, TableListInterface, WorkspaceListInterface } from '../../interfaces/main-interface';
 import { NotificationService } from '../../services/notification.service';
 import { Router, RouterOutlet } from '@angular/router';
 
@@ -31,6 +31,12 @@ export class DesignHomeComponent {
   });
   workSpacesList: WorkspaceListInterface[] = []
 
+  tableCreationForm = this.formBuilder.group({
+    displayName: ['', [Validators.required]],
+    description: [''],
+  });
+  tablesList: TableListInterface[] = [];
+
 
   constructor(
     private utilService: UtilService,
@@ -52,6 +58,14 @@ export class DesignHomeComponent {
         this.notificationService.addNotification({message: 'Failed to fetch workspaces', type: 'error', dismissed: false, remainingTime: 5000});
       }
     });
+    this.apiService.listTables().subscribe({
+      next: (tables: TableListInterface[]) => {
+        this.tablesList = tables;
+      },
+      error: (err) => {
+        this.notificationService.addNotification({message: 'Failed to fetch tables', type: 'error', dismissed: false, remainingTime: 5000});
+      }
+    });
 
   }
 
@@ -59,6 +73,7 @@ export class DesignHomeComponent {
 
   }
 
+  // Workspace
   createWorkspace() {
     const workspace: {displayName: string} = {
       displayName: this.workspaceCreationForm.value.displayName!
@@ -82,12 +97,34 @@ export class DesignHomeComponent {
     });
   }
 
+  navigateToWorkspace(workspaceId: string) {
+    this.router.navigate(['design/workspace', workspaceId]);
+  }
+
+  // table 
+  createTable() {
+    const table: {displayName: string, description: string} = {
+      displayName: this.tableCreationForm.value.displayName!,
+      description: this.tableCreationForm.value.description!
+    };
+    
+    this.apiService.createTable(table).subscribe({
+      next: (newTable: TableListInterface) => {
+        this.tablesList.push(newTable);
+        this.tableCreationForm.reset();
+        this.notificationService.addNotification({message: 'Table created successfully', type: 'success', dismissed: false, remainingTime: 5000});
+      },
+      error: (err) => {
+        this.notificationService.addNotification({message: 'Failed to create table', type: 'error', dismissed: false, remainingTime: 5000});
+      }
+    });
+  }
+
+  navigateToTable(tableId: string) {
+    this.router.navigate([`/design/table/${tableId}`]);
+  }
 
   get userName() {
     return String(this.authService.currentUser()?.username);
-  }
-
-  navigateToWorkspace(workspaceId: string) {
-    this.router.navigate(['design/workspace', workspaceId]);
   }
 }

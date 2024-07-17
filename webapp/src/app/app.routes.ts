@@ -9,7 +9,7 @@ export const routes: Routes = [
     // ---------- design ----------
     {path: 'design', component: DesignHomeComponent, data: { title: 'Design Home', breadcrumb: null }},
     {path: 'design/workspace/:id', component: WorkspaceHomeComponent, data: { title: 'Workspace Home', breadcrumb: 'Workspace' }}, 
-    {path: 'design/workspace/:id/table/:id', component: EditTableComponent, data: { title: 'Edit Table', breadcrumb: 'Table' }}, 
+    {path: 'design/table/:id', component: EditTableComponent, data: { title: 'Edit Table', breadcrumb: 'Table' }}, 
 
     {path: 'signup', component: SignupComponent, pathMatch: 'full'}, 
     {path: 'login', component: LoginComponent, pathMatch: 'full'},

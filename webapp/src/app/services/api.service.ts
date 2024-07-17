@@ -27,12 +27,12 @@ export class ApiService {
   }
 
   // Table API
-  listTables(workspaceId: string) {
-    return this.http.get<TableListInterface[]>(`${this.baseUrl}/workspace/${workspaceId}/table/`);
+  listTables() {
+    return this.http.get<TableListInterface[]>(`${this.baseUrl}/table/`);
   }
 
-  createTable(workspaceId: string, data: {displayName: string, description: string}) {
-    return this.http.post<TableListInterface>(`${this.baseUrl}/workspace/${workspaceId}/table/`, data);
+  createTable(data: {displayName: string, description: string}) {
+    return this.http.post<TableListInterface>(`${this.baseUrl}/table/`, data);
   }
 
 }
