@@ -17,9 +17,12 @@ class TableTypeSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         with transaction.atomic():
-            # get the tenant from user.tenant
+            # create table type
             tenant = self.context['request'].user.tenant
             workspace = Workspace.objects.get(pk=self.context['workspace_id'])
             instance = self.Meta.model(**validated_data, tenant=tenant, workspace=workspace)
             instance.save()
+
+            # create raw table
+            create_dynamic_table(instance.id)
             return instance

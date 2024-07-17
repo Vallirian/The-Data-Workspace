@@ -35,3 +35,10 @@ export interface TableListInterface {
     displayName: string;
     description: string;
 }
+
+export interface ColumnListInterface {
+    id: string;
+    displayName: string;
+    description: string;
+    type: 'string' | 'number' | 'date' | 'boolean' | null;
+}
