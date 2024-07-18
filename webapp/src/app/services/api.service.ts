@@ -31,8 +31,17 @@ export class ApiService {
     return this.http.get<TableListInterface[]>(`${this.baseUrl}/table/`);
   }
 
+  getTable(id: string) {
+    return this.http.get<TableListInterface>(`${this.baseUrl}/table/${id}`);
+  }
+
   createTable(data: {displayName: string, description: string}) {
     return this.http.post<TableListInterface>(`${this.baseUrl}/table/`, data);
+  }
+
+  // raw Table API
+  getRawTable(id: string) {
+    return this.http.get<any>(`${this.baseUrl}/table/${id}/raw/`);
   }
 
 }

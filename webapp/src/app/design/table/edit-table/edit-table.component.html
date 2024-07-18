@@ -1,6 +1,10 @@
 <div class="full-section">
     <div class="full-section container-fluid pattern-dots-1 preview-section">
-        hi
+        <app-table 
+            [tableName]="tableData.displayName"
+            [tableDescription]="tableData.description"
+            class="full-section-content" >
+        </app-table>
     </div>
     <div class="full-section container-fluid working-section d-flex flex-column">
         <div>
@@ -36,7 +40,10 @@
 
 
 <ng-template #__section_details>
-    hi details
+    <div class="d-flex flex-column">
+        <input type="text" class="form-control mb-2" placeholder="Table 1">
+        <textarea name="table-description" placeholder="Description"></textarea>
+    </div>
 </ng-template>
 
 <ng-template #__section_columns>

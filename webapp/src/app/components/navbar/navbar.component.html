@@ -6,6 +6,11 @@
         Column
     </div>
     <div class="col d-flex justify-content-end">
+        <div class="px-3">
+            @for (btn of buttons; track $index) {
+                <button class="btn btn-primary" (click)="btn.action()">{{btn.label}}</button>
+            }
+        </div>
         <div class="navbar-profile-picture" [style.background-color]="backgroundColor">
             <span type="button" data-bs-toggle="dropdown" aria-expanded="false">
                 {{ initial }}

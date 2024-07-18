@@ -21,11 +21,19 @@
 .preview-section {
     background-color: $gray-10;
     width: 70%;
+    height: 100%;
 }
 
 .working-section {
     background-color: $white;
     width:30%;
+    height: 100%;
+}
+
+.full-section-content {
+    // height: 100%;
+    width: 100%;
+    overflow: auto;
 }
 
 

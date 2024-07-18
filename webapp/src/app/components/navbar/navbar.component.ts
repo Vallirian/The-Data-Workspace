@@ -3,11 +3,14 @@ import { ProfilePictureComponent } from '../profile-picture/profile-picture.comp
 import { AuthService } from '../../services/auth.service';
 import { UtilService } from '../../services/util.service';
 import { Router } from '@angular/router';
+import { NavbarService } from '../../services/navbar.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
   imports: [
+    CommonModule,
     ProfilePictureComponent
   ],
   templateUrl: './navbar.component.html',
@@ -20,7 +23,8 @@ export class NavbarComponent {
   constructor(
     private authService: AuthService,
     private utilService: UtilService,
-    private router: Router
+    private router: Router,
+    private navbarService: NavbarService
   ) {}
 
   private colorPalette: string[] = [
@@ -49,5 +53,9 @@ export class NavbarComponent {
 
   get user() {
     return this.authService.currentUser();
+  }
+
+  get buttons() {
+    return this.navbarService.buttons();
   }
 }

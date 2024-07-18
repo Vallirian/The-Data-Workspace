@@ -1,1 +1,21 @@
-<p>table works!</p>
+<div class="container-fluid mt-3">
+    <p class="fs-4">{{tableName}}</p>
+    <p class="">{{tableDescription}}</p>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col" *ngFor="let header of columns">{{header.displayName}}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let row of rowData">
+                <td *ngFor="let header of columns">
+                    {{row[header.id]}}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

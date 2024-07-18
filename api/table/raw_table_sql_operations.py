@@ -13,3 +13,15 @@ def create_raw_table(table_id):
             cursor.execute(query)
     except Exception as e:
         raise e
+    
+def get_raw_table(table_id):
+    table_name = f"raw_table_{table_helperrs.clean_uuid(table_id)}"
+    try:
+        with connection.cursor() as cursor:
+            query = f'''
+                SELECT * FROM {table_name};
+            '''
+            cursor.execute(query)
+            return cursor.fetchall()
+    except Exception as e:
+        raise e
