@@ -1,8 +1,5 @@
 from django.db import transaction
 from rest_framework import serializers
-
-from tenant.models import Tenant
-from workspace.models import Workspace
 from table.models import Table
 from table.raw_table_sql_operations import create_raw_table
 

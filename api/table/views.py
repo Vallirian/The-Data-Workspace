@@ -4,7 +4,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-from workspace.models import Workspace
 from table.models import Table
 from table.serializers import TableSerializer
 from table.raw_table_sql_operations import get_raw_table

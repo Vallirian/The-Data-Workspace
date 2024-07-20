@@ -25,12 +25,6 @@ export class DesignHomeComponent {
   greeing: string = 'Hello'
   notifications: NotificationInterface[] = [];
 
-
-  workspaceCreationForm = this.formBuilder.group({
-    displayName: ['', [Validators.required, Validators.minLength(3)]],
-  });
-  workSpacesList: WorkspaceListInterface[] = []
-
   tableCreationForm = this.formBuilder.group({
     displayName: ['', [Validators.required]],
     description: [''],
@@ -50,14 +44,6 @@ export class DesignHomeComponent {
   }
 
   ngOnInit(): void {
-    this.apiService.listWorkspaces().subscribe({
-      next: (workspaces: WorkspaceListInterface[]) => {
-        this.workSpacesList = workspaces;
-      },
-      error: (err) => {
-        this.notificationService.addNotification({message: 'Failed to fetch workspaces', type: 'error', dismissed: false, remainingTime: 5000});
-      }
-    });
     this.apiService.listTables().subscribe({
       next: (tables: TableListInterface[]) => {
         this.tablesList = tables;
@@ -71,34 +57,6 @@ export class DesignHomeComponent {
 
   ngOnDestroy(): void {
 
-  }
-
-  // Workspace
-  createWorkspace() {
-    const workspace: {displayName: string} = {
-      displayName: this.workspaceCreationForm.value.displayName!
-    };
-    this.apiService.createWorkspace(workspace).subscribe({
-      next: () => {
-        this.notificationService.addNotification({message: 'Workspace created successfully', type: 'success', dismissed: false, remainingTime: 5000});
-        this.workspaceCreationForm.reset();
-        this.apiService.listWorkspaces().subscribe({
-          next: (workspaces: WorkspaceListInterface[]) => {
-            this.workSpacesList = workspaces;
-          },
-          error: (err) => {
-            this.notificationService.addNotification({message: err || 'Failed to fetch workspaces', type: 'error', dismissed: false, remainingTime: 5000});
-          }
-        });
-      },
-      error: (err) => {
-        this.notificationService.addNotification({message: err || 'Failed to create workspace', type: 'error', dismissed: false, remainingTime: 5000});
-      }
-    });
-  }
-
-  navigateToWorkspace(workspaceId: string) {
-    this.router.navigate(['design/workspace', workspaceId]);
   }
 
   // table 
@@ -121,7 +79,7 @@ export class DesignHomeComponent {
   }
 
   navigateToTable(tableId: string) {
-    this.router.navigate([`/design/table/${tableId}`]);
+    this.router.navigate([`/table/${tableId}`]);
   }
 
   get userName() {

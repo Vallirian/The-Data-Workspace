@@ -13,6 +13,5 @@ urlpatterns = [
     path("api-auth/", include("rest_framework.urls")),path("api-auth/", include("rest_framework.urls")),
 
     path("api/user/", include("user.urls")),
-    path("api/workspace/", include("workspace.urls")),
     path("api/table/", include("table.urls")),
 ]

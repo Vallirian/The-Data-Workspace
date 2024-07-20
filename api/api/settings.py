@@ -36,7 +36,6 @@ INSTALLED_APPS = [
     'helpers',
     'user',
     'tenant',
-    'workspace', 
     'table',
 ]
 

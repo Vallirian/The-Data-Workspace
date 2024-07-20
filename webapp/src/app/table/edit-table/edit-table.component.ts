@@ -1,10 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { TableComponent } from '../../../components/table/table.component';
-import { ApiService } from '../../../services/api.service';
 import { ActivatedRoute } from '@angular/router';
-import { NavbarService } from '../../../services/navbar.service';
-import { NotificationService } from '../../../services/notification.service';
+import { TableComponent } from '../../components/table/table.component';
+import { ApiService } from '../../services/api.service';
+import { NavbarService } from '../../services/navbar.service';
+import { NotificationService } from '../../services/notification.service';
+
+
 
 @Component({
   selector: 'app-edit-table',
