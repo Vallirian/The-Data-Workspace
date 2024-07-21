@@ -59,7 +59,7 @@ export class ValidateService {
         isValid = false;
       }
 
-      else if (dataType === 'string') {
+      if (dataType === 'string') {
         const cleanedValue = value.trim();
         isValid = cleanedValue.length > 0 && cleanedValue.length <= 255;
       }
@@ -70,7 +70,7 @@ export class ValidateService {
         isValid = !isNaN(Date.parse(value));
       }
       else if (dataType === 'boolean') {
-        isValid = value === 'true' || value === 'false';
+        isValid = value === 1 || value === 0;
       }    
 
       return isValid ? null : {invalidDataType: {value: control.value}};

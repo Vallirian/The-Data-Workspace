@@ -1,9 +1,19 @@
-@if(rows.controls){<button (click)="onSave()">save</button>
-<div class="table-responsive">
+<div class="d-flex justify-content-between mt-3">
+    <div class="flex-fill">
+        <input type="text" class="form-control" placeholder="search...">
+    </div>
+    <div style="margin-left: 24px;">
+        <button (click)="onSave()" class="btn btn-primary">Save</button>
+    </div>
+</div>
+<div class="table-responsive mt-3">
     <table class="table table-hover">
         <thead>
-            <tr>
-                <th scope="col" *ngFor="let header of columns">{{header.displayName}} {{header.dataType}}</th>
+            <tr  class="arc-table-header">
+                <th scope="col" *ngFor="let header of columns">
+                    <span>{{header.displayName}} </span>
+                    <span class="type">{{header.dataType}}</span>
+                </th>
             </tr>
         </thead>
         <tbody [formGroup]="rows">
@@ -11,15 +21,26 @@
                 <tr>
                     @for (col of columns; track $index) {
                         <td [formGroup]="getColumn(row, col.id)">
-                            <input formControlName="value" type="datetime-local" class="form-control" *ngIf="getCellType(row, col.id) === 'datetime'">
-                            <input formControlName="value" type="text" class="form-control" *ngIf="getCellType(row, col.id) === 'string'">
-                            <input formControlName="value" type="number" class="form-control" *ngIf="getCellType(row, col.id) === 'number'" appNumberOnly>
-                            <input formControlName="value" type="checkbox" class="form-check-input" *ngIf="getCellType(row, col.id) === 'boolean'">
+                            @if (cellIsEdited(row, col.id)) {
+                                <input formControlName="value" type="datetime-local" class="form-control" *ngIf="getCellType(row, col.id) === 'datetime'">
+                                <input formControlName="value" type="text" class="form-control" *ngIf="getCellType(row, col.id) === 'string'">
+                                <input formControlName="value" type="number" class="form-control" *ngIf="getCellType(row, col.id) === 'number'" appNumberOnly>
+                                <select formControlName="value" class="form-select" *ngIf="getCellType(row, col.id) === 'boolean'">
+                                    <option [value]="1">true</option>
+                                    <option [value]="0">false</option>
+                                </select>
+                            }
+                            @else {
+                                <span *ngIf="getCellType(row, col.id) === 'datetime'">{{formatDate(getCellValue(row, col.id))}}</span>
+                                <span *ngIf="getCellType(row, col.id) === 'string'">{{getCellValue(row, col.id)}}</span>
+                                <span *ngIf="getCellType(row, col.id) === 'number'">{{getCellValue(row, col.id)}}</span>
+                                <span *ngIf="getCellType(row, col.id) === 'boolean'">{{getCellValue(row, col.id)}}</span>
+                            }
                         </td>
                     }
                 </tr>
             }
         </tbody>
     </table>
-    <button (click)="onAddNewRow()">+ Add Row</button>
-</div>}
+    <div class="text-button-primary mt-3" (click)="onAddNewRow()">+ Add Row</div>
+</div>

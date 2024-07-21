@@ -104,6 +104,17 @@ body {
     }
 }
 
+// table
+.arc-table-header {
+    background-color: $gray-30;
+    padding: $padding-1;
+    font-weight: 600;
+
+    .type {
+        font-weight: 300;
+    }
+}
+
 
 // test
 .test {

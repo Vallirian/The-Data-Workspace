@@ -92,7 +92,7 @@ export class TableComponent {
       const tempForm = this.formBuilder.group({});
       this.columns.forEach((column) => {
         tempForm.addControl(column.id, this.formBuilder.group(
-          {value: [row[column.id]], dataType: [column.dataType], isNew: [false]},
+          {value: [row[column.id]], dataType: [column.dataType], isNew: [false], isEdited: [false]},
           {validators: this.validatorService.valueDataTypeFormValidator()}
         ));
       });
@@ -104,7 +104,7 @@ export class TableComponent {
     const tempForm = this.formBuilder.group({});
     this.columns.forEach((column) => {
       tempForm.addControl(column.id, this.formBuilder.group(
-        {value: [''], dataType: [column.dataType], isNew: [true]},
+        {value: [''], dataType: [column.dataType], isNew: [true], isEdited: [true]},
         {validators: this.validatorService.valueDataTypeFormValidator()}
       ));
     });
@@ -149,13 +149,13 @@ export class TableComponent {
     });
   }
 
+  // getters
   controlKeys(): string[] {
     return Object.keys(this.rows.controls);
   }
 
   getRow(rowId: string): FormGroup {
     if (!this.rows.get(rowId)) {
-      console.error('Row not found');
       return this.formBuilder.group({});
     }
     return this.rows.get(rowId) as FormGroup;
@@ -163,11 +163,9 @@ export class TableComponent {
 
   getColumn(rowId: string, columnId: string): FormGroup {
     if (!this.rows.get(rowId)) {
-      console.error('Row not found');
       return this.formBuilder.group({});
     }
     if (!(this.rows.get(rowId) as FormGroup).get(columnId)) {
-      console.error('Column not found');
       return this.formBuilder.group({});
     }
     return (this.rows.get(rowId) as FormGroup).get(columnId) as FormGroup;
@@ -175,5 +173,22 @@ export class TableComponent {
 
   getCellType(rowId: string, columnId: string): string {
     return this.getColumn(rowId, columnId).get('dataType')?.value;
+  }
+
+  getCellValue(rowId: string, columnId: string): string | number |  boolean | Date | null {
+    // console.log(this.getColumn(rowId, columnId).get('value')?.value);
+    return this.getColumn(rowId, columnId).get('value')?.value;
+  }
+
+  cellIsEdited(rowId: string, columnId: string): boolean {
+    return this.getColumn(rowId, columnId).get('isEdited')?.value;
+  }
+
+  // formatters
+  formatDate(value: any): string {
+    if (value && (typeof value === 'string' || value instanceof Date)) {
+      return new Date(value).toLocaleString();
+    }
+    return '';
   }
 }
