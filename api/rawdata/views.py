@@ -10,13 +10,20 @@ class RawDataView(APIView):
         table_name = f"raw_table_{table_helperrs.clean_uuid(table_id)}"
         try:
             with connection.cursor() as cursor:
-                query = f'''
-                    SELECT * FROM {table_name};
-                '''
+                query = f"SELECT * FROM {table_name};"
                 cursor.execute(query)
-                response_data = cursor.fetchall()
+
+                # Extract column headers
+                columns = [col[0] for col in cursor.description]
+
+                # Fetch all rows from cursor
+                rows = cursor.fetchall()
+                
+                # Map rows with columns to dictionaries
+                response_data = [dict(zip(columns, row)) for row in rows]
                 return Response(response_data)
         except Exception as e:
+            # Properly log the exception if logging is set up
             return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     def put(self, request, table_id):
@@ -27,14 +34,20 @@ class RawDataView(APIView):
                 # add rows
                 final_query = ''
                 added_rows = request.data["added"]
-                add_row_query = f'INSERT INTO {table_name} (id, tenant_id, '
+                print(added_rows)
+                
                 for row in added_rows:
-                    values = f'({str(uuid.uuid4())}, {tenant_id}, '
-                    for key in list(row.keys()):
-                        add_row_query += f'{key}, '
-                        values += f"'{row[key]}', "
-                    add_row_query = add_row_query[:-2] + f') VALUES {values[:-2]});'
-                    final_query += add_row_query
+                    # added columns
+                    insert_into_var = f'INSERT INTO {table_name} (id, tenant_id, '
+                    values_var = f"VALUES ('{table_helperrs.clean_uuid(uuid.uuid4())}', '{table_helperrs.clean_uuid(tenant_id)}',"
+                    for _, column_changes in row.items():
+                        for col_id, col_val in column_changes.items():
+                            insert_into_var += f'{col_id}, '
+                            values_var += f'\'{col_val}\', '
+                    insert_into_var = insert_into_var[:-2] + ')'
+                    values_var = values_var[:-2] + ');'
+                    final_query += insert_into_var + values_var
+
                 print(final_query)
                 cursor.execute(final_query)
                 return Response("Successfully added data", status=status.HTTP_201_CREATED)

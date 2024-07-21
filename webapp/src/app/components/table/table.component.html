@@ -1,4 +1,4 @@
-<button (click)="onSave()">save</button>
+@if(rows.controls){<button (click)="onSave()">save</button>
 <div class="table-responsive">
     <table class="table table-hover">
         <thead>
@@ -6,30 +6,20 @@
                 <th scope="col" *ngFor="let header of columns">{{header.displayName}} {{header.dataType}}</th>
             </tr>
         </thead>
-        <tbody>
-            <tr *ngFor="let row of rowData">
-                <td *ngFor="let header of columns">
-                    {{row[header.id]}}
-                </td>
-            </tr>
-            <!-- enter new value -->
-            <tr  *ngFor="let rowForm of newRowForms">
-                <td [formGroup]="rowForm" *ngFor="let header of columns">
-                    @if (header.dataType === 'string') {
-                        <input [formControlName]="header.id" type="text" class="form-control" placeholder="Enter new value">
+        <tbody [formGroup]="rows">
+            @for (row of controlKeys(); track $index) {
+                <tr>
+                    @for (col of columns; track $index) {
+                        <td [formGroup]="getColumn(row, col.id)">
+                            <input formControlName="value" type="datetime-local" class="form-control" *ngIf="getCellType(row, col.id) === 'datetime'">
+                            <input formControlName="value" type="text" class="form-control" *ngIf="getCellType(row, col.id) === 'string'">
+                            <input formControlName="value" type="number" class="form-control" *ngIf="getCellType(row, col.id) === 'number'" appNumberOnly>
+                            <input formControlName="value" type="checkbox" class="form-check-input" *ngIf="getCellType(row, col.id) === 'boolean'">
+                        </td>
                     }
-                    @else if (header.dataType === 'number') {
-                        <input [formControlName]="header.id" type="number" class="form-control" placeholder="Enter new value">
-                    }
-                    @else if (header.dataType === 'boolean') {
-                        <input [formControlName]="header.id" type="checkbox" class="form-check-input">
-                    }
-                    @else if (header.dataType === 'datetime') {
-                        <input [formControlName]="header.id" type="date" class="form-control">
-                    }
-                </td>
-            </tr>
+                </tr>
+            }
         </tbody>
     </table>
-    <button (click)="onAddRow()">+ Add Row</button>
-</div>
+    <button (click)="onAddNewRow()">+ Add Row</button>
+</div>}
