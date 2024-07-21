@@ -1,5 +1,9 @@
 data_type_map = {
-    "UUID": "VARCHAR(64)"
+    "UUID": "VARCHAR(64)",
+    "string": "VARCHAR(255)",
+    "number": "NUMERIC",
+    "boolean": "BOOLEAN",
+    "datetime": "TIMESTAMP"
 }
 
 def clean_uuid(uuid):

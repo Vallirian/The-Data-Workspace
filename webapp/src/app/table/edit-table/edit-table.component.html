@@ -1,8 +1,7 @@
 <div class="full-section">
     <div class="full-section container-fluid pattern-dots-1 preview-section">
         <app-table 
-            [tableName]="tableData.displayName"
-            [tableDescription]="tableData.description"
+            [tableId]="tableId"
             class="full-section-content" >
         </app-table>
     </div>
@@ -41,8 +40,21 @@
 
 <ng-template #__section_details>
     <div class="d-flex flex-column">
-        <input type="text" class="form-control mb-2" placeholder="Table 1">
-        <textarea name="table-description" placeholder="Description"></textarea>
+        <input type="text" class="form-control mb-2" [value]="tableData.displayName || 'Table Name'">
+        <textarea name="table-description" [value]="tableData.description || 'No description provided'"></textarea>
+    </div>
+    <div>
+        <p class="fs-6 mt-4">Columns</p>
+        <ul class="list-group">
+            @for (col of columns; track $index) {
+                <li class="list-group-item">{{ col.displayName }} {{ col.dataType }}</li>
+            }
+        </ul>
+        
+        <div *ngIf="addNewColumnFormOpen" class="border py-3 px-2 mb-2">
+            <app-add-column [tableId]="this.tableId" (closeForm)="onCloseAddNewColumnForm()" (columnCreated)="onColumnCreated($event)"></app-add-column>
+        </div>
+        <div class="text-button-primary" (click)="onAddNewColumn()">+ Add New</div>
     </div>
 </ng-template>
 
@@ -53,3 +65,6 @@
 <ng-template #__section_automations>
     hi automations
 </ng-template>
+
+
+<!-- Column -->

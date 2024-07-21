@@ -1,7 +1,8 @@
-import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Inject, Input, Output, PLATFORM_ID, SimpleChanges } from '@angular/core';
 import { NotificationInterface } from '../../interfaces/main-interface';
 import { CommonModule } from '@angular/common';
 import { NotificationService } from '../../services/notification.service';
+import { isPlatformBrowser } from '@angular/common';
 
 @Component({
   selector: 'app-notification',
@@ -17,6 +18,7 @@ export class NotificationComponent {
   timeoutId?: number;
 
   constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
     private notificationService: NotificationService
   ) { }
 
@@ -31,11 +33,13 @@ export class NotificationComponent {
   }
 
   resetTimeout() {
-    if (this.timeoutId) {
-      window.clearTimeout(this.timeoutId);
+    if (isPlatformBrowser(this.platformId)) {
+      if (this.timeoutId) {
+        window.clearTimeout(this.timeoutId);
+      }
+      this.timeoutId = window.setTimeout(() => {
+        this.notification = undefined;
+      }, this.notification?.remainingTime);
     }
-    this.timeoutId = window.setTimeout(() => {
-      this.notification = undefined;
-    }, this.notification?.remainingTime );
   }
 }

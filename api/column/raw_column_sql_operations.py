@@ -1,15 +1,14 @@
 from django.db import connection
 from helpers import table_helperrs
 
-def create_raw_table(table_id):
+def insert_new_column(table_id, column_id, data_type):
     table_name = f"raw_table_{table_helperrs.clean_uuid(table_id)}"
+    column_name = f"raw_column_{table_helperrs.clean_uuid(column_id)}"
     try:
         with connection.cursor() as cursor:
             query = f'''
-                CREATE TABLE {table_name} (
-                    id {table_helperrs.data_type_map['UUID']} NOT NULL PRIMARY KEY,
-                    tenant_id {table_helperrs.data_type_map['UUID']} NOT NULL
-                );
+                ALTER TABLE {table_name}
+                    ADD COLUMN {column_name} {table_helperrs.data_type_map[data_type]};
             '''
             cursor.execute(query)
     except Exception as e:

@@ -6,11 +6,11 @@ from table.raw_table_sql_operations import create_raw_table
 class TableSerializer(serializers.ModelSerializer):
     class Meta:
         model = Table
-        fields = ["id", "displayName"]
+        fields = ["id", "displayName", "description"]
         extra_kwargs = {
             "displayName": {"required": True}, 
             "id": {"read_only": True},
-            "description": {"required": False},
+            "description": {"required": True},
         }
     
     def create(self, validated_data):

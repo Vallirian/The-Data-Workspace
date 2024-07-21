@@ -1,13 +1,9 @@
-<div class="container-fluid mt-3">
-    <p class="fs-4">{{tableName}}</p>
-    <p class="">{{tableDescription}}</p>
-</div>
-
+<button (click)="onSave()">save</button>
 <div class="table-responsive">
     <table class="table table-hover">
         <thead>
             <tr>
-                <th scope="col" *ngFor="let header of columns">{{header.displayName}}</th>
+                <th scope="col" *ngFor="let header of columns">{{header.displayName}} {{header.dataType}}</th>
             </tr>
         </thead>
         <tbody>
@@ -16,6 +12,24 @@
                     {{row[header.id]}}
                 </td>
             </tr>
+            <!-- enter new value -->
+            <tr  *ngFor="let rowForm of newRowForms">
+                <td [formGroup]="rowForm" *ngFor="let header of columns">
+                    @if (header.dataType === 'string') {
+                        <input [formControlName]="header.id" type="text" class="form-control" placeholder="Enter new value">
+                    }
+                    @else if (header.dataType === 'number') {
+                        <input [formControlName]="header.id" type="number" class="form-control" placeholder="Enter new value">
+                    }
+                    @else if (header.dataType === 'boolean') {
+                        <input [formControlName]="header.id" type="checkbox" class="form-check-input">
+                    }
+                    @else if (header.dataType === 'datetime') {
+                        <input [formControlName]="header.id" type="date" class="form-control">
+                    }
+                </td>
+            </tr>
         </tbody>
     </table>
+    <button (click)="onAddRow()">+ Add Row</button>
 </div>

@@ -36,9 +36,11 @@ export interface TableListInterface {
     description: string;
 }
 
-export interface ColumnListInterface {
+// Column
+export interface ColumnInterface {
     id: string;
     displayName: string;
     description: string;
-    type: 'string' | 'number' | 'date' | 'boolean' | null;
+    dataType: 'string' | 'number' | 'datetime' | 'boolean';
+    
 }

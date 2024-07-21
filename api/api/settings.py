@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'user',
     'tenant',
     'table',
+    'column',
+    'rawdata',
 ]
 
 MIDDLEWARE = [
@@ -137,7 +139,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        # 'rest_framework.authentication.SessionAuthentication',  # TODO: remove, For browsable API
+        'rest_framework.authentication.SessionAuthentication',  # TODO: remove, For browsable API
         'rest_framework_simplejwt.authentication.JWTAuthentication',  # For API clients
     )
 }

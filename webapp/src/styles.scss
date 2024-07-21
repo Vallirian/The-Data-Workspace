@@ -8,6 +8,7 @@ body {
 @import './assets/styles/_background';
 @import './assets/styles/_spacing';
 @import './assets/styles/_navbar';
+@import './assets/styles/_modal';
 
 .app-container {
     display: flex;
@@ -46,6 +47,44 @@ body {
 
     &:active {
         background-color: $gray-50;
+    }
+}
+
+.text-button-primary {
+    color: $blue-60;
+    border: none;
+    cursor: pointer;
+    margin-top: $padding-0;
+    height: fit-content;
+
+    display: flex;
+    align-items: center;
+
+    &:hover {
+        text-decoration: underline;
+    }
+
+    &:active {
+        text-decoration: underline;
+    }
+}
+
+.text-button-danger {
+    color: $red-60;
+    border: none;
+    cursor: pointer;
+    margin-top: $padding-0;
+    height: fit-content;
+
+    display: flex;
+    align-items: center;
+
+    &:hover {
+        text-decoration: underline;
+    }
+
+    &:active {
+        text-decoration: underline;
     }
 }
 

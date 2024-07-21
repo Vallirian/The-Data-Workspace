@@ -27,8 +27,17 @@ export class UtilService {
     // Lowered saturation and adjusted lightness for a more subdued, Pantone-like appearance
     let color = `hsl(${hash % 360}, 20%, 55%)`; // 50% Saturation, 85% Lightness
     return color;
-}
+  }
 
+  changeUuidToTableName(uuid: string): string {
+    // Convert a UUID to a table name
+    return `raw_table_${uuid.replace(/-/g, '')}`
+  }
+
+  changeUuidToColumnName(uuid: string): string {
+    // Convert a UUID to a column name
+    return `raw_column_${uuid.replace(/-/g, '')}`
+  }
 
   getGreeting(): string {
     const hour = new Date().getHours();

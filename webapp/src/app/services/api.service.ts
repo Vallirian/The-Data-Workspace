@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { TableListInterface, WorkspaceListInterface } from '../interfaces/main-interface';
+import { ColumnInterface, TableListInterface, WorkspaceListInterface } from '../interfaces/main-interface';
 
 @Injectable({
   providedIn: 'root'
@@ -39,9 +39,23 @@ export class ApiService {
     return this.http.post<TableListInterface>(`${this.baseUrl}/table/`, data);
   }
 
+  // Column API
+  listColumns(tableId: string) {
+    return this.http.get<ColumnInterface[]>(`${this.baseUrl}/table/${tableId}/column/`);
+  }
+
+  createColumn(tableId: string, data: {displayName: string, description: string, dataType: 'string' | 'number' | 'datetime' | 'boolean'}) {
+    return this.http.post<ColumnInterface>(`${this.baseUrl}/table/${tableId}/column/`, data);
+  }
+
+
   // raw Table API
-  getRawTable(id: string) {
-    return this.http.get<any>(`${this.baseUrl}/table/${id}/raw/`);
+  getRawTable(tableId: string) {
+    return this.http.get(`${this.baseUrl}/raw/${tableId}/`);
+  }
+
+  updateRawTable(tableId: string, data: any) {
+    return this.http.put(`${this.baseUrl}/raw/${tableId}/`, data);
   }
 
 }
