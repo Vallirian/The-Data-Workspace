@@ -1,7 +1,7 @@
 import uuid
 from django.db import models
-from table.models import Table
 from tenant.models import Tenant
+from table.models import Table
 
 class Column(models.Model):
     dataTypeChoices = [
@@ -17,7 +17,7 @@ class Column(models.Model):
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
     dataType = models.CharField(max_length=255, choices=dataTypeChoices)
-    table = models.ForeignKey(Table, on_delete=models.PROTECT, null=False, blank=False)
+    table = models.ForeignKey(Table, on_delete=models.PROTECT, null=False, blank=False, related_name="columns", related_query_name="column")
     tenant = models.ForeignKey(Tenant, on_delete=models.PROTECT, null=False, blank=False)
     
     def __str__(self):

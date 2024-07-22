@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'user',
     'tenant',
     'table',
+    'relationship',
     'column',
     'rawdata',
 ]

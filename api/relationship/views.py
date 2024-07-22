@@ -1,20 +1,22 @@
-from datetime import datetime
+from relationship.models import Relationship
+from relationship.serializers import RelationshipSerializer
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from table.models import Table
-from table.serializers import TableSerializer
 
-class TableViewSet(viewsets.ModelViewSet):
-    serializer_class = TableSerializer
+
+# Create your views here.
+class RelationshipViewset(viewsets.ModelViewSet):
+    serializer_class = RelationshipSerializer
 
     def get_queryset(self):
         user = self.request.user
         if user.is_authenticated and user.tenant:
-            return Table.objects.filter(tenant=user.tenant)
+            return Relationship.objects.filter(tenant=user.tenant)
         else:
-            return Table.objects.none()
+            return Relationship.objects.none()
         
     def get_object(self):
         queryset = self.get_queryset()
@@ -23,19 +25,17 @@ class TableViewSet(viewsets.ModelViewSet):
     
     def list(self, request):
         queryset = self.get_queryset()
-        serializer = TableSerializer(queryset, many=True)
-
+        serializer = RelationshipSerializer(queryset, many=True)
         return Response(serializer.data)
     
     def detail(self, request):
-        table = self.get_object()
-        serializer = TableSerializer(table)
+        relationship = self.get_object()
+        serializer = RelationshipSerializer(relationship)
         return Response(serializer.data)
     
-    def create(self, request):
-        serializer = TableSerializer(data=request.data, context={"request": request})
+    def create(self, request, left_table_id):
+        serializer = RelationshipSerializer(data=request.data, context={"request": request, "left_table_id": left_table_id})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
