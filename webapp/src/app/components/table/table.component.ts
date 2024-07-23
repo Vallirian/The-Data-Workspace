@@ -2,7 +2,7 @@ import { Component, Input, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { NotificationService } from '../../services/notification.service';
-import { ColumnInterface } from '../../interfaces/main-interface';
+import { ColumnInterface, RelationshipColumnAPIInterface } from '../../interfaces/main-interface';
 import { UtilService } from '../../services/util.service';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ValidateService } from '../../services/validate.service';
@@ -30,7 +30,9 @@ export class TableComponent {
   tableName: string = '';
 
   columns: ColumnInterface[] = [];
+  relationshipAPIColumns: RelationshipColumnAPIInterface[] = [];
   rowData: any[] = [];
+  realtedTablesRowData: {[key: string]: any} = {};
 
   changes = {
     added: [] as {[key: string]: {[key: string]: string | number |  boolean | Date | null}}[],
@@ -60,6 +62,7 @@ export class TableComponent {
   }
 
   fetchColumnsAndData(): void {
+    // load columns
     this.apiService.listColumns(this.tableId).subscribe({
       next: (columns: ColumnInterface[]) => {
         this.columns = columns.map(column => {
@@ -72,6 +75,33 @@ export class TableComponent {
         this.notificationService.addNotification({ message: 'Failed to load columns', type: 'error', dismissed: false, remainingTime: 5000 });
       }
     });
+
+    // load relationship columns
+    this.apiService.listRelationhipColumnsByTable(this.tableId).subscribe({
+      next: (relationshipColumns: RelationshipColumnAPIInterface[]) => {
+        this.relationshipAPIColumns = relationshipColumns;
+        this.createRelationshipColumnsDisplayName();
+        this.updateRelatedTableData(relationshipColumns);
+      },
+      error: (err) => {
+        this.notificationService.addNotification({ message: 'Failed to load relationship columns', type: 'error', dismissed: false, remainingTime: 5000 });
+      }
+    });
+  }
+
+  createRelationshipColumnsDisplayName() {
+    this.relationshipAPIColumns.forEach((relationshipColumn) => {
+      this.apiService.getColumn(relationshipColumn.rightTable, relationshipColumn.rightTableColumn).subscribe({
+        next: (column: ColumnInterface) => {
+          column.id = this.utilService.changeUuidToColumnName(column.id);
+          this.columns.push(column);
+          relationshipColumn.rightTableColumn = this.utilService.changeUuidToColumnName(relationshipColumn.rightTableColumn);
+        },
+        error: (err) => {
+          this.notificationService.addNotification({ message: 'Failed to load relationship columns', type: 'error', dismissed: false, remainingTime: 5000 });
+        }
+      });
+    });
   }
 
   updateRawData(): void {
@@ -83,6 +113,20 @@ export class TableComponent {
       error: (err) => {
         this.notificationService.addNotification({ message: 'Failed to load table data', type: 'error', dismissed: false, remainingTime: 5000 });
       }
+    });
+  }
+
+  updateRelatedTableData(relationshipColumns: RelationshipColumnAPIInterface[]): void {
+    relationshipColumns.forEach((relationshipColumn) => {
+      this.apiService.getRawTable(relationshipColumn.rightTable).subscribe({
+        next: (tableData: any) => {
+          this.realtedTablesRowData[relationshipColumn.rightTable] = tableData;
+          console.log('Related table data:', this.realtedTablesRowData);
+        },
+        error: (err) => {
+          this.notificationService.addNotification({ message: 'Failed to load related table data', type: 'error', dismissed: false, remainingTime: 5000 });
+        }
+      });
     });
   }
 
@@ -119,8 +163,15 @@ export class TableComponent {
       
       if (row.dirty || row.dirty) {
         let isRowNew = false;
-        for (const columnId of Object.keys(row.controls)) {
+        for (let columnId of Object.keys(row.controls)) {
           const column = this.getColumn(rowId, columnId);
+          // use tablename_id as columnid for relationship columns
+          if (this.isRelationshipColumn(columnId)) {
+            const rightTableId = this.getRelationshipColumnTableId(columnId);
+            const relationshipRightTableName = this.utilService.changeUuidToRelationshipRightTableName(rightTableId);
+            columnId = relationshipRightTableName;
+          }
+          
           if (column.dirty) {
             rowChanges[rowId][columnId] = column.get('value')?.value;
           }
@@ -147,6 +198,11 @@ export class TableComponent {
         this.notificationService.addNotification({message: 'Failed to save table data', type: 'error', dismissed: false, remainingTime: 5000});
       }
     });
+  }
+
+  // checkers
+  isRelationshipColumn(columnId: string): boolean {
+    return this.relationshipAPIColumns.some(relationshipColumn => relationshipColumn.rightTableColumn === columnId);
   }
 
   // getters
@@ -176,12 +232,26 @@ export class TableComponent {
   }
 
   getCellValue(rowId: string, columnId: string): string | number |  boolean | Date | null {
-    // console.log(this.getColumn(rowId, columnId).get('value')?.value);
     return this.getColumn(rowId, columnId).get('value')?.value;
   }
 
   cellIsEdited(rowId: string, columnId: string): boolean {
     return this.getColumn(rowId, columnId).get('isEdited')?.value;
+  }
+
+  getRelationshipColumnTableId(columnId: string): string {
+    const relationshipColumn = this.relationshipAPIColumns.find(relationshipColumn => relationshipColumn.rightTableColumn === columnId);
+    return relationshipColumn?.rightTable || '';
+  }
+
+  getRelationshipColumnData(columnId: string): any[] {
+    return this.realtedTablesRowData[this.getRelationshipColumnTableId(columnId)] || [];
+  }
+
+  getRelationshipCellValue(id: string, columnId: string): any {
+    // console.log('id:', id, 'colid:', columnId, 'data:', this.getRelationshipColumnData(columnId));
+    const row = this.getRelationshipColumnData(columnId).find(row => row.id === id);
+    return row ? row[columnId] : 'jhgvk';
   }
 
   // formatters

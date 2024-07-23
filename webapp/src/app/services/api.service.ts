@@ -44,6 +44,10 @@ export class ApiService {
     return this.http.get<ColumnInterface[]>(`${this.baseUrl}/table/${tableId}/column/`);
   }
 
+  getColumn(tableId: string, columnId: string) {
+    return this.http.get<ColumnInterface>(`${this.baseUrl}/table/${tableId}/column/${columnId}`);
+  }
+
   createColumn(tableId: string, data: {displayName: string, description: string, dataType: 'string' | 'number' | 'datetime' | 'boolean'}) {
     return this.http.post<ColumnInterface>(`${this.baseUrl}/table/${tableId}/column/`, data);
   }

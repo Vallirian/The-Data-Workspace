@@ -39,6 +39,16 @@ export class UtilService {
     return `raw_column_${uuid.replace(/-/g, '')}`
   }
 
+  changeUuidToRelationshipRightTableName(uuid: string): string {
+    // Convert a UUID to a relationship right table name
+    return `raw_table_${uuid.replace(/-/g, '')}_id`
+  }
+
+  removeUuidDashes(uuid: string): string {
+    // Remove dashes from a UUID
+    return uuid.replace(/-/g, '');
+  }
+
   getGreeting(): string {
     const hour = new Date().getHours();
     if (hour < 12) {

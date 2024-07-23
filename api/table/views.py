@@ -12,7 +12,7 @@ class TableViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if user.is_authenticated and user.tenant:
-            return Table.objects.filter(tenant=user.tenant)
+            return Table.objects.filter(tenant=user.tenant).order_by("updatedAt")
         else:
             return Table.objects.none()
         

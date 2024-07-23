@@ -16,7 +16,7 @@ class ColumnViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if user.is_authenticated and user.tenant:
-            return Column.objects.filter(tenant=user.tenant, table=self.kwargs["table_pk"])
+            return Column.objects.filter(tenant=user.tenant, table=self.kwargs["table_pk"]).order_by("updatedAt")
         else:
             return Column.objects.none()
         

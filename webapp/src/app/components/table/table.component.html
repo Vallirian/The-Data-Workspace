@@ -1,3 +1,10 @@
+<div>
+    {{columns|json}}
+</div>
+<br>
+<div>
+    {{relationshipAPIColumns|json}}
+</div>
 <div class="d-flex justify-content-between mt-3">
     <div class="flex-fill">
         <input type="text" class="form-control" placeholder="search...">
@@ -23,7 +30,18 @@
                         <td [formGroup]="getColumn(row, col.id)">
                             @if (cellIsEdited(row, col.id)) {
                                 <input formControlName="value" type="datetime-local" class="form-control" *ngIf="getCellType(row, col.id) === 'datetime'">
-                                <input formControlName="value" type="text" class="form-control" *ngIf="getCellType(row, col.id) === 'string'">
+                                @if (getCellType(row, col.id) === 'string') {
+                                    @if (isRelationshipColumn(col.id)) {
+                                        <select formControlName="value" class="form-select">
+                                            @for (columnData of getRelationshipColumnData(col.id); track $index) {
+                                                <option [value]="columnData.id">{{columnData[col.id]}}</option>
+                                            }
+                                        </select>
+                                    }
+                                    @else {
+                                        <input formControlName="value" type="text" class="form-control">
+                                    }
+                                }
                                 <input formControlName="value" type="number" class="form-control" *ngIf="getCellType(row, col.id) === 'number'" appNumberOnly>
                                 <select formControlName="value" class="form-select" *ngIf="getCellType(row, col.id) === 'boolean'">
                                     <option [value]="1">true</option>
@@ -32,7 +50,20 @@
                             }
                             @else {
                                 <span *ngIf="getCellType(row, col.id) === 'datetime'">{{formatDate(getCellValue(row, col.id))}}</span>
-                                <span *ngIf="getCellType(row, col.id) === 'string'">{{getCellValue(row, col.id)}}</span>
+                                @if (getCellType(row, col.id) === 'string') {
+                                    <!-- {{row}} -->
+                                    <!-- @if (isRelationshipColumn(col.id)) {
+                                        @for (columnData of getRelationshipColumnData(col.id); track $index) {
+                                            @if (columnData.id === getRelationshipCellValue(row, col.id)) {
+                                                <span>{{columnData[col.id]}}</span>
+                                            }
+                                        }
+                                    }
+                                    @else {
+                                        <span>{{getCellValue(row, col.id)}}</span>
+                                    } -->
+                                        hi
+                                }
                                 <span *ngIf="getCellType(row, col.id) === 'number'">{{getCellValue(row, col.id)}}</span>
                                 <span *ngIf="getCellType(row, col.id) === 'boolean'">{{getCellValue(row, col.id)}}</span>
                             }

@@ -12,8 +12,8 @@ def get_table_name(table_id):
 def get_column_name(column_id):
     return f"{avars.raw_column_prefix}{remove_uuid_dash(column_id)}"
 
-def relationship_get_right_table_id_column_name(right_table_id):
-    return f"{avars.relationship_column_prefix}{remove_uuid_dash(right_table_id)}_id"
+def rp_get_right_table_name(right_table_id):
+    return f"{get_table_name(right_table_id)}_id"
 
 if __name__ == '__main__':
     pass

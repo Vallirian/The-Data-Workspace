@@ -45,6 +45,6 @@ class RelationshipViewset(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"])
     def get_relationships_by_table(self, request, left_table_id):
         left_table = Table.objects.get(id=left_table_id)
-        relationships = Relationship.objects.filter(leftTable=left_table)
+        relationships = Relationship.objects.filter(leftTable=left_table).order_by("updatedAt")
         serializer = RelationshipSerializer(relationships, many=True)
         return Response(serializer.data)
