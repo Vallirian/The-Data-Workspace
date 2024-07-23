@@ -1,7 +1,7 @@
 from django.db import transaction
 from rest_framework import serializers
 from table.models import Table
-from table.raw_table_sql_operations import create_raw_table
+from rawdata.raw_data_helpers import create_raw_table
 
 class TableSerializer(serializers.ModelSerializer):
     class Meta:

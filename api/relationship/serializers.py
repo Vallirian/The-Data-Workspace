@@ -1,8 +1,8 @@
 from django.db import transaction
 from rest_framework import serializers
 from table.models import Table
-from column.models import Column
 from relationship.models import Relationship
+from rawdata.raw_data_helpers import add_relationship
 
 class RelationshipSerializer(serializers.ModelSerializer):
     class Meta:
@@ -25,4 +25,7 @@ class RelationshipSerializer(serializers.ModelSerializer):
             
             instance = self.Meta.model(**validated_data, tenant=tenant, leftTable=left_table, rightTable=right_table)
             instance.save()
+
+            # add relationship column to left table
+            add_relationship(left_table.id, right_table.id)
             return instance

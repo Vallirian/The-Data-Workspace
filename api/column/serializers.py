@@ -2,7 +2,7 @@ from django.db import transaction
 from rest_framework import serializers
 
 from column.models import Column
-from column.raw_column_sql_operations import insert_new_column
+from rawdata.raw_data_helpers import insert_new_column
 from table.models import Table
 
 class ColumnSerializer(serializers.ModelSerializer):
