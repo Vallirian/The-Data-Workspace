@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ColumnInterface, TableListInterface, WorkspaceListInterface } from '../interfaces/main-interface';
+import { ColumnInterface, RelationshipColumnAPIInterface, TableListInterface, WorkspaceListInterface } from '../interfaces/main-interface';
 
 @Injectable({
   providedIn: 'root'
@@ -46,6 +46,19 @@ export class ApiService {
 
   createColumn(tableId: string, data: {displayName: string, description: string, dataType: 'string' | 'number' | 'datetime' | 'boolean'}) {
     return this.http.post<ColumnInterface>(`${this.baseUrl}/table/${tableId}/column/`, data);
+  }
+
+  // Relationship Column API
+  listRelationshipColumns(tableId: string) {
+    return this.http.get<ColumnInterface[]>(`${this.baseUrl}/relationship/${tableId}/`);
+  }
+
+  createRelationshipColumn(tableId: string, data: {rightTableColumn: string}) {
+    return this.http.post<ColumnInterface>(`${this.baseUrl}/relationship/${tableId}/`, data);
+  }
+  
+  listRelationhipColumnsByTable(tableId: string) {
+    return this.http.get<RelationshipColumnAPIInterface[]>(`${this.baseUrl}/relationship/${tableId}/`);
   }
 
 

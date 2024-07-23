@@ -2,6 +2,7 @@ from relationship.models import Relationship
 from relationship.serializers import RelationshipSerializer
 from rest_framework import viewsets
 from rest_framework.response import Response
+from rest_framework.decorators import action
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from table.models import Table
@@ -39,3 +40,11 @@ class RelationshipViewset(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    # actions
+    @action(detail=False, methods=["get"])
+    def get_relationships_by_table(self, request, left_table_id):
+        left_table = Table.objects.get(id=left_table_id)
+        relationships = Relationship.objects.filter(leftTable=left_table)
+        serializer = RelationshipSerializer(relationships, many=True)
+        return Response(serializer.data)

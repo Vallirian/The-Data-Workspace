@@ -6,7 +6,7 @@ import { ApiService } from '../../services/api.service';
 import { NavbarService } from '../../services/navbar.service';
 import { NotificationService } from '../../services/notification.service';
 import { AddColumnComponent } from '../../components/forms/add-column/add-column.component';
-import { ColumnInterface } from '../../interfaces/main-interface';
+import { ColumnInterface, RelationshipColumnAPIInterface, RelationshipColumnInterface } from '../../interfaces/main-interface';
 
 @Component({
   selector: 'app-edit-table',
@@ -26,6 +26,8 @@ export class EditTableComponent {
 
   addNewColumnFormOpen: boolean = false;
   columns: ColumnInterface[] = [];
+  relationshipColumns: RelationshipColumnInterface[] = [];
+  relationshipAPIColumns: RelationshipColumnAPIInterface[] = [];
 
   constructor(
     private apiService: ApiService,
@@ -51,10 +53,57 @@ export class EditTableComponent {
           }
         });
 
+        // load relationship columns
+        this.apiService.listRelationhipColumnsByTable(this.tableId).subscribe({
+          next: (relationshipColumns: RelationshipColumnAPIInterface[]) => {
+            this.relationshipAPIColumns = relationshipColumns
+            this.createRelationshipColumnsDisplayName();
+          },
+          error: (err) => {
+            this.notificationService.addNotification({message: 'Failed to load relationship columns', type: 'error', dismissed: false, remainingTime: 5000});
+          }
+        });
+
       },
       error: (err) => {
         this.notificationService.addNotification({message: 'Failed to load table', type: 'error', dismissed: false, remainingTime: 5000});
       }
+    });
+  }
+
+  createRelationshipColumnsDisplayName() {
+    this.relationshipAPIColumns.forEach((relationshipColumn) => {
+      let tableDisplayName = '';
+      let columnDisplayName = '';
+      let columnDataType = '';
+      this.apiService.getTable(relationshipColumn.rightTable).subscribe({
+        next: (tableData: any) => {
+          tableDisplayName = tableData.displayName;
+          this.apiService.listColumns(relationshipColumn.rightTable).subscribe({
+            next: (columns: ColumnInterface[]) => {
+              columns.forEach((column) => {
+                if (column.id === relationshipColumn.rightTableColumn) {
+                  columnDisplayName = column.displayName;
+                  columnDataType = column.dataType;
+                }
+              });
+              this.relationshipColumns.push({
+                rightTableId: relationshipColumn.rightTable,
+                rightTableDisplayName: tableDisplayName,
+                rightColumnId: relationshipColumn.rightTableColumn,
+                rightColumnDisplayName: columnDisplayName,
+                rightColumnDataType: columnDataType
+              });
+            },
+            error: (err) => {
+              this.notificationService.addNotification({message: 'Failed to load columns', type: 'error', dismissed: false, remainingTime: 5000});
+            }
+          });
+        },
+        error: (err) => {
+          this.notificationService.addNotification({message: 'Failed to load table', type: 'error', dismissed: false, remainingTime: 5000});
+        }
+      });
     });
   }
 
@@ -64,10 +113,13 @@ export class EditTableComponent {
 
   onCloseAddNewColumnForm() {
     this.addNewColumnFormOpen = false;
-    console.log('close form');
   }
 
   onColumnCreated(columnData: ColumnInterface) {
     this.columns.push(columnData);
+  }
+  
+  onRelationshipColumnCreated(relationshipColumnData: RelationshipColumnInterface) {
+    this.relationshipColumns.push(relationshipColumnData);
   }
 }

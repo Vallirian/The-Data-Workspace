@@ -49,10 +49,13 @@
             @for (col of columns; track $index) {
                 <li class="list-group-item">{{ col.displayName }} {{ col.dataType }}</li>
             }
+            @for (relationshipCol of relationshipColumns; track $index) {
+                <li class="list-group-item">{{ relationshipCol.rightColumnDisplayName }} {{ relationshipCol.rightColumnDataType }} (realtionship)</li>
+            }
         </ul>
         
         <div *ngIf="addNewColumnFormOpen" class="border py-3 px-2 mb-2">
-            <app-add-column [tableId]="this.tableId" (closeForm)="onCloseAddNewColumnForm()" (columnCreated)="onColumnCreated($event)"></app-add-column>
+            <app-add-column [tableId]="this.tableId" (closeForm)="onCloseAddNewColumnForm()" (columnCreated)="onColumnCreated($event)" (relationshipColumnCreated)="onRelationshipColumnCreated($event)"></app-add-column>
         </div>
         <div class="text-button-primary" (click)="onAddNewColumn()">+ Add New</div>
     </div>

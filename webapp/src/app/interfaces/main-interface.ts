@@ -44,3 +44,18 @@ export interface ColumnInterface {
     dataType: 'string' | 'number' | 'datetime' | 'boolean';
     
 }
+
+export interface RelationshipColumnInterface {
+    rightTableId: string;
+    rightTableDisplayName: string;
+    rightColumnId: string;
+    rightColumnDisplayName: string;
+    rightColumnDataType: string;
+}
+
+export interface RelationshipColumnAPIInterface {
+    id: string;
+    rightTable: string;
+    rightTableColumn: string;
+    leftTable: string;
+}

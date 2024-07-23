@@ -6,6 +6,9 @@ data_type_map = {
     "datetime": "TIMESTAMP"
 }
 
+raw_table_prefix = "raw_table_"
+raw_column_prefix = "raw_column_"
+
 def clean_uuid(uuid):
     return str(uuid).replace('-', '')
 
