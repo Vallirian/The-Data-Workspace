@@ -1,1 +1,4 @@
-docker compose exec -it api python manage.py makemigrations workspace user tenant table
+docker compose exec -it api python manage.py makemigrations tenant user table column relationship 
+docker compose exec -it api python manage.py migrate
+
+docker compose exec -it api python manage.py createsuperuser

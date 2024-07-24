@@ -5,6 +5,13 @@
 <div>
     {{relationshipAPIColumns|json}}
 </div>
+<br>
+<div>
+    {{rowData|json}}
+</div>
+<br>
+
+
 <div class="d-flex justify-content-between mt-3">
     <div class="flex-fill">
         <input type="text" class="form-control" placeholder="search...">
@@ -18,7 +25,8 @@
         <thead>
             <tr  class="arc-table-header">
                 <th scope="col" *ngFor="let header of columns">
-                    <span>{{header.displayName}} </span>
+                    <!-- <span>{{header.displayName}} </span> -->
+                    <span>{{header.id}} </span>
                     <span class="type">{{header.dataType}}</span>
                 </th>
             </tr>
@@ -51,18 +59,19 @@
                             @else {
                                 <span *ngIf="getCellType(row, col.id) === 'datetime'">{{formatDate(getCellValue(row, col.id))}}</span>
                                 @if (getCellType(row, col.id) === 'string') {
-                                    <!-- {{row}} -->
-                                    <!-- @if (isRelationshipColumn(col.id)) {
-                                        @for (columnData of getRelationshipColumnData(col.id); track $index) {
+                                    <span>{{getCellValue(row, col.id)}}</span>
+                                    {{col.id}}
+                                    @if (isRelationshipColumn(col.id)) {
+                                        <!-- @for (columnData of getRelationshipColumnData(col.id); track $index) {
                                             @if (columnData.id === getRelationshipCellValue(row, col.id)) {
                                                 <span>{{columnData[col.id]}}</span>
                                             }
-                                        }
+                                        } -->
+                                        hi
                                     }
                                     @else {
                                         <span>{{getCellValue(row, col.id)}}</span>
-                                    } -->
-                                        hi
+                                    }
                                 }
                                 <span *ngIf="getCellType(row, col.id) === 'number'">{{getCellValue(row, col.id)}}</span>
                                 <span *ngIf="getCellType(row, col.id) === 'boolean'">{{getCellValue(row, col.id)}}</span>

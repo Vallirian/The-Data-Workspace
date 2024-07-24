@@ -1,4 +1,4 @@
-import uuid
+from helpers import arc_utils as autils
 from django.db import models
 from tenant.models import Tenant
 from table.models import Table
@@ -11,7 +11,7 @@ class Column(models.Model):
         ("datetime", "Datetime"),
     ]
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.CharField(primary_key=True, default=autils.custom_uuid, editable=False, max_length=255)
     displayName = models.CharField(max_length=255)
     description = models.CharField(max_length=255, null=True, blank=True)
     createdAt = models.DateTimeField(auto_now_add=True)

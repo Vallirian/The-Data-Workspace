@@ -7,13 +7,14 @@ export class UtilService {
 
   constructor() { }
 
-  generateUUID(): string {
+  generateCustomUUID(): string {
     let dt = new Date().getTime();
-    const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const uuid = 'xxxxxxxxxxxx4xxxyxxxxxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
       const r = (dt + Math.random() * 16) % 16 | 0;
       dt = Math.floor(dt / 16);
       return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
     });
+    uuid.replace(/-/g, '');
     return uuid;
   }
 
@@ -29,19 +30,9 @@ export class UtilService {
     return color;
   }
 
-  changeUuidToTableName(uuid: string): string {
-    // Convert a UUID to a table name
-    return `raw_table_${uuid.replace(/-/g, '')}`
-  }
-
-  changeUuidToColumnName(uuid: string): string {
-    // Convert a UUID to a column name
-    return `raw_column_${uuid.replace(/-/g, '')}`
-  }
-
   changeUuidToRelationshipRightTableName(uuid: string): string {
     // Convert a UUID to a relationship right table name
-    return `raw_table_${uuid.replace(/-/g, '')}_id`
+    return `${uuid.replace(/-/g, '')}_id`
   }
 
   removeUuidDashes(uuid: string): string {

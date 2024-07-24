@@ -6,8 +6,6 @@ from django.shortcuts import get_object_or_404
 
 from column.models import Column
 from column.serializers import ColumnSerializer
-from table.models import Table
-from table.serializers import TableSerializer
 
 
 class ColumnViewSet(viewsets.ModelViewSet):
