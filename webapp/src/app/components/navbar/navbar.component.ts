@@ -56,7 +56,7 @@ export class NavbarComponent {
     return this.authService.currentUser();
   }
 
-  get buttons() {
-    return this.navbarService.buttons();
+  get breadCrumb() {
+    return this.navbarService.breadCrumb();
   }
 }

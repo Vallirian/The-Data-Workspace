@@ -42,6 +42,7 @@ export class EditTableComponent {
     this.apiService.getTable(this.tableId).subscribe({
       next: (tableData: any) => {
         this.tableData = tableData;
+        this.navbarService.addBreadCrumb({label: tableData.displayName, navigationLink: `/table/${this.tableId}`});
         
         // load columns
         this.apiService.listColumnsByTable(this.tableId).subscribe({
@@ -69,6 +70,10 @@ export class EditTableComponent {
         this.notificationService.addNotification({message: 'Failed to load table', type: 'error', dismissed: false, remainingTime: 5000});
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.navbarService.removeBreadCrumb();
   }
 
   createRelationshipColumnsDisplayName() {

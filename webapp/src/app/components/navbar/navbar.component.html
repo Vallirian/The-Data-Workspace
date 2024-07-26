@@ -1,28 +1,22 @@
-<div class="container-fluid navbar-container row">
+<div class="container-fluid navbar-container">
     <div class="col">
         <div>
             <ul class="nav nav-underline">
                 <li class="nav-item">
                     <a class="nav-link" [class.active]="" [routerLink]="['/home']" routerLinkActive="router-link-active" >Home</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" [class.active]="" >Integration</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" [class.active]="" >Notifications</a>
-                </li>
+                @for (brdcrm of breadCrumb; track $index) {
+                    <li class="nav-item d-flex align-items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708"/>
+                        </svg>
+                        <a class="nav-link" [class.active]="" >{{brdcrm.label}}</a>
+                    </li>
+                }
             </ul>
         </div>
     </div>
-    <div class="col d-flex justify-content-center">
-        Column
-    </div>
     <div class="col d-flex justify-content-end">
-        <div class="px-3">
-            @for (btn of buttons; track $index) {
-                <button class="btn btn-primary" (click)="btn.action()">{{btn.label}}</button>
-            }
-        </div>
         <div class="navbar-profile-picture" [style.background-color]="backgroundColor">
             <span type="button" data-bs-toggle="dropdown" aria-expanded="false">
                 {{ initial }}
