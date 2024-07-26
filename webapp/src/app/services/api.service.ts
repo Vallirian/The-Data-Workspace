@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ColumnInterface, RelationshipColumnAPIInterface, TableListInterface, WorkspaceListInterface } from '../interfaces/main-interface';
 
@@ -40,17 +40,32 @@ export class ApiService {
   }
 
   // Column API
-  listColumns(tableId: string) {
-    return this.http.get<ColumnInterface[]>(`${this.baseUrl}/table/${tableId}/column/`);
+  listColumns(ids: string[]) {
+    const params = new HttpParams()
+      .set('ids', ids.join(','));
+    return this.http.get<ColumnInterface[]>(`${this.baseUrl}/column/`, {params});
   }
 
-  getColumn(tableId: string, columnId: string) {
-    return this.http.get<ColumnInterface>(`${this.baseUrl}/table/${tableId}/column/${columnId}`);
+  listColumnsByTable(tableId: string) {
+    const params = new HttpParams()
+      .set('tableId', tableId);
+    return this.http.get<ColumnInterface[]>(`${this.baseUrl}/column/`, {params});
   }
 
-  createColumn(tableId: string, data: {displayName: string, description: string, dataType: 'string' | 'number' | 'datetime' | 'boolean'}) {
-    return this.http.post<ColumnInterface>(`${this.baseUrl}/table/${tableId}/column/`, data);
+  createColumn(tableId: string, data: {displayName: string, description: string, dataType: 'string' | 'number' | 'datetime' | 'boolean', table: string}) {
+    const params = new HttpParams()
+      .set('tableId', tableId);
+    return this.http.post<ColumnInterface>(`${this.baseUrl}/column/`, data, {params});
   }
+
+
+  // getTableColumn(tableId: string, columnId: string) {
+  //   return this.http.get<ColumnInterface>(`${this.baseUrl}/table/${tableId}/column/${columnId}`);
+  // }
+
+  // createTableColumn(tableId: string, data: {displayName: string, description: string, dataType: 'string' | 'number' | 'datetime' | 'boolean'}) {
+  //   return this.http.post<ColumnInterface>(`${this.baseUrl}/table/${tableId}/column/`, data);
+  // }
 
   // Relationship Column API
   listRelationshipColumns(tableId: string) {
@@ -73,6 +88,12 @@ export class ApiService {
 
   updateRawTable(tableId: string, data: any) {
     return this.http.put(`${this.baseUrl}/raw/${tableId}/`, data);
+  }
+
+  getRawTableLimitedColumns(tableId: string, columns: string[]) {
+    const params = new HttpParams()
+      .set('columns', columns.join(','));
+    return this.http.get(`${this.baseUrl}/raw/${tableId}/`, {params});
   }
 
 }

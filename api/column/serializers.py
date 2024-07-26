@@ -8,10 +8,11 @@ from table.models import Table
 class ColumnSerializer(serializers.ModelSerializer):
     class Meta:
         model = Column
-        fields = ["id", "displayName", "description", "dataType"]
+        fields = ["id", "displayName", "description", "dataType", "table"]
         extra_kwargs = {
             "displayName": {"required": True}, 
             "id": {"read_only": True},
+            "table": {"read_only": True},
             "description": {"required": True},
             "dataType": {"required": True},
         }

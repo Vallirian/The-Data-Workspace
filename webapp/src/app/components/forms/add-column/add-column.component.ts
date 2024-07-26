@@ -63,7 +63,7 @@ export class AddColumnComponent {
 
   onSelectRightTable() {
     this.selectedRightTable = this.relationshipColumnForm.get('rightTable')!.value!;
-    this.apiService.listColumns(this.selectedRightTable).subscribe({
+    this.apiService.listColumnsByTable(this.selectedRightTable).subscribe({
       next: (columns: ColumnInterface[]) => {
         this.columnsList = columns;
       },
@@ -95,7 +95,8 @@ export class AddColumnComponent {
       const columnFormValue = {
         displayName: this.columnForm.get('displayName')!.value!,
         description: this.columnForm.get('description')!.value!,
-        dataType: this.columnForm.get('dataType')!.value! as 'string' | 'number' | 'boolean' | 'datetime'
+        dataType: this.columnForm.get('dataType')!.value! as 'string' | 'number' | 'boolean' | 'datetime',
+        table: this.tableId
       }
       this.apiService.createColumn(this.tableId, columnFormValue).subscribe({
         next: (columnData: any) => {

@@ -44,7 +44,7 @@ export class EditTableComponent {
         this.tableData = tableData;
         
         // load columns
-        this.apiService.listColumns(this.tableId).subscribe({
+        this.apiService.listColumnsByTable(this.tableId).subscribe({
           next: (columns: ColumnInterface[]) => {
             this.columns = columns;
           },
@@ -79,7 +79,7 @@ export class EditTableComponent {
       this.apiService.getTable(relationshipColumn.rightTable).subscribe({
         next: (tableData: any) => {
           tableDisplayName = tableData.displayName;
-          this.apiService.listColumns(relationshipColumn.rightTable).subscribe({
+          this.apiService.listColumnsByTable(relationshipColumn.rightTable).subscribe({
             next: (columns: ColumnInterface[]) => {
               columns.forEach((column) => {
                 if (column.id === relationshipColumn.rightTableColumn) {

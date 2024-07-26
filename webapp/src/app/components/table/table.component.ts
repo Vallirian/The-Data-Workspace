@@ -31,6 +31,8 @@ export class TableComponent {
 
   columns: ColumnInterface[] = [];
   relationshipAPIColumns: RelationshipColumnAPIInterface[] = [];
+  allColumnIds: string[] = [];
+  displayedColumnIds: string[] = [];
   rowData: any[] = [];
   realtedTablesRowData: {[key: string]: any} = {};
 
@@ -50,46 +52,31 @@ export class TableComponent {
   ) { }
 
   ngOnInit(): void {
-    this.fetchColumnsAndData();
-    this.updateRawData();
+    /**
+     * flow
+     * 1. fetch table data
+     * 2. fetch columns
+     * 3. create row form
+     * 4. fetch related tables' data
+     * 
+     * controls
+     * - everything works off of rowData
+     */
+    this.fetchRowData();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['tableId'] && !changes['tableId'].firstChange) {
       this.tableName = this.tableId;
-      this.fetchColumnsAndData();
+      this.fetchRowData();
     }
   }
 
-  fetchColumnsAndData(): void {
-    // load columns
-    this.apiService.listColumns(this.tableId).subscribe({
-      next: (columns: ColumnInterface[]) => {
-        this.columns = columns
-      },
-      error: (err) => {
-        this.notificationService.addNotification({ message: 'Failed to load columns', type: 'error', dismissed: false, remainingTime: 5000 });
-      }
-    });
-
-    // load relationship columns
-    this.apiService.listRelationhipColumnsByTable(this.tableId).subscribe({
-      next: (relationshipColumns: RelationshipColumnAPIInterface[]) => {
-        this.relationshipAPIColumns = relationshipColumns;
-        this.createRelationshipColumnsDisplayName();
-        this.updateRelatedTableData(relationshipColumns);
-      },
-      error: (err) => {
-        this.notificationService.addNotification({ message: 'Failed to load relationship columns', type: 'error', dismissed: false, remainingTime: 5000 });
-      }
-    });
-  }
-
-  updateRawData(): void {
+  fetchRowData() {
     this.apiService.getRawTable(this.tableId).subscribe({
       next: (tableData: any) => {
         this.rowData = tableData;
-        this.createRowForm();
+        this.fetchColumns()
       },
       error: (err) => {
         this.notificationService.addNotification({ message: 'Failed to load table data', type: 'error', dismissed: false, remainingTime: 5000 });
@@ -97,16 +84,24 @@ export class TableComponent {
     });
   }
 
-  updateRelatedTableData(relationshipColumns: RelationshipColumnAPIInterface[]): void {
-    relationshipColumns.forEach((relationshipColumn) => {
-      this.apiService.getRawTable(relationshipColumn.rightTable).subscribe({
-        next: (tableData: any) => {
-          this.realtedTablesRowData[relationshipColumn.rightTable] = tableData;
-        },
-        error: (err) => {
-          this.notificationService.addNotification({ message: 'Failed to load related table data', type: 'error', dismissed: false, remainingTime: 5000 });
-        }
-      });
+  fetchColumns() {
+    this.allColumnIds = [];
+    this.displayedColumnIds = [];
+    Object.keys(this.rowData[0]).forEach((columnId) => {
+      if (columnId !== 'id' && !columnId.includes('_id')) {
+        this.displayedColumnIds.push(columnId);
+      }
+      this.allColumnIds.push(columnId);
+    });
+
+    this.apiService.listColumns(this.displayedColumnIds).subscribe({
+      next: (columns: ColumnInterface[]) => {
+        this.columns = columns;
+        this.createRowForm();
+      },
+      error: (err) => {
+        this.notificationService.addNotification({ message: 'Failed to load columns', type: 'error', dismissed: false, remainingTime: 5000 });
+      }
     });
   }
 
@@ -114,41 +109,59 @@ export class TableComponent {
     this.rows = this.formBuilder.group({});
     this.rowData.forEach((row) => {
       const tempForm = this.formBuilder.group({});
-      this.columns.forEach((column) => {
-        tempForm.addControl(column.id, this.formBuilder.group(
-          {value: [row[column.id]], dataType: [column.dataType], isNew: [false], isEdited: [false]},
+      this.displayedColumnIds.forEach((columnId) => {
+        tempForm.addControl(columnId, this.formBuilder.group(
+          {value: [row[columnId]], dataType: this.getColumnById(columnId).dataType, isNew: [false], isEdited: [false]},
           {validators: this.validatorService.valueDataTypeFormValidator()}
         ));
       });
-      this.rows.addControl(this.utilService.generateCustomUUID(), tempForm);
+      this.rows.addControl(row.id, tempForm);
     });
+    this.fetchRelatedTablesData();
   }
 
-  onAddNewRow() {
-    const tempForm = this.formBuilder.group({});
+  fetchRelatedTablesData() {
+    // construct relatedTables fro query as {tableId: [columnId]}
+    let relatedTables: {[key: string]: string[]} = {};
     this.columns.forEach((column) => {
-      tempForm.addControl(column.id, this.formBuilder.group(
-        {value: [''], dataType: [column.dataType], isNew: [true], isEdited: [true]},
-        {validators: this.validatorService.valueDataTypeFormValidator()}
-      ));
+      if (this.columnIsRelationship(column.id) && this.displayedColumnIds.includes(column.id)) {
+        const rightTableId = column.table;
+        if (!relatedTables[rightTableId]) {
+          relatedTables[rightTableId] = [];
+        }
+        relatedTables[rightTableId].push(column.id);
+      }
     });
-    this.rows.addControl(this.utilService.generateCustomUUID(), tempForm);
+
+    // fetch related tables data
+    Object.keys(relatedTables).forEach((tableId) => {
+      this.apiService.getRawTableLimitedColumns(tableId, relatedTables[tableId]).subscribe({
+        next: (tableData: any) => {
+          this.realtedTablesRowData[tableId] = tableData;
+        },
+        error: (err) => {
+          this.notificationService.addNotification({ message: 'Failed to load related tables data', type: 'error', dismissed: false, remainingTime: 5000 });
+        }
+      });
+    });
+    
   }
+
+
 
   onSave() {
-    console.log('saving changes', this.rows.value);
     // collect changes
-    for (const rowId of this.controlKeys()) {
-      const row = this.getRow(rowId);
+    for (const rowId of this.getRowsFormControls()) {
+      const row = this.getRowForm(rowId);
       const rowChanges: {[key: string]: {[key: string]: string | number |  boolean | Date | null}} = {[rowId]: {}};
       
       if (row.dirty || row.dirty) {
         let isRowNew = false;
         for (let columnId of Object.keys(row.controls)) {
-          const column = this.getColumn(rowId, columnId);
+          const column = this.getCellForm(rowId, columnId);
 
           // use tablename_id as columnid for relationship columns
-          if (this.isRelationshipColumn(columnId)) {
+          if (this.columnIsRelationship(columnId)) {
             const rightTableId = this.getRelationshipColumnTableId(columnId);
             const relationshipRightTableName = this.utilService.changeUuidToRelationshipRightTableName(rightTableId);
             columnId = relationshipRightTableName;
@@ -158,7 +171,7 @@ export class TableComponent {
             rowChanges[rowId][columnId] = column.get('value')?.value;
           }
           if (column.get('isNew')?.value) {
-            isRowNew = true;
+            isRowNew = column.get('isNew')?.value;
           }
         }
 
@@ -169,51 +182,115 @@ export class TableComponent {
         }
       }
     }
+  }
 
-    // save changes
-    this.apiService.updateRawTable(this.tableId, this.changes).subscribe({
-      next: (res) => {
-        this.notificationService.addNotification({message: 'Table data saved', type: 'success', dismissed: false, remainingTime: 5000});
-        this.updateRawData();
-      },
-      error: (err) => {
-        this.notificationService.addNotification({message: 'Failed to save table data', type: 'error', dismissed: false, remainingTime: 5000});
-      }
+  onAddNewRow() {
+    const tempForm = this.formBuilder.group({});
+    this.displayedColumnIds.forEach((columnId) => {
+      tempForm.addControl(columnId, this.formBuilder.group(
+        {value: [''], dataType: this.getColumnById(columnId).dataType, isNew: [true], isEdited: [true]},
+        {validators: this.validatorService.valueDataTypeFormValidator()}
+      ));
     });
+    this.rows.addControl(this.utilService.generateCustomUUID(), tempForm);
   }
 
-    // supplementary data
-    createRelationshipColumnsDisplayName() {
-      this.relationshipAPIColumns.forEach((relationshipColumn) => {
-        this.apiService.getColumn(relationshipColumn.rightTable, relationshipColumn.rightTableColumn).subscribe({
-          next: (column: ColumnInterface) => {
-            this.columns.push(column);
-          },
-          error: (err) => {
-            this.notificationService.addNotification({ message: 'Failed to load relationship columns', type: 'error', dismissed: false, remainingTime: 5000 });
-          }
-        });
-      });
-    }
 
-  // checkers
-  isRelationshipColumn(columnId: string): boolean {
-    return this.relationshipAPIColumns.some(relationshipColumn => relationshipColumn.rightTableColumn === columnId);
-  }
+  // onSave() {
+  //   console.log('saving changes', this.rows.value);
+  //   // collect changes
+  //   for (const rowId of this.controlKeys()) {
+  //     const row = this.getRow(rowId);
+  //     const rowChanges: {[key: string]: {[key: string]: string | number |  boolean | Date | null}} = {[rowId]: {}};
+      
+  //     if (row.dirty || row.dirty) {
+  //       let isRowNew = false;
+  //       for (let columnId of Object.keys(row.controls)) {
+  //         const column = this.getColumn(rowId, columnId);
+
+  //         // use tablename_id as columnid for relationship columns
+  //         if (this.isRelationshipColumn(columnId)) {
+  //           const rightTableId = this.getRelationshipColumnTableId(columnId);
+  //           const relationshipRightTableName = this.utilService.changeUuidToRelationshipRightTableName(rightTableId);
+  //           columnId = relationshipRightTableName;
+  //         }
+          
+  //         if (column.dirty) {
+  //           rowChanges[rowId][columnId] = column.get('value')?.value;
+  //         }
+  //         if (column.get('isNew')?.value) {
+  //           isRowNew = true;
+  //         }
+  //       }
+
+  //       if (isRowNew) {
+  //         this.changes.added.push(rowChanges);
+  //       } else {
+  //         this.changes.updated.push(rowChanges);
+  //       }
+  //     }
+  //   }
+
+  //   // save changes
+  //   this.apiService.updateRawTable(this.tableId, this.changes).subscribe({
+  //     next: (res) => {
+  //       this.notificationService.addNotification({message: 'Table data saved', type: 'success', dismissed: false, remainingTime: 5000});
+  //       this.updateRawData();
+  //     },
+  //     error: (err) => {
+  //       this.notificationService.addNotification({message: 'Failed to save table data', type: 'error', dismissed: false, remainingTime: 5000});
+  //     }
+  //   });
+  // }
+
+  //   // supplementary data
+  // createRelationshipColumnsDisplayName() {
+  //     this.relationshipAPIColumns.forEach((relationshipColumn) => {
+  //       this.apiService.getColumn(relationshipColumn.rightTable, relationshipColumn.rightTableColumn).subscribe({
+  //         next: (column: ColumnInterface) => {
+  //           this.columns.push(column);
+  //         },
+  //         error: (err) => {
+  //           this.notificationService.addNotification({ message: 'Failed to load relationship columns', type: 'error', dismissed: false, remainingTime: 5000 });
+  //         }
+  //       });
+  //     });
+  // }
+
+  // // checkers
+  // isRelationshipColumn(columnId: string): boolean {
+  //   return this.relationshipAPIColumns.some(relationshipColumn => relationshipColumn.rightTableColumn === columnId);
+  // }
 
   // getters
-  controlKeys(): string[] {
-    return Object.keys(this.rows.controls);
+  getRelationshipColumnData(columnId: string): any[] {
+    const column = this.columns.find(column => column.id === columnId);
+    if (!column) {
+      return [];
+    }
+    const table = this.realtedTablesRowData[column.table]
+    return table || [];
   }
 
-  getRow(rowId: string): FormGroup {
+  getColumnById(columnId: string): ColumnInterface {
+    return this.columns.find(column => column.id === columnId) || {id: '', displayName: '', description: '', dataType: 'string', table: ''};
+  }
+
+  getRowsFormControls(): string[] {
+    return Object.keys(this.rows.controls);
+  }
+  // controlKeys(): string[] {
+  //   return Object.keys(this.rows.controls);
+  // }
+
+  getRowForm(rowId: string): FormGroup {
     if (!this.rows.get(rowId)) {
       return this.formBuilder.group({});
     }
     return this.rows.get(rowId) as FormGroup;
   }
 
-  getColumn(rowId: string, columnId: string): FormGroup {
+  getCellForm(rowId: string, columnId: string): FormGroup {
     if (!this.rows.get(rowId)) {
       return this.formBuilder.group({});
     }
@@ -223,31 +300,33 @@ export class TableComponent {
     return (this.rows.get(rowId) as FormGroup).get(columnId) as FormGroup;
   }
 
-  getCellType(rowId: string, columnId: string): string {
-    return this.getColumn(rowId, columnId).get('dataType')?.value;
-  }
+  // getCellType(rowId: string, columnId: string): string {
+  //   return this.getColumn(rowId, columnId).get('dataType')?.value;
+  // }
 
-  getCellValue(rowId: string, columnId: string): string | number |  boolean | Date | null {
-    return this.getColumn(rowId, columnId).get('value')?.value;
+  // getCellValue(rowId: string, columnId: string): string | number |  boolean | Date | null {
+  //   return this.getColumn(rowId, columnId).get('value')?.value;
+  // }
+
+  getCell(rowId: string, columnId: string): any {
+    return this.getCellForm(rowId, columnId).value;
   }
 
   cellIsEdited(rowId: string, columnId: string): boolean {
-    return this.getColumn(rowId, columnId).get('isEdited')?.value;
+    return this.getCellForm(rowId, columnId).get('isEdited')?.value;
   }
 
-  getRelationshipColumnTableId(columnId: string): string {
-    const relationshipColumn = this.relationshipAPIColumns.find(relationshipColumn => relationshipColumn.rightTableColumn === columnId);
-    return relationshipColumn?.rightTable || '';
+  columnIsRelationship(columnId: string): boolean {
+    return this.columns.some(column => column.table !== this.tableId && column.id === columnId);
   }
 
-  getRelationshipColumnData(columnId: string): any[] {
-    return this.realtedTablesRowData[this.getRelationshipColumnTableId(columnId)] || [];
-  }
+  // getRelationshipColumnTableId(columnId: string): string {
+  //   const relationshipColumn = this.relationshipAPIColumns.find(relationshipColumn => relationshipColumn.rightTableColumn === columnId);
+  //   return relationshipColumn?.rightTable || '';
+  // }
 
-  // getRelationshipCellValue(id: string, columnId: string): any {
-  //   // console.log('id:', id, 'colid:', columnId, 'data:', this.getRelationshipColumnData(columnId));
-  //   const row = this.getRelationshipColumnData(columnId).find(row => row.id === id);
-  //   return row ? row[columnId] : 'jhgvk';
+  // getRelationshipColumnData(columnId: string): any[] {
+  //   return this.realtedTablesRowData[this.getRelationshipColumnTableId(columnId)] || [];
   // }
 
   // formatters

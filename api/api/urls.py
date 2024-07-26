@@ -14,6 +14,7 @@ urlpatterns = [
 
     path("api/user/", include("user.urls")),
     path("api/table/", include("table.urls")),
+    path("api/column/", include("column.urls")),
     path("api/relationship/", include("relationship.urls")),
     path("api/raw/", include("rawdata.urls")),
 ]

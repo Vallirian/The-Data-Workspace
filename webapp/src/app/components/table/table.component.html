@@ -3,13 +3,16 @@
 </div>
 <br>
 <div>
-    {{relationshipAPIColumns|json}}
-</div>
-<br>
-<div>
     {{rowData|json}}
 </div>
 <br>
+<div>
+    {{allColumnIds|json}}
+</div>
+<br>
+<div>
+    {{displayedColumnIds|json}}
+</div>
 
 
 <div class="d-flex justify-content-between mt-3">
@@ -17,6 +20,7 @@
         <input type="text" class="form-control" placeholder="search...">
     </div>
     <div style="margin-left: 24px;">
+        <button (click)="onAddNewRow()" class="btn btn-primary">+Add Row</button>
         <button (click)="onSave()" class="btn btn-primary">Save</button>
     </div>
 </div>
@@ -24,25 +28,24 @@
     <table class="table table-hover">
         <thead>
             <tr  class="arc-table-header">
-                <th scope="col" *ngFor="let header of columns">
-                    <!-- <span>{{header.displayName}} </span> -->
-                    <span>{{header.id}} </span>
-                    <span class="type">{{header.dataType}}</span>
+                <th scope="col" *ngFor="let colId of displayedColumnIds">
+                    <span>{{getColumnById(colId).displayName}} </span>
                 </th>
             </tr>
         </thead>
         <tbody [formGroup]="rows">
-            @for (row of controlKeys(); track $index) {
+            @for (rowId of getRowsFormControls(); track $index) {
                 <tr>
-                    @for (col of columns; track $index) {
-                        <td [formGroup]="getColumn(row, col.id)">
-                            @if (cellIsEdited(row, col.id)) {
-                                <input formControlName="value" type="datetime-local" class="form-control" *ngIf="getCellType(row, col.id) === 'datetime'">
-                                @if (getCellType(row, col.id) === 'string') {
-                                    @if (isRelationshipColumn(col.id)) {
+                    @for (colId of displayedColumnIds; track $index) {
+                        <td [formGroup]="getCellForm(rowId, colId)">
+                            @if (cellIsEdited(rowId, colId)) {
+                                <input formControlName="value" type="datetime-local" class="form-control" *ngIf="getCell(rowId, colId).dataType === 'datetime'">
+                                @if (getCell(rowId, colId).dataType === 'string') {
+                                    @if (columnIsRelationship(colId)) {
                                         <select formControlName="value" class="form-select">
-                                            @for (columnData of getRelationshipColumnData(col.id); track $index) {
-                                                <option [value]="columnData.id">{{columnData[col.id]}}</option>
+                                            @for (columnData of getRelationshipColumnData(colId); track $index) {
+                                                <!-- save column id here, assign the column id to table_id on save -->
+                                                <option [value]="columnData.id">{{columnData[colId]}}</option>
                                             }
                                         </select>
                                     }
@@ -50,31 +53,17 @@
                                         <input formControlName="value" type="text" class="form-control">
                                     }
                                 }
-                                <input formControlName="value" type="number" class="form-control" *ngIf="getCellType(row, col.id) === 'number'" appNumberOnly>
-                                <select formControlName="value" class="form-select" *ngIf="getCellType(row, col.id) === 'boolean'">
+                                <input formControlName="value" type="number" class="form-control" *ngIf="getCell(rowId, colId).dataType === 'number'" appNumberOnly>
+                                <select formControlName="value" class="form-select" *ngIf="getCell(rowId, colId).dataType === 'boolean'">
                                     <option [value]="1">true</option>
                                     <option [value]="0">false</option>
                                 </select>
                             }
                             @else {
-                                <span *ngIf="getCellType(row, col.id) === 'datetime'">{{formatDate(getCellValue(row, col.id))}}</span>
-                                @if (getCellType(row, col.id) === 'string') {
-                                    <span>{{getCellValue(row, col.id)}}</span>
-                                    {{col.id}}
-                                    @if (isRelationshipColumn(col.id)) {
-                                        <!-- @for (columnData of getRelationshipColumnData(col.id); track $index) {
-                                            @if (columnData.id === getRelationshipCellValue(row, col.id)) {
-                                                <span>{{columnData[col.id]}}</span>
-                                            }
-                                        } -->
-                                        hi
-                                    }
-                                    @else {
-                                        <span>{{getCellValue(row, col.id)}}</span>
-                                    }
-                                }
-                                <span *ngIf="getCellType(row, col.id) === 'number'">{{getCellValue(row, col.id)}}</span>
-                                <span *ngIf="getCellType(row, col.id) === 'boolean'">{{getCellValue(row, col.id)}}</span>
+                                <span *ngIf="getCell(rowId, colId).dataType === 'datetime'">{{formatDate(getCell(rowId, colId).value)}}</span>
+                                <span *ngIf="getCell(rowId, colId).dataType === 'string'">{{getCell(rowId, colId).value}}</span>
+                                <span *ngIf="getCell(rowId, colId).dataType === 'number'">{{getCell(rowId, colId).value}}</span>
+                                <span *ngIf="getCell(rowId, colId).dataType === 'boolean'">{{getCell(rowId, colId).value}}</span>
                             }
                         </td>
                     }
@@ -82,5 +71,5 @@
             }
         </tbody>
     </table>
-    <div class="text-button-primary mt-3" (click)="onAddNewRow()">+ Add Row</div>
+    <!-- <div class="text-button-primary mt-3" (click)="onAddNewRow()">+ Add Row</div> -->
 </div>

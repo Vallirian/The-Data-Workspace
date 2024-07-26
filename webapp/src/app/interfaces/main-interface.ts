@@ -42,7 +42,7 @@ export interface ColumnInterface {
     displayName: string;
     description: string;
     dataType: 'string' | 'number' | 'datetime' | 'boolean';
-    
+    table: string;    
 }
 
 export interface RelationshipColumnInterface {

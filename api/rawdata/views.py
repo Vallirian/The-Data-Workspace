@@ -10,6 +10,15 @@ class RawDataView(APIView):
     def get(self, request, table_id):
         column_ids = get_column_ids(table_id)
 
+        # limit the columns to be queried
+        print('all ids', column_ids)
+        requested_columns = request.query_params.get("columns")
+        if requested_columns:
+            requested_columns = requested_columns.split(",")
+            for k, v in column_ids.items():
+                column_ids[k] = {col_id for col_id in v if col_id in requested_columns}
+        print('filtered ids', column_ids)
+
         column_query = ''
         for k, v in column_ids.items():
             for col_id in v:
