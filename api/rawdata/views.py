@@ -8,6 +8,7 @@ from rawdata.raw_data_helpers import get_column_ids
 
 class RawDataView(APIView):
     def get(self, request, table_id):
+        tenant_id = request.user.tenant.id
         column_ids = get_column_ids(table_id)
 
         # limit the columns to be queried
@@ -45,8 +46,8 @@ class RawDataView(APIView):
                     FROM {table_id}
                     {join_query}
                 """
+                query += f'WHERE {table_id}.tenant_id = \'{tenant_id}\' '
                 query += f'ORDER BY {table_id}.updatedAt DESC;'
-                print(query)
                 cursor.execute(query)
 
                 # Extract column headers
@@ -54,7 +55,6 @@ class RawDataView(APIView):
 
                 # Fetch all rows from cursor
                 rows = cursor.fetchall()
-                print(rows)
                 
                 # Map rows with columns to dictionaries
                 response_data = [dict(zip(columns, row)) for row in rows]
@@ -62,7 +62,6 @@ class RawDataView(APIView):
                 # if no data is found, return empty list with column headers
                 if not response_data:
                     response_data = [dict(zip(columns, [None]*len(columns)))]
-                print(response_data)
 
                 return Response(response_data)
         except Exception as e:
@@ -89,9 +88,7 @@ class RawDataView(APIView):
                     insert_into_var = insert_into_var[:-2] + ')'
                     values_var = values_var[:-2] + ');'
                     final_query += insert_into_var + values_var
-                print(final_query)
                 cursor.execute(final_query)
                 return Response("Successfully added data", status=status.HTTP_201_CREATED)
         except Exception as e:
-            print(e)
             return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)

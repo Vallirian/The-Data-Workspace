@@ -25,6 +25,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
+    'channels',
 
     "django.contrib.admin",
     "django.contrib.auth",
@@ -40,7 +41,9 @@ INSTALLED_APPS = [
     'relationship',
     'column',
     'rawdata',
+    'copilot',
 ]
+
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -133,6 +136,8 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+ASGI_APPLICATION = "api.asgi.application"
 
 
 REST_FRAMEWORK = {

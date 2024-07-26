@@ -7,6 +7,7 @@ import { NavbarService } from '../../services/navbar.service';
 import { NotificationService } from '../../services/notification.service';
 import { AddColumnComponent } from '../../components/forms/add-column/add-column.component';
 import { ColumnInterface, RelationshipColumnAPIInterface, RelationshipColumnInterface } from '../../interfaces/main-interface';
+import { WebsocketService } from '../../services/websocket.service';
 
 @Component({
   selector: 'app-edit-table',
@@ -33,10 +34,14 @@ export class EditTableComponent {
     private apiService: ApiService,
     private activatedRoute: ActivatedRoute,
     private navbarService: NavbarService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private websocketService: WebsocketService
   ) { }
 
   ngOnInit(): void {
+    // start websocket connection
+    this.websocketService.analysisChatSocket.subscribe();
+
     // set navbar actions
     this.tableId = this.activatedRoute.snapshot.params['id'];
     this.apiService.getTable(this.tableId).subscribe({
@@ -126,5 +131,10 @@ export class EditTableComponent {
   
   onRelationshipColumnCreated(relationshipColumnData: RelationshipColumnInterface) {
     this.relationshipColumns.push(relationshipColumnData);
+  }
+
+  // to be deleted
+  onSendWebsocketMessage() {
+    this.websocketService.analysisChatSocket.next('Hello from Angular');
   }
 }
