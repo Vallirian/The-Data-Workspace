@@ -1,4 +1,4 @@
-import uuid
+from datetime import datetime
 from django.db import connection
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -11,13 +11,11 @@ class RawDataView(APIView):
         column_ids = get_column_ids(table_id)
 
         # limit the columns to be queried
-        print('all ids', column_ids)
         requested_columns = request.query_params.get("columns")
         if requested_columns:
             requested_columns = requested_columns.split(",")
             for k, v in column_ids.items():
                 column_ids[k] = {col_id for col_id in v if col_id in requested_columns}
-        print('filtered ids', column_ids)
 
         column_query = ''
         for k, v in column_ids.items():
@@ -37,11 +35,18 @@ class RawDataView(APIView):
         
         try:
             with connection.cursor() as cursor:
-                query = f"""
-                    SELECT {table_id}.id AS id, {column_query}
+                query = f"SELECT {table_id}.id AS id, {table_id}.updatedAt AS updatedAt, {column_query}"
+                query = query.strip()
+                if query[-1] == ',': 
+                    # for cases where column_query is empty
+                    query = query[:-1]
+
+                query += f"""
                     FROM {table_id}
                     {join_query}
                 """
+                query += f'ORDER BY {table_id}.updatedAt DESC;'
+                print(query)
                 cursor.execute(query)
 
                 # Extract column headers
@@ -49,11 +54,19 @@ class RawDataView(APIView):
 
                 # Fetch all rows from cursor
                 rows = cursor.fetchall()
+                print(rows)
                 
                 # Map rows with columns to dictionaries
                 response_data = [dict(zip(columns, row)) for row in rows]
+                
+                # if no data is found, return empty list with column headers
+                if not response_data:
+                    response_data = [dict(zip(columns, [None]*len(columns)))]
+                print(response_data)
+
                 return Response(response_data)
         except Exception as e:
+            print(e)
             return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     def put(self, request, table_id):
@@ -66,8 +79,9 @@ class RawDataView(APIView):
                 
                 for row in added_rows:
                     # added columns
-                    insert_into_var = f'INSERT INTO {table_id} (id, tenant_id, '
-                    values_var = f"VALUES ('{autils.custom_uuid()}', '{tenant_id}',"
+                    current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    insert_into_var = f'INSERT INTO {table_id} (id, tenant_id, updatedAt, '
+                    values_var = f"VALUES ('{autils.custom_uuid()}', '{tenant_id}', '{current_timestamp}', "
                     for _, column_changes in row.items():
                         for col_id, col_val in column_changes.items():
                             insert_into_var += f'{col_id}, '
@@ -75,8 +89,9 @@ class RawDataView(APIView):
                     insert_into_var = insert_into_var[:-2] + ')'
                     values_var = values_var[:-2] + ');'
                     final_query += insert_into_var + values_var
-
+                print(final_query)
                 cursor.execute(final_query)
                 return Response("Successfully added data", status=status.HTTP_201_CREATED)
         except Exception as e:
+            print(e)
             return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)

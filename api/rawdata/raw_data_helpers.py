@@ -6,7 +6,7 @@ def get_column_ids(table_id):
 
     try:
         with connection.cursor() as cursor:
-            direc_cols_query = f"SELECT id FROM {avars.column_table} WHERE table_id = '{table_id}';"
+            direc_cols_query = f"SELECT id FROM {avars.column_table} WHERE table_id = '{table_id}' ORDER BY updatedAt ASC;"
             cursor.execute(direc_cols_query)
             rows = cursor.fetchall()
             for row in rows:
@@ -16,7 +16,8 @@ def get_column_ids(table_id):
             rel_tables_query = f"""
                 SELECT rightTable_id, rightTableColumn_id 
                 FROM {avars.relationship_table} 
-                WHERE leftTable_id = '{table_id}';
+                WHERE leftTable_id = '{table_id}'
+                ORDER BY updatedAt ASC;
             """
             cursor.execute(rel_tables_query)
             rows = cursor.fetchall()
@@ -36,7 +37,7 @@ def create_raw_table(table_id):
                 CREATE TABLE {table_id} (
                     id {avars.data_type_map['UUID']} NOT NULL PRIMARY KEY,
                     tenant_id {avars.data_type_map['UUID']} NOT NULL,
-                    
+                    updatedAt {avars.data_type_map['datetime']}
                 );
             '''
             cursor.execute(query)

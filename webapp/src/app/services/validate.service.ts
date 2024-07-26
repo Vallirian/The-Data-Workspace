@@ -55,6 +55,11 @@ export class ValidateService {
       const dataType = control.get('dataType')?.value;
       let isValid = true;
 
+      if (value === null || value === undefined || value === '') {
+        // allow empty values
+        return null;
+      }
+
       if (dataType === null || dataType === undefined || dataType === '') {
         isValid = false;
       }
