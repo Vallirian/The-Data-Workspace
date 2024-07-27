@@ -6,7 +6,7 @@ def get_column_ids(table_id):
 
     try:
         with connection.cursor() as cursor:
-            direc_cols_query = f"SELECT id FROM {avars.column_table} WHERE table_id = '{table_id}' ORDER BY updatedAt ASC;"
+            direc_cols_query = f"SELECT id FROM {avars.column_table} WHERE table_id = '{table_id}' ORDER BY updatedAt DESC;"
             cursor.execute(direc_cols_query)
             rows = cursor.fetchall()
             for row in rows:
@@ -17,7 +17,7 @@ def get_column_ids(table_id):
                 SELECT rightTable_id, rightTableColumn_id 
                 FROM {avars.relationship_table} 
                 WHERE leftTable_id = '{table_id}'
-                ORDER BY updatedAt ASC;
+                ORDER BY updatedAt DESC;
             """
             cursor.execute(rel_tables_query)
             rows = cursor.fetchall()
@@ -34,7 +34,7 @@ def create_raw_table(table_id):
     try:
         with connection.cursor() as cursor:
             query = f'''
-                CREATE TABLE {table_id} (
+                CREATE TABLE `{table_id}` (
                     id {avars.data_type_map['UUID']} NOT NULL PRIMARY KEY,
                     tenant_id {avars.data_type_map['UUID']} NOT NULL,
                     updatedAt {avars.data_type_map['datetime']}
@@ -48,8 +48,8 @@ def insert_new_column(table_id, column_id, data_type):
     try:
         with connection.cursor() as cursor:
             query = f'''
-                ALTER TABLE {table_id}
-                    ADD COLUMN {column_id} {avars.data_type_map[data_type]};
+                ALTER TABLE `{table_id}`
+                    ADD COLUMN `{column_id}` {avars.data_type_map[data_type]};
             '''
             print(query)
             cursor.execute(query)

@@ -54,7 +54,7 @@
             }
         </ul>
         
-        <div *ngIf="addNewColumnFormOpen" class="border py-3 px-2 mb-2">
+        <div *ngIf="addNewColumnFormOpen" class="border py-3 px-2 my-2">
             <app-add-column [tableId]="this.tableId" (closeForm)="onCloseAddNewColumnForm()" (columnCreated)="onColumnCreated($event)" (relationshipColumnCreated)="onRelationshipColumnCreated($event)"></app-add-column>
         </div>
         <div class="text-button-primary" (click)="onAddNewColumn()">+ Add New</div>
