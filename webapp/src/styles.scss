@@ -9,26 +9,22 @@ body {
 @import './assets/styles/_layout';
 @import './assets/styles/_navbar';
 @import './assets/styles/_modal';
+@import './assets/styles/_chat';
 
 .app-container {
     display: flex;
     flex-direction: column;
     height: 100vh;
     width: 100vw;
-
-    background-color: $gray-10;
-    // background-color: $cool-gray-10
-    // background-color: $gray-30;
 }
 
 .arc-navbar {
-    // background-color: $white;
-    // border-bottom: 0.5px solid $gray-30;
+    border-bottom: 1px solid $gray-20;
     height: $row-height-01;
 }
 
 .arc-content-container {
-    // background-color: $gray-10;
+    background-color: $gray-10;
     height: 100%;
     width: 100%;
 }

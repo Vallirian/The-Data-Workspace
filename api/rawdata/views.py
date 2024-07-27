@@ -65,7 +65,6 @@ class RawDataView(APIView):
 
                 return Response(response_data)
         except Exception as e:
-            print(e)
             return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     def put(self, request, table_id):
@@ -73,22 +72,30 @@ class RawDataView(APIView):
         try:
             with connection.cursor() as cursor:
                 # add rows
-                final_query = ''
                 added_rows = request.data["added"]
+                print(added_rows)
                 
                 for row in added_rows:
                     # added columns
                     current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     insert_into_var = f'INSERT INTO {table_id} (id, tenant_id, updatedAt, '
-                    values_var = f"VALUES ('{autils.custom_uuid()}', '{tenant_id}', '{current_timestamp}', "
+                    values_var = f"VALUES (%s, %s, %s, "
+                    params = [autils.custom_uuid(), tenant_id, current_timestamp]
+                    
                     for _, column_changes in row.items():
                         for col_id, col_val in column_changes.items():
                             insert_into_var += f'{col_id}, '
-                            values_var += f'\'{col_val}\', '
+                            values_var += '%s, '
+                            params.append(col_val)
+                    
                     insert_into_var = insert_into_var[:-2] + ')'
-                    values_var = values_var[:-2] + ');'
-                    final_query += insert_into_var + values_var
-                cursor.execute(final_query)
+                    values_var = values_var[:-2] + ')'
+                    final_query = insert_into_var + values_var
+                    print(final_query)
+                    print(params)
+                    cursor.execute(final_query, params)
+                
                 return Response("Successfully added data", status=status.HTTP_201_CREATED)
         except Exception as e:
+            print(e)
             return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -6,22 +6,64 @@
             }
         </div>
         <div class="input-group">
-            <input type="text" class="form-control" placeholder="ask copilot a question" [(ngModel)]="currentMessage">
-            <button (click)="onSendMessage(currentMessage)" class="btn btn-outline-secondary" type="button">Button</button>
+            <input type="text" class="form-control" placeholder="start conversation for AI-powered analysis" [(ngModel)]="currentMessage">
+            @if (answerLoading) {
+                <button (click)="onSendMessage(currentMessage)" class="btn btn-outline-secondary" type="button">                
+                    <div class="spinner-border text-secondary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </button>
+            }
+            @else {
+                <button (click)="onSendMessage(currentMessage)" class="btn btn-outline-secondary" type="button">                
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-arrow-up-short" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M8 12a.5.5 0 0 0 .5-.5V5.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 5.707V11.5a.5.5 0 0 0 .5.5"/>
+                    </svg>
+                </button>
+            }
         </div>
     </div>
 }
 @else {
     <div class="container-with-scrollable-content">
         <div class="d-flex flex-column scrollable">
-        @for (msg of messages; track $index) {
-            <div class="me-2">{{msg.message}}</div>
-        }
+            @for (msg of messages; track $index) {
+            <div class="mb-3 message-box">
+                <div class="d-flex align-items-center mb-2">
+                    <div 
+                        [ngClass]=" {
+                            'incoming-message': msg.sender === 'model',
+                            'outgoing-message': msg.sender !== 'model'
+                        }" class="profile-box">
+                    </div>
+                    <span class="message-time">{{formatDate(msg.createdAt)}}</span>
+                </div>
+                <div [innerHTML]="msg.message | message"></div>
+            </div>
+            }
         </div>
         
-        <div class="input-group">
+        <div class="input-group mt-2">
             <input type="text" class="form-control" placeholder="ask copilot a question" [(ngModel)]="currentMessage">
-            <button (click)="onSendMessage(currentMessage)" class="btn btn-outline-secondary" type="button">Button</button>
+            @if (answerLoading) {
+                <button (click)="onSendMessage(currentMessage)" class="btn btn-outline-secondary" type="button">                
+                    <div class="spinner-border text-secondary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </button>
+            }
+            @else {
+                <button (click)="onSendMessage(currentMessage)" class="btn btn-outline-secondary" type="button">                
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-arrow-up-short" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M8 12a.5.5 0 0 0 .5-.5V5.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 5.707V11.5a.5.5 0 0 0 .5.5"/>
+                    </svg>
+                </button>
+            }
+            <button (click)="onCloseConversation()" class="btn btn-outline-secondary" type="button">                
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                </svg>
+            </button>
         </div>
     </div>
 }

@@ -18,19 +18,18 @@
 }
 
 .preview-section {
-    // background-color: $gray-10;
-    background-color: $white;
+    background-color: $gray-10;
     width: 70%;
     height: 100%;
-    padding: 8px;
-    border: 1px solid $gray-30;
-    border-radius: 4px;
+    padding-left: $padding-1;
 }
 
 .working-section {
-    // background-color: $white;
+    background-color: $white;
     width:30%;
     height: 100%;
+    border-left: 1px solid $gray-20;
+    padding-bottom: $padding-1;
 }
 
 .full-section-content {
