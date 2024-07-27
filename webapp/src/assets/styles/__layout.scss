@@ -12,20 +12,23 @@
 .full-section {
     display: flex;
     flex-direction: row;
-    // justify-content: center;
-    // align-items: center;
     height: 100%;
     width: 100%;
+    gap: 8px;
 }
 
 .preview-section {
-    background-color: $gray-10;
+    // background-color: $gray-10;
+    background-color: $white;
     width: 70%;
     height: 100%;
+    padding: 8px;
+    border: 1px solid $gray-30;
+    border-radius: 4px;
 }
 
 .working-section {
-    background-color: $white;
+    // background-color: $white;
     width:30%;
     height: 100%;
 }
@@ -36,8 +39,17 @@
     overflow: auto;
 }
 
+.container-with-scrollable-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
 
-// .row {
-//     margin: 0;
-//     padding: 0;
-// }
+    // background-color: darkorchid;
+    
+    .scrollable {
+        width: 100%;
+        flex: 1 1 0; 
+        overflow: auto; 
+    }
+}

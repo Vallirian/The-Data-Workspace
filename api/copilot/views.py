@@ -65,8 +65,8 @@ class CopilotAnalysisChat(APIView):
             new_conversation = CopilotConversation(tenant_id=tenant_id, displayName=message)
             new_conversation.save()
 
-            new_message = CopilotMessage(copilotconversation=new_conversation, message=message, sender=request.user.id, tenant_id=tenant_id)
-            new_message.save()
+            new_user_message = CopilotMessage(copilotconversation=new_conversation, message=message, sender=request.user.id, tenant_id=tenant_id)
+            new_user_message.save()
         except Exception as e:
             return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -78,8 +78,8 @@ class CopilotAnalysisChat(APIView):
         
         # record the response
         try:
-            new_message = CopilotMessage(copilotconversation=new_conversation, message=message, sender=avars.copilot_system_user, tenant_id=tenant_id)
-            new_message.save()
+            new_model_message = CopilotMessage(copilotconversation=new_conversation, message=response_text, sender=avars.copilot_system_user, tenant_id=tenant_id)
+            new_model_message.save()
         except Exception as e:
             return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

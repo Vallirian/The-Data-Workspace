@@ -1,11 +1,11 @@
 <div class="full-section">
-    <div class="full-section container-fluid preview-section">
+    <div class="preview-section">
         <app-table 
             [tableId]="tableId"
             class="full-section-content" >
         </app-table>
     </div>
-    <div class="full-section container-fluid working-section d-flex flex-column">
+    <div class="working-section d-flex flex-column">
         <div>
             <ul class="nav nav-underline nav-fill">
                 <li class="nav-item">
@@ -20,7 +20,7 @@
             </ul>
         </div>
 
-        <div class="container-fluid mt-3">
+        <div class="container-fluid flex-grow-1 mt-3">
             <ng-container [ngSwitch]="selectedSection">
                 <ng-container *ngSwitchCase="'section-details'">
                     <ng-container *ngTemplateOutlet="__section_details"></ng-container>
@@ -62,7 +62,7 @@
 </ng-template>
 
 <ng-template #__section_copilot_chat>
-    <app-chat></app-chat>
+    <app-chat class="container-with-scrollable-content"></app-chat>
 </ng-template>
 
 <ng-template #__section_automations>
