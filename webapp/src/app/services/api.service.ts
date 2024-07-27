@@ -58,15 +58,6 @@ export class ApiService {
     return this.http.post<ColumnInterface>(`${this.baseUrl}/column/`, data, {params});
   }
 
-
-  // getTableColumn(tableId: string, columnId: string) {
-  //   return this.http.get<ColumnInterface>(`${this.baseUrl}/table/${tableId}/column/${columnId}`);
-  // }
-
-  // createTableColumn(tableId: string, data: {displayName: string, description: string, dataType: 'string' | 'number' | 'datetime' | 'boolean'}) {
-  //   return this.http.post<ColumnInterface>(`${this.baseUrl}/table/${tableId}/column/`, data);
-  // }
-
   // Relationship Column API
   listRelationshipColumns(tableId: string) {
     return this.http.get<ColumnInterface[]>(`${this.baseUrl}/relationship/${tableId}/`);
@@ -94,6 +85,28 @@ export class ApiService {
     const params = new HttpParams()
       .set('columns', columns.join(','));
     return this.http.get(`${this.baseUrl}/raw/${tableId}/`, {params});
+  }
+
+
+  // copilot API
+  listAnalysisChats() {
+    return this.http.get<any[]>(`${this.baseUrl}/copilot/analysis/`);
+  }
+
+  getAnalysisChat(conversationId: string) {
+    const params = new HttpParams()
+      .set('conversationId', conversationId);
+    return this.http.get<any>(`${this.baseUrl}/copilot/analysis/`, {params});
+  }
+  
+  startAnalysisChat(message: string) {
+    return this.http.post(`${this.baseUrl}/copilot/analysis/`, {'message': message});
+  }
+
+  sendMessageAnalysisChat(conversationId: string, message: string) {
+    const params = new HttpParams()
+      .set('conversationId', conversationId);
+    return this.http.put(`${this.baseUrl}/copilot/analysis/`, {'message': message}, {params});
   }
 
 }

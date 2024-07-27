@@ -6,6 +6,8 @@ data_type_map = {
     "datetime": "TIMESTAMP"
 }
 
+copilot_system_user = "model"
+
 raw_table_prefix = "raw_table_"
 raw_column_prefix = "raw_column_"
 relationship_column_prefix = "raw_relationship_"

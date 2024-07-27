@@ -12,7 +12,7 @@
                     <a class="nav-link" [class.active]="selectedSection === 'section-details'" (click)="selectedSection = 'section-details'" aria-current="true">Details</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" [class.active]="selectedSection === 'section-columns'" (click)="selectedSection = 'section-columns'">Columns</a>
+                    <a class="nav-link" [class.active]="selectedSection === 'section-copilot-chat'" (click)="selectedSection = 'section-copilot-chat'">Analysis</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" [class.active]="selectedSection === 'section-automations'" (click)="selectedSection = 'section-automations'">Automations</a>
@@ -25,8 +25,8 @@
                 <ng-container *ngSwitchCase="'section-details'">
                     <ng-container *ngTemplateOutlet="__section_details"></ng-container>
                 </ng-container>
-                <ng-container *ngSwitchCase="'section-columns'">
-                    <ng-container *ngTemplateOutlet="__section_columns"></ng-container>
+                <ng-container *ngSwitchCase="'section-copilot-chat'">
+                    <ng-container *ngTemplateOutlet="__section_copilot_chat"></ng-container>
                 </ng-container>
                 <ng-container *ngSwitchCase="'section-automations'">
                     <ng-container *ngTemplateOutlet="__section_automations"></ng-container>
@@ -61,8 +61,8 @@
     </div>
 </ng-template>
 
-<ng-template #__section_columns>
-    <button (click)="onSendWebsocketMessage()">send websocet</button>
+<ng-template #__section_copilot_chat>
+    <app-chat></app-chat>
 </ng-template>
 
 <ng-template #__section_automations>

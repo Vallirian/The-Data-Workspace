@@ -1,0 +1,21 @@
+@if (selectedConversationId == null) {
+    <div class="list-group">
+        @for (chat of chats; track $index) {
+            <div (click)="onSelectConversation(chat.conversationId)" class="list-group-item list-group-item-action">{{chat.displayName}} {{formatDate(chat.createdAt)}}</div>
+        }
+    </div>
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" placeholder="ask copilot a question" [(ngModel)]="currentMessage">
+        <button (click)="onSendMessage(currentMessage)" class="btn btn-outline-secondary" type="button">Button</button>
+    </div>
+}
+@else {
+    @for (msg of messages; track $index) {
+        {{ msg.message }}
+    }
+    
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" placeholder="ask copilot a question" [(ngModel)]="currentMessage">
+        <button (click)="onSendMessage(currentMessage)" class="btn btn-outline-secondary" type="button">Button</button>
+    </div>
+}

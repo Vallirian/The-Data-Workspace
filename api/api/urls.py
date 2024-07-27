@@ -17,4 +17,6 @@ urlpatterns = [
     path("api/column/", include("column.urls")),
     path("api/relationship/", include("relationship.urls")),
     path("api/raw/", include("rawdata.urls")),
+
+    path("api/copilot/", include("copilot.urls")),
 ]

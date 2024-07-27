@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Inject, inject, Injectable, PLATFORM_ID, signal, Signal } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 import { UserInterface, UserLoginInteface, UserRegisterInteface } from '../interfaces/main-interface';
 import { isPlatformBrowser } from '@angular/common';
 import { UtilService } from './util.service';
@@ -50,13 +50,28 @@ export class AuthService {
   
   }
 
-  refreshToken() {
+  isTokenExpired(): boolean {
+    if (!isPlatformBrowser(this.platformId)) {
+      return true;
+    }
+    const token = localStorage.getItem('access_token');
+
+    if (!token) {
+      return true;
+    }
+    return this.jwtService.isTokenExpired(token);
+  }
+
+  refreshToken(): Observable<any> {
     if (!isPlatformBrowser(this.platformId)) {
       return new Observable();
     }
 
     const refreshToken = localStorage.getItem('refresh_token');
-    return this.http.post(`${this.authTokenUrl}/refresh/`, { refreshToken });
+    return this.http.post<{ access: string }>(`${this.authTokenUrl}/refresh/`, { refresh: refreshToken }).pipe(
+      map(response => response.access),
+      tap(newToken => this.saveToken(newToken))
+    );
   }
 
   signup(user: UserRegisterInteface): Observable<any> {

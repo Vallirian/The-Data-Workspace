@@ -88,7 +88,6 @@ export class TableComponent {
   extractColumns() {
     this.allColumnIds = [];
     this.displayedColumnIds = [];
-    console.log(this.rowData);
     Object.keys(this.rowData[0]).forEach((columnId) => {
       if (columnId !== 'id' && !columnId.includes('_id') && columnId !== 'updatedAt') {
         this.displayedColumnIds.push(columnId);
@@ -224,9 +223,6 @@ export class TableComponent {
   getRowsFormControls(): string[] {
     return Object.keys(this.rows.controls);
   }
-  // controlKeys(): string[] {
-  //   return Object.keys(this.rows.controls);
-  // }
 
   getRowForm(rowId: string): FormGroup {
     if (!this.rows.get(rowId)) {
@@ -245,14 +241,6 @@ export class TableComponent {
     return (this.rows.get(rowId) as FormGroup).get(columnId) as FormGroup;
   }
 
-  // getCellType(rowId: string, columnId: string): string {
-  //   return this.getColumn(rowId, columnId).get('dataType')?.value;
-  // }
-
-  // getCellValue(rowId: string, columnId: string): string | number |  boolean | Date | null {
-  //   return this.getColumn(rowId, columnId).get('value')?.value;
-  // }
-
   getCell(rowId: string, columnId: string): any {
     return this.getCellForm(rowId, columnId).value;
   }
@@ -264,15 +252,6 @@ export class TableComponent {
   columnIsRelationship(columnId: string): boolean {
     return this.columns.some(column => column.table !== this.tableId && column.id === columnId);
   }
-
-  // getRelationshipColumnTableId(columnId: string): string {
-  //   const relationshipColumn = this.relationshipAPIColumns.find(relationshipColumn => relationshipColumn.rightTableColumn === columnId);
-  //   return relationshipColumn?.rightTable || '';
-  // }
-
-  // getRelationshipColumnData(columnId: string): any[] {
-  //   return this.realtedTablesRowData[this.getRelationshipColumnTableId(columnId)] || [];
-  // }
 
   // formatters
   formatDate(value: any): string {

@@ -26,8 +26,17 @@ export class JwtService {
       const decodedJson = atob(paddedBase64);
       return JSON.parse(decodedJson);
     } catch (e) {
-      console.error('Error decoding or parsing JWT:', e);
       return null;
     }
+  }
+
+  isTokenExpired(token: string): boolean {
+    const decodedToken = this.decodeJwt(token);
+    if (!decodedToken) {
+      return true;
+    }
+    const expiration = decodedToken.exp;
+    const now = Date.now() / 1000;
+    return now >= expiration;
   }
 }

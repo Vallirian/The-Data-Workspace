@@ -7,7 +7,7 @@ import { NavbarService } from '../../services/navbar.service';
 import { NotificationService } from '../../services/notification.service';
 import { AddColumnComponent } from '../../components/forms/add-column/add-column.component';
 import { ColumnInterface, RelationshipColumnAPIInterface, RelationshipColumnInterface } from '../../interfaces/main-interface';
-import { WebsocketService } from '../../services/websocket.service';
+import { ChatComponent } from '../../components/chat/chat.component';
 
 @Component({
   selector: 'app-edit-table',
@@ -15,13 +15,14 @@ import { WebsocketService } from '../../services/websocket.service';
   imports: [
     CommonModule,
     TableComponent,
-    AddColumnComponent
+    AddColumnComponent,
+    ChatComponent
   ],
   templateUrl: './edit-table.component.html',
   styleUrl: './edit-table.component.scss'
 })
 export class EditTableComponent {
-  selectedSection: 'section-details' | 'section-columns' | 'section-automations' = 'section-details';
+  selectedSection: 'section-details' | 'section-copilot-chat' | 'section-automations' = 'section-copilot-chat';
   tableId: string = '';
   tableData: any = {};
 
@@ -35,13 +36,9 @@ export class EditTableComponent {
     private activatedRoute: ActivatedRoute,
     private navbarService: NavbarService,
     private notificationService: NotificationService,
-    private websocketService: WebsocketService
   ) { }
 
   ngOnInit(): void {
-    // start websocket connection
-    this.websocketService.analysisChatSocket.subscribe();
-
     // set navbar actions
     this.tableId = this.activatedRoute.snapshot.params['id'];
     this.apiService.getTable(this.tableId).subscribe({
@@ -131,10 +128,5 @@ export class EditTableComponent {
   
   onRelationshipColumnCreated(relationshipColumnData: RelationshipColumnInterface) {
     this.relationshipColumns.push(relationshipColumnData);
-  }
-
-  // to be deleted
-  onSendWebsocketMessage() {
-    this.websocketService.analysisChatSocket.next('Hello from Angular');
   }
 }
