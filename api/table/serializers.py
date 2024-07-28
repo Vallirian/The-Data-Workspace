@@ -1,7 +1,7 @@
 from django.db import transaction
 from rest_framework import serializers
 from table.models import Table
-from rawdata.raw_data_helpers import create_raw_table
+# from rawdata.raw_data_helpers import create_raw_table
 
 class TableSerializer(serializers.ModelSerializer):
     class Meta:
@@ -21,5 +21,5 @@ class TableSerializer(serializers.ModelSerializer):
             instance.save()
 
             # create raw table
-            create_raw_table(instance.id)
+            # create_raw_table(instance.id)
             return instance

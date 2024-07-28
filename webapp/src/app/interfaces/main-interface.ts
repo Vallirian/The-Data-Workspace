@@ -38,11 +38,8 @@ export interface TableListInterface {
 
 // Column
 export interface ColumnInterface {
-    id: string;
-    displayName: string;
-    description: string;
+    name: string;
     dataType: 'string' | 'number' | 'datetime' | 'boolean';
-    table: string;    
 }
 
 export interface RelationshipColumnInterface {

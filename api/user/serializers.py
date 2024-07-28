@@ -4,6 +4,7 @@ from user.models import CustomUser
 from tenant.models import Tenant
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
+from helpers import arc_sql as asql
 
 # JWT toekn customization
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -31,6 +32,9 @@ class RegisterCustomUserSerializer(serializers.ModelSerializer):
             tenant_display_name = validated_data.pop('tenantDisplayName', None)
             tenant = Tenant.objects.create(displayName=tenant_display_name)
             tenant.save()
+
+            # create schema for tenant
+            asql.create_schema(tenant.id)
 
             # create a new user
             password = validated_data.pop("password", None)

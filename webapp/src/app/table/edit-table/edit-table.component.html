@@ -47,7 +47,7 @@
         <p class="fs-6 mt-4">Columns</p>
         <ul class="list-group">
             @for (col of columns; track $index) {
-                <li class="list-group-item">{{ col.displayName }} {{ col.dataType }}</li>
+                <li class="list-group-item">{{ col }} {{ col.dataType }}</li>
             }
             @for (relationshipCol of relationshipColumns; track $index) {
                 <li class="list-group-item">{{ relationshipCol.rightColumnDisplayName }} {{ relationshipCol.rightColumnDataType }} (realtionship)</li>

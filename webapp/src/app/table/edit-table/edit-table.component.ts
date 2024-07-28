@@ -49,21 +49,11 @@ export class EditTableComponent {
         // load columns
         this.apiService.listColumnsByTable(this.tableId).subscribe({
           next: (columns: ColumnInterface[]) => {
+            console.log(columns);
             this.columns = columns;
           },
           error: (err) => {
             this.notificationService.addNotification({message: 'Failed to load columns', type: 'error', dismissed: false, remainingTime: 5000});
-          }
-        });
-
-        // load relationship columns
-        this.apiService.listRelationhipColumnsByTable(this.tableId).subscribe({
-          next: (relationshipColumns: RelationshipColumnAPIInterface[]) => {
-            this.relationshipAPIColumns = relationshipColumns
-            this.createRelationshipColumnsDisplayName();
-          },
-          error: (err) => {
-            this.notificationService.addNotification({message: 'Failed to load relationship columns', type: 'error', dismissed: false, remainingTime: 5000});
           }
         });
 
@@ -76,42 +66,6 @@ export class EditTableComponent {
 
   ngOnDestroy(): void {
     this.navbarService.removeBreadCrumb();
-  }
-
-  createRelationshipColumnsDisplayName() {
-    this.relationshipAPIColumns.forEach((relationshipColumn) => {
-      let tableDisplayName = '';
-      let columnDisplayName = '';
-      let columnDataType = '';
-      this.apiService.getTable(relationshipColumn.rightTable).subscribe({
-        next: (tableData: any) => {
-          tableDisplayName = tableData.displayName;
-          this.apiService.listColumnsByTable(relationshipColumn.rightTable).subscribe({
-            next: (columns: ColumnInterface[]) => {
-              columns.forEach((column) => {
-                if (column.id === relationshipColumn.rightTableColumn) {
-                  columnDisplayName = column.displayName;
-                  columnDataType = column.dataType;
-                }
-              });
-              this.relationshipColumns.push({
-                rightTableId: relationshipColumn.rightTable,
-                rightTableDisplayName: tableDisplayName,
-                rightColumnId: relationshipColumn.rightTableColumn,
-                rightColumnDisplayName: columnDisplayName,
-                rightColumnDataType: columnDataType
-              });
-            },
-            error: (err) => {
-              this.notificationService.addNotification({message: 'Failed to load columns', type: 'error', dismissed: false, remainingTime: 5000});
-            }
-          });
-        },
-        error: (err) => {
-          this.notificationService.addNotification({message: 'Failed to load table', type: 'error', dismissed: false, remainingTime: 5000});
-        }
-      });
-    });
   }
 
   onAddNewColumn() {

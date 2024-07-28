@@ -1,5 +1,5 @@
 from django.db import connection
-from helpers import arc_utils as autils, arc_vars as avars
+from helpers import arc_utils as autils, arc_vars as avars, arc_sql as asql
 
 def get_column_ids(table_id):
     all_columns = {table_id: set()}
@@ -30,19 +30,14 @@ def get_column_ids(table_id):
     except Exception as e:
         raise e
     
-def create_raw_table(table_id):
-    try:
-        with connection.cursor() as cursor:
-            query = f'''
-                CREATE TABLE `{table_id}` (
-                    id {avars.data_type_map['UUID']} NOT NULL PRIMARY KEY,
-                    tenant_id {avars.data_type_map['UUID']} NOT NULL,
-                    updatedAt {avars.data_type_map['datetime']}
-                );
-            '''
-            cursor.execute(query)
-    except Exception as e:
-        raise e
+def get_create_raw_table_query(table_name):
+    query = f"""
+        CREATE TABLE `{table_name}` (
+            id {avars.data_type_map['UUID']} NOT NULL PRIMARY KEY,
+            updatedAt {avars.data_type_map['datetime']}
+        );
+    """
+    return query
     
 def insert_new_column(table_id, column_id, data_type):
     try:

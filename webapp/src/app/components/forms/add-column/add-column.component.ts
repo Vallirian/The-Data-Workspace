@@ -48,17 +48,17 @@ export class AddColumnComponent {
       return;
     }
 
-    this.isRelationship = true;
-    if (this.tablesList.length === 0) {
-      this.apiService.listTables().subscribe({
-        next: (tables: TableListInterface[]) => {
-          this.tablesList = tables;
-        },
-        error: (err) => {
-          this.notificationService.addNotification({message: 'Failed to fetch tables', type: 'error', dismissed: false, remainingTime: 5000});
-        }
-      });
-    }  
+    // this.isRelationship = true;
+    // if (this.tablesList.length === 0) {
+    //   this.apiService.listTables().subscribe({
+    //     next: (tables: TableListInterface[]) => {
+    //       this.tablesList = tables;
+    //     },
+    //     error: (err) => {
+    //       this.notificationService.addNotification({message: 'Failed to fetch tables', type: 'error', dismissed: false, remainingTime: 5000});
+    //     }
+    //   });
+    // }  
   }
 
   onSelectRightTable() {

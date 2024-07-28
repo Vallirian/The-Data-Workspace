@@ -86,24 +86,24 @@ export class TableComponent {
 
 
   extractColumns() {
-    this.allColumnIds = [];
-    this.displayedColumnIds = [];
-    Object.keys(this.rowData[0]).forEach((columnId) => {
-      if (columnId !== 'id' && !columnId.includes('_id') && columnId !== 'updatedAt') {
-        this.displayedColumnIds.push(columnId);
-      }
-      this.allColumnIds.push(columnId);
-    });
+    // this.allColumnIds = [];
+    // this.displayedColumnIds = [];
+    // Object.keys(this.rowData[0]).forEach((columnId) => {
+    //   if (columnId !== 'id' && !columnId.includes('_id') && columnId !== 'updatedAt') {
+    //     this.displayedColumnIds.push(columnId);
+    //   }
+    //   this.allColumnIds.push(columnId);
+    // });
 
-    this.apiService.listColumns(this.displayedColumnIds).subscribe({
-      next: (columns: ColumnInterface[]) => {
-        this.columns = columns;
-        this.createRowForm();
-      },
-      error: (err) => {
-        this.notificationService.addNotification({ message: 'Failed to load columns', type: 'error', dismissed: false, remainingTime: 5000 });
-      }
-    });
+    // this.apiService.listColumns(this.displayedColumnIds).subscribe({
+    //   next: (columns: ColumnInterface[]) => {
+    //     this.columns = columns;
+    //     this.createRowForm();
+    //   },
+    //   error: (err) => {
+    //     this.notificationService.addNotification({ message: 'Failed to load columns', type: 'error', dismissed: false, remainingTime: 5000 });
+    //   }
+    // });
   }
 
   createRowForm() {
@@ -124,15 +124,15 @@ export class TableComponent {
   fetchRelatedTablesData() {
     // construct relatedTables fro query as {tableId: [columnId]}
     let relatedTables: {[key: string]: string[]} = {};
-    this.columns.forEach((column) => {
-      if (this.columnIsRelationship(column.id) && this.displayedColumnIds.includes(column.id)) {
-        const rightTableId = column.table;
-        if (!relatedTables[rightTableId]) {
-          relatedTables[rightTableId] = [];
-        }
-        relatedTables[rightTableId].push(column.id);
-      }
-    });
+    // this.columns.forEach((column) => {
+    //   if (this.columnIsRelationship(column.id) && this.displayedColumnIds.includes(column.id)) {
+    //     const rightTableId = column.table;
+    //     if (!relatedTables[rightTableId]) {
+    //       relatedTables[rightTableId] = [];
+    //     }
+    //     relatedTables[rightTableId].push(column.id);
+    //   }
+    // });
 
     // fetch related tables data
     Object.keys(relatedTables).forEach((tableId) => {
@@ -162,11 +162,11 @@ export class TableComponent {
           const column = this.getCellForm(rowId, columnId);
 
           // use tablename_id as columnid for relationship columns
-          if (this.columnIsRelationship(columnId)) {
-            const rightTableId = this.getColumnById(columnId).table;
-            const relationshipRightTableName = this.utilService.changeUuidToRelationshipRightTableName(rightTableId);
-            columnId = relationshipRightTableName;
-          }
+          // if (this.columnIsRelationship(columnId)) {
+          //   const rightTableId = this.getColumnById(columnId).table;
+          //   const relationshipRightTableName = this.utilService.changeUuidToRelationshipRightTableName(rightTableId);
+          //   columnId = relationshipRightTableName;
+          // }
           
           if (column.dirty) {
             rowChanges[rowId][columnId] = column.get('value')?.value;
@@ -208,12 +208,12 @@ export class TableComponent {
   }
 
   getRelationshipColumnData(columnId: string): any[] {
-    const column = this.columns.find(column => column.id === columnId);
-    if (!column) {
-      return [];
-    }
-    const table = this.realtedTablesRowData[column.table]
-    return table || [];
+    // const column = this.columns.find(column => column.id === columnId);
+    // if (!column) {
+    //   return [];
+    // }
+    // const table = this.realtedTablesRowData[column.table]
+    return [];
   }
 
   getColumnById(columnId: string): ColumnInterface {
@@ -250,7 +250,8 @@ export class TableComponent {
   }
 
   columnIsRelationship(columnId: string): boolean {
-    return this.columns.some(column => column.table !== this.tableId && column.id === columnId);
+    // return this.columns.some(column => column.table !== this.tableId && column.id === columnId);
+    return false;
   }
 
   // formatters

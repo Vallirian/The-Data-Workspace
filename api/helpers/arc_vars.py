@@ -16,6 +16,19 @@ relationship_table = "relationship_relationship"
 table_table = "table_table"
 column_table = "column_column"
 
+# validortor variables
+NOT_ALLOWED_OBJECT_NAMES = [
+    "table", 
+    "column", 
+    "relationship", 
+    "raw_table", 
+    "raw_column", 
+    "raw_relationship", 
+    "`",
+    "_id",
+    "__",
+]
+
 # AI variables
 analysis_copilot_system_instruction = """
     You are a helpful analysis tool. You can help users analyze data in their tables. 

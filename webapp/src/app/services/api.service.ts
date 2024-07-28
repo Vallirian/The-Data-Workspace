@@ -12,39 +12,39 @@ export class ApiService {
   constructor(
     private http: HttpClient
   ) { }
-
-  // Workspace API
-  createWorkspace(data: {displayName: string}) {
-    return this.http.post(`${this.baseUrl}/workspace/`, data);
-  }
-
-  listWorkspaces() {
-    return this.http.get<WorkspaceListInterface[]>(`${this.baseUrl}/workspace/`);
-  }
-
-  getWorkspace(id: string) {
-    return this.http.get<WorkspaceListInterface>(`${this.baseUrl}/workspace/${id}`);
-  }
-
   // Table API
   listTables() {
-    return this.http.get<TableListInterface[]>(`${this.baseUrl}/table/`);
+    return this.http.get<string[]>(`${this.baseUrl}/table/`);
   }
 
+  createTable(tableName: string) {
+    return this.http.post<string>(`${this.baseUrl}/table/`, {'tableName': tableName});
+  }
+
+  // Column API
+  listColumns(tableName: string) {
+    return this.http.get<ColumnInterface[]>(`${this.baseUrl}table/${tableName}/column/`);
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Table API
   getTable(id: string) {
     return this.http.get<TableListInterface>(`${this.baseUrl}/table/${id}`);
   }
 
-  createTable(data: {displayName: string, description: string}) {
-    return this.http.post<TableListInterface>(`${this.baseUrl}/table/`, data);
-  }
 
   // Column API
-  listColumns(ids: string[]) {
-    const params = new HttpParams()
-      .set('ids', ids.join(','));
-    return this.http.get<ColumnInterface[]>(`${this.baseUrl}/column/`, {params});
-  }
 
   listColumnsByTable(tableId: string) {
     const params = new HttpParams()

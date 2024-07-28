@@ -12,11 +12,10 @@
     </span>
   </div>
   <div class="d-flex">
-    @for (tb of tablesList; track tb.id) {
-      <div (click)="navigateToTable(tb.id)" class="card m-1" style="width: 8rem;">
-        <app-profile-picture [name]="tb.displayName" [uid]="tb.id" class="card-img-top"></app-profile-picture>
+    @for (tb of tablesList; track $index) {
+      <div (click)="navigateToTable(tb)" class="card m-1" style="width: 8rem;">
         <div class="card-body">
-          <p class="card-text">{{tb.displayName}}</p>
+          <p class="card-text">{{tb}}</p>
         </div>
       </div>
     }
@@ -29,18 +28,13 @@
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
       <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="createTableModalLable">Create New Workspace</h1>
+        <h1 class="modal-title fs-5" id="createTableModalLable">Create New Table</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form [formGroup]="tableCreationForm" class="row g-3 w-50">
           <div class="col-12">
-            <input formControlName="displayName" type="text" class="form-control" placeholder="Name">
+            <input type="text" class="form-control" placeholder="Name" [(ngModel)]="newTableName">
           </div>
-          <div class="col-12">
-              <input formControlName="description" type="text" class="form-control" placeholder="description">
-          </div>
-        </form>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>

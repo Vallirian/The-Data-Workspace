@@ -3,9 +3,9 @@ import { AuthService } from '../../services/auth.service';
 import { UtilService } from '../../services/util.service';
 import { CommonModule } from '@angular/common';
 import { ProfilePictureComponent } from '../../components/profile-picture/profile-picture.component';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
-import { NotificationInterface, TableListInterface, WorkspaceListInterface } from '../../interfaces/main-interface';
+import { NotificationInterface, TableListInterface } from '../../interfaces/main-interface';
 import { NotificationService } from '../../services/notification.service';
 import { Router, RouterOutlet } from '@angular/router';
 
@@ -14,7 +14,7 @@ import { Router, RouterOutlet } from '@angular/router';
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
+    FormsModule,
     RouterOutlet,
     ProfilePictureComponent,
   ],
@@ -25,11 +25,8 @@ export class DesignHomeComponent {
   greeing: string = 'Hello'
   notifications: NotificationInterface[] = [];
 
-  tableCreationForm = this.formBuilder.group({
-    displayName: ['', [Validators.required]],
-    description: [''],
-  });
-  tablesList: TableListInterface[] = [];
+  newTableName: string | null = null
+  tablesList: string[] = [];
 
 
   constructor(
@@ -45,35 +42,32 @@ export class DesignHomeComponent {
 
   ngOnInit(): void {
     this.apiService.listTables().subscribe({
-      next: (tables: TableListInterface[]) => {
+      next: (tables: string[]) => {
         this.tablesList = tables;
       },
       error: (err) => {
-        this.notificationService.addNotification({message: 'Failed to fetch tables', type: 'error', dismissed: false, remainingTime: 5000});
+        this.notificationService.addNotification({message: err, type: 'error', dismissed: false, remainingTime: 5000});
       }
     });
 
   }
 
-  ngOnDestroy(): void {
-
-  }
-
   // table 
   createTable() {
-    const table: {displayName: string, description: string} = {
-      displayName: this.tableCreationForm.value.displayName!,
-      description: this.tableCreationForm.value.description!
-    };
+    if (!this.newTableName || this.newTableName.trim() === '') {
+      this.notificationService.addNotification({message: 'Table name cannot be empty', type: 'error', dismissed: false, remainingTime: 5000});
+      return;
+    }
     
-    this.apiService.createTable(table).subscribe({
-      next: (newTable: TableListInterface) => {
+    this.apiService.createTable(this.newTableName).subscribe({
+      next: (newTable: string) => {
         this.tablesList.push(newTable);
-        this.tableCreationForm.reset();
+        this.newTableName = null;
         this.notificationService.addNotification({message: 'Table created successfully', type: 'success', dismissed: false, remainingTime: 5000});
       },
       error: (err) => {
-        this.notificationService.addNotification({message: 'Failed to create table', type: 'error', dismissed: false, remainingTime: 5000});
+        console.log(err);
+        this.notificationService.addNotification({message: err.error.error, type: 'error', dismissed: false, remainingTime: 5000});
       }
     });
   }
