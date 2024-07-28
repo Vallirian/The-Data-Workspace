@@ -7,6 +7,7 @@ from helpers import arc_vars as avars, arc_utils as autils
 from copilot.models import CopilotConversation, CopilotMessage
 
 import google.generativeai as genai
+import copilot.gemini_helpers as gh
 
 class CopilotAnalysisChat(APIView):
     genai.configure(api_key=os.environ.get("GOOGLE_AI_API_KEY"))
@@ -16,6 +17,9 @@ class CopilotAnalysisChat(APIView):
         '''
         returns all conversations
         '''
+        # gh.get_tables_metadata(request.user.tenant.id)
+        gh.send_analysis_message([], "what columns does this table have?", tenant_id=request.user.tenant.id, table_id="81c0e7ab55a44d51bd31921c70f94589")
+
         conversation_id = request.query_params.get("conversationId")
         tenant_id = request.user.tenant.id
 
