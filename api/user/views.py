@@ -22,4 +22,4 @@ class RegisterCustomUserView(APIView):
         except OperationalError as e:
             return Response({'error': f'Database error: operation failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': f'Unexpected error: failed to create user'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

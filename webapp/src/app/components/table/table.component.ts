@@ -112,7 +112,7 @@ export class TableComponent {
       const tempForm = this.formBuilder.group({});
       this.displayedColumnIds.forEach((columnId) => {
         tempForm.addControl(columnId, this.formBuilder.group(
-          {value: [row[columnId]], dataType: this.getColumnById(columnId).dataType, isNew: [false], isEdited: [false]},
+          // {value: [row[columnId]], dataType: this.getColumnById(columnId).dataType, isNew: [false], isEdited: [false]},
           {validators: this.validatorService.valueDataTypeFormValidator()}
         ));
       });
@@ -200,7 +200,7 @@ export class TableComponent {
     const tempForm = this.formBuilder.group({});
     this.displayedColumnIds.forEach((columnId) => {
       tempForm.addControl(columnId, this.formBuilder.group(
-        {value: [''], dataType: this.getColumnById(columnId).dataType, isNew: [true], isEdited: [true]},
+        // {value: [''], dataType: this.getColumnById(columnId).dataType, isNew: [true], isEdited: [true]},
         {validators: this.validatorService.valueDataTypeFormValidator()}
       ));
     });
@@ -216,8 +216,10 @@ export class TableComponent {
     return [];
   }
 
-  getColumnById(columnId: string): ColumnInterface {
-    return this.columns.find(column => column.id === columnId) || {id: '', displayName: '', description: '', dataType: 'string', table: ''};
+  // getColumnById(columnId: string): ColumnInterface {
+  getColumnById(columnId: string): string {
+    // return this.columns.find(column => column.id === columnId) || {id: '', displayName: '', description: '', dataType: 'string', table: ''};
+    return "{ displayName: '', description: '', dataType: 'string', table: ''};"
   }
 
   getRowsFormControls(): string[] {

@@ -18,13 +18,13 @@
     <form [formGroup]="relationshipColumnForm" class="row gy-2 gx-3 align-items-center">
         <div class="form-floating">
             <select formControlName="rightTable" (change)="onSelectRightTable()" class="form-select" [id]="'floatingSelectrightTable'" aria-label="Floating label select example">
-                <option *ngFor="let table of tablesList" [value]="table.id">{{ table.displayName }}</option>
+                <option *ngFor="let table of tablesList" [value]="table">{{ table }}</option>
             </select>
             <label for="floatingSelectrightTable">Table</label>
         </div>
         <div class="form-floating">
             <select formControlName="rightTableColumn" class="form-select" [id]="'floatingSelectrightTableColumn'" aria-label="Floating label select example">
-                <option *ngFor="let column of columnsList" [value]="column.id">{{ column.displayName }}</option>
+                <option *ngFor="let column of columnsList" [value]="column.columnName">{{ column.columnName }}</option>
             </select>
             <label for="floatingSelectrightTableColumn">Column</label>
         </div>
@@ -38,13 +38,8 @@
 @else {
     <form [formGroup]="columnForm" class="row gy-2 gx-3 align-items-center">
         <div class="col-12">
-            <input formControlName="displayName" type="text" class="form-control" placeholder="Column name">
+            <input formControlName="columnName" type="text" class="form-control" placeholder="Column name">
         </div>
-    
-        <div class="col-12">
-            <input formControlName="description" type="text" class="form-control" placeholder="Description">
-        </div>
-    
         <div class="form-floating">
             <select formControlName="dataType" class="form-select" id="floatingSelect" aria-label="Floating label select example">
               <option selected value="string">string</option>

@@ -23,8 +23,7 @@ export class AddColumnComponent {
 
   isRelationship: boolean = false;
   columnForm = this.formBuilder.group({
-    displayName: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(255)]],
-    description: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(255)]],
+    columnName: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(255)]],
     dataType: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(255)]],
   });
 
@@ -32,7 +31,7 @@ export class AddColumnComponent {
     rightTable: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(255)]],
     rightTableColumn: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(255)]],
   });
-  tablesList: TableListInterface[] = [];
+  tablesList: string[] = [];
   selectedRightTable: string | null = null;
   columnsList: ColumnInterface[] = [];
 
@@ -48,23 +47,24 @@ export class AddColumnComponent {
       return;
     }
 
-    // this.isRelationship = true;
-    // if (this.tablesList.length === 0) {
-    //   this.apiService.listTables().subscribe({
-    //     next: (tables: TableListInterface[]) => {
-    //       this.tablesList = tables;
-    //     },
-    //     error: (err) => {
-    //       this.notificationService.addNotification({message: 'Failed to fetch tables', type: 'error', dismissed: false, remainingTime: 5000});
-    //     }
-    //   });
-    // }  
+    this.isRelationship = true;
+    if (this.tablesList.length === 0) {
+      this.apiService.listTables().subscribe({
+        next: (tables: string[]) => {
+          this.tablesList = tables;
+        },
+        error: (err) => {
+          this.notificationService.addNotification({message: 'Failed to fetch tables', type: 'error', dismissed: false, remainingTime: 5000});
+        }
+      });
+    }  
   }
 
   onSelectRightTable() {
     this.selectedRightTable = this.relationshipColumnForm.get('rightTable')!.value!;
-    this.apiService.listColumnsByTable(this.selectedRightTable).subscribe({
+    this.apiService.listColumns(this.selectedRightTable).subscribe({
       next: (columns: ColumnInterface[]) => {
+        console.log(columns);
         this.columnsList = columns;
       },
       error: (err) => {
@@ -81,8 +81,10 @@ export class AddColumnComponent {
   }
 
   onSave() {
+    console.log(this.columnForm.value);
+    console.log(this.relationshipColumnForm.value);
     if (this.tableId === undefined) {
-      this.notificationService.addNotification({message: 'Table ID not provided', type: 'error', dismissed: false, remainingTime: 5000});
+      this.notificationService.addNotification({message: 'Table not provided', type: 'error', dismissed: false, remainingTime: 5000});
       return
     }
 
@@ -93,10 +95,10 @@ export class AddColumnComponent {
       }
       
       const columnFormValue = {
-        displayName: this.columnForm.get('displayName')!.value!,
-        description: this.columnForm.get('description')!.value!,
+        columnName: this.columnForm.get('columnName')!.value!,
         dataType: this.columnForm.get('dataType')!.value! as 'string' | 'number' | 'boolean' | 'datetime',
-        table: this.tableId
+        isRelationship: false,
+        relatedTable: null,
       }
       this.apiService.createColumn(this.tableId, columnFormValue).subscribe({
         next: (columnData: any) => {
@@ -114,20 +116,19 @@ export class AddColumnComponent {
         this.notificationService.addNotification({message: 'Invalid form data', type: 'error', dismissed: false, remainingTime: 5000});
         return;
       }
-      this.apiService.createRelationshipColumn(this.tableId, {rightTableColumn: this.selectedRitghtTableColumnId}).subscribe({
+      this.apiService.createColumn(this.tableId, {
+        columnName: this.relationshipColumnForm.get('rightTableColumn')!.value!,
+        dataType: 'string',
+        isRelationship: true,
+        relatedTable: this.relationshipColumnForm.get('rightTable')!.value!,
+      }).subscribe({
         next: (columnData: any) => {
-          this.notificationService.addNotification({message: 'Relationship column created successfully', type: 'success', dismissed: false, remainingTime: 5000});
-          this.relationshipColumnCreated.emit({
-            rightTableId: this.selectedRightTable!,
-            rightTableDisplayName: this.tablesList.find((table) => table.id === this.selectedRightTable)!.displayName,
-            rightColumnId: this.selectedRitghtTableColumnId,
-            rightColumnDisplayName: this.columnsList.find((column) => column.id === this.selectedRitghtTableColumnId)!.displayName,
-            rightColumnDataType: this.columnsList.find((column) => column.id === this.selectedRitghtTableColumnId)!.dataType
-          });
+          this.notificationService.addNotification({message: 'Column created successfully', type: 'success', dismissed: false, remainingTime: 5000});
+          this.relationshipColumnCreated.emit(columnData);
           this.onClose();
         },
         error: (err) => {
-          this.notificationService.addNotification({message: 'Failed to create relationship column', type: 'error', dismissed: false, remainingTime: 5000});
+          this.notificationService.addNotification({message: 'Failed to create column', type: 'error', dismissed: false, remainingTime: 5000});
         }
       });
     }

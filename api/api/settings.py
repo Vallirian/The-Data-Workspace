@@ -35,10 +35,7 @@ INSTALLED_APPS = [
 
     'helpers',
     'user',
-    'tenant',
     'table',
-    'relationship',
-    'column',
     'rawdata',
     'copilot',
 ]

@@ -1,9 +1,9 @@
 <div class="full-section">
     <div class="preview-section">
-        <app-table 
+        <!-- <app-table 
             [tableId]="tableId"
             class="full-section-content" >
-        </app-table>
+        </app-table> -->
     </div>
     <div class="working-section d-flex flex-column">
         <div>
@@ -47,10 +47,7 @@
         <p class="fs-6 mt-4">Columns</p>
         <ul class="list-group">
             @for (col of columns; track $index) {
-                <li class="list-group-item">{{ col }} {{ col.dataType }}</li>
-            }
-            @for (relationshipCol of relationshipColumns; track $index) {
-                <li class="list-group-item">{{ relationshipCol.rightColumnDisplayName }} {{ relationshipCol.rightColumnDataType }} (realtionship)</li>
+                <li class="list-group-item">{{ col.columnName }} {{ col.dataType }}</li>
             }
         </ul>
         

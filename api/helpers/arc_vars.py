@@ -14,7 +14,7 @@ relationship_column_prefix = "raw_relationship_"
 
 relationship_table = "relationship_relationship"
 table_table = "table_table"
-column_table = "column_column"
+column_table = "column__column"
 
 # validortor variables
 NOT_ALLOWED_OBJECT_NAMES = [
@@ -27,6 +27,7 @@ NOT_ALLOWED_OBJECT_NAMES = [
     "`",
     "_id",
     "__",
+    "view_"
 ]
 
 # AI variables

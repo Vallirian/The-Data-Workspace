@@ -41,27 +41,58 @@ export class EditTableComponent {
   ngOnInit(): void {
     // set navbar actions
     this.tableId = this.activatedRoute.snapshot.params['id'];
-    this.apiService.getTable(this.tableId).subscribe({
-      next: (tableData: any) => {
-        this.tableData = tableData;
-        this.navbarService.addBreadCrumb({label: tableData.displayName, navigationLink: `/table/${this.tableId}`});
-        
-        // load columns
-        this.apiService.listColumnsByTable(this.tableId).subscribe({
-          next: (columns: ColumnInterface[]) => {
-            console.log(columns);
-            this.columns = columns;
-          },
-          error: (err) => {
-            this.notificationService.addNotification({message: 'Failed to load columns', type: 'error', dismissed: false, remainingTime: 5000});
-          }
-        });
+    this.navbarService.addBreadCrumb({label: this.tableId, navigationLink: `/table/${this.tableId}`});
 
-      },
-      error: (err) => {
-        this.notificationService.addNotification({message: 'Failed to load table', type: 'error', dismissed: false, remainingTime: 5000});
-      }
-    });
+    this.apiService.listColumns(this.tableId).subscribe({
+        next: (columns: ColumnInterface[]) => {
+          console.log(columns);
+          this.columns = columns;
+        },
+        error: (err) => {
+          this.notificationService.addNotification({message: 'Failed to load columns', type: 'error', dismissed: false, remainingTime: 5000});
+        }
+      });
+      this.apiService.getRawTable(this.tableId).subscribe({
+        next: (tableData: any) => {
+          this.tableData = tableData;
+          
+          // load columns
+          this.apiService.listColumnsByTable(this.tableId).subscribe({
+            next: (columns: ColumnInterface[]) => {
+              console.log(columns);
+              this.columns = columns;
+            },
+            error: (err) => {
+              this.notificationService.addNotification({message: 'Failed to load columns', type: 'error', dismissed: false, remainingTime: 5000});
+            }
+          });
+    
+        },
+        error: (err) => {
+          this.notificationService.addNotification({message: 'Failed to load table', type: 'error', dismissed: false, remainingTime: 5000});
+        }
+      });
+    // this.apiService.getTable(this.tableId).subscribe({
+    //   next: (tableData: any) => {
+    //     this.tableData = tableData;
+    //     this.navbarService.addBreadCrumb({label: tableData.displayName, navigationLink: `/table/${this.tableId}`});
+        
+    //     // load columns
+    //     this.apiService.listColumnsByTable(this.tableId).subscribe({
+    //       next: (columns: ColumnInterface[]) => {
+    //         console.log(columns);
+    //         this.columns = columns;
+    //       },
+    //       error: (err) => {
+    //         this.notificationService.addNotification({message: 'Failed to load columns', type: 'error', dismissed: false, remainingTime: 5000});
+    //       }
+    //     });
+
+    //   },
+    //   error: (err) => {
+    //     this.notificationService.addNotification({message: 'Failed to load table', type: 'error', dismissed: false, remainingTime: 5000});
+    //   }
+    // });
   }
 
   ngOnDestroy(): void {

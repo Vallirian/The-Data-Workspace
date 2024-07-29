@@ -23,7 +23,16 @@ export class ApiService {
 
   // Column API
   listColumns(tableName: string) {
-    return this.http.get<ColumnInterface[]>(`${this.baseUrl}table/${tableName}/column/`);
+    return this.http.get<ColumnInterface[]>(`${this.baseUrl}/table/${tableName}/column/`);
+  }
+
+  createColumn(tableName: string, data: ColumnInterface) {
+    return this.http.post<ColumnInterface>(`${this.baseUrl}/table/${tableName}/column/`, data);
+  }
+
+  // raw Table API
+  getRawTable(tableId: string) {
+    return this.http.get(`${this.baseUrl}/raw/${tableId}/`);
   }
 
 
@@ -52,11 +61,7 @@ export class ApiService {
     return this.http.get<ColumnInterface[]>(`${this.baseUrl}/column/`, {params});
   }
 
-  createColumn(tableId: string, data: {displayName: string, description: string, dataType: 'string' | 'number' | 'datetime' | 'boolean', table: string}) {
-    const params = new HttpParams()
-      .set('tableId', tableId);
-    return this.http.post<ColumnInterface>(`${this.baseUrl}/column/`, data, {params});
-  }
+
 
   // Relationship Column API
   listRelationshipColumns(tableId: string) {
@@ -73,9 +78,7 @@ export class ApiService {
 
 
   // raw Table API
-  getRawTable(tableId: string) {
-    return this.http.get(`${this.baseUrl}/raw/${tableId}/`);
-  }
+
 
   updateRawTable(tableId: string, data: any) {
     return this.http.put(`${this.baseUrl}/raw/${tableId}/`, data);

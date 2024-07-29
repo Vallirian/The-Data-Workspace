@@ -1,7 +1,6 @@
 from django.db import transaction
 from rest_framework import serializers
-from user.models import CustomUser
-from tenant.models import Tenant
+from user.models import CustomUser, Tenant
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from helpers import arc_sql as asql
@@ -27,6 +26,9 @@ class RegisterCustomUserSerializer(serializers.ModelSerializer):
         extra_kwargs = {"password": {"write_only": True}}
     
     def create(self, validated_data):
+        # if a user is created, a tenant should also be created
+        # when a new user is added, it shoudl eb to an already existing tenatn
+        # but when a user signs up, a new tenant should be created
         with transaction.atomic():
             # create a new tenant
             tenant_display_name = validated_data.pop('tenantDisplayName', None)
@@ -45,3 +47,13 @@ class RegisterCustomUserSerializer(serializers.ModelSerializer):
             
             instance.save()
             return instance
+        
+class RegisterTenantSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tenant
+        fields = ["displayName"]
+        
+    def create(self, validated_data):
+        instance = self.Meta.model(**validated_data)
+        instance.save()
+        return instance.id

@@ -38,8 +38,10 @@ export interface TableListInterface {
 
 // Column
 export interface ColumnInterface {
-    name: string;
+    columnName: string;
     dataType: 'string' | 'number' | 'datetime' | 'boolean';
+    isRelationship: boolean;
+    relatedTable: string | null;
 }
 
 export interface RelationshipColumnInterface {

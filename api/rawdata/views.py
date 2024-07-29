@@ -3,69 +3,52 @@ from django.db import connection
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from helpers import arc_vars as avars, arc_utils as autils
-from rawdata.raw_data_helpers import get_column_ids
+from helpers import arc_vars as avars, arc_utils as autils, arc_sql as asql
 
 class RawDataView(APIView):
     def get(self, request, table_id):
         tenant_id = request.user.tenant.id
-        column_ids = get_column_ids(table_id)
-
+        table_columns = asql.execute_raw_query(tenant=tenant_id, query=f"SELECT * FROM {avars.column_table} WHERE tableName = '{table_id}';")
+        
         # limit the columns to be queried
         requested_columns = request.query_params.get("columns")
         if requested_columns:
-            requested_columns = requested_columns.split(",")
-            for k, v in column_ids.items():
-                column_ids[k] = {col_id for col_id in v if col_id in requested_columns}
+            requested_columns = requested_columns.split(',')
+            table_columns = [col for col in table_columns if col["columnName"] in requested_columns]
 
         column_query = ''
-        for k, v in column_ids.items():
-            for col_id in v:
-                column_query += f'{col_id}, '
-            if k != table_id:
-                column_query += f'{autils.rp_get_right_table_name(k)}, '
+        for col in table_columns:
+            if col["isRelationship"]:
+                column_query += f'{col["relatedTable"]}.{col["columnName"]}, ' if f'{col["relatedTable"]}.{col["columnName"]}, ' not in column_query else ''
+            else:
+                column_query += f'{col["columnName"]}, ' if f'{col["columnName"]}, ' not in column_query else ''
         column_query = column_query[:-2]
-
+        
         join_query = ''
-        for k, v in column_ids.items():
-            if k == table_id:
-                continue
-            join_query += f"""
-                LEFT JOIN {k} ON {table_id}.{autils.rp_get_right_table_name(k)} = {k}.id
-            """
+        for col in table_columns:
+            if col["isRelationship"]:
+                temp_query = f'LEFT JOIN {col["relatedTable"]} ON {table_id}.{col["relatedTable"]}__id = {col["relatedTable"]}.id '
+                join_query += temp_query if temp_query not in join_query else ''
+
+        query = f"SELECT {table_id}.id AS id, {table_id}.updatedAt AS updatedAt, {column_query} "
+        query = query.strip()
+        if query[-1] == ',': 
+            # for cases where column_query is empty
+            query = query[:-1]
+
+        query += f"""
+            FROM {table_id}
+            {join_query}
+        """
+        query += f'ORDER BY {table_id}.updatedAt DESC;'
         
         try:
-            with connection.cursor() as cursor:
-                query = f"SELECT {table_id}.id AS id, {table_id}.updatedAt AS updatedAt, {column_query}"
-                query = query.strip()
-                if query[-1] == ',': 
-                    # for cases where column_query is empty
-                    query = query[:-1]
-
-                query += f"""
-                    FROM {table_id}
-                    {join_query}
-                """
-                query += f'WHERE {table_id}.tenant_id = \'{tenant_id}\' '
-                query += f'ORDER BY {table_id}.updatedAt DESC;'
-                cursor.execute(query)
-
-                # Extract column headers
-                columns = [col[0] for col in cursor.description]
-
-                # Fetch all rows from cursor
-                rows = cursor.fetchall()
-                
-                # Map rows with columns to dictionaries
-                response_data = [dict(zip(columns, row)) for row in rows]
-                
-                # if no data is found, return empty list with column headers
-                if not response_data:
-                    response_data = [dict(zip(columns, [None]*len(columns)))]
-
-                return Response(response_data)
+            response_data = asql.execute_raw_query(tenant=tenant_id, query=query)
+            print(response_data)
+            return Response(response_data)
         except Exception as e:
-            return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error': f'Unable to fetch data for table {table_id}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
         
     def put(self, request, table_id):
         tenant_id = request.user.tenant.id
