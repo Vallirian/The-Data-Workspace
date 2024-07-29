@@ -1,5 +1,5 @@
 from django.db import connection, transaction
-import helpers.arc_vars as avars
+from helpers import arc_vars as avars, arc_utils as autils
 
 
 def execute_raw_query(tenant: str, query: str):
@@ -13,6 +13,10 @@ def execute_raw_query(tenant: str, query: str):
         with connection.cursor() as cursor:
             # Switch to the specified tenant schema
             cursor.execute(f'USE `{tenant}`;')
+
+            # reorder query before executing
+            query = autils.reorder_query(query)
+            print(query)
             cursor.execute(query)
             rows = cursor.fetchall()
             if not rows:

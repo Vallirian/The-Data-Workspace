@@ -2,8 +2,7 @@ from django.db.utils import OperationalError
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from helpers import arc_vars as avars, arc_utils as autils, arc_sql as asql
-from rawdata import raw_data_helpers as rdh
+from helpers import arc_vars as avars, arc_utils as autils, arc_sql as asql, arc_statements as astmts
 
     
 class TableListView(APIView):
@@ -14,7 +13,7 @@ class TableListView(APIView):
             response_data = asql.execute_raw_query(tenant=tenant_id, query="SHOW TABLES;")
             tables = []
             for response_data_item in response_data:
-                tables += [v for k, v in response_data_item.items()]
+                tables += [v for k, v in response_data_item.items() if v not in avars.INTERNAL_TABLES]
             return Response(tables)
         except OperationalError as e:
             return Response({'error': f'Database error: operation failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -33,7 +32,7 @@ class TableListView(APIView):
         
         try:
             # Create table
-            asql.execute_raw_query(tenant=tenant_id, query=rdh.get_create_raw_table_query(table_name))
+            asql.execute_raw_query(tenant=tenant_id, query=astmts.get_create_raw_table_query(table_name))
 
             return Response({'message': f'Table {table_name} created'}, status=status.HTTP_201_CREATED)
         except OperationalError as e:
@@ -75,11 +74,11 @@ class ColumnListView(APIView):
         if data_type not in avars.data_type_map:
             return Response({'error': f'Invalid data type'}, status=status.HTTP_400_BAD_REQUEST)
         
-        try:
-            asql.execute_raw_query(tenant=tenant_id, query=rdh.get_add_column_query(column_name=column_name, table_name=table_name, is_relationship=is_relationship, related_table=related_table, data_type=data_type, tenant_id=tenant_id))
-            
-            return Response({'message': f'Column {column_name} added to {table_name}'}, status=status.HTTP_201_CREATED)
-        except OperationalError as e:
-            return Response({'error': f'Database error: operation failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        except Exception as e:
-            return Response({'error': f'Unexpected error: failed to add column'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # try:
+        asql.execute_raw_query(tenant=tenant_id, query=astmts.get_add_column_query(column_name=column_name, table_name=table_name, is_relationship=is_relationship, related_table=related_table, data_type=data_type, tenant_id=tenant_id))
+        
+        return Response({'message': f'Column {column_name} added to {table_name}'}, status=status.HTTP_201_CREATED)
+        # except OperationalError as e:
+        #     return Response({'error': f'Database error: operation failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # except Exception as e:
+        #     return Response({'error': f'Unexpected error: failed to add column'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
