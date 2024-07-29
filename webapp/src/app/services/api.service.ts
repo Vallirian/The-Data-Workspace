@@ -34,52 +34,25 @@ export class ApiService {
   getRawTable(tableId: string) {
     return this.http.get(`${this.baseUrl}/raw/${tableId}/`);
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Table API
-  getTable(id: string) {
-    return this.http.get<TableListInterface>(`${this.baseUrl}/table/${id}`);
-  }
-
-
-  // Column API
-
-  listColumnsByTable(tableId: string) {
-    const params = new HttpParams()
-      .set('tableId', tableId);
-    return this.http.get<ColumnInterface[]>(`${this.baseUrl}/column/`, {params});
-  }
-
-
-
-  // Relationship Column API
-  listRelationshipColumns(tableId: string) {
-    return this.http.get<ColumnInterface[]>(`${this.baseUrl}/relationship/${tableId}/`);
-  }
-
-  createRelationshipColumn(tableId: string, data: {rightTableColumn: string}) {
-    return this.http.post<ColumnInterface>(`${this.baseUrl}/relationship/${tableId}/`, data);
-  }
   
-  listRelationhipColumnsByTable(tableId: string) {
-    return this.http.get<RelationshipColumnAPIInterface[]>(`${this.baseUrl}/relationship/${tableId}/`);
-  }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
 
   // raw Table API
-
-
   updateRawTable(tableId: string, data: any) {
     return this.http.put(`${this.baseUrl}/raw/${tableId}/`, data);
   }

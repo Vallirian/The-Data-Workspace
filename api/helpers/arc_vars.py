@@ -1,20 +1,19 @@
 data_type_map = {
     "UUID": "VARCHAR(128)",
-    "string": "VARCHAR(1024)",
+    "string": "TEXT",
     "number": "NUMERIC",
     "boolean": "BOOLEAN",
     "datetime": "TIMESTAMP"
 }
 
+# Database variables
 copilot_system_user = "model"
-
-raw_table_prefix = "raw_table_"
-raw_column_prefix = "raw_column_"
-relationship_column_prefix = "raw_relationship_"
-
-relationship_table = "relationship_relationship"
-table_table = "table_table"
 column_table = "column__column"
+INTERNAL_TABLES = [
+    "column__column",
+]
+
+
 
 # validortor variables
 NOT_ALLOWED_OBJECT_NAMES = [
