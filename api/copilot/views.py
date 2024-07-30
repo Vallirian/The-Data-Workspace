@@ -3,8 +3,7 @@ from datetime import datetime
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from helpers import arc_vars as avars, arc_utils as autils
-from copilot.models import CopilotConversation, CopilotMessage
+from helpers import arc_vars as avars, arc_utils as autils, arc_sql as asql, arc_statements as astmts
 
 import google.generativeai as genai
 import copilot.gemini_helpers as gh
@@ -14,12 +13,6 @@ class CopilotAnalysisChat(APIView):
     model = genai.GenerativeModel(os.environ.get("GEMINI_AI_MODEL"))
 
     def get(self, request):
-        '''
-        returns all conversations
-        '''
-        # gh.get_tables_metadata(request.user.tenant.id)
-        gh.send_analysis_message([], "what columns does this table have?", tenant_id=request.user.tenant.id, table_id="81c0e7ab55a44d51bd31921c70f94589")
-
         conversation_id = request.query_params.get("conversationId")
         tenant_id = request.user.tenant.id
 
@@ -64,9 +57,11 @@ class CopilotAnalysisChat(APIView):
                 {"message": "Please provide a message"},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        
         # create a new conversation
         try:
-            new_conversation = CopilotConversation(tenant_id=tenant_id, displayName=message)
+            new_conversation_id = autils.custom_uuid()
+            asql.execute_raw_query(tenant=tenant_id, query=astmts.get_create_chat_table_query(new_conversation_id))
             new_conversation.save()
 
             new_user_message = CopilotMessage(copilotconversation=new_conversation, message=message, sender=request.user.id, tenant_id=tenant_id)

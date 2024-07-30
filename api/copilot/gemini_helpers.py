@@ -1,99 +1,74 @@
 import os
 from typing import List, Dict
 from django.db import connection
-from helpers import arc_utils as autils, arc_vars as avars
+from helpers import arc_utils as autils, arc_vars as avars, arc_sql as asql
 
 import google.generativeai as genai
 
 
-def get_tables_metadata(tenant_id: str) -> List[Dict[str, str]]:
-    """
-    Description:
-        - Get tables metadata for all tables that hold the raw/actual data. Each table metadata has display name of the table (string), its 
-        id (a unique combination of letters and numbers), and description of the table (string). For each table metadata, there is a corresponding 
-        raw data table with a name that is the metadata table’s id.
-            - For example, let’s say this function returned this 
-                [{”id”: “9dnkv5i923ndf03y7njfo99wjdo0jd7df”, “displayName”: “customers”, “description”: “customers that are served by the company”}]. 
-            Then, there is a raw data table called `9dnkv5i923ndf03y7njfo99wjdo0jd7df` that has customers data.
+# database
+def get_info_about_all_available_tables(tenant_id: str) -> list['str']:
+    """Get a list of all available tables in the database.
 
     Args:
-        - tenant_id (string): The id of the tenant, not the user. You will receive the tenant id in the instructions. This argument is used to filter out tables 
-        that are for that specific tenant only.
-    
+        tenant_id (str): The tenant ID. Used to ensure data isolation.
+
     Returns:
-        - List of dictionaries: Each dictionary has keys `id`, `displayName`, and `description`. The value of each key is a string.
-            - Example return: [{”id”: “9dnkv5i923ndf03y7njfo99wjdo0jd7df”, “displayName”: “customers”, “description”: “customers that are served by the company”}]
+        A list of all available tables in the database.
     """
-    print('get_tables_metadata', tenant_id)
-    try:
-        with connection.cursor() as cursor:
-            query = f"""
-                SELECT *
-                FROM {avars.table_table}
-                WHERE tenant_id = '{tenant_id}';
-            """
-            cursor.execute(query)
-            rows = cursor.fetchall()
+    response_data = asql.execute_raw_query(tenant=tenant_id, query="SHOW TABLES;")
+    tables = []
+    for response_data_item in response_data:
+        tables += [v for k, v in response_data_item.items() if v not in avars.INTERNAL_TABLES]
+    return tables
 
-            tables_metadata = []
-            for row in rows:
-                table_metadata = {
-                    "id": row[0],
-                    "displayName": row[1],
-                    "description": row[2]
-                }
-                tables_metadata.append(table_metadata)
-            return tables_metadata
-    except Exception as e:
-        raise e
-
-def get_columns_metadata(tenant_id: str, table_id: str) -> List[Dict[str, str]]:
-    """
-    Description:
-        - Get the columns metadata for all tables that hold the actual/raw data. Each column metadata has display name (string), 
-        its id (a unique combination of letters and numbers), description of what that column holds, and table id (string) which is the raw data table 
-        to which that column belongs. For each column metadata, there is a column with a name that is the same as the column’s id, in a raw data table with 
-        the name of the metadata column’s table id.
-            - For example, lets say this function returned this 
-            [{”id”: “hns9n6fh032nbd67w2gfhbd92”, “displayName”: “email”, “description”: “email of the customer”, “table_id”: “9dnkv5i923ndf03y7njfo99wjdo0jd7df”}]
-            Then there is a raw data table called `9dnkv5i923ndf03y7njfo99wjdo0jd7df` with a column called `hns9n6fh032nbd67w2gfhbd92`.
+def get_info_about_all_columns_for_table(tenant_id: str, table_name: str) -> list['dict']:
+    """Get a list of column informations for a specific table.
 
     Args:
-        - tenant_id (string): The id of the tenant, not the user. You will receive the tenant id in the instructions. This argument is used to filter out 
-        tables that are for that specific tenant only.
-        - table_id (string): The id of the table for which you want to get the columns metadata. You will receive the table id in the instructions.
-    
+        tenant_id (str): The tenant ID. Used to ensure data isolation.
+        table_name (str): The name of the table.
+
     Returns:
-        - List of dictionaries: Each dictionary has keys `id`, `displayName`, `description`, and `table_id`. The value of each key is a string.
-            - Example return: [{”id”: “hns9n6fh032nbd67w2gfhbd92”, “displayName”: “email”, “description”: “email of the customer”, “table_id”: “9dnkv5i923ndf03y7njfo99wjdo0jd7df”}]
+        A list of column informations for the specified table. Each column information is a dictionary
+        containing the following keys: id, Type, Null, Key, Default, Extra. If there is "__id" in the column name,
+        that column holds the id of the related table. The realted table name is the part before the "__id".
     """
-    print('get_cols_metadata', tenant_id, table_id)
-    try:
-        with connection.cursor() as cursor:
-            query = f"""
-                SELECT id, displayName, description, table_id
-                FROM {avars.column_table}
-                WHERE tenant_id = '{tenant_id}' AND table_id = '{table_id}';
-            """
-            cursor.execute(query)
-            rows = cursor.fetchall()
+    response_data = asql.execute_raw_query(tenant=tenant_id, query=f"DESCRIBE `{table_name}`;")
+    columns = []
+    for response_data_item in response_data:
+        columns += [response_data_item]
+    return columns
 
-            columns_metadata = [
-                {
-                    "id": row[0],
-                    "displayName": row[1],
-                    "description": row[2],
-                    "table_id": row[3]
-                }
-                for row in rows
-            ]
-            print(columns_metadata)
-            return columns_metadata
-    except Exception as e:
-        raise e
+def get_data_in_table_for_all_columns(tenant_id: str, table_name: str) -> list['dict']:
+    """Get all data in a table.
 
-def get_table_raw_data():
-    pass
+    Args:
+        tenant_id (str): The tenant ID. Used to ensure data isolation.
+        table_name (str): The name of the table.
+
+    Returns:
+        A list of dictionaries where each dictionary represents a row in the table.
+    """
+    response_data = asql.execute_raw_query(tenant=tenant_id, query=f"SELECT * FROM `{table_name}`;")
+    return response_data
+
+def get_data_in_table_for_specific_columns(tenant_id: str, table_name: str, columns: list['str']) -> list['dict']:
+    """Get data in a table for specific columns.
+    
+    Args:
+        tenant_id (str): The tenant ID. Used to ensure data isolation.
+        table_name (str): The name of the table.
+        columns (list[str]): The columns to retrieve data for.
+
+    Returns:
+        A list of dictionaries where each dictionary represents a row in the table. Each dictionary contains
+        only the specified columns.
+    """
+    columns_str = ', '.join(columns)
+    response_data = asql.execute_raw_query(tenant=tenant_id, query=f"SELECT {columns_str} FROM `{table_name}`;")
+    return response_data
+
 
 # utilities
 def count_rows():
@@ -106,28 +81,29 @@ def average_numbers():
     pass
 
 # gemini chat
-def create_system_instruction(tenant_id: str, table_id: str) -> str:
-    instruction = avars.analysis_copilot_system_instruction
-    instruction += f"""for this chat, you are analyzing data for tenant with tenant id: {tenant_id}.
-    tenanat id is a unique identifier for a tenant in the platform. It serves as a security measure 
-    to ensure that data is only accessible to the right tenant.
-    The table you are analyzing is the table with id: {table_id}.
-    """
+def enhance_user_message(message: str, tenant_id: str, current_table_name=None) -> str:
+    base_enhacement_message = avars.ANALYSIS_COPILOT_USER_MESSAGE_ENHANCEMENT
+    if current_table_name:
+        base_enhacement_message += f"The current table the user is looking at has the table_name: {current_table_name}"
+    base_enhacement_message += f"The tenant_id of the user is: {tenant_id}"
 
-    return instruction
+    final_message = base_enhacement_message + '\n' + message
+    return final_message
 
-def send_analysis_message(history: List[str], message: str, tenant_id: str, table_id: str) -> str:
+def send_analysis_message(history: list['str'], message: str, tenant_id: str, table_name=None) -> str:
     genai.configure(api_key=os.environ.get("GOOGLE_AI_API_KEY"))
     model = genai.GenerativeModel(
         os.environ.get("GEMINI_AI_MODEL"),
-        tools=[get_tables_metadata, get_columns_metadata],
-        system_instruction=create_system_instruction(tenant_id=tenant_id, table_id=table_id)
+        tools=[get_info_about_all_available_tables, get_info_about_all_columns_for_table, get_data_in_table_for_all_columns, 
+               get_data_in_table_for_specific_columns],
+        system_instruction=avars.ANALYSIS_COPILOT_SYSTEM_INSTRUCTIONS,
+        temprature=0.1
     )
     gemini_chat = model.start_chat(
         history=history, 
         enable_automatic_function_calling=True
     )
     print(message)
-    model_response = gemini_chat.send_message(message)
-    print(model_response.text)
+    model_response = gemini_chat.send_message(enhance_user_message(message, tenant_id, table_name))
     print(model_response)
+    print(model_response.text)

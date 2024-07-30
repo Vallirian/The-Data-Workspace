@@ -12,7 +12,6 @@ class RawDataView(APIView):
         
         # limit the columns to be queried
         requested_columns = request.query_params.get("columns")
-        print('requested_columns', requested_columns)
         if requested_columns:
             requested_columns = requested_columns.split(',')
             table_columns = [col for col in table_columns if col["columnName"] in requested_columns]
@@ -54,10 +53,8 @@ class RawDataView(APIView):
         tenant_id = request.user.tenant.id
         
         try:
-                # add rows
+            # add rows
             added_rows = request.data["added"]
-            print(added_rows)
-            
             for row in added_rows:
                 # added columns
                 current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -78,5 +75,4 @@ class RawDataView(APIView):
                 
                 return Response("Successfully added data", status=status.HTTP_201_CREATED)
         except Exception as e:
-            print(e)
             return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
