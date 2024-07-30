@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NotificationService } from '../../services/notification.service';
 import { MessagePipe } from '../../pipes/message.pipe';
+import { CopilotChatInterface, CopilotMessageInterface } from '../../interfaces/main-interface';
 
 @Component({
   selector: 'app-chat',
@@ -17,9 +18,9 @@ import { MessagePipe } from '../../pipes/message.pipe';
   styleUrl: './chat.component.scss'
 })
 export class ChatComponent {
-  messages: {message: string, sender: string, createdAt: Date}[] = [];
-  chats: {conversationId: string, displayName: string, createdAt: Date}[] = [];
-  selectedConversationId: string | null = null;
+  messages: CopilotMessageInterface[] = [];
+  chats: CopilotChatInterface[] = []; 
+  selectedChatId: string | null = null;
   currentMessage: string = '';
   answerLoading: boolean = false;
 
@@ -39,24 +40,24 @@ export class ChatComponent {
     });
   }
 
-  onSelectConversation(conversationId: string) {
-    this.selectedConversationId = conversationId;
-    console.log(conversationId);
-    this.apiService.getAnalysisChat(conversationId).subscribe({
-      next: (conversation: any) => {
-        console.log(conversation);
-        this.messages = conversation
-        console.log(this.messages);
-      },
-      error: (err) => {
-        this.notificationService.addNotification({message: 'Failed to load conversation', type: 'error', dismissed: false, remainingTime: 5000});
-      }
-    });
+  onSelectConversation(chatId: string) {
+    // this.selectedChatId = chatId;
+    // console.log(chatId);
+    // this.apiService.getAnalysisChat(conversationId).subscribe({
+    //   next: (conversation: any) => {
+    //     console.log(conversation);
+    //     this.messages = conversation
+    //     console.log(this.messages);
+    //   },
+    //   error: (err) => {
+    //     this.notificationService.addNotification({message: 'Failed to load conversation', type: 'error', dismissed: false, remainingTime: 5000});
+    //   }
+    // });
   }
 
   onCloseConversation() {
-    this.selectedConversationId = null;
-    this.messages = [];
+    // this.selectedConversationId = null;
+    // this.messages = [];
   }
 
   onSendMessage(message: string) {
@@ -69,11 +70,11 @@ export class ChatComponent {
     this.messages.push({message, sender: 'user', createdAt: new Date()});
 
     // send message
-    if (this.selectedConversationId === null) {
+    if (this.selectedChatId === null) {
       this.apiService.startAnalysisChat(message).subscribe({
-        next: (conversation: any) => {
-          this.selectedConversationId = conversation.conversationId;
-          this.messages.push({message: conversation.message, sender: 'model', createdAt: new Date()});
+        next: (chat: any) => {
+          this.selectedChatId = chat.id;
+          this.messages.push({message: chat.message, sender: 'model', createdAt: new Date()});
           this.currentMessage = '';
           this.answerLoading = false;
         },

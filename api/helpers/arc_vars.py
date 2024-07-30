@@ -15,6 +15,8 @@ COPILOT_CHAT_TABLE_NAME = "copilot__chat"
 COPILOT_MESSAGE_TABLE_NAME = "copilot__message"
 INTERNAL_TABLES = [
     "column__column",
+    "copilot__chat",
+    "copilot__message",
 ]
 
 

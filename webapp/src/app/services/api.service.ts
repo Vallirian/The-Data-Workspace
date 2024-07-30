@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ColumnInterface, RelationshipColumnAPIInterface, TableListInterface, WorkspaceListInterface } from '../interfaces/main-interface';
+import { ColumnInterface, CopilotChatInterface, CopilotMessageInterface, RelationshipColumnAPIInterface, TableListInterface, WorkspaceListInterface } from '../interfaces/main-interface';
 
 @Injectable({
   providedIn: 'root'
@@ -41,6 +41,20 @@ export class ApiService {
     return this.http.get(`${this.baseUrl}/raw/${tableId}/`, {params});
   }
   
+  // copilot API
+  listAnalysisChats() {
+    return this.http.get<CopilotChatInterface[]>(`${this.baseUrl}/copilot/analysis/`);
+  }
+
+  getAnalysisChat(chatId: string) {
+    const params = new HttpParams()
+      .set('chatId', chatId);
+    return this.http.get<CopilotMessageInterface[]>(`${this.baseUrl}/copilot/analysis/`, {params});
+  }
+
+  startAnalysisChat(message: string) {
+    return this.http.post(`${this.baseUrl}/copilot/analysis/`, {'message': message});
+  }
 
 
 
@@ -67,19 +81,11 @@ export class ApiService {
 
 
   // copilot API
-  listAnalysisChats() {
-    return this.http.get<any[]>(`${this.baseUrl}/copilot/analysis/`);
-  }
 
-  getAnalysisChat(conversationId: string) {
-    const params = new HttpParams()
-      .set('conversationId', conversationId);
-    return this.http.get<any>(`${this.baseUrl}/copilot/analysis/`, {params});
-  }
+
+
   
-  startAnalysisChat(message: string) {
-    return this.http.post(`${this.baseUrl}/copilot/analysis/`, {'message': message});
-  }
+
 
   sendMessageAnalysisChat(conversationId: string, message: string) {
     const params = new HttpParams()

@@ -10,38 +10,27 @@ import copilot.gemini_helpers as gh
 
 class CopilotAnalysisChat(APIView):
     def get(self, request):
-        conversation_id = request.query_params.get("conversationId")
+        chat_id = request.query_params.get("chatId")
         tenant_id = request.user.tenant.id
 
-        if conversation_id:
+        if chat_id:
             # details of a specific conversation
             try:
-                chat = CopilotConversation.objects.get(id=conversation_id, tenant_id=tenant_id)
-                messages = CopilotMessage.objects.filter(copilotconversation=conversation).order_by("createdAt")
-                response = []
-                for message in messages:
-                    response.append({
-                        "message": message.message,
-                        "sender": message.sender,
-                        "createdAt": message.createdAt
-                    })
-                return Response(response, status=status.HTTP_200_OK)
-            except CopilotConversation.DoesNotExist:
-                return Response({"message": "Conversation not found"}, status=status.HTTP_404_NOT_FOUND)
+                messages = asql.execute_raw_query(tenant=tenant_id, query=f"SELECT * FROM `{avars.COPILOT_MESSAGE_TABLE_NAME}` WHERE chatId = {chat_id}  ORDER BY `createdAt` DESC;")
+                if not messages:
+                    return Response({"message": "No messages found"}, status=status.HTTP_404_NOT_FOUND)
+                return Response(messages, status=status.HTTP_200_OK)
+            except Exception as e:
+                return Response({'error': 'Unable to load chat'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             # list of all conversations
             try:
-                conversations = CopilotConversation.objects.filter(tenant_id=tenant_id).order_by("createdAt")
-                response = []
-                for conversation in conversations:
-                    response.append({
-                        "conversationId": conversation.id,
-                        "displayName": conversation.displayName,
-                        "createdAt": conversation.createdAt,
-                    })
-                return Response(response, status=status.HTTP_200_OK)
+                chat = asql.execute_raw_query(tenant=tenant_id, query=f"SELECT * FROM `{avars.COPILOT_CHAT_TABLE_NAME}` ORDER BY `createdAt` DESC;")
+                if not chat:
+                    return Response({"message": "No chat found"}, status=status.HTTP_404_NOT_FOUND)
+                return Response(chat, status=status.HTTP_200_OK)
             except Exception as e:
-                return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response({'error': 'Unable to load chat'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def post(self, request):
         '''
@@ -69,7 +58,7 @@ class CopilotAnalysisChat(APIView):
         try:
             model_response_text = gh.send_analysis_message(history=[], message=message, tenant_id=tenant_id, table_name=table_name)
             new_model_meessage_response_data = asql.execute_raw_query(tenant=tenant_id, query=astmts.get_create_new_message_query(message=model_response_text, chat_id=new_caht_id, user_type=avars.COPILOT_MODEL_USER_TYPE, user_id=avars.COPILOT_MODEL_USER_NAME))
-            return Response({'message': model_response_text, "conversationId": new_caht_id}, status=status.HTTP_200_OK)
+            return Response({'message': model_response_text}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         

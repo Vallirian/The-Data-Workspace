@@ -51,13 +51,14 @@ class RawDataView(APIView):
         
     def put(self, request, table_name):
         tenant_id = request.user.tenant.id
+        final_query = ''
         
         try:
             # add rows
             added_rows = request.data["added"]
+            current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             for row in added_rows:
                 # added columns
-                current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 insert_into_var = f'INSERT INTO `{table_name}` (`id`, `updatedAt`, '
                 values_var = f"""VALUES ('{autils.custom_uuid()}', '{current_timestamp}', """
                 
@@ -68,11 +69,9 @@ class RawDataView(APIView):
                         
                 insert_into_var = insert_into_var[:-2] + ')'
                 values_var = values_var[:-2] + ')'
-                final_query = insert_into_var + values_var
+                final_query += f'{insert_into_var} {values_var}; '
 
-                asql.execute_raw_query(tenant=tenant_id, query=final_query)
-
-                
-                return Response("Successfully added data", status=status.HTTP_201_CREATED)
+            asql.execute_raw_query(tenant=tenant_id, query=final_query)
+            return Response("Successfully added data", status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)

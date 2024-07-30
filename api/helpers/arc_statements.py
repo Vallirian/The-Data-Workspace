@@ -1,6 +1,7 @@
 from datetime import datetime
 from helpers import arc_vars as avars, arc_utils as autils, arc_sql as asql
 
+# Raw data tables
 def get_create_raw_table_query(table_name):
     query = f"""
         CREATE TABLE `{table_name}` (
@@ -43,6 +44,7 @@ def get_add_column_to_column_table_query(column_name, table_name, is_relationshi
 
     return query
 
+# Copilot tables
 def get_create_new_chat_query(chat_id, display_name, user_id):
     current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     query = f"""
@@ -58,7 +60,10 @@ def get_create_new_message_query(message, chat_id, user_type, user_id):
             VALUES ('{autils.custom_uuid()}', '{current_timestamp}', '{message}', '{chat_id}', '{user_type}', '{user_id}');
     """
     return query
-    
+
+
+
+# support tables
 def get_supporting_tables_query():
     query = ""
 

@@ -59,3 +59,20 @@ export interface RelationshipColumnAPIInterface {
     rightTableColumn: string;
     leftTable: string;
 }
+
+// Copilot Chat
+export interface CopilotChatInterface {
+    id: string;
+    createdAt: Date;
+    displayName: string;
+    userId: string;
+}
+
+export interface CopilotMessageInterface {
+    id: string;
+    createdAt: Date;
+    message: string;
+    chatId: string;
+    userType: 'user' | 'model';
+    userId: string;
+}

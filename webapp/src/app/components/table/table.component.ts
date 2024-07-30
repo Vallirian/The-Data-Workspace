@@ -154,7 +154,6 @@ export class TableComponent {
       
       if (row.dirty || row.dirty) {
         let isRowNew = false;
-        const alreadyUpdatedColumns: string[] = [];
         for (let columnId of Object.keys(row.controls)) {
           const column = this.getCellForm(rowId, columnId);
 
@@ -165,9 +164,8 @@ export class TableComponent {
             columnId = relationshipRightTableName;
           }
           
-          if (column.dirty && !alreadyUpdatedColumns.includes(columnId)) {
+          if (column.dirty) {
             rowChanges[rowId][columnId] = column.get('value')?.value;
-            alreadyUpdatedColumns.push(columnId); // prevent duplicate updates (in cases of relationship columns, we only want to update the id field)
           }
           if (column.get('isNew')?.value) {
             isRowNew = column.get('isNew')?.value;
@@ -183,9 +181,15 @@ export class TableComponent {
     }
 
     // save changes
+    console.log('changes', this.changes);
     this.apiService.updateRawTable(this.tableId, this.changes).subscribe({
       next: (res) => {
         this.notificationService.addNotification({message: 'Table data saved', type: 'success', dismissed: false, remainingTime: 5000});
+        this.changes = {
+          added: [] as {[key: string]: {[key: string]: string | number |  boolean | Date | null}}[],
+          updated: [] as any[],
+          deleted: [] as any[]
+        };
         this.fetchRowData();
       },
       error: (err) => {
