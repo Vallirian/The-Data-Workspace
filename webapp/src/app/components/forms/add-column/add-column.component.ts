@@ -64,7 +64,6 @@ export class AddColumnComponent {
     this.selectedRightTable = this.relationshipColumnForm.get('rightTable')!.value!;
     this.apiService.listColumns(this.selectedRightTable).subscribe({
       next: (columns: ColumnInterface[]) => {
-        console.log(columns);
         this.columnsList = columns;
       },
       error: (err) => {
@@ -93,49 +92,39 @@ export class AddColumnComponent {
         this.notificationService.addNotification({message: 'Invalid form data', type: 'error', dismissed: false, remainingTime: 5000});
         return;
       }
-      
-      const columnFormValue = {
-        columnName: this.columnForm.get('columnName')!.value!,
-        dataType: this.columnForm.get('dataType')!.value! as 'string' | 'number' | 'boolean' | 'datetime',
-        isRelationship: false,
-        relatedTable: null,
-      }
-      this.apiService.createColumn(this.tableId, columnFormValue).subscribe({
-        next: (columnData: any) => {
-          this.notificationService.addNotification({message: 'Column created successfully', type: 'success', dismissed: false, remainingTime: 5000});
-          this.columnCreated.emit(columnData);
-          this.onClose();
-        },
-        error: (err) => {
-          this.notificationService.addNotification({message: 'Failed to create column', type: 'error', dismissed: false, remainingTime: 5000});
-        }
-      });
     }
     else {
       if (!this.relationshipColumnForm.valid) {
         this.notificationService.addNotification({message: 'Invalid form data', type: 'error', dismissed: false, remainingTime: 5000});
         return;
       }
-      this.apiService.createColumn(this.tableId, {
-        columnName: this.relationshipColumnForm.get('rightTableColumn')!.value!,
-        dataType: 'string',
-        isRelationship: true,
-        relatedTable: this.relationshipColumnForm.get('rightTable')!.value!,
-      }).subscribe({
-        next: (columnData: any) => {
-          this.notificationService.addNotification({message: 'Column created successfully', type: 'success', dismissed: false, remainingTime: 5000});
-          this.relationshipColumnCreated.emit(columnData);
-          this.onClose();
-        },
-        error: (err) => {
-          this.notificationService.addNotification({message: 'Failed to create column', type: 'error', dismissed: false, remainingTime: 5000});
-        }
-      });
     }
+
+    const columnFormValue = {
+      columnName: this.isRelationship ? this.relationshipColumnForm.get('rightTableColumn')!.value! : this.columnForm.get('columnName')!.value!,
+      dataType:  this.isRelationship ? 'string'  : this.columnForm.get('dataType')!.value! as 'string' | 'number' | 'boolean' | 'datetime',
+      isRelationship: this.isRelationship,
+      relatedTable: this.isRelationship ? this.relationshipColumnForm.get('rightTable')!.value! : null,
+      tableName: this.tableId
+    }
+    this.apiService.createColumn(this.tableId, columnFormValue).subscribe({
+      next: (columnData: any) => {
+        this.notificationService.addNotification({message: 'Column created successfully', type: 'success', dismissed: false, remainingTime: 5000});
+        this.columnCreated.emit(columnData);
+        this.onClose();
+      },
+      error: (err) => {
+        this.notificationService.addNotification({message: 'Failed to create column', type: 'error', dismissed: false, remainingTime: 5000});
+      }
+    });
   }
 
   // getters
   get selectedRitghtTableColumnId() {
     return this.relationshipColumnForm.get('rightTableColumn')!.value!;
+  }
+
+  getColumnByColumnName(columnName: string): ColumnInterface {
+    return this.columnsList.find(column => column.columnName === columnName) || {} as ColumnInterface;
   }
 }

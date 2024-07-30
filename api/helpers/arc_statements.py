@@ -13,14 +13,14 @@ def get_create_raw_table_query(table_name):
 def get_add_column_query(column_name, table_name, is_relationship, related_table, data_type, tenant_id):
     if is_relationship:
         query = ""
-        existing_columns = asql.execute_raw_query(tenant=tenant_id, 
-                                                  query=f"""
-                                                  SELECT * FROM {avars.column_table} 
-                                                  WHERE tableName = '{table_name}' 
-                                                        AND isRelationship = 1
-                                                        AND relatedTable = '{related_table}';
-                                                """)
-        if len(existing_columns) == 0:
+        existing_columns = asql.execute_raw_query(tenant=tenant_id, query=f"""DESCRIBE `{table_name}`;""")
+        
+        relationship_column_already_exists = False
+        for column in existing_columns:
+            if column['Field'] == f"{related_table}__id":
+                relationship_column_already_exists = True
+                break
+        if not relationship_column_already_exists:
             query = f'''
                 ALTER TABLE `{table_name}`
                     ADD COLUMN `{related_table}__id` {avars.data_type_map['UUID']};

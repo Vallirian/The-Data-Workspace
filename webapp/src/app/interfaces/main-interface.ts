@@ -42,6 +42,7 @@ export interface ColumnInterface {
     dataType: 'string' | 'number' | 'datetime' | 'boolean';
     isRelationship: boolean;
     relatedTable: string | null;
+    tableName: string;
 }
 
 export interface RelationshipColumnInterface {

@@ -19,13 +19,19 @@ def execute_raw_query(tenant: str, query: str):
             print(query)
             cursor.execute(query)
             rows = cursor.fetchall()
-            if not rows:
+            if not cursor.description:
                 # for queries that don't return anything
                 return []
             column_names = [desc[0] for desc in cursor.description]
     
     # Combine column names with rows
-    results = [dict(zip(column_names, row)) for row in rows]
+    if len(rows) == 0:
+        results = [{}]
+        for col in column_names:
+            results[0][col] = None
+    else:
+        results = [dict(zip(column_names, row)) for row in rows]
+    print(results)
 
     connection.close()
     return results

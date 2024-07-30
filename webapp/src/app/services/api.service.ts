@@ -34,34 +34,36 @@ export class ApiService {
   getRawTable(tableId: string) {
     return this.http.get(`${this.baseUrl}/raw/${tableId}/`);
   }
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-  // raw Table API
-  updateRawTable(tableId: string, data: any) {
-    return this.http.put(`${this.baseUrl}/raw/${tableId}/`, data);
-  }
 
   getRawTableLimitedColumns(tableId: string, columns: string[]) {
     const params = new HttpParams()
       .set('columns', columns.join(','));
     return this.http.get(`${this.baseUrl}/raw/${tableId}/`, {params});
   }
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // raw Table API
+  updateRawTable(tableId: string, data: any) {
+    return this.http.put(`${this.baseUrl}/raw/${tableId}/`, data);
+  }
+
+
 
 
   // copilot API

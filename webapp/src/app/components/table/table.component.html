@@ -31,11 +31,11 @@
 <div class="table-responsive mt-3">
     <table class="table table-hover">
         <thead>
-            <!-- <tr  class="arc-table-header">
+            <tr  class="arc-table-header">
                 <th scope="col" *ngFor="let colId of displayedColumnIds">
-                    <span>{{getColumnById(colId).displayName}} </span>
+                    <span>{{getColumnById(colId).columnName}} </span>
                 </th>
-            </tr> -->
+            </tr>
         </thead>
         <tbody [formGroup]="rows">
             @for (rowId of getRowsFormControls(); track $index) {
@@ -49,7 +49,7 @@
                                         <select formControlName="value" class="form-select">
                                             @for (columnData of getRelationshipColumnData(colId); track $index) {
                                                 <!-- save column id here, assign the column id to table_id on save -->
-                                                <option [value]="columnData.id">{{columnData[colId]}}</option>
+                                                <option [value]="columnData.id">{{columnData[getColumnNameFromRelationshipColumnName(colId)]}}</option>
                                             }
                                         </select>
                                     }
@@ -75,5 +75,5 @@
             }
         </tbody>
     </table>
-    <!-- <div class="text-button-primary mt-3" (click)="onAddNewRow()">+ Add Row</div> -->
+    <div class="text-button-primary mt-3" (click)="onAddNewRow()">+ Add Row</div>
 </div>

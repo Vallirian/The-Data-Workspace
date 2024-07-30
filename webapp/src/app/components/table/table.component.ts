@@ -27,10 +27,7 @@ export class TableComponent {
   @Input() hasFilter: boolean = false;
   @Input() hasExport: boolean = false;
 
-  tableName: string = '';
-
   columns: ColumnInterface[] = [];
-  relationshipAPIColumns: RelationshipColumnAPIInterface[] = [];
   allColumnIds: string[] = [];
   displayedColumnIds: string[] = [];
   rowData: any[] = [];
@@ -67,7 +64,6 @@ export class TableComponent {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['tableId'] && !changes['tableId'].firstChange) {
-      this.tableName = this.tableId;
       this.fetchRowData();
     }
   }
@@ -86,24 +82,24 @@ export class TableComponent {
 
 
   extractColumns() {
-    // this.allColumnIds = [];
-    // this.displayedColumnIds = [];
-    // Object.keys(this.rowData[0]).forEach((columnId) => {
-    //   if (columnId !== 'id' && !columnId.includes('_id') && columnId !== 'updatedAt') {
-    //     this.displayedColumnIds.push(columnId);
-    //   }
-    //   this.allColumnIds.push(columnId);
-    // });
+    this.allColumnIds = [];
+    this.displayedColumnIds = [];
+    Object.keys(this.rowData[0]).forEach((columnId) => {
+      if (columnId !== 'id' && !columnId.includes('__id') && columnId !== 'updatedAt') {
+        this.displayedColumnIds.push(columnId);
+      }
+      this.allColumnIds.push(columnId);
+    });
 
-    // this.apiService.listColumns(this.displayedColumnIds).subscribe({
-    //   next: (columns: ColumnInterface[]) => {
-    //     this.columns = columns;
-    //     this.createRowForm();
-    //   },
-    //   error: (err) => {
-    //     this.notificationService.addNotification({ message: 'Failed to load columns', type: 'error', dismissed: false, remainingTime: 5000 });
-    //   }
-    // });
+    this.apiService.listColumns(this.tableId).subscribe({
+      next: (columns: ColumnInterface[]) => {
+        this.columns = columns;
+        this.createRowForm();
+      },
+      error: (err) => {
+        this.notificationService.addNotification({ message: 'Failed to load columns', type: 'error', dismissed: false, remainingTime: 5000 });
+      }
+    });
   }
 
   createRowForm() {
@@ -112,7 +108,7 @@ export class TableComponent {
       const tempForm = this.formBuilder.group({});
       this.displayedColumnIds.forEach((columnId) => {
         tempForm.addControl(columnId, this.formBuilder.group(
-          // {value: [row[columnId]], dataType: this.getColumnById(columnId).dataType, isNew: [false], isEdited: [false]},
+          {value: [row[columnId]], dataType: this.getColumnById(columnId).dataType, isNew: [false], isEdited: [false]},
           {validators: this.validatorService.valueDataTypeFormValidator()}
         ));
       });
@@ -124,21 +120,23 @@ export class TableComponent {
   fetchRelatedTablesData() {
     // construct relatedTables fro query as {tableId: [columnId]}
     let relatedTables: {[key: string]: string[]} = {};
-    // this.columns.forEach((column) => {
-    //   if (this.columnIsRelationship(column.id) && this.displayedColumnIds.includes(column.id)) {
-    //     const rightTableId = column.table;
-    //     if (!relatedTables[rightTableId]) {
-    //       relatedTables[rightTableId] = [];
-    //     }
-    //     relatedTables[rightTableId].push(column.id);
-    //   }
-    // });
+    this.columns.forEach((column) => {
+
+      if (this.columnIsRelationship(column.columnName)) {
+        const rightTableId = column.relatedTable!
+        if (!relatedTables[rightTableId]) {
+          relatedTables[rightTableId] = [];
+        }
+        relatedTables[rightTableId].push(column.columnName);
+      }
+    });
 
     // fetch related tables data
     Object.keys(relatedTables).forEach((tableId) => {
       this.apiService.getRawTableLimitedColumns(tableId, relatedTables[tableId]).subscribe({
         next: (tableData: any) => {
           this.realtedTablesRowData[tableId] = tableData;
+          
         },
         error: (err) => {
           this.notificationService.addNotification({ message: 'Failed to load related tables data', type: 'error', dismissed: false, remainingTime: 5000 });
@@ -148,8 +146,6 @@ export class TableComponent {
     
   }
 
-
-
   onSave() {
     // collect changes
     for (const rowId of this.getRowsFormControls()) {
@@ -158,18 +154,20 @@ export class TableComponent {
       
       if (row.dirty || row.dirty) {
         let isRowNew = false;
+        const alreadyUpdatedColumns: string[] = [];
         for (let columnId of Object.keys(row.controls)) {
           const column = this.getCellForm(rowId, columnId);
 
-          // use tablename_id as columnid for relationship columns
-          // if (this.columnIsRelationship(columnId)) {
-          //   const rightTableId = this.getColumnById(columnId).table;
-          //   const relationshipRightTableName = this.utilService.changeUuidToRelationshipRightTableName(rightTableId);
-          //   columnId = relationshipRightTableName;
-          // }
+          // use realtedtablename_id as columnid for relationship columns
+          if (this.columnIsRelationship(columnId)) {
+            const rightTableId = this.getColumnById(columnId).relatedTable!;
+            const relationshipRightTableName = `${rightTableId}__id`;
+            columnId = relationshipRightTableName;
+          }
           
-          if (column.dirty) {
+          if (column.dirty && !alreadyUpdatedColumns.includes(columnId)) {
             rowChanges[rowId][columnId] = column.get('value')?.value;
+            alreadyUpdatedColumns.push(columnId); // prevent duplicate updates (in cases of relationship columns, we only want to update the id field)
           }
           if (column.get('isNew')?.value) {
             isRowNew = column.get('isNew')?.value;
@@ -200,26 +198,45 @@ export class TableComponent {
     const tempForm = this.formBuilder.group({});
     this.displayedColumnIds.forEach((columnId) => {
       tempForm.addControl(columnId, this.formBuilder.group(
-        // {value: [''], dataType: this.getColumnById(columnId).dataType, isNew: [true], isEdited: [true]},
+        {value: [''], dataType: this.getColumnById(columnId).dataType, isNew: [true], isEdited: [true]},
         {validators: this.validatorService.valueDataTypeFormValidator()}
       ));
     });
     this.rows.addControl(this.utilService.generateCustomUUID(), tempForm);
   }
 
-  getRelationshipColumnData(columnId: string): any[] {
-    // const column = this.columns.find(column => column.id === columnId);
-    // if (!column) {
-    //   return [];
-    // }
-    // const table = this.realtedTablesRowData[column.table]
-    return [];
+  getColumnNameFromRelationshipColumnName(columnId: string): string {
+    return columnId.split('__')[1];
   }
 
-  // getColumnById(columnId: string): ColumnInterface {
-  getColumnById(columnId: string): string {
-    // return this.columns.find(column => column.id === columnId) || {id: '', displayName: '', description: '', dataType: 'string', table: ''};
-    return "{ displayName: '', description: '', dataType: 'string', table: ''};"
+  getRelationshipColumnData(columnName: string): any[] {
+    /**
+     * given a relationship column name, return the related table data
+     * if column is not a relationship column, return an empty array
+     */
+    const [tableName, colName] = columnName.split('__');
+    if (!tableName || !colName) {
+      return [];
+    }
+    const column = this.columns.find(column => column.columnName === colName);
+    if (!column) {
+      return [];
+    }
+    const table = this.realtedTablesRowData[tableName];
+    return table || [];
+  }
+
+  getColumnById(columnName: string): ColumnInterface {
+    /**
+     * given a column id, which is a column name, return the column object
+     * if column is a relationship column (identified by `__` in the column name), accomodate for that
+     */
+    if (columnName.includes('__')) {
+      const [tableId, columnId] = columnName.split('__');
+      // user column.relatedTable because the this.column is filtered by this.tableId on fetch
+      return this.columns.find(column => column.relatedTable === tableId && column.columnName === columnId) || {} as ColumnInterface;
+    }
+    return this.columns.find(column => column.tableName === this.tableId && column.columnName === columnName) || {} as ColumnInterface;
   }
 
   getRowsFormControls(): string[] {
@@ -252,8 +269,7 @@ export class TableComponent {
   }
 
   columnIsRelationship(columnId: string): boolean {
-    // return this.columns.some(column => column.table !== this.tableId && column.id === columnId);
-    return false;
+    return this.getColumnById(columnId).isRelationship;
   }
 
   // formatters

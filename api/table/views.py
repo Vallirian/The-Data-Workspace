@@ -34,7 +34,7 @@ class TableListView(APIView):
             # Create table
             asql.execute_raw_query(tenant=tenant_id, query=astmts.get_create_raw_table_query(table_name))
 
-            return Response({'message': f'Table {table_name} created'}, status=status.HTTP_201_CREATED)
+            return Response(table_name, status=status.HTTP_201_CREATED)
         except OperationalError as e:
             return Response({'error': f'Database error: operation failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
@@ -74,11 +74,19 @@ class ColumnListView(APIView):
         if data_type not in avars.data_type_map:
             return Response({'error': f'Invalid data type'}, status=status.HTTP_400_BAD_REQUEST)
         
-        # try:
-        asql.execute_raw_query(tenant=tenant_id, query=astmts.get_add_column_query(column_name=column_name, table_name=table_name, is_relationship=is_relationship, related_table=related_table, data_type=data_type, tenant_id=tenant_id))
-        
-        return Response({'message': f'Column {column_name} added to {table_name}'}, status=status.HTTP_201_CREATED)
-        # except OperationalError as e:
-        #     return Response({'error': f'Database error: operation failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        # except Exception as e:
-        #     return Response({'error': f'Unexpected error: failed to add column'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        try:
+            asql.execute_raw_query(tenant=tenant_id, query=astmts.get_add_column_query(column_name=column_name, table_name=table_name, is_relationship=is_relationship, related_table=related_table, data_type=data_type, tenant_id=tenant_id))
+            
+            # create column data response
+            column_data = {
+                "columnName": column_name,
+                "dataType": data_type,
+                "tableName": table_name,
+                "isRelationship": is_relationship,
+                "relatedTable": related_table
+            }
+            return Response(column_data, status=status.HTTP_201_CREATED)
+        except OperationalError as e:
+            return Response({'error': f'Database error: operation failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as e:
+            return Response({'error': f'Unexpected error: failed to add column'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
