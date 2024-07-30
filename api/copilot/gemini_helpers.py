@@ -81,7 +81,7 @@ def average_numbers():
     pass
 
 # gemini chat
-def enhance_user_message(message: str, tenant_id: str, current_table_name=None) -> str:
+def enhance_analysis_user_message(message: str, tenant_id: str, current_table_name=None) -> str:
     base_enhacement_message = avars.ANALYSIS_COPILOT_USER_MESSAGE_ENHANCEMENT
     if current_table_name:
         base_enhacement_message += f"The current table the user is looking at has the table_name: {current_table_name}"
@@ -104,6 +104,7 @@ def send_analysis_message(history: list['str'], message: str, tenant_id: str, ta
         enable_automatic_function_calling=True
     )
     print(message)
-    model_response = gemini_chat.send_message(enhance_user_message(message, tenant_id, table_name))
+    model_response = gemini_chat.send_message(enhance_analysis_user_message(message, tenant_id, table_name))
     print(model_response)
     print(model_response.text)
+    return model_response.text

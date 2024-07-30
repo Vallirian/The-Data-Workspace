@@ -9,6 +9,7 @@ data_type_map = {
 # Database variables
 column_table = "column__column"
 COPILOT_MODEL_USER_TYPE = "model"
+COPILOT_MODEL_USER_NAME = "model"
 COPILOT_USER_USER_TYPE = "user"
 COPILOT_CHAT_TABLE_NAME = "copilot__chat"
 COPILOT_MESSAGE_TABLE_NAME = "copilot__message"

@@ -8,7 +8,7 @@ def get_create_raw_table_query(table_name):
             updatedAt {avars.data_type_map['datetime']}
         );
     """
-    return get_create_column_table_query() + query
+    return query
 
 def get_add_column_query(column_name, table_name, is_relationship, related_table, data_type, tenant_id):
     if is_relationship:
@@ -32,24 +32,6 @@ def get_add_column_query(column_name, table_name, is_relationship, related_table
         '''
     return query + get_add_column_to_column_table_query(column_name, table_name, is_relationship, related_table, data_type)
 
-def get_create_column_table_query():
-    """
-    Creates the supporting tables for the specified tenant.
-    :param tenant: The schema name to use.
-    """
-    query = f"""
-        CREATE TABLE IF NOT EXISTS `{avars.column_table}` (
-            id {avars.data_type_map['UUID']} NOT NULL PRIMARY KEY,
-            columnName {avars.data_type_map['string']} NOT NULL,
-            dataType {avars.data_type_map['string']} NOT NULL,
-            tableName {avars.data_type_map['string']} NOT NULL,
-            updatedAt {avars.data_type_map['datetime']} NOT NULL,
-            isRelationship {avars.data_type_map['boolean']} NOT NULL,
-            relatedTable {avars.data_type_map['string']}
-        );
-    """
-    return query
-
 def get_add_column_to_column_table_query(column_name, table_name, is_relationship, related_table, data_type):
     current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     is_relationship = 1 if is_relationship else 0
@@ -61,34 +43,56 @@ def get_add_column_to_column_table_query(column_name, table_name, is_relationshi
 
     return query
 
-def get_create_new_chat_query():
+def get_create_new_chat_query(chat_id, display_name, user_id):
+    current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     query = f"""
-        INSERT INTO `{avars.COPILOT_CHAT_TABLE_NAME}` (id, createdAt, displayName, userId) 
-            VALUES ('{autils.custom_uuid()}', '{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}', '{displayName}', '{userId}');
+        INSERT INTO `{avars.COPILOT_CHAT_TABLE_NAME}` (id, createdAt, displayName, userId)
+            VALUES ('{chat_id}', '{current_timestamp}', '{display_name}', '{user_id}');
+    """
+    return query
+
+def get_create_new_message_query(message, chat_id, user_type, user_id):
+    current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    query = f"""
+        INSERT INTO `{avars.COPILOT_MESSAGE_TABLE_NAME}` (id, createdAt, message, chatId, userType, userId)
+            VALUES ('{autils.custom_uuid()}', '{current_timestamp}', '{message}', '{chat_id}', '{user_type}', '{user_id}');
     """
     return query
     
+def get_supporting_tables_query():
+    query = ""
 
-def get_create_chat_table_query():
-    query = f"""
+    # Create the column table
+    query += f"""
+        CREATE TABLE IF NOT EXISTS `{avars.column_table}` (
+            id {avars.data_type_map['UUID']} NOT NULL PRIMARY KEY,
+            columnName {avars.data_type_map['string']} NOT NULL,
+            dataType {avars.data_type_map['string']} NOT NULL,
+            tableName {avars.data_type_map['string']} NOT NULL,
+            updatedAt {avars.data_type_map['datetime']} NOT NULL,
+            isRelationship {avars.data_type_map['boolean']} NOT NULL,
+            relatedTable {avars.data_type_map['string']}
+        );
+    """
+
+    # Create the copilot chat table
+    query += f"""
         CREATE TABLE IF NOT EXISTS  `{avars.COPILOT_CHAT_TABLE_NAME}` (
             id {avars.data_type_map['UUID']} NOT NULL PRIMARY KEY,
             createdAt {avars.data_type_map['datetime']} NOT NULL,
             displayName {avars.data_type_map['string']} NOT NULL,
-            userId {avars.data_type_map['UUID']} NOT NULL,
+            userId {avars.data_type_map['UUID']} NOT NULL
         );
     """
-    return query
-
-def get_create_message_table_query():
-    query = f"""
+    # Create the copilot message table
+    query += f"""
         CREATE TABLE IF NOT EXISTS `{avars.COPILOT_MESSAGE_TABLE_NAME}` (
             id {avars.data_type_map['UUID']} NOT NULL PRIMARY KEY,
             createdAt {avars.data_type_map['datetime']} NOT NULL,
             message {avars.data_type_map['string']} NOT NULL,
             chatId {avars.data_type_map['UUID']} NOT NULL,
-            userType {avars.data_type_map['string']} NOT NULL
-            userId {avars.data_type_map['UUID']} NOT NULL,
+            userType {avars.data_type_map['string']} NOT NULL,
+            userId {avars.data_type_map['UUID']} NOT NULL
         );
     """
     return query
