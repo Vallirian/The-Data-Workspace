@@ -9,6 +9,7 @@ def execute_raw_query(tenant: str, query: str):
     :param query: The raw SQL query to execute.
     :return: The result of the query.
     """
+    print('tenant', tenant)
     with transaction.atomic():
         with connection.cursor() as cursor:
             # Switch to the specified tenant schema
@@ -16,11 +17,14 @@ def execute_raw_query(tenant: str, query: str):
 
             # reorder query before executing
             query = autils.reorder_query(query)
-            print(query)
+            print('query that came in', query)
+            query = connection.escape_string(query)
+            print('query to exec', query)
             cursor.execute(query)
             rows = cursor.fetchall()
             if not cursor.description:
                 # for queries that don't return anything
+                connection.close()
                 return []
             column_names = [desc[0] for desc in cursor.description]
     
@@ -31,7 +35,7 @@ def execute_raw_query(tenant: str, query: str):
             results[0][col] = None
     else:
         results = [dict(zip(column_names, row)) for row in rows]
-    print(results)
+    print('results from exec', results)
 
     connection.close()
     return results

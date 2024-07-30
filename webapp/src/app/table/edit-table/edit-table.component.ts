@@ -22,7 +22,7 @@ import { ChatComponent } from '../../components/chat/chat.component';
   styleUrl: './edit-table.component.scss'
 })
 export class EditTableComponent {
-  selectedSection: 'section-details' | 'section-copilot-chat' | 'section-automations' = 'section-details';
+  selectedSection: 'section-details' | 'section-copilot-chat' | 'section-automations' = 'section-copilot-chat';
   tableId: string = '';
   tableData: any = {};
 

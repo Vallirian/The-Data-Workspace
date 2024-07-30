@@ -41,18 +41,18 @@ export class ChatComponent {
   }
 
   onSelectConversation(chatId: string) {
-    // this.selectedChatId = chatId;
-    // console.log(chatId);
-    // this.apiService.getAnalysisChat(conversationId).subscribe({
-    //   next: (conversation: any) => {
-    //     console.log(conversation);
-    //     this.messages = conversation
-    //     console.log(this.messages);
-    //   },
-    //   error: (err) => {
-    //     this.notificationService.addNotification({message: 'Failed to load conversation', type: 'error', dismissed: false, remainingTime: 5000});
-    //   }
-    // });
+    this.selectedChatId = chatId;
+    console.log(chatId);
+    this.apiService.getAnalysisChat(chatId).subscribe({
+      next: (messages: CopilotMessageInterface[]) => {
+        console.log(messages);
+        this.messages = messages;
+        console.log(this.messages);
+      },
+      error: (err) => {
+        this.notificationService.addNotification({message: 'Failed to load conversation', type: 'error', dismissed: false, remainingTime: 5000});
+      }
+    });
   }
 
   onCloseConversation() {
@@ -67,31 +67,35 @@ export class ChatComponent {
 
     // add message to chat
     this.answerLoading = true;
-    this.messages.push({message, sender: 'user', createdAt: new Date()});
+    this.messages.push({id: '', createdAt: new Date(), message: message, chatId: '', userId: '', userType: 'user'});
 
     // send message
     if (this.selectedChatId === null) {
       this.apiService.startAnalysisChat(message).subscribe({
-        next: (chat: any) => {
-          this.selectedChatId = chat.id;
-          this.messages.push({message: chat.message, sender: 'model', createdAt: new Date()});
+        next: (newMessage: CopilotMessageInterface) => {
+          this.selectedChatId = newMessage.chatId;
+          this.messages.push(newMessage);
           this.currentMessage = '';
           this.answerLoading = false;
         },
         error: (err) => {
           this.notificationService.addNotification({message: 'Failed to start conversation', type: 'error', dismissed: false, remainingTime: 5000});
+          this.currentMessage = '';
+          this.answerLoading = false
         }
       });
     }
     else {
-      this.apiService.sendMessageAnalysisChat(this.selectedConversationId, message).subscribe({
-        next: (conversation: any) => {
-          this.messages.push({message: conversation.message, sender: 'model', createdAt: new Date()});
+      this.apiService.sendMessageAnalysisChat(this.selectedChatId, message).subscribe({
+        next: (newMessage: CopilotMessageInterface) => {
+          this.messages.push(newMessage);
           this.currentMessage = '';
           this.answerLoading = false
         },
         error: (err) => {
           this.notificationService.addNotification({message: 'Failed to send message', type: 'error', dismissed: false, remainingTime: 5000});
+          this.currentMessage = '';
+          this.answerLoading = false
         }
       });
     }

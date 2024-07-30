@@ -49,17 +49,26 @@ class CopilotAnalysisChat(APIView):
             # create a new conversation
             new_caht_id = autils.custom_uuid()
             new_chat_response_data = asql.execute_raw_query(tenant=tenant_id, query=astmts.get_create_new_chat_query(chat_id=new_caht_id, display_name=message, user_id=request.user.id))
-
+            print('new_chat_response_data', new_chat_response_data)
             # record the user's message
             new_message_response_data = asql.execute_raw_query(tenant=tenant_id, query=astmts.get_create_new_message_query(message=message, chat_id=new_caht_id, user_type=avars.COPILOT_USER_USER_TYPE, user_id=request.user.id))
+            print('new_message_response_data', new_message_response_data)
         except Exception as e:
+            print('error', str(e))
             return Response({'error': 'Failed to start new chat'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         try:
+            # ask the model for a response
             model_response_text = gh.send_analysis_message(history=[], message=message, tenant_id=tenant_id, table_name=table_name)
+            print('model_response_text', model_response_text)
+
+            # save model's response
             new_model_meessage_response_data = asql.execute_raw_query(tenant=tenant_id, query=astmts.get_create_new_message_query(message=model_response_text, chat_id=new_caht_id, user_type=avars.COPILOT_MODEL_USER_TYPE, user_id=avars.COPILOT_MODEL_USER_NAME))
-            return Response({'message': model_response_text}, status=status.HTTP_200_OK)
+            print('new_model_meessage_response_data', new_model_meessage_response_data)
+
+            return Response(new_model_meessage_response_data, status=status.HTTP_200_OK)
         except Exception as e:
+            print('error', str(e))
             return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     # def put(self, request):

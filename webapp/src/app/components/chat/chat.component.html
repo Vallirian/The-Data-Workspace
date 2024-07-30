@@ -1,8 +1,8 @@
-@if (selectedConversationId == null) {
+@if (selectedChatId == null) {
     <div class="container-with-scrollable-content">
         <div class="list-group scrollable">
             @for (chat of chats; track $index) {
-                <div (click)="onSelectConversation(chat.conversationId)" class="list-group-item list-group-item-action">{{chat.displayName}} {{formatDate(chat.createdAt)}}</div>
+                <div (click)="onSelectConversation(chat.id)" class="list-group-item list-group-item-action">{{chat.displayName}} {{formatDate(chat.createdAt)}}</div>
             }
         </div>
         <div class="input-group">
@@ -32,8 +32,8 @@
                 <div class="d-flex align-items-center mb-2">
                     <div 
                         [ngClass]=" {
-                            'incoming-message': msg.sender === 'model',
-                            'outgoing-message': msg.sender !== 'model'
+                            'incoming-message': msg.userType === 'model',
+                            'outgoing-message': msg.userType !== 'model'
                         }" class="profile-box">
                     </div>
                     <span class="message-time">{{formatDate(msg.createdAt)}}</span>

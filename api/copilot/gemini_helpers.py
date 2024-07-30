@@ -92,19 +92,20 @@ def enhance_analysis_user_message(message: str, tenant_id: str, current_table_na
 
 def send_analysis_message(history: list['str'], message: str, tenant_id: str, table_name=None) -> str:
     genai.configure(api_key=os.environ.get("GOOGLE_AI_API_KEY"))
+    generation_config = genai.GenerationConfig(
+        temperature=0.1
+    )
     model = genai.GenerativeModel(
         os.environ.get("GEMINI_AI_MODEL"),
         tools=[get_info_about_all_available_tables, get_info_about_all_columns_for_table, get_data_in_table_for_all_columns, 
                get_data_in_table_for_specific_columns],
         system_instruction=avars.ANALYSIS_COPILOT_SYSTEM_INSTRUCTIONS,
-        temprature=0.1
     )
+    
     gemini_chat = model.start_chat(
         history=history, 
         enable_automatic_function_calling=True
     )
-    print(message)
-    model_response = gemini_chat.send_message(enhance_analysis_user_message(message, tenant_id, table_name))
-    print(model_response)
-    print(model_response.text)
+
+    model_response = gemini_chat.send_message(enhance_analysis_user_message(message, tenant_id, table_name), generation_config=generation_config)
     return model_response.text

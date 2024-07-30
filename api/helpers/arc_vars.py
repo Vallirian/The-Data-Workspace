@@ -1,6 +1,6 @@
 data_type_map = {
     "UUID": "VARCHAR(128)",
-    "string": "TEXT",
+    "string": "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci", 
     "number": "NUMERIC",
     "boolean": "BOOLEAN",
     "datetime": "TIMESTAMP"

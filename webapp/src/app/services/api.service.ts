@@ -53,7 +53,13 @@ export class ApiService {
   }
 
   startAnalysisChat(message: string) {
-    return this.http.post(`${this.baseUrl}/copilot/analysis/`, {'message': message});
+    return this.http.post<CopilotMessageInterface>(`${this.baseUrl}/copilot/analysis/`, {'message': message});
+  }
+
+  sendMessageAnalysisChat(chatId: string, message: string) {
+    const params = new HttpParams()
+      .set('chatId', chatId);
+    return this.http.put<CopilotMessageInterface>(`${this.baseUrl}/copilot/analysis/`, {'message': message}, {params});
   }
 
 
@@ -87,10 +93,6 @@ export class ApiService {
   
 
 
-  sendMessageAnalysisChat(conversationId: string, message: string) {
-    const params = new HttpParams()
-      .set('conversationId', conversationId);
-    return this.http.put(`${this.baseUrl}/copilot/analysis/`, {'message': message}, {params});
-  }
+
 
 }
