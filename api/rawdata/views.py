@@ -8,7 +8,7 @@ from helpers import arc_vars as avars, arc_utils as autils, arc_sql as asql
 class RawDataView(APIView):
     def get(self, request, table_name):
         tenant_id = request.user.tenant.id
-        table_columns = asql.execute_raw_query(tenant=tenant_id, query=f"SELECT * FROM {avars.column_table} WHERE tableName = '{table_name}';")
+        table_columns = asql.execute_raw_query(tenant=tenant_id, queries=[(f"SELECT * FROM {avars.column_table} WHERE tableName = '{table_name}';", [])])
         
         # limit the columns to be queried
         requested_columns = request.query_params.get("columns")
@@ -40,10 +40,10 @@ class RawDataView(APIView):
             FROM {table_name}
             {join_query}
         """
-        query += f'ORDER BY {table_name}.updatedAt DESC;'
+        query += f'ORDER BY `{table_name}`.`updatedAt` DESC;'
         
         try:
-            response_data = asql.execute_raw_query(tenant=tenant_id, query=query)
+            response_data = asql.execute_raw_query(tenant=tenant_id, queries=[(query, [])])
             return Response(response_data)
         except Exception as e:
             return Response({'error': f'Unable to fetch data for table {table_name}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -51,27 +51,40 @@ class RawDataView(APIView):
         
     def put(self, request, table_name):
         tenant_id = request.user.tenant.id
-        final_query = ''
+        final_queries = []
         
         try:
             # add rows
             added_rows = request.data["added"]
             current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
             for row in added_rows:
-                # added columns
-                insert_into_var = f'INSERT INTO `{table_name}` (`id`, `updatedAt`, '
-                values_var = f"""VALUES ('{autils.custom_uuid()}', '{current_timestamp}', """
-                
+                columns_part = []
+                values_count = 0
+                params = []
+
+                # generate uuid for the row
+                row_id = autils.custom_uuid()
+                columns_part.extend(['id', 'updatedAt'])
+                values_count += 2
+                params.extend([row_id, current_timestamp])
+
                 for _, column_changes in row.items():
                     for col_id, col_val in column_changes.items():
-                        insert_into_var += f'{col_id}, '
-                        values_var += f"'{col_val}', "
-                        
-                insert_into_var = insert_into_var[:-2] + ')'
-                values_var = values_var[:-2] + ')'
-                final_query += f'{insert_into_var} {values_var}; '
+                        columns_part.append(f'`{col_id}`')
+                        values_count += 1
+                        params.append(col_val)
 
-            asql.execute_raw_query(tenant=tenant_id, query=final_query)
-            return Response("Successfully added data", status=status.HTTP_201_CREATED)
+                # construct the query
+                final_query = f"""
+                    INSERT INTO `{table_name}` ({", ".join(columns_part)}) 
+                    VALUES ({", ".join(['%s' for _ in range(values_count)])});
+                """
+                print('final_query', final_query)
+
+                final_queries.append((final_query, params))
+
+            put_response_data = asql.execute_raw_query(tenant=tenant_id, queries=final_queries)
+            return Response(put_response_data, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)

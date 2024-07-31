@@ -66,8 +66,8 @@ export class DesignHomeComponent {
         this.notificationService.addNotification({message: 'Table created successfully', type: 'success', dismissed: false, remainingTime: 5000});
       },
       error: (err) => {
-        console.log(err);
         this.notificationService.addNotification({message: err.error.error, type: 'error', dismissed: false, remainingTime: 5000});
+        this.newTableName = null;
       }
     });
   }

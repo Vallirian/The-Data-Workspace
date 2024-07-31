@@ -28,23 +28,18 @@ class RegisterCustomUserView(APIView):
             # create a new tenant
             tenant = Tenant.objects.create(displayName=tenant_display_name)
             tenant.save()
-            print('created tenant', tenant.id)
 
             # create a new user
             new_user = CustomUser.objects.create(email=email, username=username, tenant=tenant)
             new_user.set_password(password)
             new_user.save()
-            print('created user', new_user)
 
             # create schema for tenant 
             create_schema_response_data = asql.create_schema(tenant.id)
-            print('create_schema_response_data', create_schema_response_data)
-            print(create_schema_response_data)
 
             # create supporting tables for the tenant (comes after creating the schema and creating 
             # the user to keep user data in main table and not tenant schema)
-            supporting_tables_response_data = asql.execute_raw_query(tenant=tenant.id, query=astmts.get_supporting_tables_query())
-            print(supporting_tables_response_data)
+            supporting_tables_response_data = asql.execute_raw_query(tenant=tenant.id, queries=astmts.get_supporting_tables_query())
 
             return Response({'message': 'User created successfully'}, status=status.HTTP_201_CREATED)
 

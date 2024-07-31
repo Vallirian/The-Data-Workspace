@@ -52,13 +52,16 @@ export class ApiService {
     return this.http.get<CopilotMessageInterface[]>(`${this.baseUrl}/copilot/analysis/`, {params});
   }
 
-  startAnalysisChat(message: string) {
-    return this.http.post<CopilotMessageInterface>(`${this.baseUrl}/copilot/analysis/`, {'message': message});
+  startAnalysisChat(message: string, tableName: string) {
+    const params = new HttpParams()
+      .set('tableName', tableName);
+    return this.http.post<CopilotMessageInterface>(`${this.baseUrl}/copilot/analysis/`, {'message': message}, {params});
   }
 
-  sendMessageAnalysisChat(chatId: string, message: string) {
+  sendMessageAnalysisChat(chatId: string, message: string, tableName: string) {
     const params = new HttpParams()
-      .set('chatId', chatId);
+      .set('chatId', chatId)
+      .set('tableName', tableName);
     return this.http.put<CopilotMessageInterface>(`${this.baseUrl}/copilot/analysis/`, {'message': message}, {params});
   }
 

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input, SimpleChanges } from '@angular/core';
 import { ApiService } from '../../services/api.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -18,6 +18,7 @@ import { CopilotChatInterface, CopilotMessageInterface } from '../../interfaces/
   styleUrl: './chat.component.scss'
 })
 export class ChatComponent {
+  @Input() tableId: string = '';
   messages: CopilotMessageInterface[] = [];
   chats: CopilotChatInterface[] = []; 
   selectedChatId: string | null = null;
@@ -38,6 +39,12 @@ export class ChatComponent {
         this.notificationService.addNotification({message: 'Failed to load conversations', type: 'error', dismissed: false, remainingTime: 5000});
       }
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['tableId'] && !changes['tableId'].firstChange) {
+      this.tableId = changes['tableId'].currentValue;
+    }
   }
 
   onSelectConversation(chatId: string) {
@@ -61,6 +68,7 @@ export class ChatComponent {
   }
 
   onSendMessage(message: string) {
+    console.log(this.tableId);
     if (!message || message.trim() === '' || this.answerLoading) {
       return;
     }
@@ -71,7 +79,7 @@ export class ChatComponent {
 
     // send message
     if (this.selectedChatId === null) {
-      this.apiService.startAnalysisChat(message).subscribe({
+      this.apiService.startAnalysisChat(message, this.tableId).subscribe({
         next: (newMessage: CopilotMessageInterface) => {
           this.selectedChatId = newMessage.chatId;
           this.messages.push(newMessage);
@@ -86,7 +94,7 @@ export class ChatComponent {
       });
     }
     else {
-      this.apiService.sendMessageAnalysisChat(this.selectedChatId, message).subscribe({
+      this.apiService.sendMessageAnalysisChat(this.selectedChatId, message, this.tableId).subscribe({
         next: (newMessage: CopilotMessageInterface) => {
           this.messages.push(newMessage);
           this.currentMessage = '';

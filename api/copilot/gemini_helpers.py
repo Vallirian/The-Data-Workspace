@@ -16,10 +16,12 @@ def get_info_about_all_available_tables(tenant_id: str) -> list['str']:
     Returns:
         A list of all available tables in the database.
     """
-    response_data = asql.execute_raw_query(tenant=tenant_id, query="SHOW TABLES;")
+    print('tenant_id in get_info_about_all_available_tables', tenant_id)
+    response_data = asql.execute_raw_query(tenant=tenant_id, queries=[("SHOW TABLES;", [])])
     tables = []
     for response_data_item in response_data:
         tables += [v for k, v in response_data_item.items() if v not in avars.INTERNAL_TABLES]
+    print('tables', tables)
     return tables
 
 def get_info_about_all_columns_for_table(tenant_id: str, table_name: str) -> list['dict']:
@@ -34,10 +36,12 @@ def get_info_about_all_columns_for_table(tenant_id: str, table_name: str) -> lis
         containing the following keys: id, Type, Null, Key, Default, Extra. If there is "__id" in the column name,
         that column holds the id of the related table. The realted table name is the part before the "__id".
     """
-    response_data = asql.execute_raw_query(tenant=tenant_id, query=f"DESCRIBE `{table_name}`;")
+    print('table_name in get_info_about_all_columns_for_table', table_name)
+    response_data = asql.execute_raw_query(tenant=tenant_id, queries=[(f"DESCRIBE `{table_name}`;", [])])
     columns = []
     for response_data_item in response_data:
         columns += [response_data_item]
+    print('columns', columns)
     return columns
 
 def get_data_in_table_for_all_columns(tenant_id: str, table_name: str) -> list['dict']:
@@ -50,7 +54,9 @@ def get_data_in_table_for_all_columns(tenant_id: str, table_name: str) -> list['
     Returns:
         A list of dictionaries where each dictionary represents a row in the table.
     """
-    response_data = asql.execute_raw_query(tenant=tenant_id, query=f"SELECT * FROM `{table_name}`;")
+    print('table_name in get_data_in_table_for_all_columns', table_name)
+    response_data = asql.execute_raw_query(tenant=tenant_id, queries=[(f"SELECT * FROM `{table_name}`;", [])])
+    print('response_data', response_data)
     return response_data
 
 def get_data_in_table_for_specific_columns(tenant_id: str, table_name: str, columns: list['str']) -> list['dict']:
@@ -65,8 +71,10 @@ def get_data_in_table_for_specific_columns(tenant_id: str, table_name: str, colu
         A list of dictionaries where each dictionary represents a row in the table. Each dictionary contains
         only the specified columns.
     """
+    print('table_name in get_data_in_table_for_specific_columns', table_name)
     columns_str = ', '.join(columns)
-    response_data = asql.execute_raw_query(tenant=tenant_id, query=f"SELECT {columns_str} FROM `{table_name}`;")
+    response_data = asql.execute_raw_query(tenant=tenant_id, queries=[(f"SELECT {columns_str} FROM `{table_name}`;", [])])
+    print('response_data', response_data)
     return response_data
 
 
@@ -81,7 +89,7 @@ def average_numbers():
     pass
 
 # gemini chat
-def enhance_analysis_user_message(message: str, tenant_id: str, current_table_name=None) -> str:
+def enhance_analysis_user_message(message: str, tenant_id: str, current_table_name) -> str:
     base_enhacement_message = avars.ANALYSIS_COPILOT_USER_MESSAGE_ENHANCEMENT
     if current_table_name:
         base_enhacement_message += f"The current table the user is looking at has the table_name: {current_table_name}"
@@ -90,11 +98,11 @@ def enhance_analysis_user_message(message: str, tenant_id: str, current_table_na
     final_message = base_enhacement_message + '\n' + message
     return final_message
 
-def send_analysis_message(history: list['str'], message: str, tenant_id: str, table_name=None) -> str:
+def send_analysis_message(history: list['str'], message: str, tenant_id: str, table_name) -> str:
     genai.configure(api_key=os.environ.get("GOOGLE_AI_API_KEY"))
-    generation_config = genai.GenerationConfig(
-        temperature=0.1
-    )
+    # generation_config = genai.GenerationConfig(
+    #     temperature=0.7
+    # )
     model = genai.GenerativeModel(
         os.environ.get("GEMINI_AI_MODEL"),
         tools=[get_info_about_all_available_tables, get_info_about_all_columns_for_table, get_data_in_table_for_all_columns, 
@@ -107,5 +115,8 @@ def send_analysis_message(history: list['str'], message: str, tenant_id: str, ta
         enable_automatic_function_calling=True
     )
 
-    model_response = gemini_chat.send_message(enhance_analysis_user_message(message, tenant_id, table_name), generation_config=generation_config)
+    final_message = enhance_analysis_user_message(message, tenant_id, table_name)
+    print('final_message', final_message)
+    model_response = gemini_chat.send_message(final_message)
+    print('model_response', model_response)
     return model_response.text

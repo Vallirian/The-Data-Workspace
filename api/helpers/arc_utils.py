@@ -30,31 +30,34 @@ def validate_object_name(object_name: str):
     return True, None
 
 # ----- Database -----
-def reorder_query(query):
+def reorder_query(queries: list[tuple[str, str]]) -> list[tuple[str, str]]:
     """
     Reorder the query to ensure that the column table is created first.
 
     1. Data definition language (DDL) statements (https://dev.mysql.com/doc/refman/8.4/en/implicit-commit.html)
         - have an implicit commit, which means that they are committed even if the transaction involves multiple statements.
         So, we run non-DDL statements first, then DDL statements to avoid committing the transaction before all statements are run.
+
+    Args:
+        queries (list[tuple[str, str]]): List of queries to reorder. Each query is a tuple of the query and the query parameters.
+
+    Returns:
+        list[tuple[str, str]]: Reordered queries. Each query is a tuple of the query and the query parameters.
     """
     ddl_statement_prefixes = ['ALTER', 'CREATE', 'DROP', 'INSTALL', 'RENAME', 'TRUNCATE', 'UNINSTALL']
-    ddl_statements = []
-    non_ddl_statements = []
-    query_parts = query.split(';')
-    for part in query_parts:
+    ddl_queries = []
+    non_ddl_queries = []
+
+    for query in queries:
+        part = query[0]
         if part.strip() == '':
             continue
         if any(part.strip().startswith(prefix) for prefix in ddl_statement_prefixes):
-            ddl_statements.append(part)
+            ddl_queries.append(query)
         else:
-            non_ddl_statements.append(part)
-    final_qeury = ''
-    for qry in non_ddl_statements + ddl_statements:
-        final_qeury += qry + ';'
-    final_qeury = final_qeury.strip()
-    
-    return final_qeury
+            non_ddl_queries.append(query)
+
+    return non_ddl_queries + ddl_queries
 
 if __name__ == '__main__':
     pass

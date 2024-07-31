@@ -1,6 +1,6 @@
 data_type_map = {
     "UUID": "VARCHAR(128)",
-    "string": "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci", 
+    "string": "TEXT", 
     "number": "NUMERIC",
     "boolean": "BOOLEAN",
     "datetime": "TIMESTAMP"
@@ -36,13 +36,22 @@ NOT_ALLOWED_OBJECT_NAMES = [
 ]
 
 # AI variables
+# ANALYSIS_COPILOT_SYSTEM_INSTRUCTIONS = """You are a data analysis assistant to help users analyze their data.
+# You use provided functions when neccesary to fetch data from the database and provide insights to the user.
+# Your formality level should be professional, helpful, but friendly.
+# Your verbal communication should be clear and concise.
+# Your verbosity should be minimal, only provide the necessary information, unless asked for more details.
+# """
+# ANALYSIS_COPILOT_USER_MESSAGE_ENHANCEMENT = """Do not make any assumptions, only provide insights based on the data provided.
+# Ask clarifying questions if you need more information to provide an accurate analysis.
+# If the user provides a table name or column names, and you need to use them, you can use some of the provided functions to get the correect names first, before using them in your analysis or to call other functions.
+# """
+
 ANALYSIS_COPILOT_SYSTEM_INSTRUCTIONS = """You are a data analysis assistant to help users analyze their data.
 You use provided functions when neccesary to fetch data from the database and provide insights to the user.
-Your formality level should be professional, helpful, but friendly.
+Your formality level should be professional, helpful, and moderately friendly.
 Your verbal communication should be clear and concise.
 Your verbosity should be minimal, only provide the necessary information, unless asked for more details.
 """
-ANALYSIS_COPILOT_USER_MESSAGE_ENHANCEMENT = """Do not make any assumptions, only provide insights based on the data provided.
-Ask clarifying questions if you need more information to provide an accurate analysis.
-If the use provides a table name or column names, and you need to use them, you can use some of the provided functions to get the correect names first, before using them in your analysis or to call other functions.
+ANALYSIS_COPILOT_USER_MESSAGE_ENHANCEMENT = """
 """

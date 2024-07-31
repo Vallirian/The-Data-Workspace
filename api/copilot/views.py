@@ -16,7 +16,10 @@ class CopilotAnalysisChat(APIView):
         if chat_id:
             # details of a specific conversation
             try:
-                messages = asql.execute_raw_query(tenant=tenant_id, query=f"SELECT * FROM `{avars.COPILOT_MESSAGE_TABLE_NAME}` WHERE chatId = {chat_id}  ORDER BY `createdAt` DESC;")
+                messages = asql.execute_raw_query(
+                    tenant=tenant_id, 
+                    queries=[(f"SELECT * FROM `{avars.COPILOT_MESSAGE_TABLE_NAME}` WHERE `chatId` = %s  ORDER BY `createdAt` DESC;", [chat_id])]
+                )
                 if not messages:
                     return Response({"message": "No messages found"}, status=status.HTTP_404_NOT_FOUND)
                 return Response(messages, status=status.HTTP_200_OK)
@@ -25,7 +28,10 @@ class CopilotAnalysisChat(APIView):
         else:
             # list of all conversations
             try:
-                chat = asql.execute_raw_query(tenant=tenant_id, query=f"SELECT * FROM `{avars.COPILOT_CHAT_TABLE_NAME}` ORDER BY `createdAt` DESC;")
+                chat = asql.execute_raw_query(
+                    tenant=tenant_id, 
+                    queries=[(f"SELECT * FROM `{avars.COPILOT_CHAT_TABLE_NAME}` ORDER BY `createdAt` DESC;", [])]
+                )
                 if not chat:
                     return Response({"message": "No chat found"}, status=status.HTTP_404_NOT_FOUND)
                 return Response(chat, status=status.HTTP_200_OK)
@@ -39,6 +45,8 @@ class CopilotAnalysisChat(APIView):
         tenant_id = request.user.tenant.id
         message = request.data.get("message")
         table_name = request.data.get("tableName")
+
+        print('table_name', table_name)
         if not message:
             return Response(
                 {"message": "Please provide a message"},
@@ -48,71 +56,98 @@ class CopilotAnalysisChat(APIView):
         try:
             # create a new conversation
             new_caht_id = autils.custom_uuid()
-            new_chat_response_data = asql.execute_raw_query(tenant=tenant_id, query=astmts.get_create_new_chat_query(chat_id=new_caht_id, display_name=message, user_id=request.user.id))
-            print('new_chat_response_data', new_chat_response_data)
+            new_chat_response_data = asql.execute_raw_query(
+                tenant=tenant_id, 
+                queries=astmts.get_create_new_chat_query(chat_id=new_caht_id, display_name=message, user_id=request.user.id)
+            )
             # record the user's message
-            new_message_response_data = asql.execute_raw_query(tenant=tenant_id, query=astmts.get_create_new_message_query(message=message, chat_id=new_caht_id, user_type=avars.COPILOT_USER_USER_TYPE, user_id=request.user.id))
-            print('new_message_response_data', new_message_response_data)
+            new_message_response_data = asql.execute_raw_query(
+                tenant=tenant_id, 
+                queries=astmts.get_create_new_message_query(message=message, chat_id=new_caht_id, user_type=avars.COPILOT_USER_USER_TYPE, user_id=request.user.id)
+            )
         except Exception as e:
-            print('error', str(e))
             return Response({'error': 'Failed to start new chat'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         try:
             # ask the model for a response
             model_response_text = gh.send_analysis_message(history=[], message=message, tenant_id=tenant_id, table_name=table_name)
-            print('model_response_text', model_response_text)
 
             # save model's response
-            new_model_meessage_response_data = asql.execute_raw_query(tenant=tenant_id, query=astmts.get_create_new_message_query(message=model_response_text, chat_id=new_caht_id, user_type=avars.COPILOT_MODEL_USER_TYPE, user_id=avars.COPILOT_MODEL_USER_NAME))
-            print('new_model_meessage_response_data', new_model_meessage_response_data)
+            new_model_meessage_response_data = asql.execute_raw_query(
+                tenant=tenant_id, 
+                queries=astmts.get_create_new_message_query(message=model_response_text, chat_id=new_caht_id, user_type=avars.COPILOT_MODEL_USER_TYPE, user_id=avars.COPILOT_MODEL_USER_NAME)
+            )
+            
+            resonse_message = {
+                'id': autils.custom_uuid(), # create palceholder id, the correct id will be grabbed from the database in the next message
+                'createdAt': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "message": model_response_text,
+                "chatId": new_caht_id,
+                "userType": avars.COPILOT_MODEL_USER_TYPE,
+                "userId": avars.COPILOT_MODEL_USER_NAME
+            }
 
-            return Response(new_model_meessage_response_data, status=status.HTTP_200_OK)
+            return Response(resonse_message, status=status.HTTP_200_OK)
         except Exception as e:
-            print('error', str(e))
-            return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error': 'Failed to start a new chat'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-    # def put(self, request):
-    #     '''
-    #     continues an existing conversation
-    #     '''
-    #     tenant_id = request.user.tenant.id
-    #     conversation_id = request.query_params.get("conversationId")
-    #     user_message = request.data.get("message")
-    #     if not user_message:
-    #         return Response(
-    #             {"message": "Please provide a message"},
-    #             status=status.HTTP_400_BAD_REQUEST
-    #         )
-    #     if not conversation_id:
-    #         return Response(
-    #             {"message": "Please provide a conversationId"},
-    #             status=status.HTTP_400_BAD_REQUEST
-    #         )
+    def put(self, request):
+        '''
+        continues an existing conversation
+        '''
+        tenant_id = request.user.tenant.id
+        chat_id = request.query_params.get("chatId")
+        table_name = request.data.get("tableName")
+        user_message = request.data.get("message")
+
+        print('table_name', table_name) 
+
+        if not user_message:
+            return Response({"message": "Please provide a message"},status=status.HTTP_400_BAD_REQUEST)
+        if not chat_id:
+            return Response({"message": "Please provide a conversationId"},status=status.HTTP_400_BAD_REQUEST)
         
-    #     # record the user's message
-    #     try:
-    #         conversation = CopilotConversation.objects.get(id=conversation_id, tenant_id=tenant_id)
-    #         new_message = CopilotMessage(copilotconversation=conversation, message=user_message, sender=request.user.id, tenant_id=tenant_id)
-    #         new_message.save()
-    #     except Exception as e:
-    #         return Response(str(e), status=status.HTTP_404_NOT_FOUND)
+        # record the user's message
+        try:
+            new_message_response_data = asql.execute_raw_query(
+                tenant=tenant_id, 
+                queries=astmts.get_create_new_message_query(message=user_message, chat_id=chat_id, user_type=avars.COPILOT_USER_USER_TYPE, user_id=request.user.id)
+            )
+        except Exception as e:
+            return Response({'error': 'Failed to process user message'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-    #     try:
-    #         messages = CopilotMessage.objects.filter(copilotconversation=conversation).order_by("createdAt")
-    #         history = []
-    #         for historical_message in messages:
-    #             history.append({
-    #                 "parts": [{"text": historical_message.message}],
-    #                 "role": "model" if historical_message.sender == avars.copilot_system_user else "user",
-    #             })
+        try:
+            historical_messages = asql.execute_raw_query(
+                tenant=tenant_id, 
+                queries=[(f"SELECT * FROM `{avars.COPILOT_MESSAGE_TABLE_NAME}` WHERE `chatId` = %s ORDER BY `createdAt` DESC;", [chat_id])]
+            )
+            history = []
+            for hstr_msg in historical_messages:
+                history.append({
+                    "parts": [{"text": hstr_msg['message']}],
+                    "role": "model" if hstr_msg['userType'] == avars.COPILOT_MODEL_USER_TYPE else avars.COPILOT_USER_USER_TYPE
+                })
 
-    #         chat = self.model.start_chat(history=history)
-    #         response_text = chat.send_message(user_message).text
+            
+            # ask the model for a response
+            model_response_text = gh.send_analysis_message(history=history, message=user_message, tenant_id=tenant_id, table_name=table_name)
 
-    #         new_message = CopilotMessage(copilotconversation=conversation, message=response_text, sender=avars.copilot_system_user, tenant_id=tenant_id)
-    #         new_message.save()
+            # save model's response
+            new_model_meessage_response_data = asql.execute_raw_query(
+                tenant=tenant_id, 
+                queries=astmts.get_create_new_message_query(message=model_response_text, chat_id=chat_id, user_type=avars.COPILOT_MODEL_USER_TYPE, user_id=avars.COPILOT_MODEL_USER_NAME)
+            )
 
-    #         return Response({'message': response_text}, status=status.HTTP_200_OK)
-    #     except Exception as e:
-    #         return Response(str(e), status=status.HTTP_404_NOT_FOUND)
+            resonse_message = {
+                'id': autils.custom_uuid(), # create palceholder id, the correct id will be grabbed from the database in the next message
+                'createdAt': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "message": model_response_text,
+                "chatId": chat_id,
+                "userType": avars.COPILOT_MODEL_USER_TYPE,
+                "userId": avars.COPILOT_MODEL_USER_NAME
+            }
+            return Response(resonse_message, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+            return Response({'error': 'Failed to process user message'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
