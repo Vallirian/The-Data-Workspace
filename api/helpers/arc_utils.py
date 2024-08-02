@@ -1,4 +1,7 @@
+from datetime import datetime
+from decimal import Decimal
 import uuid
+import pandas as pd
 from helpers import arc_vars as avars
 
 def custom_uuid():
@@ -58,6 +61,58 @@ def reorder_query(queries: list[tuple[str, str]]) -> list[tuple[str, str]]:
             non_ddl_queries.append(query)
 
     return non_ddl_queries + ddl_queries
+
+def get_pd_df_from_query_result(data: list['dict']) -> 'pd.DataFrame':
+    """
+    Convert the query result to a pandas DataFrame.
+
+    Args:
+        data (list[dict]): Query result.
+
+    Returns:
+        pd.DataFrame: Pandas DataFrame.
+    """
+    # Convert Decimal to float before creating the DataFrame because pandas does not describe Decimal.
+    for entry in data:
+        for key, value in entry.items():
+            if isinstance(value, Decimal):
+                entry[key] = float(value)
+
+    df = pd.DataFrame(data)
+    print('df', df)
+    return df
+
+# ----- AI -----
+def cast_datatype_to_python(data: list[dict]) -> list[dict]:
+    def convert_value(value):
+        """Helper function to convert individual values."""
+        if isinstance(value, datetime):
+            return value.strftime('%Y-%m-%d %H:%M:%S')
+        elif isinstance(value, Decimal):
+            return float(value)
+        elif isinstance(value, pd.Timestamp):
+            return value.strftime('%Y-%m-%d %H:%M:%S')
+        return value
+
+    def recursive_convert(input_item):
+        # print('input_item', input_item, 'type', type(input_item))
+        """Recursively convert data types in a dictionary or list."""
+        if isinstance(input_item, dict):
+            return {k: recursive_convert(v) for k, v in input_item.items()}
+        elif isinstance(input_item, list):
+            return [recursive_convert(element) for element in input_item]
+        else:
+            return convert_value(input_item)
+
+    converted_data = [recursive_convert(item) for item in data]
+    return converted_data
+
+
+
+
+
+
+
 
 if __name__ == '__main__':
     pass

@@ -45,6 +45,40 @@ def get_add_column_to_column_table_query(column_name, table_name, is_relationshi
 
     return query
 
+def get_complete_table_query(tenant_id, table_name) -> list[tuple[str, list]]:
+    """
+    Get query for fetching all columns of a table including relationships.
+    """
+    table_columns = asql.execute_raw_query(tenant=tenant_id, queries=[(f"SELECT * FROM {avars.column_table} WHERE tableName = '{table_name}';", [])])
+
+    column_query = ''
+    for col in table_columns:
+        if col["isRelationship"]:
+            column_query += f'`{col["relatedTable"]}`.`{col["columnName"]}` AS `{col["relatedTable"]}__{col["columnName"]}`, ' if f'{col["relatedTable"]}.{col["columnName"]}, ' not in column_query else ''
+        else:
+            column_query += f'`{col["columnName"]}`, ' if f'{col["columnName"]}, ' not in column_query else ''
+    column_query = column_query[:-2]
+
+    join_query = ''
+    for col in table_columns:
+        if col["isRelationship"]:
+            temp_query = f'LEFT JOIN `{col["relatedTable"]}` ON `{table_name}`.`{col["relatedTable"]}__id` = `{col["relatedTable"]}`.`id` '
+            join_query += temp_query if temp_query not in join_query else ''
+
+    query = f"SELECT `{table_name}`.`id` AS `id`, `{table_name}`.`updatedAt` AS `updatedAt`, {column_query} "
+    query = query.strip()
+    if query[-1] == ',': 
+        # for cases where column_query is empty
+        query = query[:-1]
+
+    query += f"""
+        FROM {table_name}
+        {join_query}
+    """
+    query += f'ORDER BY `{table_name}`.`updatedAt` DESC;'
+
+    return [(query, [])]
+
 # Copilot tables
 def get_create_new_chat_query(chat_id, display_name, user_id) -> list[tuple[str, list]]:
     current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")

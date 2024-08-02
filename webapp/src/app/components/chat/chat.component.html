@@ -1,4 +1,5 @@
 @if (selectedChatId == null) {
+    <!-- start a new chat or select an existing one -->
     <div class="container-with-scrollable-content">
         <div class="list-group scrollable">
             @for (chat of chats; track $index) {
@@ -26,20 +27,20 @@
 }
 @else {
     <div class="container-with-scrollable-content">
-        <div class="d-flex flex-column scrollable">
+        <div #autoScrollContainer class="d-flex flex-column scrollable">
             @for (msg of messages; track $index) {
-            <div class="mb-3 message-box">
-                <div class="d-flex align-items-center mb-2">
-                    <div 
-                        [ngClass]=" {
-                            'incoming-message': msg.userType === 'model',
-                            'outgoing-message': msg.userType !== 'model'
-                        }" class="profile-box">
+                <div class="mb-3 message-box">
+                    <div class="d-flex align-items-center mb-2">
+                        <div 
+                            [ngClass]=" {
+                                'incoming-message': msg.userType === 'model',
+                                'outgoing-message': msg.userType !== 'model'
+                            }" class="profile-box">
+                        </div>
+                        <span class="message-time">{{formatDate(msg.createdAt)}}</span>
                     </div>
-                    <span class="message-time">{{formatDate(msg.createdAt)}}</span>
+                    <div [innerHTML]="msg.message | message"></div>
                 </div>
-                <div [innerHTML]="msg.message | message"></div>
-            </div>
             }
         </div>
         

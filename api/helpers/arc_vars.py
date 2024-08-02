@@ -30,6 +30,7 @@ NOT_ALLOWED_OBJECT_NAMES = [
     "raw_column", 
     "raw_relationship", 
     "`",
+    ".",
     "_id",
     "__",
     "view_"
@@ -47,11 +48,25 @@ NOT_ALLOWED_OBJECT_NAMES = [
 # If the user provides a table name or column names, and you need to use them, you can use some of the provided functions to get the correect names first, before using them in your analysis or to call other functions.
 # """
 
+FUNCITON_NAME_MAP = {
+    "get_info_about_all_available_tables": "get_info_about_all_available_tables",
+    "get_info_about_all_columns_for_table": "get_info_about_all_columns_for_table",
+    "get_data_in_table_for_all_columns": "get_data_in_table_for_all_columns",
+    "get_data_in_table_for_specific_columns": "get_data_in_table_for_specific_columns",
+    "get_descriptive_statistics_for_table": "get_descriptive_statistics_for_table",
+    "get_total_count_of_rows_in_table": "get_total_count_of_rows_in_table",
+    "get_sum_for_column_in_table": "get_sum_for_column_in_table",
+    "get_average_for_column_in_table": "get_average_for_column_in_table",
+    "get_sum_for_column_grouped_by_another_column": "get_sum_for_column_grouped_by_another_column",
+    "get_average_for_column_grouped_by_another_column": "get_average_for_column_grouped_by_another_column",
+}
+
 ANALYSIS_COPILOT_SYSTEM_INSTRUCTIONS = """You are a data analysis assistant to help users analyze their data.
-You use provided functions when neccesary to fetch data from the database and provide insights to the user.
+You use provided functions when neccesary to fetch data from the database, do calculations, and provide insights to the user.
 Your formality level should be professional, helpful, and moderately friendly.
 Your verbal communication should be clear and concise.
 Your verbosity should be minimal, only provide the necessary information, unless asked for more details.
 """
-ANALYSIS_COPILOT_USER_MESSAGE_ENHANCEMENT = """
+ANALYSIS_COPILOT_USER_MESSAGE_ENHANCEMENT =f"""You can not assume table and column names, use correct names from the database by checking info of the available tables with {FUNCITON_NAME_MAP['get_info_about_all_available_tables']} function or columns with the {FUNCITON_NAME_MAP['get_info_about_all_columns_for_table']} function.
+If a table has a column that has the ending "__id" , that column holds the id of the related table. The realted table name is the part before the "__id".
 """

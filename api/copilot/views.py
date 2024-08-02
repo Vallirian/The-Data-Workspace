@@ -18,7 +18,7 @@ class CopilotAnalysisChat(APIView):
             try:
                 messages = asql.execute_raw_query(
                     tenant=tenant_id, 
-                    queries=[(f"SELECT * FROM `{avars.COPILOT_MESSAGE_TABLE_NAME}` WHERE `chatId` = %s  ORDER BY `createdAt` DESC;", [chat_id])]
+                    queries=[(f"SELECT * FROM `{avars.COPILOT_MESSAGE_TABLE_NAME}` WHERE `chatId` = %s  ORDER BY `createdAt` ASC;", [chat_id])]
                 )
                 if not messages:
                     return Response({"message": "No messages found"}, status=status.HTTP_404_NOT_FOUND)
@@ -97,7 +97,7 @@ class CopilotAnalysisChat(APIView):
         '''
         tenant_id = request.user.tenant.id
         chat_id = request.query_params.get("chatId")
-        table_name = request.data.get("tableName")
+        table_name = request.query_params.get("tableName")
         user_message = request.data.get("message")
 
         print('table_name', table_name) 
@@ -119,7 +119,7 @@ class CopilotAnalysisChat(APIView):
         try:
             historical_messages = asql.execute_raw_query(
                 tenant=tenant_id, 
-                queries=[(f"SELECT * FROM `{avars.COPILOT_MESSAGE_TABLE_NAME}` WHERE `chatId` = %s ORDER BY `createdAt` DESC;", [chat_id])]
+                queries=[(f"SELECT * FROM `{avars.COPILOT_MESSAGE_TABLE_NAME}` WHERE `chatId` = %s ORDER BY `createdAt` ASC;", [chat_id])]
             )
             history = []
             for hstr_msg in historical_messages:

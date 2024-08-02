@@ -1,4 +1,4 @@
-import { Component, Input, SimpleChanges } from '@angular/core';
+import { Component, ElementRef, Input, SimpleChanges, ViewChild } from '@angular/core';
 import { ApiService } from '../../services/api.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -19,9 +19,13 @@ import { CopilotChatInterface, CopilotMessageInterface } from '../../interfaces/
 })
 export class ChatComponent {
   @Input() tableId: string = '';
+  @ViewChild('autoScrollContainer')
+  private autoScrollContainer!: ElementRef;
+
   messages: CopilotMessageInterface[] = [];
   chats: CopilotChatInterface[] = []; 
   selectedChatId: string | null = null;
+
   currentMessage: string = '';
   answerLoading: boolean = false;
 
@@ -45,6 +49,19 @@ export class ChatComponent {
     if (changes['tableId'] && !changes['tableId'].firstChange) {
       this.tableId = changes['tableId'].currentValue;
     }
+  }
+
+  ngAfterViewChecked(): void {
+    //Called after every check of the component's view. Applies to components only.
+    //Add 'implements AfterViewChecked' to the class.
+    this.scrollToBottom();
+  }
+
+  scrollToBottom() {
+    try {
+      this.autoScrollContainer.nativeElement.scrollTop = this.autoScrollContainer.nativeElement.scrollHeight;
+    }
+    catch(err) {}
   }
 
   onSelectConversation(chatId: string) {
