@@ -6,7 +6,7 @@ from rest_framework import status
 from helpers import arc_vars as avars, arc_utils as autils, arc_sql as asql, arc_statements as astmts
 
 import google.generativeai as genai
-import copilot.gemini_helpers as gh
+import copilot.gemini_analysis_helpers as gah
 
 class CopilotAnalysisChat(APIView):
     def get(self, request):
@@ -70,7 +70,7 @@ class CopilotAnalysisChat(APIView):
 
         try:
             # ask the model for a response
-            model_response_text = gh.send_analysis_action_message(history=[], message=message, tenant_id=tenant_id, table_name=table_name)
+            model_response_text = gah.send_analysis_action_message(history=[], message=message, tenant_id=tenant_id, table_name=table_name)
 
             # save model's response
             new_model_meessage_response_data = asql.execute_raw_query(
@@ -99,7 +99,7 @@ class CopilotAnalysisChat(APIView):
         tenant_id = request.user.tenant.id
         chat_id = request.query_params.get("chatId")
         table_name = request.query_params.get("tableName")
-        user_message = request.data.get("message")
+        user_message = request.data.get("message") 
 
         print('table_name', table_name) 
 
@@ -131,7 +131,7 @@ class CopilotAnalysisChat(APIView):
 
             
             # ask the model for a response
-            model_response_text = gh.send_analysis_action_message(history=history, message=user_message, tenant_id=tenant_id, table_name=table_name)
+            model_response_text = gah.send_analysis_action_message(history=history, message=user_message, tenant_id=tenant_id, table_name=table_name)
 
             # save model's response
             new_model_meessage_response_data = asql.execute_raw_query(

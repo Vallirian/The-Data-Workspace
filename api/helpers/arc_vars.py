@@ -48,9 +48,6 @@ ANALYSIS_COPILOT_USER_MESSAGE_ENHANCEMENT =f"""
 Do not make any assumptions, only provide insights based on the data provided.
 """
 
-ANALYSIS_ACTION_COPILOT_ALLOWED_FUNCTION_NAMES = [
-    'get_descriptive_analytics_for_table',
-]
 
 FUNCTION_DECLARATIONS = {
     "function_declarations": [
