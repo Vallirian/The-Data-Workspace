@@ -36,18 +36,7 @@ NOT_ALLOWED_OBJECT_NAMES = [
     "view_"
 ]
 
-FUNCITON_NAME_MAP = {
-    "get_info_about_all_available_tables": "get_info_about_all_available_tables",
-    "get_info_about_all_columns_for_table": "get_info_about_all_columns_for_table",
-    "get_data_in_table_for_all_columns": "get_data_in_table_for_all_columns",
-    "get_data_in_table_for_specific_columns": "get_data_in_table_for_specific_columns",
-    "get_descriptive_statistics_for_table": "get_descriptive_statistics_for_table",
-    "get_total_count_of_rows_in_table": "get_total_count_of_rows_in_table",
-    "get_sum_for_column_in_table": "get_sum_for_column_in_table",
-    "get_average_for_column_in_table": "get_average_for_column_in_table",
-    "get_sum_for_column_grouped_by_another_column": "get_sum_for_column_grouped_by_another_column",
-    "get_average_for_column_grouped_by_another_column": "get_average_for_column_grouped_by_another_column",
-}
+
 
 ANALYSIS_COPILOT_SYSTEM_INSTRUCTIONS = """
 You are a data analysis assistant to help users analyze their data.
@@ -58,6 +47,10 @@ Your verbal communication should be clear and concise.
 ANALYSIS_COPILOT_USER_MESSAGE_ENHANCEMENT =f"""
 Do not make any assumptions, only provide insights based on the data provided.
 """
+
+ANALYSIS_ACTION_COPILOT_ALLOWED_FUNCTION_NAMES = [
+    'get_descriptive_analytics_for_table',
+]
 
 FUNCTION_DECLARATIONS = {
     "function_declarations": [

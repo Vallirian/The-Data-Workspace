@@ -89,6 +89,7 @@ class CopilotAnalysisChat(APIView):
 
             return Response(resonse_message, status=status.HTTP_200_OK)
         except Exception as e:
+            print(e)
             return Response({'error': 'Failed to start a new chat'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     def put(self, request):
