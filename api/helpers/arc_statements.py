@@ -45,11 +45,15 @@ def get_add_column_to_column_table_query(column_name, table_name, is_relationshi
 
     return query
 
+def get_complete_table_columns_query(table_name) -> list[tuple[str, list]]:
+    query = f"SELECT * FROM {avars.column_table} WHERE tableName = '{table_name}';"
+    return [(query, [])]
+
 def get_complete_table_query(tenant_id, table_name) -> list[tuple[str, list]]:
     """
     Get query for fetching all columns of a table including relationships.
     """
-    table_columns = asql.execute_raw_query(tenant=tenant_id, queries=[(f"SELECT * FROM {avars.column_table} WHERE tableName = '{table_name}';", [])])
+    table_columns = asql.execute_raw_query(tenant=tenant_id, queries=get_complete_table_columns_query(table_name))
 
     column_query = ''
     for col in table_columns:

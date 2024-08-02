@@ -36,18 +36,6 @@ NOT_ALLOWED_OBJECT_NAMES = [
     "view_"
 ]
 
-# AI variables
-# ANALYSIS_COPILOT_SYSTEM_INSTRUCTIONS = """You are a data analysis assistant to help users analyze their data.
-# You use provided functions when neccesary to fetch data from the database and provide insights to the user.
-# Your formality level should be professional, helpful, but friendly.
-# Your verbal communication should be clear and concise.
-# Your verbosity should be minimal, only provide the necessary information, unless asked for more details.
-# """
-# ANALYSIS_COPILOT_USER_MESSAGE_ENHANCEMENT = """Do not make any assumptions, only provide insights based on the data provided.
-# Ask clarifying questions if you need more information to provide an accurate analysis.
-# If the user provides a table name or column names, and you need to use them, you can use some of the provided functions to get the correect names first, before using them in your analysis or to call other functions.
-# """
-
 FUNCITON_NAME_MAP = {
     "get_info_about_all_available_tables": "get_info_about_all_available_tables",
     "get_info_about_all_columns_for_table": "get_info_about_all_columns_for_table",
@@ -61,12 +49,64 @@ FUNCITON_NAME_MAP = {
     "get_average_for_column_grouped_by_another_column": "get_average_for_column_grouped_by_another_column",
 }
 
-ANALYSIS_COPILOT_SYSTEM_INSTRUCTIONS = """You are a data analysis assistant to help users analyze their data.
+ANALYSIS_COPILOT_SYSTEM_INSTRUCTIONS = """
+You are a data analysis assistant to help users analyze their data.
 You use provided functions when neccesary to fetch data from the database, do calculations, and provide insights to the user.
 Your formality level should be professional, helpful, and moderately friendly.
 Your verbal communication should be clear and concise.
-Your verbosity should be minimal, only provide the necessary information, unless asked for more details.
 """
-ANALYSIS_COPILOT_USER_MESSAGE_ENHANCEMENT =f"""You can not assume table and column names, use correct names from the database by checking info of the available tables with {FUNCITON_NAME_MAP['get_info_about_all_available_tables']} function or columns with the {FUNCITON_NAME_MAP['get_info_about_all_columns_for_table']} function.
-If a table has a column that has the ending "__id" , that column holds the id of the related table. The realted table name is the part before the "__id".
+ANALYSIS_COPILOT_USER_MESSAGE_ENHANCEMENT =f"""
+Do not make any assumptions, only provide insights based on the data provided.
 """
+
+FUNCTION_DECLARATIONS = {
+    "function_declarations": [
+        {
+            "name": "get_descriptive_analytics_for_table",
+            "description": "Retrieve descriptive analytics for a specified table with options for filtering by a column and applying arithmetic operations on another column. For example, filter 'employees' table by 'department' with a value of 'Sales' using an 'equal to' operator and then apply a 'count' arithmetic operation on 'employee_id'.",
+            "parameters": {
+                "type_": "OBJECT",
+                "properties": {
+                    "tenant_id": {
+                        "type_": "STRING",
+                        "description": "Unique identifier for the tenant to ensure data isolation."
+                    },
+                    "table_name": {
+                        "type_": "STRING",
+                        "description": "Name of the table to analyze."
+                    },
+                    "filter_column": {
+                        "type_": "STRING",
+                        "description": "Column name to apply the filter on. Optional. Required if 'filter_value' and 'filter_operator' are specified.",
+                        "nullable": True
+                    },
+                    "filter_value": {
+                        "type_": "STRING",
+                        "description": "Value to filter the column by, accommodating both numeric and string values. Optional. Required if 'filter_operator' is specified.",
+                        "nullable": True
+                    },
+                    "filter_operator": {
+                        "type_": "STRING",
+                        "format_": "enum",
+                        "enum": ["greater than", "less than", "equal to", "contains", "not equal"],
+                        "description": "Operator to apply for the filtering. Options include 'greater than', 'less than', 'equal to', 'contains', 'not equal'. Optional.",
+                        "nullable": True
+                    },
+                    "arithmetic_column": {
+                        "type_": "STRING",
+                        "description": "Column name on which to perform the arithmetic operation. Optional. Required if 'arithmetic_operator' is specified.",
+                        "nullable": True
+                    },
+                    "arithmetic_operator": {
+                        "type_": "STRING",
+                        "format_": "enum",
+                        "enum": ["sum", "average", "count", "ratio"],
+                        "description": "Arithmetic operation to perform on the specified arithmetic column. Options include 'sum', 'average', 'count', 'ratio'. Optional.",
+                        "nullable": True
+                    }
+                },
+                "required": ["tenant_id", "table_name"]
+            }
+        }
+    ]
+}
