@@ -7,7 +7,7 @@ import { NavbarService } from '../../services/navbar.service';
 import { NotificationService } from '../../services/notification.service';
 import { AddColumnComponent } from '../../components/forms/add-column/add-column.component';
 import { ColumnInterface, RelationshipColumnAPIInterface, RelationshipColumnInterface } from '../../interfaces/main-interface';
-import { ChatComponent } from '../../components/chat/chat.component';
+import { AnalysisChatComponent } from '../../components/copilot/analysis-chat/analysis-chat.component';
 
 @Component({
   selector: 'app-edit-table',
@@ -16,7 +16,7 @@ import { ChatComponent } from '../../components/chat/chat.component';
     CommonModule,
     TableComponent,
     AddColumnComponent,
-    ChatComponent
+    AnalysisChatComponent
   ],
   templateUrl: './edit-table.component.html',
   styleUrl: './edit-table.component.scss'

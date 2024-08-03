@@ -19,7 +19,6 @@ def execute_raw_query(tenant: str, queries: list[tuple[str, list]]) -> list[dict
 
             # reorder query before executing
             reordered_queries = autils.reorder_query(queries)
-            print('reordered_queries', reordered_queries)
 
             # Execute the query
             for query, params in reordered_queries:
@@ -34,7 +33,6 @@ def execute_raw_query(tenant: str, queries: list[tuple[str, list]]) -> list[dict
             column_names = [desc[0] for desc in cursor.description]
     
     # Combine column names with rows
-    print('rows', rows)
     if len(rows) == 0:
         results = [{}]
         for col in column_names:
@@ -42,7 +40,6 @@ def execute_raw_query(tenant: str, queries: list[tuple[str, list]]) -> list[dict
             results[0][col] = None
     else:
         results = [dict(zip(column_names, row)) for row in rows]
-    print('results', results)
     print('-------- execute_raw_query end --------')
     return results
 

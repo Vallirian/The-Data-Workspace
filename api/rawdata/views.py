@@ -8,7 +8,7 @@ from helpers import arc_vars as avars, arc_utils as autils, arc_sql as asql
 class RawDataView(APIView):
     def get(self, request, table_name):
         tenant_id = request.user.tenant.id
-        table_columns = asql.execute_raw_query(tenant=tenant_id, queries=[(f"SELECT * FROM {avars.column_table} WHERE tableName = '{table_name}';", [])])
+        table_columns = asql.execute_raw_query(tenant=tenant_id, queries=[(f"SELECT * FROM {avars.COLUMN_TABLE} WHERE tableName = '{table_name}';", [])])
         
         # limit the columns to be queried
         requested_columns = request.query_params.get("columns")

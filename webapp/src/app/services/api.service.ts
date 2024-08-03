@@ -108,6 +108,13 @@ export class ApiService {
     return this.http.put<CopilotMessageInterface>(`${this.baseUrl}/copilot/`, {'message': message}, {params});
   }
 
+    // extraction chat
+  startExtractionChat(message: string, processName: string) {
+  }
+
+  sendMessageExtractionChat(chatId: string, message: string, processName: string) {
+  }
+
 
 
 

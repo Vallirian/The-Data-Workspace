@@ -1,87 +1,11 @@
-import os
 from helpers import arc_utils as autils, arc_vars as avars, arc_sql as asql, arc_statements as astmts
 
 import google.generativeai as genai
-
-# gemini chat
-def enhance_analysis_action_user_message(message: str, tenant_id: str, current_table_name: str) -> str:
-    
-    try:
-        # [{columnName: 'name', dataType: 'string', isRelationship: False, relatedTable: None}]
-        columns_response_data = asql.execute_raw_query(tenant=tenant_id, queries=astmts.get_complete_table_columns_query(current_table_name))
-        columns_response_data = autils.cast_datatype_to_python(columns_response_data)
-        for i in range(len(columns_response_data)):
-            if columns_response_data[i]['isRelationship']:
-                columns_response_data[i]['columnName'] = f"{columns_response_data[i]['relatedTable']}__{columns_response_data[i]['columnName']}"
-        
-        base_enhacement_message = avars.ANALYSIS_COPILOT_USER_MESSAGE_ENHANCEMENT
-        base_enhacement_message += f"The current table the user is looking at has the table_name: {current_table_name}\n"
-        base_enhacement_message += f"This is the columns information for the table {current_table_name}: {columns_response_data}\n"
-        base_enhacement_message += f"If the column comes from a different table that is related to {current_table_name} table, them the 'isRelationship' will be True.\n"
-        base_enhacement_message += f"The tenant_id of the user is: {tenant_id}\n"
-        base_enhacement_message += f"The user has asked the following question: {message}\n"
-
-        print('base_enhacement_message', base_enhacement_message)
-        return base_enhacement_message
-    except Exception as e:
-        return str(e)
-
-def send_analysis_action_message(history: list['str'], message: str, tenant_id: str, table_name) -> str:
-    genai.configure(api_key=os.environ.get("GOOGLE_AI_API_KEY"))
-    final_message = enhance_analysis_action_user_message(message, tenant_id, table_name)
-
-    try:
-        model = genai.GenerativeModel(
-            os.environ.get("GEMINI_AI_MODEL"),
-            tools=[
-                genai.protos.Tool(avars.FUNCTION_DECLARATIONS)
-            ],
-            system_instruction=avars.ANALYSIS_COPILOT_SYSTEM_INSTRUCTIONS,
-        )
-        
-        gemini_chat = model.start_chat(
-            history=history, 
-            enable_automatic_function_calling=True
-        )
-
-        model_response = gemini_chat.send_message(
-            final_message
-        )
-
-        is_function_call = 'function_call' in model_response.candidates[0].content.parts[0]
-        while is_function_call:
-            function_call = model_response.candidates[0].content.parts[0].function_call
-            function_call_exec_result = execute_function(function_call)
-            model_response = gemini_chat.send_message(
-                genai.protos.Content(
-                    parts=[
-                        genai.protos.Part(
-                            function_response=genai.protos.FunctionResponse(
-                                name=function_call.name,
-                                response={'result': function_call_exec_result}
-                            )
-                        )
-                    ]
-                )
-            )
-            print('model_response after func call', model_response)
-            is_function_call = 'function_call' in model_response.candidates[0].content.parts[0]
-
-        return model_response.text
-    except Exception as e:
-        print('error', e)
-        return 'Unable to resolve response'
-
-# ----- function execution -----
+ 
+# ---------- Function Callers ---------- #
 def parse_command(command: genai.protos.FunctionCall):
     """
-    Parses the structured command from gemini function call response input to extract function name and arguments.
-
-    Parameters:
-        command (function_call): Command in the given structured format.
-
-    Returns:
-        dict: A dictionary with 'name' and 'args' suitable for function execution.
+    Parse a FunctionCall object from Gemini into a dictionary of function name and arguments.
     """
     function_name = command.name
     args_dict = {}
@@ -94,13 +18,7 @@ def parse_command(command: genai.protos.FunctionCall):
 
 def execute_function(command: genai.protos.FunctionCall):
     """
-    Executes a function based on a parsed command dictionary.
-
-    Parameters:
-        command (dict): A dictionary containing the function name and its arguments, parsed from structured input.
-
-    Returns:
-        The result of the function execution or an error message if something goes wrong.
+    Execute a function based on a parsed command dictionary.
     """
     try:
         # Parse the command to get the function name and arguments
@@ -117,16 +35,77 @@ def execute_function(command: genai.protos.FunctionCall):
         return f"Type Error: {str(e)}"
     except Exception as e:
         return f"An error occurred: {str(e)}"
+    
 
+# ---------- Function Implementations ---------- #
+def create_table(tenant_id: str, table_name: str, column_names: list[str], column_datatypes: list[str]) -> str:
+    """
+    Creates a new table in the database with specified columns and datatypes. Validates the table name, column names, and column datatypes, 
+    and then attempts to create the table and add columns.
+    """
+    # validate table name
+    if not table_name:
+        return 'Table name is required'
+    table_name_valid, table_name_validation_error = autils.validate_object_name(table_name)
+    if not table_name_valid:
+        return table_name_validation_error
+    
+    # validate columns
+    if not column_names:
+        return 'Column names are required'
+    if not column_datatypes:
+        return 'Column datatypes are required'
+    if len(column_names) != len(column_datatypes):
+        return 'Column names and datatypes must be of the same length'
+    if len(column_names) != len(set(column_names)):
+        return 'Column names must be unique'
+    
+    # validate column datatypes
+    for datatype in column_datatypes:
+        if datatype not in avars.DATA_TYPE_MAP.keys():
+            return f"Invalid column datatype: {datatype}"
+    try:
+        asql.execute_raw_query(tenant=tenant_id, queries=astmts.get_create_raw_table_query(table_name))
 
+        for i in range(len(column_names)):
+            asql.execute_raw_query(tenant=tenant_id, queries=astmts.get_add_column_query(column_name=column_names[i], table_name=table_name, is_relationship=False, related_table=None, data_type=column_datatypes[i], tenant_id=tenant_id))
 
-#  ----- database -----
+        return f'Successfully created table {table_name} with columns {column_names}'
+    except Exception as e:
+        return f'Failed to create table: {str(e)}'
+    
+
+def add_tables_to_process(table_names: list['str'], tenant_id: str, process_name: str) -> str:
+    """
+    Adds specified tables to a process. Tables must exist in the database.
+    """
+    # check if table exists in db
+    tables_response_data = asql.execute_raw_query(tenant=tenant_id, queries=([("SHOW TABLES;", [])]))
+    tables = []
+    for response_data_item in tables_response_data:
+        tables += [v for k, v in response_data_item.items() if v not in avars.INTERNAL_TABLES]
+    for table_name in table_names:
+        if table_name not in tables:
+            return f'Table {table_name} does not exist in the database'
+        
+        # add table to process
+    try:
+        add_table_to_process_response_data = asql.execute_raw_query(tenant=tenant_id, queries=astmts.get_create_new_process_table_relationship_query(process_name, table_names))
+        return f'Successfully added tables to process {process_name}'
+    except Exception as e:
+        return f'Failed to add tables to process: {str(e)}'
+    
+
 def get_descriptive_analytics_for_table(
         tenant_id: str, table_name: str, filter_column: str=None, filter_value: str | float=None, 
         filter_operator: str=None, arithmetic_column: str=None, 
         arithmetic_operator: str=None
     ):
-    print('args', tenant_id, table_name, filter_column, filter_value, filter_operator, arithmetic_column, arithmetic_operator)
+    """
+    Retrieve descriptive analytics for a specified table with options for filtering by a column and applying 
+    arithmetic operations on another column. For example, filter 'employees' table by 'department' with a value of 
+    'Sales' using an 'equal to' operator and then apply a 'count' arithmetic operation on 'employee_id'.
+    """
 
     try:
         # Get data
@@ -204,6 +183,46 @@ def get_descriptive_analytics_for_table(
                 return float(df.shape[0] / original_df.shape[0])
 
     except Exception as e:
+        return str(e)
+
+
+def get_data_from_table_and_columns(tenant_id: str, table_name: str, columns_list: list['str']=None) -> str:
+    """
+    Retrieve data from a specified table and columns. The function returns the data in a dictionary format.
+    """
+    try:
+        # get table data
+        table_response_data = asql.execute_raw_query(
+            tenant=tenant_id, 
+            queries=[("SELECT * FROM `%s`;", [table_name])]
+        )
+        if not table_response_data:
+            return 'Table not found'
+        
+        # create columns list
+        all_columns_list = []
+        relevant_columns = []
+        for k, v in table_response_data[0].items():
+            all_columns_list.append(k)
+
+        if columns_list:
+            for col in columns_list:
+                if col not in all_columns_list:
+                    return f'Column {col} not found in table {table_name}'
+                relevant_columns.append(col)
+        else:
+            relevant_columns = all_columns_list
+
+        # remove non-relevant columns
+        df = autils.get_pd_df_from_query_result(table_response_data)
+        df = df[relevant_columns]
+
+        # convert data to dictionary
+        data = df.to_dict()
+
+        return data
+    except Exception as e:
+        print('error in get_data_from_table_and_columns', e)
         return str(e)
 
 

@@ -5,8 +5,8 @@ from helpers import arc_vars as avars, arc_utils as autils, arc_sql as asql
 def get_create_raw_table_query(table_name) -> list[tuple[str, list]]:
     query = f"""
         CREATE TABLE `{table_name}` (
-            `id` {avars.data_type_map['UUID']} NOT NULL PRIMARY KEY,
-            `updatedAt` {avars.data_type_map['datetime']}
+            `id` {avars.DATA_TYPE_MAP['UUID']} NOT NULL PRIMARY KEY,
+            `updatedAt` {avars.DATA_TYPE_MAP['datetime']}
         ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
     """
     return [(query, [])]
@@ -24,12 +24,12 @@ def get_add_column_query(column_name, table_name, is_relationship, related_table
         if not relationship_column_already_exists:
             query = [(f'''
                 ALTER TABLE `{table_name}`
-                    ADD COLUMN `{related_table}__id` {avars.data_type_map['UUID']};
+                    ADD COLUMN `{related_table}__id` {avars.DATA_TYPE_MAP['UUID']};
             ''' , [])]
     else:
         query = [(f'''
             ALTER TABLE `{table_name}`
-                ADD COLUMN `{column_name}` {avars.data_type_map[data_type]};
+                ADD COLUMN `{column_name}` {avars.DATA_TYPE_MAP[data_type]};
         ''' , [])]
     return query + get_add_column_to_column_table_query(column_name, table_name, is_relationship, related_table, data_type)
 
@@ -39,14 +39,14 @@ def get_add_column_to_column_table_query(column_name, table_name, is_relationshi
     related_table = related_table if is_relationship else None
     
     query = [(f"""
-        INSERT INTO `{avars.column_table}` (id, columnName, dataType, tableName, updatedAt, isRelationship, relatedTable) 
+        INSERT INTO `{avars.COLUMN_TABLE}` (id, columnName, dataType, tableName, updatedAt, isRelationship, relatedTable) 
             VALUES (%s, %s, %s, %s, %s, %s, %s);
     """, [autils.custom_uuid(), column_name, data_type, table_name, current_timestamp, is_relationship, related_table])]
 
     return query
 
 def get_complete_table_columns_query(table_name) -> list[tuple[str, list]]:
-    query = f"SELECT * FROM {avars.column_table} WHERE tableName = '{table_name}';"
+    query = f"SELECT * FROM {avars.COLUMN_TABLE} WHERE tableName = '{table_name}';"
     return [(query, [])]
 
 def get_complete_table_query(tenant_id, table_name) -> list[tuple[str, list]]:
@@ -138,14 +138,14 @@ def get_supporting_tables_query() -> list[tuple[str, list]]:
 
     # Create the column table
     col_table_query= f"""
-        CREATE TABLE IF NOT EXISTS `{avars.column_table}` (
-            id {avars.data_type_map['UUID']} NOT NULL PRIMARY KEY,
-            columnName {avars.data_type_map['string']} NOT NULL,
-            dataType {avars.data_type_map['string']} NOT NULL,
-            tableName {avars.data_type_map['string']} NOT NULL,
-            updatedAt {avars.data_type_map['datetime']} NOT NULL,
-            isRelationship {avars.data_type_map['boolean']} NOT NULL,
-            relatedTable {avars.data_type_map['string']}
+        CREATE TABLE IF NOT EXISTS `{avars.COLUMN_TABLE}` (
+            id {avars.DATA_TYPE_MAP['UUID']} NOT NULL PRIMARY KEY,
+            columnName {avars.DATA_TYPE_MAP['string']} NOT NULL,
+            dataType {avars.DATA_TYPE_MAP['string']} NOT NULL,
+            tableName {avars.DATA_TYPE_MAP['string']} NOT NULL,
+            updatedAt {avars.DATA_TYPE_MAP['datetime']} NOT NULL,
+            isRelationship {avars.DATA_TYPE_MAP['boolean']} NOT NULL,
+            relatedTable {avars.DATA_TYPE_MAP['string']}
         );
     """
     queries.append((col_table_query, []))
@@ -153,10 +153,10 @@ def get_supporting_tables_query() -> list[tuple[str, list]]:
     # Create the copilot chat table
     copilot_chat_uery = f"""
         CREATE TABLE IF NOT EXISTS  `{avars.COPILOT_CHAT_TABLE_NAME}` (
-            id {avars.data_type_map['UUID']} NOT NULL PRIMARY KEY,
-            createdAt {avars.data_type_map['datetime']} NOT NULL,
-            displayName {avars.data_type_map['string']} NOT NULL,
-            userId {avars.data_type_map['UUID']} NOT NULL
+            id {avars.DATA_TYPE_MAP['UUID']} NOT NULL PRIMARY KEY,
+            createdAt {avars.DATA_TYPE_MAP['datetime']} NOT NULL,
+            displayName {avars.DATA_TYPE_MAP['string']} NOT NULL,
+            userId {avars.DATA_TYPE_MAP['UUID']} NOT NULL
         );
     """
     queries.append((copilot_chat_uery, []))
@@ -164,12 +164,12 @@ def get_supporting_tables_query() -> list[tuple[str, list]]:
     # Create the copilot message table
     copilot_message_query = f"""
         CREATE TABLE IF NOT EXISTS `{avars.COPILOT_MESSAGE_TABLE_NAME}` (
-            id {avars.data_type_map['UUID']} NOT NULL PRIMARY KEY,
-            createdAt {avars.data_type_map['datetime']} NOT NULL,
-            message {avars.data_type_map['string']} NOT NULL,
-            chatId {avars.data_type_map['UUID']} NOT NULL,
-            userType {avars.data_type_map['string']} NOT NULL,
-            userId {avars.data_type_map['UUID']} NOT NULL
+            id {avars.DATA_TYPE_MAP['UUID']} NOT NULL PRIMARY KEY,
+            createdAt {avars.DATA_TYPE_MAP['datetime']} NOT NULL,
+            message {avars.DATA_TYPE_MAP['string']} NOT NULL,
+            chatId {avars.DATA_TYPE_MAP['UUID']} NOT NULL,
+            userType {avars.DATA_TYPE_MAP['string']} NOT NULL,
+            userId {avars.DATA_TYPE_MAP['UUID']} NOT NULL
         );
     """
     queries.append((copilot_message_query, []))
@@ -177,19 +177,19 @@ def get_supporting_tables_query() -> list[tuple[str, list]]:
     # Create processes table
     processes_query = f"""
         CREATE TABLE IF NOT EXISTS `{avars.PROCESSES_TABLE_NAME}` (
-            processName {avars.data_type_map['UUID']} NOT NULL PRIMARY KEY,
-            processDescription {avars.data_type_map['string']},
-            createdAt {avars.data_type_map['datetime']} NOT NULL
+            processName {avars.DATA_TYPE_MAP['UUID']} NOT NULL PRIMARY KEY,
+            processDescription {avars.DATA_TYPE_MAP['string']},
+            createdAt {avars.DATA_TYPE_MAP['datetime']} NOT NULL
         );
     """
     queries.append((processes_query, []))
 
     process_table_relationship_query = f"""
         CREATE TABLE IF NOT EXISTS `{avars.PROCESS_TABLE_RELATIONSHIP_TABLE_NAME}` (
-            id {avars.data_type_map['UUID']} NOT NULL PRIMARY KEY,
-            processName {avars.data_type_map['UUID']} NOT NULL,
-            tableName {avars.data_type_map['string']} NOT NULL,
-            createdAt {avars.data_type_map['datetime']} NOT NULL
+            id {avars.DATA_TYPE_MAP['UUID']} NOT NULL PRIMARY KEY,
+            processName {avars.DATA_TYPE_MAP['UUID']} NOT NULL,
+            tableName {avars.DATA_TYPE_MAP['string']} NOT NULL,
+            createdAt {avars.DATA_TYPE_MAP['datetime']} NOT NULL
         );
     """
     queries.append((process_table_relationship_query, []))

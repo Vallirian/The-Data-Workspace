@@ -1,24 +1,25 @@
 import { Component, ElementRef, Input, SimpleChanges, ViewChild } from '@angular/core';
-import { ApiService } from '../../services/api.service';
+import { ApiService } from '../../../services/api.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NotificationService } from '../../services/notification.service';
-import { MessagePipe } from '../../pipes/message.pipe';
-import { CopilotChatInterface, CopilotMessageInterface } from '../../interfaces/main-interface';
+import { NotificationService } from '../../../services/notification.service';
+import { MessagePipe } from '../../../pipes/message.pipe';
+import { CopilotChatInterface, CopilotMessageInterface } from '../../../interfaces/main-interface';
 
 @Component({
-  selector: 'app-chat',
+  selector: 'app-extraction-chat',
   standalone: true,
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     MessagePipe
   ],
-  templateUrl: './chat.component.html',
-  styleUrl: './chat.component.scss'
+  templateUrl: './extraction-chat.component.html',
+  styleUrl: './extraction-chat.component.scss'
 })
-export class ChatComponent {
-  @Input() tableId: string = '';
+export class ExtractionChatComponent {
+  @Input() processName: string = '';
   @ViewChild('autoScrollContainer')
   private autoScrollContainer!: ElementRef;
 
@@ -46,8 +47,8 @@ export class ChatComponent {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['tableId'] && !changes['tableId'].firstChange) {
-      this.tableId = changes['tableId'].currentValue;
+    if (changes['processName'] && !changes['processName'].firstChange) {
+      this.processName = changes['processName'].currentValue;
     }
   }
 
@@ -95,7 +96,7 @@ export class ChatComponent {
 
     // send message
     if (this.selectedChatId === null) {
-      this.apiService.startAnalysisChat(message, this.tableId).subscribe({
+      this.apiService.(message, this.).subscribe({
         next: (newMessage: CopilotMessageInterface) => {
           this.selectedChatId = newMessage.chatId;
           this.messages.push(newMessage);
@@ -110,7 +111,7 @@ export class ChatComponent {
       });
     }
     else {
-      this.apiService.sendMessageAnalysisChat(this.selectedChatId, message, this.tableId).subscribe({
+      this.apiService.(this.selectedChatId, message, this.).subscribe({
         next: (newMessage: CopilotMessageInterface) => {
           this.messages.push(newMessage);
           this.currentMessage = '';
@@ -142,6 +143,4 @@ export class ChatComponent {
     }
     return '';
   }
-
-
 }

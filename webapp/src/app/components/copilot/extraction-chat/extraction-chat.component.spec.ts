@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DesignHomeComponent } from './design-home.component';
+import { ExtractionChatComponent } from './extraction-chat.component';
 
-describe('DesignHomeComponent', () => {
-  let component: DesignHomeComponent;
-  let fixture: ComponentFixture<DesignHomeComponent>;
+describe('ExtractionChatComponent', () => {
+  let component: ExtractionChatComponent;
+  let fixture: ComponentFixture<ExtractionChatComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DesignHomeComponent]
+      imports: [ExtractionChatComponent]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(DesignHomeComponent);
+    fixture = TestBed.createComponent(ExtractionChatComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

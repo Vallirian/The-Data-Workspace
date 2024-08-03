@@ -6,8 +6,7 @@ from rest_framework import status
 from helpers import arc_vars as avars, arc_utils as autils, arc_sql as asql, arc_statements as astmts
 
 import google.generativeai as genai
-import copilot.gemini_analysis_helpers as gah
-import copilot.gemini_process_helpers as gph
+from copilot import send_message as gemini_chat
 
 class CopilotAnalysisChat(APIView):
     def get(self, request):
@@ -76,11 +75,11 @@ class CopilotAnalysisChat(APIView):
         try:
             if chat_type == 'analysis':
                 # ask the model for a response
-                model_response_text = gah.send_analysis_action_message(history=[], message=message, tenant_id=tenant_id, table_name=table_name)
+                model_response_text = gemini_chat.send(history=[], message=message, tenant_id=tenant_id, table_name=table_name, chat_type=chat_type)
 
             elif chat_type == 'process':
                 # ask the model for a response
-                model_response_text = gph.send_process_action_message(history=[], message=message, tenant_id=tenant_id, process_name=process_name)
+                model_response_text = gemini_chat.send(history=[], message=message, tenant_id=tenant_id, process_name=process_name, chat_type=chat_type)
 
             # save model's response
             new_model_meessage_response_data = asql.execute_raw_query(
@@ -146,10 +145,10 @@ class CopilotAnalysisChat(APIView):
 
             if chat_type == 'analysis':
                 # ask the model for a response
-                model_response_text = gah.send_analysis_action_message(history=history, message=user_message, tenant_id=tenant_id, table_name=table_name)
+                model_response_text = gemini_chat.send(history=history, message=user_message, tenant_id=tenant_id, table_name=table_name, chat_type=chat_type)
             elif chat_type == 'process':
                 # ask the model for a response
-                model_response_text = gph.send_process_action_message(history=history, message=user_message, tenant_id=tenant_id, process_name=process_name)
+                model_response_text = gemini_chat.send(history=history, message=user_message, tenant_id=tenant_id, process_name=process_name, chat_type=chat_type)
 
             # save model's response
             new_model_meessage_response_data = asql.execute_raw_query(

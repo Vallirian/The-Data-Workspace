@@ -48,13 +48,10 @@ class ColumnListView(APIView):
             response_data = asql.execute_raw_query(
                 tenant=tenant_id, 
                 queries=[(
-                    f"SELECT * FROM `{avars.column_table}` WHERE tableName = %s;",
+                    f"SELECT * FROM `{avars.COLUMN_TABLE}` WHERE tableName = %s;",
                     [table_name]
                 )]
             )
-            # columns = []
-            # for response_data_item in response_data:
-            #     columns += [response_data_item]
             
             return Response(response_data)
         except OperationalError as e:
@@ -77,7 +74,7 @@ class ColumnListView(APIView):
         
         if not data_type:
             return Response({'error': f'Data type is required'}, status=status.HTTP_400_BAD_REQUEST)
-        if data_type not in avars.data_type_map:
+        if data_type not in avars.DATA_TYPE_MAP:
             return Response({'error': f'Invalid data type'}, status=status.HTTP_400_BAD_REQUEST)
         
         try:

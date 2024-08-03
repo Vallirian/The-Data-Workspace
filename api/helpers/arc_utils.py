@@ -107,12 +107,17 @@ def cast_datatype_to_python(data: list[dict]) -> list[dict]:
     converted_data = [recursive_convert(item) for item in data]
     return converted_data
 
-
-
-
-
-
-
-
+def get_function_declaration(function_names: list['str']) -> dict:
+    """
+    Get the function declaration from the function name that is compatible with Gemini FunctionCallingConfig
+    """
+    function_config = {
+        "function_declarations": []
+    }
+    for function_declaration in avars.FUNCTION_DECLARATIONS["function_declarations"]:
+        if function_declaration["name"] in function_names:
+            function_config["function_declarations"].append(function_declaration)
+            
+            
 if __name__ == '__main__':
     pass

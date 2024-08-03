@@ -1,4 +1,5 @@
-data_type_map = {
+# Database variables
+DATA_TYPE_MAP = {
     "UUID": "VARCHAR(128)",
     "string": "TEXT", 
     "number": "NUMERIC",
@@ -6,8 +7,7 @@ data_type_map = {
     "datetime": "TIMESTAMP"
 }
 
-# Database variables
-column_table = "column__column"
+COLUMN_TABLE = "column__column"
 PROCESSES_TABLE_NAME = "process__process"
 PROCESS_TABLE_RELATIONSHIP_TABLE_NAME = "process__table"
 COPILOT_CHAT_TABLE_NAME = "copilot__chat"
@@ -16,17 +16,15 @@ COPILOT_MODEL_USER_TYPE = "model"
 COPILOT_MODEL_USER_NAME = "model"
 COPILOT_USER_USER_TYPE = "user"
 COPILOT_CHAT_TYPES = ["analysis", "process"]
+
 INTERNAL_TABLES = [
-    column_table,
+    COLUMN_TABLE,
     PROCESSES_TABLE_NAME,
     PROCESS_TABLE_RELATIONSHIP_TABLE_NAME,
     COPILOT_CHAT_TABLE_NAME,
     COPILOT_MESSAGE_TABLE_NAME
 ]
 
-
-
-# validortor variables
 NOT_ALLOWED_OBJECT_NAMES = [
     "table", 
     "column", 
@@ -42,6 +40,7 @@ NOT_ALLOWED_OBJECT_NAMES = [
 ]
 
 
+# AI Copilot variables
 FUNCTION_DECLARATIONS = {
     "function_declarations": [
         {
@@ -152,10 +151,9 @@ FUNCTION_DECLARATIONS = {
     ]
 }
 
-
-# AI Analysis variables
+# Analysis variables
 ANALYSIS_COPILOT_SYSTEM_INSTRUCTIONS = """
-You are a data analysis assistant to help users analyze their data.
+You are an assistant in a business management system, you help users analyze their data.
 You use provided functions when neccesary to fetch data from the database, do calculations, and provide insights to the user.
 Your formality level should be professional, helpful, and moderately friendly.
 Your verbal communication should be clear and concise.
@@ -163,19 +161,9 @@ Your verbal communication should be clear and concise.
 ANALYSIS_COPILOT_USER_MESSAGE_ENHANCEMENT =f"""
 Do not make any assumptions, only provide insights based on the data provided.
 """
+ANALYSIS_COPILOT_ALLOWED_FUNCTIONS = ['get_descriptive_analytics_for_table']
 
-def get_function_declaration(function_name: str) -> dict:
-    for function_declaration in FUNCTION_DECLARATIONS["function_declarations"]:
-        if function_declaration["name"] == function_name:
-            return function_declaration
-    return None
-ALANYSIS_COPILOT_ALLOWED_FUNCTIONS = [
-    [get_function_declaration("get_descriptive_analytics_for_table")]
-]
-
-
-
-# AI Process variables
+# Process variables
 PROCESS_COPILOT_SYSTEM_INSTRUCTIONS = """
 You are an assistant in a business management system, you help users organize their tables under processes.
 You use provided functions when neccesary to create tables and add tables to processes.
@@ -185,10 +173,35 @@ Before creating a table or adding a table to a process, confirm with the user.
 PROCESS_COPILOT_USER_MESSAGE_ENHANCEMENT =f"""
 Do not make any assumptions, only provide insights based on the data provided.
 """
-PROCESS_COPILOT_ALLOWED_FUNCTIONS = {
-    "function_declarations": [
-        get_function_declaration("create_table"), 
-        get_function_declaration("add_tables_to_process")
-    ]
-}
+PROCESS_COPILOT_ALLOWED_FUNCTIONS = ['create_table', 'add_tables_to_process']
 
+# Extraction variables
+EXTRACTION_COPILOT_SYSTEM_INSTRUCTIONS = """
+You are an assistant in a business management system, you help users create new rows or update existing 
+rows by creting relevant data in the database.
+
+Here is your recommended workflow:
+1. The user types in a message what they want to do (ex: "I need a 3-day PTO starting next week")
+    - If unclear, ask clarifying questions.
+2. Each user request has a process it is being done uder. A process is a collection of tables that are relevant to a task. For example, 'customer', 'vendor', 'orders' tables might be under 'Order Management" process.
+    - The process name will be provided to you.
+    - You use the information about the process they are doing it under to determine what table to update and what columns to update.
+    - If the process does not support the action or task, you should inform the user. 
+3. After you figure out the tables and column that are relevant, get data from those tables and columns.
+    - This is done to determine what data is already in the database, and what data needs to be added or updated.
+4. If there are rows that have mostly similar information as the user's request, that means you have to update the data in those rows instead of creating new rows.
+    - to find relevance, you should compare the data in the rows with the data in the user's request.
+5. If you think you should update the data in the rows instead of creating a new row, you should confirm with the user and let them decide.
+6. If the user says you should update the data in the rows, you should update the data in the rows.
+    - Every row has a unique identifier which is the 'id' field, you should use that when asked for the id by functions
+7. If the user says you should create new rows, you should create new rows.
+8. Once done, Let the user know the result of the action, if it was successful or not and how many rows were updated or created.
+9. If you belive you should do neither, you should inform the user. 
+
+Your formality level should be professional, helpful, and moderately friendly.
+Your verbal communication should be clear and concise.
+"""
+EXTRACTION_COPILOT_USER_MESSAGE_ENHANCEMENT =f"""
+Do not make any assumptions, only provide insights based on the data provided.
+"""
+EXTRACTION_COPILOT_ALLOWED_FUNCTIONS = []

@@ -2,28 +2,24 @@ import { Component } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { UtilService } from '../../services/util.service';
 import { CommonModule } from '@angular/common';
-import { ProfilePictureComponent } from '../../components/profile-picture/profile-picture.component';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { NotificationInterface, TableListInterface } from '../../interfaces/main-interface';
 import { NotificationService } from '../../services/notification.service';
 import { Router, RouterOutlet } from '@angular/router';
-import { ChatComponent } from '../../components/chat/chat.component';
 
 @Component({
-  selector: 'app-design-home',
+  selector: 'app-workspace-home',
   standalone: true,
   imports: [
     CommonModule,
     FormsModule,
-    RouterOutlet,
-    ProfilePictureComponent,
-    ChatComponent
+    RouterOutlet
   ],
-  templateUrl: './design-home.component.html',
-  styleUrl: './design-home.component.scss'
+  templateUrl: './workspace-home.component.html',
+  styleUrl: './workspace-home.component.scss'
 })
-export class DesignHomeComponent {
+export class WorkspaceHomeComponent {
   greeing: string = 'Hello'
   notifications: NotificationInterface[] = [];
 

@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ProfilePictureComponent } from './profile-picture.component';
+import { WorkspaceHomeComponent } from './workspace-home.component';
 
-describe('ProfilePictureComponent', () => {
-  let component: ProfilePictureComponent;
-  let fixture: ComponentFixture<ProfilePictureComponent>;
+describe('WorkspaceHomeComponent', () => {
+  let component: WorkspaceHomeComponent;
+  let fixture: ComponentFixture<WorkspaceHomeComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ProfilePictureComponent]
+      imports: [WorkspaceHomeComponent]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(ProfilePictureComponent);
+    fixture = TestBed.createComponent(WorkspaceHomeComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

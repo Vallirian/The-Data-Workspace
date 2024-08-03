@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { ProfilePictureComponent } from '../profile-picture/profile-picture.component';
 import { AuthService } from '../../services/auth.service';
 import { UtilService } from '../../services/util.service';
 import { Router, RouterLink } from '@angular/router';
@@ -11,7 +10,6 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [
     CommonModule,
-    ProfilePictureComponent,
     RouterLink
   ],
   templateUrl: './navbar.component.html',
