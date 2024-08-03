@@ -1,3 +1,4 @@
+from datetime import datetime
 from helpers import arc_utils as autils, arc_vars as avars, arc_sql as asql, arc_statements as astmts
 
 import google.generativeai as genai
@@ -224,6 +225,108 @@ def get_data_from_table_and_columns(tenant_id: str, table_name: str, columns_lis
     except Exception as e:
         print('error in get_data_from_table_and_columns', e)
         return str(e)
+    
+def update_row_in_table(tenant_id: str, table_name: str, row_id: int, column_names: list['str'], new_values: list['str']) -> str:
+    """
+    Update a row in a table with a new value for a specified column. The row is identified by its unique row ID.
+    """
+    try:
+        # validate column name
+        table_columns_response_data = asql.execute_raw_query(tenant=tenant_id, queries=astmts.get_complete_table_columns_query(table_name))
+        table_columns = [col['columnName'] for col in table_columns_response_data]
+        if not column_names:
+            return 'Column names are required'
+        for column_name in column_names:
+            if column_name not in table_columns:
+                return f'Column {column_name} does not exist in table {table_name}'
+        
+        dtype_corrected_new_values = []
+        # validate new value
+        if not new_values:
+            return 'New values are required'
+        if len(column_names) != len(new_values):
+            return 'Column names and new values must be of the same length'
+        for i in range(len(new_values)):
+            column_datatype = [col['dataType'] for col in table_columns_response_data if col['columnName'] == column_names[i]][0]
+            if column_datatype == 'number':
+                try:
+                    new_values[i] = float(new_values[i])
+                except ValueError:
+                    return f'New value for column {column_names[i]} must be a number'
+            dtype_corrected_new_values.append(new_values[i])
+        
+        # update row
+        update_row_response_data = asql.execute_raw_query(
+            tenant=tenant_id, 
+            queries=[(
+                f"UPDATE `{table_name}` SET {', '.join([f'{column_names[i]} = %s' for i in range(len(column_names))])} WHERE `id` = %s;",
+                dtype_corrected_new_values + [row_id]
+            )]
+        )
+        return f'Successfully updated row {row_id} in table {table_name}'
+    except Exception as e:
+        return f'Failed to update row: {str(e)}'
+    
+def add_new_row_in_table(tenant_id: str, table_name: str, column_names: list['str'], new_values: list['str']) -> str:
+    """
+    Add a new row to a table with specified values for each column. The function validates the column names and 
+    new values, and then attempts to add the new row to the table.
+    """
+    try:
+        # validate column name
+        table_columns_response_data = asql.execute_raw_query(tenant=tenant_id, queries=astmts.get_complete_table_columns_query(table_name))
+        table_columns = [col['columnName'] for col in table_columns_response_data]
+        if not column_names:
+            return 'Column names are required'
+        for column_name in column_names:
+            if column_name not in table_columns:
+                return f'Column {column_name} does not exist in table {table_name}'
+        
+        # if id is in column_names, remove it
+        for i in range(len(column_names)):
+            if column_names[i] == 'id':
+                column_names.pop(i)
+                new_values.pop(i)
+                break
+        if 'id' in column_names:
+            return 'Cannot add new row with id column'
+        
+        # remove updatedAt if it exists
+        for i in range(len(column_names)):
+            if column_names[i] == 'updatedAt':
+                column_names.pop(i)
+                new_values.pop(i)
+                break
+        if 'updatedAt' in column_names:
+            return 'Cannot add new row with updatedAt column'
+        
+        dtype_corrected_new_values = []
+        # validate new value
+        if not new_values:
+            return 'New values are required'
+        if len(column_names) != len(new_values):
+            return 'Column names and new values must be of the same length'
+        for i in range(len(new_values)):
+            column_datatype = [col['dataType'] for col in table_columns_response_data if col['columnName'] == column_names[i]][0]
+            if column_datatype == 'number':
+                try:
+                    new_values[i] = float(new_values[i])
+                except ValueError:
+                    return f'New value for column {column_names[i]} must be a number'
+            dtype_corrected_new_values.append(new_values[i])
+        
+        # add row
+        current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        add_row_response_data = asql.execute_raw_query(
+            tenant=tenant_id, 
+            queries=[(
+                f"INSERT INTO `{table_name}` ({', '.join(column_names)}) VALUES (id, updatedAt {', '.join(['%s' for _ in range(len(column_names))])});",
+                [autils.custom_uuid(), current_timestamp] + dtype_corrected_new_values
+            )]
+        )
+        return f'Successfully added new row to table {table_name}'
+    except Exception as e:
+        return f'Failed to add new row: {str(e)}'
 
 
 if __name__ == '__main__':
