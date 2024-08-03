@@ -14,13 +14,14 @@ def parse_command(command: genai.protos.FunctionCall):
     # Loop through each field and extract the key and value
     for k, v in command.args.items():
         args_dict[k] = v
-
+    print('function args', {'name': function_name, 'args': args_dict})
     return {'name': function_name, 'args': args_dict}
 
 def execute_function(command: genai.protos.FunctionCall):
     """
     Execute a function based on a parsed command dictionary.
     """
+    print('executing function', command)
     try:
         # Parse the command to get the function name and arguments
         parsed_command = parse_command(command)
@@ -203,6 +204,7 @@ def get_data_from_table_and_columns(tenant_id: str, table_name: str, columns_lis
         # create columns list
         all_columns_list = []
         relevant_columns = []
+        print('table_response_data', table_response_data)
         for k, v in table_response_data[0].items():
             all_columns_list.append(k)
 
@@ -308,12 +310,14 @@ def add_new_row_in_table(tenant_id: str, table_name: str, column_names: list['st
             return 'Column names and new values must be of the same length'
         for i in range(len(new_values)):
             column_datatype = [col['dataType'] for col in table_columns_response_data if col['columnName'] == column_names[i]][0]
+            print('column_datatype', column_datatype)
             if column_datatype == 'number':
                 try:
                     new_values[i] = float(new_values[i])
                 except ValueError:
                     return f'New value for column {column_names[i]} must be a number'
             dtype_corrected_new_values.append(new_values[i])
+            print('dtype_corrected_new_values', dtype_corrected_new_values)
         
         # add row
         current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -324,6 +328,7 @@ def add_new_row_in_table(tenant_id: str, table_name: str, column_names: list['st
                 [autils.custom_uuid(), current_timestamp] + dtype_corrected_new_values
             )]
         )
+        print('query', add_row_response_data)
         return f'Successfully added new row to table {table_name}'
     except Exception as e:
         return f'Failed to add new row: {str(e)}'

@@ -58,7 +58,7 @@ def enhance_process_action_user_message(message: str, tenant_id: str, current_pr
     except Exception as e:
         return str(e)
     
-def enhancce_extraction_action_user_message(message: str, tenant_id: str, current_process_name: str):
+def enhance_extraction_action_user_message(message: str, tenant_id: str, current_process_name: str):
     try:
         base_enhacement_message = avars.EXTRACTION_COPILOT_USER_MESSAGE_ENHANCEMENT
 
@@ -92,14 +92,16 @@ def enhancce_extraction_action_user_message(message: str, tenant_id: str, curren
             for i in range(len(columns_response_data)):
                 if not columns_response_data[i]['isRelationship']:
                     # current implementation does not support relationships
-                    relevant_columns.append(columns_response_data[i])
+                    relevant_columns.append({'columnName': columns_response_data[i]['columnName'], 'dataType': columns_response_data[i]['dataType']})
             base_enhacement_message += f"The table {table} has the following columns: {relevant_columns}\n"
         
         base_enhacement_message += f"The current process the user is looking at has the process_name: {current_process_name}\n"
         base_enhacement_message += f"The current process the user is looking at has the description: {process_description}\n"
         base_enhacement_message += f"The tenant_id of the user is: {tenant_id}\n"
-        base_enhacement_message += f"The user's input is the following: {message}\n"
+        base_enhacement_message += f"The user has asked you the following question: {message}\n"
 
+        # print('base_enhacement_message', base_enhacement_message)
         return base_enhacement_message
     except Exception as e:
+        print(e)
         return str(e)

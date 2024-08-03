@@ -81,6 +81,10 @@ class CopilotAnalysisChat(APIView):
                 # ask the model for a response
                 model_response_text = gemini_chat.send(history=[], message=message, tenant_id=tenant_id, process_name=process_name, chat_type=chat_type)
 
+            elif chat_type == 'extraction':
+                # ask the model for a response
+                model_response_text = gemini_chat.send(history=[], message=message, tenant_id=tenant_id, chat_type=chat_type, process_name=process_name)
+
             # save model's response
             new_model_meessage_response_data = asql.execute_raw_query(
                 tenant=tenant_id, 
@@ -149,6 +153,9 @@ class CopilotAnalysisChat(APIView):
             elif chat_type == 'process':
                 # ask the model for a response
                 model_response_text = gemini_chat.send(history=history, message=user_message, tenant_id=tenant_id, process_name=process_name, chat_type=chat_type)
+            elif chat_type == 'extraction':
+                # ask the model for a response
+                model_response_text = gemini_chat.send(history=history, message=user_message, tenant_id=tenant_id, chat_type=chat_type, process_name=process_name)
 
             # save model's response
             new_model_meessage_response_data = asql.execute_raw_query(

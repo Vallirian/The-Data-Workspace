@@ -117,7 +117,9 @@ def get_function_declaration(function_names: list['str']) -> dict:
     for function_declaration in avars.FUNCTION_DECLARATIONS["function_declarations"]:
         if function_declaration["name"] in function_names:
             function_config["function_declarations"].append(function_declaration)
-            
+    
+    # print('function_config', function_config)
+    return function_config
             
 if __name__ == '__main__':
     pass

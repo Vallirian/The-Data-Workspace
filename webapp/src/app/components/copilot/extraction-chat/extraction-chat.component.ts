@@ -19,9 +19,11 @@ import { CopilotChatInterface, CopilotMessageInterface } from '../../../interfac
   styleUrl: './extraction-chat.component.scss'
 })
 export class ExtractionChatComponent {
-  @Input() processName: string = '';
   @ViewChild('autoScrollContainer')
   private autoScrollContainer!: ElementRef;
+  
+  processNamesList: string[] = [];
+  processName: string = '';
 
   messages: CopilotMessageInterface[] = [];
   chats: CopilotChatInterface[] = []; 
@@ -44,6 +46,15 @@ export class ExtractionChatComponent {
         this.notificationService.addNotification({message: 'Failed to load conversations', type: 'error', dismissed: false, remainingTime: 5000});
       }
     });
+
+    this.apiService.listProcesses().subscribe({
+      next: (processes: any[]) => {
+        this.processNamesList = processes.map(p => p.processName);
+      },
+      error: (err) => {
+        this.notificationService.addNotification({message: 'Failed to load processes', type: 'error', dismissed: false, remainingTime: 5000});
+      }
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -58,6 +69,9 @@ export class ExtractionChatComponent {
     this.scrollToBottom();
   }
 
+  onCloseConversation() {
+  }
+
   scrollToBottom() {
     try {
       this.autoScrollContainer.nativeElement.scrollTop = this.autoScrollContainer.nativeElement.scrollHeight;
@@ -65,28 +79,13 @@ export class ExtractionChatComponent {
     catch(err) {}
   }
 
-  onSelectConversation(chatId: string) {
-    this.selectedChatId = chatId;
-    console.log(chatId);
-    this.apiService.getAnalysisChat(chatId).subscribe({
-      next: (messages: CopilotMessageInterface[]) => {
-        console.log(messages);
-        this.messages = messages;
-        console.log(this.messages);
-      },
-      error: (err) => {
-        this.notificationService.addNotification({message: 'Failed to load conversation', type: 'error', dismissed: false, remainingTime: 5000});
-      }
-    });
-  }
-
-  onCloseConversation() {
-    // this.selectedConversationId = null;
-    // this.messages = [];
-  }
-
   onSendMessage(message: string) {
     if (!message || message.trim() === '' || this.answerLoading) {
+      return;
+    }
+
+    if (this.processName === '') {
+      this.notificationService.addNotification({message: 'Process name is required', type: 'error', dismissed: false, remainingTime: 5000});
       return;
     }
 
@@ -96,7 +95,7 @@ export class ExtractionChatComponent {
 
     // send message
     if (this.selectedChatId === null) {
-      this.apiService.(message, this.).subscribe({
+      this.apiService.startExtractionChat(message, this.processName).subscribe({
         next: (newMessage: CopilotMessageInterface) => {
           this.selectedChatId = newMessage.chatId;
           this.messages.push(newMessage);
@@ -111,8 +110,9 @@ export class ExtractionChatComponent {
       });
     }
     else {
-      this.apiService.(this.selectedChatId, message, this.).subscribe({
+      this.apiService.sendMessageExtractionChat(this.selectedChatId, message, this.processName).subscribe({
         next: (newMessage: CopilotMessageInterface) => {
+          
           this.messages.push(newMessage);
           this.currentMessage = '';
           this.answerLoading = false

@@ -15,7 +15,7 @@ COPILOT_MESSAGE_TABLE_NAME = "copilot__message"
 COPILOT_MODEL_USER_TYPE = "model"
 COPILOT_MODEL_USER_NAME = "model"
 COPILOT_USER_USER_TYPE = "user"
-COPILOT_CHAT_TYPES = ["analysis", "process"]
+COPILOT_CHAT_TYPES = ["analysis", "process", "extraction"]
 
 INTERNAL_TABLES = [
     COLUMN_TABLE,
@@ -147,7 +147,101 @@ FUNCTION_DECLARATIONS = {
                 },
                 "required": ["table_names", "tenant_id", "process_name"]
             }
+        },
+        {
+            "name": "get_data_from_table_and_columns",
+            "description": "Retrieves data from a specified table and selected columns, if provided. If no columns are specified, data from all columns is returned. The function returns the data in a dictionary format.",
+            "parameters": {
+                "type_": "OBJECT",
+                "properties": {
+                    "tenant_id": {
+                        "type_": "STRING",
+                        "description": "Unique identifier for the tenant to ensure data isolation."
+                    },
+                    "table_name": {
+                        "type_": "STRING",
+                        "description": "Name of the table from which data is to be retrieved."
+                    },
+                    "columns_list": {
+                        "type_": "ARRAY",
+                        "items": {
+                            "type_": "STRING"
+                        },
+                        "description": "List of column names to retrieve data from. Optional. If not specified, data from all columns will be retrieved."
+                    }
+                },
+                "required": ["tenant_id", "table_name"]
+            }
+        },
+        {
+            "name": "update_row_in_table",
+            "description": "Updates specific columns of a designated row in a specified table. Validates column existence and matches new values to column data types, then updates the row identified by a unique row ID.",
+            "parameters": {
+                "type_": "OBJECT",
+                "properties": {
+                    "tenant_id": {
+                        "type_": "STRING",
+                        "description": "Unique identifier for the tenant to ensure data isolation."
+                    },
+                    "table_name": {
+                        "type_": "STRING",
+                        "description": "Name of the table where the row is to be updated."
+                    },
+                    "row_id": {
+                        "type_": "INTEGER",
+                        "description": "Unique identifier of the row to update (id field)."
+                    },
+                    "column_names": {
+                        "type_": "ARRAY",
+                        "items": {
+                            "type_": "STRING"
+                        },
+                        "description": "List of column names where the updates will be applied."
+                    },
+                    "new_values": {
+                        "type_": "ARRAY",
+                        "items": {
+                            "type_": "STRING"
+                        },
+                        "description": "List of new values corresponding to the column names."
+                    }
+                },
+                "required": ["tenant_id", "table_name", "row_id", "column_names", "new_values"]
+            }
+        },
+        {
+            "name": "add_new_row_in_table",
+            "description": "Adds a new row to a specified table with values for each column. Excludes the addition of rows with 'id' or 'updatedAt' columns directly.",
+            "parameters": {
+                "type_": "OBJECT",
+                "properties": {
+                    "tenant_id": {
+                        "type_": "STRING",
+                        "description": "Unique identifier for the tenant to ensure data isolation."
+                    },
+                    "table_name": {
+                        "type_": "STRING",
+                        "description": "Name of the table where the new row is to be added."
+                    },
+                    "column_names": {
+                        "type_": "ARRAY",
+                        "items": {
+                            "type_": "STRING"
+                        },
+                        "description": "List of column names for which values will be inserted. 'id' and 'updatedAt' should not be included as they are managed automatically."
+                    },
+                    "new_values": {
+                        "type_": "ARRAY",
+                        "items": {
+                            "type_": "STRING"
+                        },
+                        "description": "List of new values corresponding to the column names.The length must match the number of column names provided."
+                    }
+                },
+                "required": ["tenant_id", "table_name", "column_names", "new_values"]
+            }
         }
+
     ]
 }
 
@@ -177,31 +271,37 @@ PROCESS_COPILOT_ALLOWED_FUNCTIONS = ['create_table', 'add_tables_to_process']
 
 # Extraction variables
 EXTRACTION_COPILOT_SYSTEM_INSTRUCTIONS = """
-You are an assistant in a business management system, you help users create new rows or update existing 
-rows by creting relevant data in the database.
-
-Here is your recommended workflow:
-1. The user types in a message what they want to do (ex: "I need a 3-day PTO starting next week")
-    - If unclear, ask clarifying questions.
-2. Each user request has a process it is being done uder. A process is a collection of tables that are relevant to a task. For example, 'customer', 'vendor', 'orders' tables might be under 'Order Management" process.
-    - The process name will be provided to you.
-    - You use the information about the process they are doing it under to determine what table to update and what columns to update.
-    - If the process does not support the action or task, you should inform the user. 
-3. After you figure out the tables and column that are relevant, get data from those tables and columns.
-    - This is done to determine what data is already in the database, and what data needs to be added or updated.
-4. If there are rows that have mostly similar information as the user's request, that means you should likely update the data in those rows instead of adding new rows.
-    - to find relevance, you should compare the data in the rows with the data in the user's request.
-5. If you think you should update the data in the rows instead of adding a new row, you should confirm with the user and let them decide.
-6. If the user says you should update the data in the rows, you should update the data in the rows.
-    - Every row has a unique identifier which is the 'id' field, you should use that when asked for the id or row_id by functions
-7. If the user says you should add new rows, you should add new rows.
-8. Once done, Let the user know the result of the action, if it was successful or not and how many rows were updated or added.
-9. If you belive you should do neither, you should inform the user. 
-
+You are an assistant in a business management system and you are talking to the user directly, you help users create new rows or update existing rows.
 Your formality level should be professional, helpful, and moderately friendly.
 Your verbal communication should be clear and concise.
+If fields are not provided, feel free to leave them empty.
 """
 EXTRACTION_COPILOT_USER_MESSAGE_ENHANCEMENT =f"""
 Do not make any assumptions, only provide insights based on the data provided.
 """
-EXTRACTION_COPILOT_ALLOWED_FUNCTIONS = []
+EXTRACTION_COPILOT_ALLOWED_FUNCTIONS = ['get_data_from_table_and_columns', 'update_row_in_table', 'add_new_row_in_table']
+
+
+
+
+# """
+# Here is your recommended workflow, some of which you can do from the prodided message and instructions and some you have to responde with the right function:
+# 1. The user types in a message what they want to do (ex: "I need a 3-day PTO starting next week")
+#     - If unclear, ask clarifying questions.
+# 2. Each user request has a process it is being done uder. A process is a collection of tables that are relevant to a task. For example, 'customer', 'vendor', 'orders' tables might be under 'Order Management" process.
+#     - The process name will be provided to you.
+#     - You use the information about the process they are doing it under to determine what table to update and what columns to update.
+#     - If the process does not support the action or task, you should inform the user. 
+# 3. After you figure out the tables and column that are relevant, get data from those tables and columns.
+#     - This is done to determine what data is already in the database, and what data needs to be added or updated.
+# 4. If there are rows that have mostly similar information as the user's request, that means you should likely update the data in those rows instead of adding new rows.
+#     - to find relevance, you should compare the data in the rows with the data in the user's request.
+# 5. If you think you should update the data in the rows instead of adding a new row, you should confirm with the user and let them decide.
+# 6. If the user says you should update the data in the rows, you should update the data in the rows.
+#     - Every row has a unique identifier which is the 'id' field, you should use that when asked for the id or row_id by functions
+# 7. If the user says you should add new rows, you should add new rows.
+# 8. Once done, Let the user know the result of the action, if it was successful or not and how many rows were updated or added.
+# 9. If you belive you should do neither, you should inform the user.
+# 
+# A new employee named Anderson Cuomo started yesterday. Can you update the appropriate table with this information? 
+# """

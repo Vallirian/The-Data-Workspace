@@ -110,9 +110,18 @@ export class ApiService {
 
     // extraction chat
   startExtractionChat(message: string, processName: string) {
+    const params = new HttpParams()
+      .set('processName', processName)
+      .set('chatType', 'extraction');
+    return this.http.post<CopilotMessageInterface>(`${this.baseUrl}/copilot/`, {'message': message}, {params});
   }
 
   sendMessageExtractionChat(chatId: string, message: string, processName: string) {
+    const params = new HttpParams()
+      .set('chatId', chatId)
+      .set('processName', processName)
+      .set('chatType', 'extraction');
+    return this.http.put<CopilotMessageInterface>(`${this.baseUrl}/copilot/`, {'message': message}, {params});
   }
 
 
