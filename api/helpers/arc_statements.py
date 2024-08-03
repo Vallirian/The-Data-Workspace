@@ -101,20 +101,31 @@ def get_create_new_message_query(message, chat_id, user_type, user_id) -> list[t
     return query
 
 # Process tables
-def get_create_new_process_query(process_name) -> list[tuple[str, list]]:
+def get_create_new_process_query(process_name, process_description) -> list[tuple[str, list]]:
     current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     query = [(f"""
-        INSERT INTO `{avars.PROCESSES_TABLE_NAME}` (id, processName, createdAt)
-        VALUES (%s, %s, %s);
-    """ , [autils.custom_uuid(), process_name, current_timestamp])]
+        INSERT INTO `{avars.PROCESSES_TABLE_NAME}` (processName, processDescription, createdAt)
+            VALUES (%s, %s, %s);
+    """ , [process_name, process_description, current_timestamp])]
     return query
 
-def get_create_new_process_table_relationship_query(process_id, table_name) -> list[tuple[str, list]]:
+def get_create_new_process_table_relationship_query(process_name: str, table_names: list['str']) -> list[tuple[str, list]]:
     current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    query = [(f"""
-        INSERT INTO `{avars.PROCESS_TABLE_RELATIONSHIP_TABLE_NAME}` (id, processId, tableName, createdAt)
-        VALUES (%s, %s, %s, %s);
-    """ , [autils.custom_uuid(), process_id, table_name, current_timestamp])]
+    query = []
+    for table_name in table_names:
+        query.append((f"""
+            INSERT INTO `{avars.PROCESS_TABLE_RELATIONSHIP_TABLE_NAME}` (id, processName, tableName, createdAt)
+            VALUES (%s, %s, %s, %s);
+        """, [autils.custom_uuid(), process_name, table_name, current_timestamp]))
+    return query
+
+def get_delete_process_table_relationship_query(process_name: str, table_names: str) -> list[tuple[str, list]]:
+    query = []
+    for table_name in table_names:
+        query.append((f"""
+            DELETE FROM `{avars.PROCESS_TABLE_RELATIONSHIP_TABLE_NAME}`
+            WHERE processName = %s AND tableName = %s;
+        """, [process_name, table_name]))
     return query
 
 # support tables
@@ -166,8 +177,8 @@ def get_supporting_tables_query() -> list[tuple[str, list]]:
     # Create processes table
     processes_query = f"""
         CREATE TABLE IF NOT EXISTS `{avars.PROCESSES_TABLE_NAME}` (
-            id {avars.data_type_map['UUID']} NOT NULL PRIMARY KEY,
-            processName {avars.data_type_map['UUID']} NOT NULL UNIQUE,
+            processName {avars.data_type_map['UUID']} NOT NULL PRIMARY KEY,
+            processDescription {avars.data_type_map['string']},
             createdAt {avars.data_type_map['datetime']} NOT NULL
         );
     """
@@ -176,7 +187,7 @@ def get_supporting_tables_query() -> list[tuple[str, list]]:
     process_table_relationship_query = f"""
         CREATE TABLE IF NOT EXISTS `{avars.PROCESS_TABLE_RELATIONSHIP_TABLE_NAME}` (
             id {avars.data_type_map['UUID']} NOT NULL PRIMARY KEY,
-            processId {avars.data_type_map['UUID']} NOT NULL,
+            processName {avars.data_type_map['UUID']} NOT NULL,
             tableName {avars.data_type_map['string']} NOT NULL,
             createdAt {avars.data_type_map['datetime']} NOT NULL
         );

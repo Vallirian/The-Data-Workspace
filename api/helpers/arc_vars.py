@@ -15,6 +15,7 @@ COPILOT_MESSAGE_TABLE_NAME = "copilot__message"
 COPILOT_MODEL_USER_TYPE = "model"
 COPILOT_MODEL_USER_NAME = "model"
 COPILOT_USER_USER_TYPE = "user"
+COPILOT_CHAT_TYPES = ["analysis", "process"]
 INTERNAL_TABLES = [
     column_table,
     PROCESSES_TABLE_NAME,
@@ -39,18 +40,6 @@ NOT_ALLOWED_OBJECT_NAMES = [
     "__",
     "view_"
 ]
-
-
-
-ANALYSIS_COPILOT_SYSTEM_INSTRUCTIONS = """
-You are a data analysis assistant to help users analyze their data.
-You use provided functions when neccesary to fetch data from the database, do calculations, and provide insights to the user.
-Your formality level should be professional, helpful, and moderately friendly.
-Your verbal communication should be clear and concise.
-"""
-ANALYSIS_COPILOT_USER_MESSAGE_ENHANCEMENT =f"""
-Do not make any assumptions, only provide insights based on the data provided.
-"""
 
 
 FUNCTION_DECLARATIONS = {
@@ -101,6 +90,105 @@ FUNCTION_DECLARATIONS = {
                 },
                 "required": ["tenant_id", "table_name"]
             }
+        },
+        {
+            "name": "create_table",
+            "description": "Creates a new table in the database with specified columns and datatypes. Validates the table name, column names, and column datatypes, and then attempts to create the table and add columns.",
+            "parameters": {
+                "type_": "OBJECT",
+                "properties": {
+                    "tenant_id": {
+                        "type_": "STRING",
+                        "description": "Unique identifier for the tenant to ensure data isolation."
+                    },
+                    "table_name": {
+                        "type_": "STRING",
+                        "description": "Name of the table to be created."
+                    },
+                    "column_names": {
+                        "type_": "ARRAY",
+                        "items": {
+                            "type_": "STRING"
+                        },
+                        "description": "List of names for the columns to be created in the table."
+                    },
+                    "column_datatypes": {
+                        "type_": "ARRAY",
+                        "items": {
+                            "type_": "STRING",
+                            "enum": ["UUID", "string", "number", "boolean", "datetime"]
+                        },
+                        "description": "List of datatypes for each column to be created, corresponding to each name in 'column_names'. Valid options include 'UUID', 'string', 'number', 'boolean', 'datetime'."
+                    }
+                },
+                "required": ["tenant_id", "table_name", "column_names", "column_datatypes"]
+            }
+        },
+        {
+            "name": "add_tables_to_process",
+            "description": "Adds specified tables to a process. Tables must exist in the database.",
+            "parameters": {
+                "type_": "OBJECT",
+                "properties": {
+                    "table_names": {
+                        "type_": "ARRAY",
+                        "items": {
+                            "type_": "STRING"
+                        },
+                        "description": "List of table names to be added to the process."
+                    },
+                    "tenant_id": {
+                        "type_": "STRING",
+                        "description": "Unique identifier for the tenant to ensure data isolation."
+                    },
+                    "process_name": {
+                        "type_": "STRING",
+                        "description": "Name of the process to which the tables are to be added."
+                    }
+                },
+                "required": ["table_names", "tenant_id", "process_name"]
+            }
         }
     ]
 }
+
+
+# AI Analysis variables
+ANALYSIS_COPILOT_SYSTEM_INSTRUCTIONS = """
+You are a data analysis assistant to help users analyze their data.
+You use provided functions when neccesary to fetch data from the database, do calculations, and provide insights to the user.
+Your formality level should be professional, helpful, and moderately friendly.
+Your verbal communication should be clear and concise.
+"""
+ANALYSIS_COPILOT_USER_MESSAGE_ENHANCEMENT =f"""
+Do not make any assumptions, only provide insights based on the data provided.
+"""
+
+def get_function_declaration(function_name: str) -> dict:
+    for function_declaration in FUNCTION_DECLARATIONS["function_declarations"]:
+        if function_declaration["name"] == function_name:
+            return function_declaration
+    return None
+ALANYSIS_COPILOT_ALLOWED_FUNCTIONS = [
+    [get_function_declaration("get_descriptive_analytics_for_table")]
+]
+
+
+
+# AI Process variables
+PROCESS_COPILOT_SYSTEM_INSTRUCTIONS = """
+You are an assistant in a business management system, you help users organize their tables under processes.
+You use provided functions when neccesary to create tables and add tables to processes.
+Your formality level should be professional, helpful, and moderately friendly.
+Before creating a table or adding a table to a process, confirm with the user.
+"""
+PROCESS_COPILOT_USER_MESSAGE_ENHANCEMENT =f"""
+Do not make any assumptions, only provide insights based on the data provided.
+"""
+PROCESS_COPILOT_ALLOWED_FUNCTIONS = {
+    "function_declarations": [
+        get_function_declaration("create_table"), 
+        get_function_declaration("add_tables_to_process")
+    ]
+}
+

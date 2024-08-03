@@ -12,17 +12,20 @@ class ProcessListView(APIView):
             response_data = asql.execute_raw_query(tenant=tenant_id, queries=([(f"SELECT * FROM `{avars.PROCESSES_TABLE_NAME}`;", [])]))
             # when no processes are created yet, we need to remove the placeholder process send from asql.execute_raw_query
             if len(response_data) == 1:
-                if response_data[0]['id'] == None:
+                if response_data[0]['processName'] == None:
                     return Response([])
             return Response(response_data)
         except OperationalError as e:
+            print(e)
             return Response({'error': f'Database error: operation failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
+            print(e)
             return Response({'error': f'Unexpected error: failed to fetch processes'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     def post(self, request):
         tenant_id = request.user.tenant.id
         process_name = request.data.get("processName")
+        process_description = request.data.get("processDescription")
 
         if not process_name:
             return Response({'error': f'Process name is required'}, status=status.HTTP_400_BAD_REQUEST)
@@ -32,23 +35,25 @@ class ProcessListView(APIView):
         
         try:
             # Create table
-            asql.execute_raw_query(tenant=tenant_id, queries=astmts.get_create_new_process_query(process_name))
+            asql.execute_raw_query(tenant=tenant_id, queries=astmts.get_create_new_process_query(process_name, process_description))
             return Response(process_name, status=status.HTTP_201_CREATED)
         except OperationalError as e:
+            print(e)
             return Response({'error': f'Database error: operation failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
+            print(e)
             return Response({'error': f'Unexpected error: failed to create process'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 class ProcessTableRelationshipListView(APIView):
-    def get(self, request, process_id):
+    def get(self, request, process_name):
         tenant_id = request.user.tenant.id
 
         try:
             response_data = asql.execute_raw_query(
                 tenant=tenant_id, 
                 queries=[(
-                    f"SELECT * FROM `{avars.PROCESS_TABLE_RELATIONSHIP_TABLE_NAME}` WHERE processId = %s;",
-                    [process_id]
+                    f"SELECT * FROM `{avars.PROCESS_TABLE_RELATIONSHIP_TABLE_NAME}` WHERE processName = %s;",
+                    [process_name]
                 )]
             )
             return Response(response_data)
@@ -57,20 +62,43 @@ class ProcessTableRelationshipListView(APIView):
         except Exception as e:
             return Response({'error': f'Unexpected error: failed to fetch process table relationships'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-    def post(self, request, process_id):
+    def put(self, request, process_name):
         tenant_id = request.user.tenant.id
-        table_name = request.data.get("tableName")
+        table_names = request.data.get("tableNames")
 
-        if not table_name:
+        if not table_names:
             return Response({'error': f'Table name is required'}, status=status.HTTP_400_BAD_REQUEST)
-        table_name_valid, table_name_validation_error = autils.validate_object_name(table_name)
-        if not table_name_valid:
-            return Response({'error': table_name_validation_error}, status=status.HTTP_400_BAD_REQUEST)
-        
+        if not isinstance(table_names, list):
+            return Response({'error': f'Table names must be a list'}, status=status.HTTP_400_BAD_REQUEST)
+        for table_name in table_names:
+            table_name_valid, table_name_validation_error = autils.validate_object_name(table_name)
+            if not table_name_valid:
+                return Response({'error': table_name_validation_error}, status=status.HTTP_400_BAD_REQUEST)
+
+        # get existing relationships
         try:
-            # Create table
-            asql.execute_raw_query(tenant=tenant_id, queries=astmts.get_create_new_process_table_relationship_query(process_id, table_name))
-            return Response(table_name, status=status.HTTP_201_CREATED)
+            response_data = asql.execute_raw_query(
+                tenant=tenant_id, 
+                queries=[(f"SELECT * FROM `{avars.PROCESS_TABLE_RELATIONSHIP_TABLE_NAME}` WHERE processName = %s;", [process_name])]
+            )
+        except OperationalError as e:
+            return Response({'error': f'Database error: operation failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as e:
+            return Response({'error': f'Unexpected error: failed to fetch process table relationships'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        existing_table_names = [item['tableName'] for item in response_data]
+        new_table_names = list(set(table_names))
+        tables_to_add = list(set(new_table_names) - set(existing_table_names))
+        tables_to_remove = list(set(existing_table_names) - set(new_table_names))
+
+        try:
+            # add tables
+            add_tables_response_data = asql.execute_raw_query(tenant=tenant_id, queries=astmts.get_create_new_process_table_relationship_query(process_name, tables_to_add))
+            
+            # remove tables
+            remove_tables_response_data = asql.execute_raw_query(tenant=tenant_id, queries=astmts.get_delete_process_table_relationship_query(process_name, tables_to_remove))
+            
+            return Response(tables_to_add, status=status.HTTP_201_CREATED)
         except OperationalError as e:
             return Response({'error': f'Database error: operation failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:

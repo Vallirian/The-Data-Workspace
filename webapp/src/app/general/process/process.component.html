@@ -1,3 +1,6 @@
+<div>
+    {{processTableRelationships | json}}
+</div>
 <div class="container-fluid">
     <div class="d-flex">
     <p class="fs-6 text-left">Processes</p>
@@ -9,7 +12,7 @@
     </div>
     <div class="d-flex">
         @for (prcs of processList; track $index) {
-            <div (click)="selectedProcess=prcs.processName" data-bs-toggle="modal" data-bs-target="#updateProcessModal" class="card m-1" style="width: 8rem;">
+            <div (click)="onSelectProcess(prcs.processName)" data-bs-toggle="modal" data-bs-target="#updateProcessModal" class="card m-1" style="width: 8rem;">
                 <div class="card-body">
                     <p class="card-text">{{prcs.processName}}</p>
                 </div>
@@ -30,6 +33,9 @@
             <div class="col-12">
               <input type="text" class="form-control" placeholder="Name" [(ngModel)]="newProcessName">
             </div>
+            <div class="col-12">
+                <input type="text" class="form-control" placeholder="Description" [(ngModel)]="newProcessDescription">
+            </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -41,27 +47,44 @@
 
 <!-- Modal - Edit Process -->
 <div class="modal fade" id="updateProcessModal" tabindex="-1" aria-labelledby="updateProcessModalLable" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
-        <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="updateProcessModalLable">Update {{selectedProcess}} Process</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div [formGroup]="processTableForm" class="modal-body">
-            <span formArrayName="tableNames">
-                <div *ngFor="let ctrl of tableNames.controls; let i=index" class="col-12">
-                    {{i}}
-                    <select [formControlName]="i" class="form-select" aria-label="Select table">
-                        <option *ngFor="let table of tablesList" [value]="table">{{ table }}</option>
-                    </select>
+    
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="updateProcessModalLable">Update {{selectedProcess}} Process</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              <button (click)="editProcessType === 'manual' ? editProcessType = 'auto' : editProcessType = 'manual'">Change mode</button>
+            </div>
+            @if (editProcessType === 'manual') {
+                <div [formGroup]="processTableForm" class="modal-body">
+                    <span formArrayName="tableNames">
+                        <div *ngFor="let ctrl of tableNames.controls; let i=index" class="col-12">
+                            {{i}}
+                            <select [formControlName]="i" class="form-select" aria-label="Select table">
+                                <option *ngFor="let table of tablesList" [value]="table">{{ table }}</option>
+                            </select>
+                        </div>
+                    </span>
+                    <button (click)="onAddTable()">Add Table</button>
                 </div>
-            </span>
-            <button (click)="onAddTable()">Add Table</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button (click)="onUpdateProcess()" type="button" class="btn btn-primary" data-bs-dismiss="modal">Create</button>
+                </div>
+            }
+            @else if (editProcessType === 'auto') {
+                @if(currentResponse.trim() !== '') {
+                    {{currentResponse}}
+                }
+                <input type="text" class="form-control" placeholder="Message" [(ngModel)]="currentMessage">
+                @if (answerLoading) {
+                    loading
+                }
+                @else {
+                    <button (click)="onSendMessage()">Send</button>
+                }
+            }
+          </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button (click)="onUpdateProcess()" type="button" class="btn btn-primary" data-bs-dismiss="modal">Create</button>
-        </div>
-      </div>
-    </div>
+
 </div>

@@ -35,12 +35,16 @@ export class ApiService {
     return this.http.get<ProcessInterface[]>(`${this.baseUrl}/process/`);
   }
 
+  createProcess(processName: string, processDescription: string) {
+    return this.http.post<string>(`${this.baseUrl}/process/`, {'processName': processName, 'processDescription': processDescription});
+  }
+  
   getPrcessTables(processId: string) {
-    return this.http.get<ProcessTableRelationshipInterface[]>(`${this.baseUrl}/process/${processId}/table/`);
+    return this.http.get<ProcessTableRelationshipInterface[]>(`${this.baseUrl}/process/${processId}/`);
   }
 
-  createProcess(processName: string) {
-    return this.http.post<string>(`${this.baseUrl}/process/`, {'processName': processName});
+  updateProcessTable(processId: string, tableNames: string[]) {
+    return this.http.put<string[]>(`${this.baseUrl}/process/${processId}/`, {'tableNames': tableNames});
   }
 
   // raw Table API
@@ -60,29 +64,49 @@ export class ApiService {
 
   
   // copilot API
+    // analysis chat
   listAnalysisChats() {
-    return this.http.get<CopilotChatInterface[]>(`${this.baseUrl}/copilot/analysis/`);
+    const params = new HttpParams()
+      .set('chatType', 'analysis');
+    return this.http.get<CopilotChatInterface[]>(`${this.baseUrl}/copilot/`);
   }
 
   getAnalysisChat(chatId: string) {
     const params = new HttpParams()
       .set('chatId', chatId);
-    return this.http.get<CopilotMessageInterface[]>(`${this.baseUrl}/copilot/analysis/`, {params});
+    return this.http.get<CopilotMessageInterface[]>(`${this.baseUrl}/copilot/`, {params});
   }
 
   startAnalysisChat(message: string, tableName: string) {
     const params = new HttpParams()
-      .set('tableName', tableName);
-    return this.http.post<CopilotMessageInterface>(`${this.baseUrl}/copilot/analysis/`, {'message': message}, {params});
+      .set('tableName', tableName)
+      .set('chatType', 'analysis');
+    return this.http.post<CopilotMessageInterface>(`${this.baseUrl}/copilot/`, {'message': message}, {params});
   }
 
   sendMessageAnalysisChat(chatId: string, message: string, tableName: string) {
     const params = new HttpParams()
       .set('chatId', chatId)
-      .set('tableName', tableName);
-    return this.http.put<CopilotMessageInterface>(`${this.baseUrl}/copilot/analysis/`, {'message': message}, {params});
+      .set('tableName', tableName)
+      .set('chatType', 'analysis');
+    return this.http.put<CopilotMessageInterface>(`${this.baseUrl}/copilot/`, {'message': message}, {params});
+  }
+  
+    // process chat
+  startProcessChat(message: string, processName: string) {
+    const params = new HttpParams()
+      .set('processName', processName)
+      .set('chatType', 'process');
+    return this.http.post<CopilotMessageInterface>(`${this.baseUrl}/copilot/`, {'message': message}, {params});
   }
 
+  sendMessageProcessChat(chatId: string, message: string, processName: string) {
+    const params = new HttpParams()
+      .set('chatId', chatId)
+      .set('processName', processName)
+      .set('chatType', 'process');
+    return this.http.put<CopilotMessageInterface>(`${this.baseUrl}/copilot/`, {'message': message}, {params});
+  }
 
 
 

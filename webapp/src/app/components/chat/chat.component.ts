@@ -85,7 +85,6 @@ export class ChatComponent {
   }
 
   onSendMessage(message: string) {
-    console.log(this.tableId);
     if (!message || message.trim() === '' || this.answerLoading) {
       return;
     }

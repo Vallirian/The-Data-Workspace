@@ -62,14 +62,14 @@ export interface RelationshipColumnAPIInterface {
 
 // Process
 export interface ProcessInterface {
-    id: string;
     processName: string;
+    processDescription: string;
     createdAt: Date;
 }
 
 export interface ProcessTableRelationshipInterface {
     id: string;
-    processId: string;
+    processName: string;
     tableName: string;
     createdAt: Date;
 }

@@ -7,6 +7,7 @@ from helpers import arc_vars as avars, arc_utils as autils, arc_sql as asql, arc
 
 import google.generativeai as genai
 import copilot.gemini_analysis_helpers as gah
+import copilot.gemini_process_helpers as gph
 
 class CopilotAnalysisChat(APIView):
     def get(self, request):
@@ -45,8 +46,12 @@ class CopilotAnalysisChat(APIView):
         tenant_id = request.user.tenant.id
         message = request.data.get("message")
         table_name = request.query_params.get("tableName")
+        process_name = request.query_params.get("processName")
+        chat_type = request.query_params.get("chatType")
 
-        print('table_name', table_name)
+        if not chat_type or chat_type not in avars.COPILOT_CHAT_TYPES:
+            return Response({"message": "Please provide a valid scope"}, status=status.HTTP_400_BAD_REQUEST)
+
         if not message:
             return Response(
                 {"message": "Please provide a message"},
@@ -69,8 +74,13 @@ class CopilotAnalysisChat(APIView):
             return Response({'error': 'Failed to start new chat'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         try:
-            # ask the model for a response
-            model_response_text = gah.send_analysis_action_message(history=[], message=message, tenant_id=tenant_id, table_name=table_name)
+            if chat_type == 'analysis':
+                # ask the model for a response
+                model_response_text = gah.send_analysis_action_message(history=[], message=message, tenant_id=tenant_id, table_name=table_name)
+
+            elif chat_type == 'process':
+                # ask the model for a response
+                model_response_text = gph.send_process_action_message(history=[], message=message, tenant_id=tenant_id, process_name=process_name)
 
             # save model's response
             new_model_meessage_response_data = asql.execute_raw_query(
@@ -100,13 +110,17 @@ class CopilotAnalysisChat(APIView):
         chat_id = request.query_params.get("chatId")
         table_name = request.query_params.get("tableName")
         user_message = request.data.get("message") 
+        process_name = request.query_params.get("processName")
+        chat_type = request.query_params.get("chatType")
 
-        print('table_name', table_name) 
 
         if not user_message:
             return Response({"message": "Please provide a message"},status=status.HTTP_400_BAD_REQUEST)
         if not chat_id:
             return Response({"message": "Please provide a conversationId"},status=status.HTTP_400_BAD_REQUEST)
+        
+        if not chat_type or chat_type not in avars.COPILOT_CHAT_TYPES:
+            return Response({"message": "Please provide a chat type"}, status=status.HTTP_400_BAD_REQUEST)
         
         # record the user's message
         try:
@@ -118,6 +132,7 @@ class CopilotAnalysisChat(APIView):
             return Response({'error': 'Failed to process user message'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         try:
+
             historical_messages = asql.execute_raw_query(
                 tenant=tenant_id, 
                 queries=[(f"SELECT * FROM `{avars.COPILOT_MESSAGE_TABLE_NAME}` WHERE `chatId` = %s ORDER BY `createdAt` ASC;", [chat_id])]
@@ -129,9 +144,12 @@ class CopilotAnalysisChat(APIView):
                     "role": "model" if hstr_msg['userType'] == avars.COPILOT_MODEL_USER_TYPE else avars.COPILOT_USER_USER_TYPE
                 })
 
-            
-            # ask the model for a response
-            model_response_text = gah.send_analysis_action_message(history=history, message=user_message, tenant_id=tenant_id, table_name=table_name)
+            if chat_type == 'analysis':
+                # ask the model for a response
+                model_response_text = gah.send_analysis_action_message(history=history, message=user_message, tenant_id=tenant_id, table_name=table_name)
+            elif chat_type == 'process':
+                # ask the model for a response
+                model_response_text = gph.send_process_action_message(history=history, message=user_message, tenant_id=tenant_id, process_name=process_name)
 
             # save model's response
             new_model_meessage_response_data = asql.execute_raw_query(
@@ -151,4 +169,3 @@ class CopilotAnalysisChat(APIView):
         except Exception as e:
             print(e)
             return Response({'error': 'Failed to process user message'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        

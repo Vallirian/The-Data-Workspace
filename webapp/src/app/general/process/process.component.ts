@@ -3,7 +3,7 @@ import { ApiService } from '../../services/api.service';
 import { NotificationService } from '../../services/notification.service';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ProcessInterface } from '../../interfaces/main-interface';
+import { CopilotMessageInterface, ProcessInterface, ProcessTableRelationshipInterface } from '../../interfaces/main-interface';
 
 @Component({
   selector: 'app-process',
@@ -18,9 +18,17 @@ import { ProcessInterface } from '../../interfaces/main-interface';
 })
 export class ProcessComponent {
   processList: ProcessInterface[] = [];
+  processTableRelationships: ProcessTableRelationshipInterface[] = [];
   tablesList: string[] = [];
   newProcessName: string = '';
+  newProcessDescription: string = '';
   selectedProcess: string = '';
+  editProcessType: 'manual' | 'auto' = 'manual';
+
+  currentMessage: string = '';
+  currentResponse: string = '';
+  answerLoading: boolean = false;
+  chatId: string | null = null;
 
   processTableForm = this.formBuilder.group({
     tableNames: this.formBuilder.array([]),
@@ -36,6 +44,19 @@ export class ProcessComponent {
     this.apiService.listProcesses().subscribe({
       next: (processes: ProcessInterface[]) => {
         this.processList = processes;
+        console.log(processes);
+
+        // get process table relationships
+        processes.forEach((process: ProcessInterface) => {
+          this.apiService.getPrcessTables(process.processName).subscribe({
+            next: (processTables: ProcessTableRelationshipInterface[]) => {
+              this.processTableRelationships.push(...processTables);
+            },
+            error: (err) => {
+              this.notificationService.addNotification({message: 'Failed to load process tables', type: 'error', dismissed: false, remainingTime: 5000});
+            }
+          });
+        });
       },
       error: (err) => {
         this.notificationService.addNotification({message: 'Failed to load processes', type: 'error', dismissed: false, remainingTime: 5000});
@@ -59,15 +80,38 @@ export class ProcessComponent {
       return;
     }
 
-    this.apiService.createProcess(this.newProcessName).subscribe({
+    if (!this.newProcessDescription || this.newProcessDescription.trim() === '') {
+      this.notificationService.addNotification({message: 'Process description cannot be empty', type: 'error', dismissed: false, remainingTime: 5000});
+      return;
+    }
+
+    this.apiService.createProcess(this.newProcessName, this.newProcessDescription).subscribe({
       next: (newProcess: string) => {
         // placehold before we get the actual data on the next GET request
-        this.processList.push({id: newProcess, processName: this.newProcessName, createdAt: new Date()});
+        this.processList.push({processName: this.newProcessName, createdAt: new Date(), processDescription: this.newProcessDescription});
+        this.newProcessName = '';
+        this.notificationService.addNotification({message: 'Process created successfully', type: 'success', dismissed: false, remainingTime: 5000});
       },
       error: (err) => {
         this.notificationService.addNotification({message: err, type: 'error', dismissed: false, remainingTime: 5000});
+        this.newProcessName = '';
       }
     });
+  }
+
+  onSelectProcess(processName: string) {
+    console.log('selected process', processName);
+    // remove previous table names
+    this.tableNames.clear();
+
+    this.selectedProcess = processName;
+    const processTables = this.processTableRelationships.filter((prcsTable: ProcessTableRelationshipInterface) => prcsTable.processName === processName);
+    if (processTables.length > 0) {
+      this.tableNames.clear();
+      processTables.forEach((prcsTable: ProcessTableRelationshipInterface) => {
+        this.tableNames.push(this.formBuilder.control(prcsTable.tableName));
+      });
+    }
   }
 
   onAddTable() {
@@ -75,10 +119,74 @@ export class ProcessComponent {
   }
 
   onUpdateProcess() {
+    console.log('process table form', this.processTableForm.value);
     if (!this.selectedProcess) {
       this.notificationService.addNotification({message: 'Please select a process', type: 'error', dismissed: false, remainingTime: 5000});
       return;
     }
+  
+    const tableNames: string[] = this.processTableForm.value.tableNames as string[];
+    if (!tableNames || tableNames.length === 0) {
+      this.notificationService.addNotification({message: 'Please add tables to the process', type: 'error', dismissed: false, remainingTime: 5000});
+      return;
+    }
+    
+    // remove empty strings 
+    const filteredTableNames = tableNames.filter((tableName: string) => tableName.trim() !== '');
+    
+    // remove duplicates
+    const uniqueTableNames = Array.from(new Set(filteredTableNames));
+    
+    this.apiService.updateProcessTable(this.selectedProcess, uniqueTableNames).subscribe({
+      next: (updatedProcess: string[]) => {
+        this.notificationService.addNotification({message: 'Process updated successfully', type: 'success', dismissed: false, remainingTime: 5000});
+      },
+      error: (err) => {
+        this.notificationService.addNotification({message: err, type: 'error', dismissed: false, remainingTime: 5000});
+      }
+    });
+  }
+
+  // AI chat
+
+
+  onSendMessage() {
+    if (!this.currentMessage || this.currentMessage.trim() === '' || this.answerLoading) {
+      return;
+    }
+    this.answerLoading = true;
+
+    // add message to chat
+    if (this.chatId === null) {
+      this.apiService.startProcessChat(this.currentMessage, this.selectedProcess).subscribe({
+        next: (newMessage: CopilotMessageInterface) => {
+          this.chatId = newMessage.chatId;
+          this.currentResponse = newMessage.message;
+          this.currentMessage = '';
+          this.answerLoading = false;
+        },
+        error: (err) => {
+          this.notificationService.addNotification({message: 'Failed to start conversation', type: 'error', dismissed: false, remainingTime: 5000});
+          this.currentMessage = '';
+          this.answerLoading = false
+        }
+      });
+    }
+    else {
+      this.apiService.sendMessageProcessChat(this.chatId, this.currentMessage, this.selectedProcess).subscribe({
+        next: (newMessage: CopilotMessageInterface) => {
+          this.currentResponse = newMessage.message;
+          this.currentMessage = '';
+          this.answerLoading = false
+        },
+        error: (err) => {
+          this.notificationService.addNotification({message: 'Failed to send message', type: 'error', dismissed: false, remainingTime: 5000});
+          this.currentMessage = '';
+          this.answerLoading = false
+        }
+      });
+    }
+
   }
 
   // getters
