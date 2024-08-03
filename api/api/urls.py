@@ -14,6 +14,7 @@ urlpatterns = [
 
     path("api/user/", include("user.urls")),
     path("api/table/", include("table.urls")),
+    path("api/process/", include("process.urls")),
     path("api/raw/", include("rawdata.urls")),
 
     path("api/copilot/", include("copilot.urls")),

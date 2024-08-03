@@ -8,6 +8,7 @@ import { ApiService } from '../../services/api.service';
 import { NotificationInterface, TableListInterface } from '../../interfaces/main-interface';
 import { NotificationService } from '../../services/notification.service';
 import { Router, RouterOutlet } from '@angular/router';
+import { ChatComponent } from '../../components/chat/chat.component';
 
 @Component({
   selector: 'app-design-home',
@@ -17,6 +18,7 @@ import { Router, RouterOutlet } from '@angular/router';
     FormsModule,
     RouterOutlet,
     ProfilePictureComponent,
+    ChatComponent
   ],
   templateUrl: './design-home.component.html',
   styleUrl: './design-home.component.scss'

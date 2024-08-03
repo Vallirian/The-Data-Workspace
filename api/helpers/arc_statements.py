@@ -100,7 +100,22 @@ def get_create_new_message_query(message, chat_id, user_type, user_id) -> list[t
     """ , [autils.custom_uuid(), current_timestamp, message, chat_id, user_type, user_id])]
     return query
 
+# Process tables
+def get_create_new_process_query(process_name) -> list[tuple[str, list]]:
+    current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    query = [(f"""
+        INSERT INTO `{avars.PROCESSES_TABLE_NAME}` (id, processName, createdAt)
+        VALUES (%s, %s, %s);
+    """ , [autils.custom_uuid(), process_name, current_timestamp])]
+    return query
 
+def get_create_new_process_table_relationship_query(process_id, table_name) -> list[tuple[str, list]]:
+    current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    query = [(f"""
+        INSERT INTO `{avars.PROCESS_TABLE_RELATIONSHIP_TABLE_NAME}` (id, processId, tableName, createdAt)
+        VALUES (%s, %s, %s, %s);
+    """ , [autils.custom_uuid(), process_id, table_name, current_timestamp])]
+    return query
 
 # support tables
 def get_supporting_tables_query() -> list[tuple[str, list]]:
@@ -147,5 +162,25 @@ def get_supporting_tables_query() -> list[tuple[str, list]]:
         );
     """
     queries.append((copilot_message_query, []))
+
+    # Create processes table
+    processes_query = f"""
+        CREATE TABLE IF NOT EXISTS `{avars.PROCESSES_TABLE_NAME}` (
+            id {avars.data_type_map['UUID']} NOT NULL PRIMARY KEY,
+            processName {avars.data_type_map['UUID']} NOT NULL UNIQUE,
+            createdAt {avars.data_type_map['datetime']} NOT NULL
+        );
+    """
+    queries.append((processes_query, []))
+
+    process_table_relationship_query = f"""
+        CREATE TABLE IF NOT EXISTS `{avars.PROCESS_TABLE_RELATIONSHIP_TABLE_NAME}` (
+            id {avars.data_type_map['UUID']} NOT NULL PRIMARY KEY,
+            processId {avars.data_type_map['UUID']} NOT NULL,
+            tableName {avars.data_type_map['string']} NOT NULL,
+            createdAt {avars.data_type_map['datetime']} NOT NULL
+        );
+    """
+    queries.append((process_table_relationship_query, []))
 
     return queries

@@ -8,15 +8,19 @@ data_type_map = {
 
 # Database variables
 column_table = "column__column"
+PROCESSES_TABLE_NAME = "process__process"
+PROCESS_TABLE_RELATIONSHIP_TABLE_NAME = "process__table"
+COPILOT_CHAT_TABLE_NAME = "copilot__chat"
+COPILOT_MESSAGE_TABLE_NAME = "copilot__message"
 COPILOT_MODEL_USER_TYPE = "model"
 COPILOT_MODEL_USER_NAME = "model"
 COPILOT_USER_USER_TYPE = "user"
-COPILOT_CHAT_TABLE_NAME = "copilot__chat"
-COPILOT_MESSAGE_TABLE_NAME = "copilot__message"
 INTERNAL_TABLES = [
-    "column__column",
-    "copilot__chat",
-    "copilot__message",
+    column_table,
+    PROCESSES_TABLE_NAME,
+    PROCESS_TABLE_RELATIONSHIP_TABLE_NAME,
+    COPILOT_CHAT_TABLE_NAME,
+    COPILOT_MESSAGE_TABLE_NAME
 ]
 
 

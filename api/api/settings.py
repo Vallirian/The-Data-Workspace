@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'table',
     'rawdata',
     'copilot',
+    'process',
 ]
 
 

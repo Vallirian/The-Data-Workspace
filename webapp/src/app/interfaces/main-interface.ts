@@ -60,6 +60,20 @@ export interface RelationshipColumnAPIInterface {
     leftTable: string;
 }
 
+// Process
+export interface ProcessInterface {
+    id: string;
+    processName: string;
+    createdAt: Date;
+}
+
+export interface ProcessTableRelationshipInterface {
+    id: string;
+    processId: string;
+    tableName: string;
+    createdAt: Date;
+}
+
 // Copilot Chat
 export interface CopilotChatInterface {
     id: string;

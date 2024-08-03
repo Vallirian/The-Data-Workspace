@@ -52,11 +52,11 @@ class ColumnListView(APIView):
                     [table_name]
                 )]
             )
-            columns = []
-            for response_data_item in response_data:
-                columns += [response_data_item]
+            # columns = []
+            # for response_data_item in response_data:
+            #     columns += [response_data_item]
             
-            return Response(columns)
+            return Response(response_data)
         except OperationalError as e:
             return Response({'error': f'Database error: operation failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:

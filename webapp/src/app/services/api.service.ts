@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ColumnInterface, CopilotChatInterface, CopilotMessageInterface, RelationshipColumnAPIInterface, TableListInterface, WorkspaceListInterface } from '../interfaces/main-interface';
+import { ColumnInterface, CopilotChatInterface, CopilotMessageInterface, ProcessInterface, ProcessTableRelationshipInterface, RelationshipColumnAPIInterface, TableListInterface, WorkspaceListInterface } from '../interfaces/main-interface';
 
 @Injectable({
   providedIn: 'root'
@@ -30,6 +30,19 @@ export class ApiService {
     return this.http.post<ColumnInterface>(`${this.baseUrl}/table/${tableName}/column/`, data);
   }
 
+  // Process API
+  listProcesses() {
+    return this.http.get<ProcessInterface[]>(`${this.baseUrl}/process/`);
+  }
+
+  getPrcessTables(processId: string) {
+    return this.http.get<ProcessTableRelationshipInterface[]>(`${this.baseUrl}/process/${processId}/table/`);
+  }
+
+  createProcess(processName: string) {
+    return this.http.post<string>(`${this.baseUrl}/process/`, {'processName': processName});
+  }
+
   // raw Table API
   getRawTable(tableId: string) {
     return this.http.get(`${this.baseUrl}/raw/${tableId}/`);
@@ -40,6 +53,11 @@ export class ApiService {
       .set('columns', columns.join(','));
     return this.http.get(`${this.baseUrl}/raw/${tableId}/`, {params});
   }
+
+  updateRawTable(tableId: string, data: any) {
+    return this.http.put(`${this.baseUrl}/raw/${tableId}/`, data);
+  }
+
   
   // copilot API
   listAnalysisChats() {
@@ -70,32 +88,6 @@ export class ApiService {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-  // raw Table API
-  updateRawTable(tableId: string, data: any) {
-    return this.http.put(`${this.baseUrl}/raw/${tableId}/`, data);
-  }
-
-
-
-
-  // copilot API
-
-
-
   
-
-
-
 
 }
