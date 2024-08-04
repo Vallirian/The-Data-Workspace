@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { UtilService } from '../../services/util.service';
 import { CommonModule } from '@angular/common';
@@ -50,6 +50,7 @@ export class WorkspaceHomeComponent {
       }
     });
 
+
   }
 
   // table 
@@ -77,6 +78,6 @@ export class WorkspaceHomeComponent {
   }
 
   get userName() {
-    return String(this.authService.currentUser()?.username);
+    return String(this.authService.currentUserSignal()?.username);
   }
 }

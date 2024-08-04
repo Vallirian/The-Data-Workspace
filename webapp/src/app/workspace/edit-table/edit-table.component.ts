@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TableComponent } from '../../components/table/table.component';
 import { ApiService } from '../../services/api.service';
@@ -8,6 +8,7 @@ import { NotificationService } from '../../services/notification.service';
 import { AddColumnComponent } from '../../components/forms/add-column/add-column.component';
 import { ColumnInterface, RelationshipColumnAPIInterface, RelationshipColumnInterface } from '../../interfaces/main-interface';
 import { AnalysisChatComponent } from '../../components/copilot/analysis-chat/analysis-chat.component';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-edit-table',
@@ -36,6 +37,7 @@ export class EditTableComponent {
     private activatedRoute: ActivatedRoute,
     private navbarService: NavbarService,
     private notificationService: NotificationService,
+    private authService: AuthService
   ) { }
 
   ngOnInit(): void {
@@ -51,6 +53,8 @@ export class EditTableComponent {
           this.notificationService.addNotification({message: 'Failed to load columns', type: 'error', dismissed: false, remainingTime: 5000});
         }
       });
+
+
   }
 
   ngOnDestroy(): void {

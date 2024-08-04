@@ -6,7 +6,6 @@ import { provideClientHydration } from '@angular/platform-browser';
 import { HttpHandlerFn, HttpRequest, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { AuthService } from './services/auth.service';
 import { NotificationService } from './services/notification.service';
-import { catchError, switchMap } from 'rxjs';
 
 
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
@@ -20,32 +19,17 @@ function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) {
   }
 
   const authService = inject(AuthService);
-  const notificationService = inject(NotificationService);
-  let authToken = authService.getToken();
-
-  if (authToken && authService.isTokenExpired()) {
-    return authService.refreshToken().pipe(
-      switchMap((token: string) => {
-        authToken = token;
-        authService.saveToken(token);
-
-        // Clone the request to add the authentication header.
-        const headers = req.headers.append('Authorization', `Bearer ${authToken}`);
-        const authReq = req.clone({ headers });
-        return next(authReq);
-      }),
-      catchError((err) => {
-        notificationService.addNotification({ message: 'Failed to authenticate, please login again', type: 'error', dismissed: false, remainingTime: 5000 });
-        // Optionally, you can also redirect the user to the login page here
-        return next(req);
-      })
-    );
-  } else {
-    // Clone the request to add the authentication header.
-    const headers = req.headers.append('Authorization', `Bearer ${authToken}`);
-    const authReq = req.clone({ headers });
-    return next(authReq);
+  if (authService.idTokenSignal() === null) { // temporary fix
+    authService.setIdToken();
   }
+  const authToken = authService.idTokenSignal();
+ 
+
+  // Clone the request to add the authentication header.
+  const headers = req.headers.append('Authorization', `Bearer ${authToken}`);
+  const authReq = req.clone({ headers });
+  return next(authReq);
+
 }
 
 export const appConfig: ApplicationConfig = {

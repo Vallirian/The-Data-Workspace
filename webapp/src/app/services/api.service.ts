@@ -1,6 +1,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { ColumnInterface, CopilotChatInterface, CopilotMessageInterface, ProcessInterface, ProcessTableRelationshipInterface, RelationshipColumnAPIInterface, TableListInterface, WorkspaceListInterface } from '../interfaces/main-interface';
+import { getAuth } from 'firebase/auth';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +13,8 @@ export class ApiService {
 
   constructor(
     private http: HttpClient
-  ) { }
+  ) {}
+
   // Table API
   listTables() {
     return this.http.get<string[]>(`${this.baseUrl}/table/`);

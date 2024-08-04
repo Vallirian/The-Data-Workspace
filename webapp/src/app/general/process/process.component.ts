@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ApiService } from '../../services/api.service';
 import { NotificationService } from '../../services/notification.service';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CopilotMessageInterface, ProcessInterface, ProcessTableRelationshipInterface } from '../../interfaces/main-interface';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-process',
@@ -37,10 +38,12 @@ export class ProcessComponent {
   constructor(
     private apiService: ApiService,
     private notificationService: NotificationService,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
+
     this.apiService.listProcesses().subscribe({
       next: (processes: ProcessInterface[]) => {
         this.processList = processes;

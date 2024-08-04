@@ -86,9 +86,9 @@ TEMPLATES = [
 WSGI_APPLICATION = "api.wsgi.application"
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
+    'DEFAULT_AUTHENTICATION_CLASSES': [
         'user.firebase_auth.FirebaseAuthentication' # custom authentication class
-    )
+    ]
 }
 
 
