@@ -107,23 +107,31 @@ export class ApiService {
       .set('chatType', 'process');
     return this.http.put<CopilotMessageInterface>(`${this.baseUrl}/copilot/`, {'message': message}, {params});
   }
-
-    // extraction chat
-  startExtractionChat(message: string, processName: string) {
+    // analysis chat
+  listHowToChats() {
     const params = new HttpParams()
-      .set('processName', processName)
-      .set('chatType', 'extraction');
+      .set('chatType', 'howTo');
+    return this.http.get<CopilotChatInterface[]>(`${this.baseUrl}/copilot/`);
+  }
+
+  getHowToChat(chatId: string) {
+    const params = new HttpParams()
+      .set('chatId', chatId);
+    return this.http.get<CopilotMessageInterface[]>(`${this.baseUrl}/copilot/`, {params});
+  }
+
+  startHowToChat(message: string) {
+    const params = new HttpParams()
+      .set('chatType', 'howTo');
     return this.http.post<CopilotMessageInterface>(`${this.baseUrl}/copilot/`, {'message': message}, {params});
   }
 
-  sendMessageExtractionChat(chatId: string, message: string, processName: string) {
+  sendMessageHowToChat(chatId: string, message: string) {
     const params = new HttpParams()
       .set('chatId', chatId)
-      .set('processName', processName)
-      .set('chatType', 'extraction');
+      .set('chatType', 'howTo');
     return this.http.put<CopilotMessageInterface>(`${this.baseUrl}/copilot/`, {'message': message}, {params});
   }
-
 
 
 

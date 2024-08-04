@@ -1,10 +1,11 @@
-<select [(ngModel)]="processName" class="form-select" [id]="'floatingSelectrightTableColumn'" aria-label="Floating label select example">
-    <option *ngFor="let prcs of processNamesList" [value]="prcs">{{ prcs }}</option>
-</select>
-
 @if (selectedChatId == null) {
     <!-- start a new chat or select an existing one -->
     <div class="container-with-scrollable-content">
+        <div class="list-group scrollable">
+            @for (chat of chats; track $index) {
+                <div (click)="onSelectConversation(chat.id)" class="list-group-item list-group-item-action">{{chat.displayName}} {{formatDate(chat.createdAt)}}</div>
+            }
+        </div>
         <div class="input-group">
             <input type="text" class="form-control" placeholder="start conversation for AI-powered analysis" [(ngModel)]="currentMessage">
             @if (answerLoading) {

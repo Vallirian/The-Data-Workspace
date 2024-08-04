@@ -16,18 +16,18 @@ def send(history: list['str'], message: str, tenant_id: str, chat_type: str, tab
         final_message = process_message.enhance_analysis_action_user_message(message=message, tenant_id=tenant_id, current_table_name=table_name)
         system_instructions = avars.ANALYSIS_COPILOT_SYSTEM_INSTRUCTIONS
         functions_tool = autils.get_function_declaration(avars.ANALYSIS_COPILOT_ALLOWED_FUNCTIONS)
-        # tool_config = content_types.to_tool_config({"function_calling_config": {"mode": 'AUTO'}})
+        tool_config = content_types.to_tool_config({"function_calling_config": {"mode": 'AUTO'}})
     elif chat_type == 'process':
         final_message = process_message.enhance_process_action_user_message(message=message, tenant_id=tenant_id, current_process_name=process_name)
         system_instructions = avars.PROCESS_COPILOT_SYSTEM_INSTRUCTIONS
         functions_tool = autils.get_function_declaration(avars.PROCESS_COPILOT_ALLOWED_FUNCTIONS)
-        # tool_config = content_types.to_tool_config({"function_calling_config": {"mode": 'AUTO'}})
-    elif chat_type == 'extraction':
-        print('extraction request')
-        final_message = process_message.enhance_extraction_action_user_message(message=message, tenant_id=tenant_id, current_process_name=process_name)
-        system_instructions = avars.EXTRACTION_COPILOT_SYSTEM_INSTRUCTIONS
-        functions_tool = autils.get_function_declaration(avars.EXTRACTION_COPILOT_ALLOWED_FUNCTIONS)
-        # tool_config = content_types.to_tool_config({"function_calling_config": {"mode": 'ANY', "allowed_function_names": avars.EXTRACTION_COPILOT_ALLOWED_FUNCTIONS}})
+        tool_config = content_types.to_tool_config({"function_calling_config": {"mode": 'AUTO'}})
+    elif chat_type == 'howTo':
+        print('How to request')
+        final_message = process_message.enhance_how_to_user_message(message=message, tenant_id=tenant_id)
+        system_instructions = avars.HOW_TO_COPILOT_SYSTEM_INSTRUCTIONS
+        tool_config = content_types.to_tool_config({"function_calling_config": {"mode": 'NONE'}})
+        functions_tool = None
 
     print('here')
     try:
@@ -50,7 +50,7 @@ def send(history: list['str'], message: str, tenant_id: str, chat_type: str, tab
 
         model_response = gemini_chat.send_message(
             final_message,
-            # tool_config=tool_config
+            tool_config=tool_config
         )
         print('here 3')
 

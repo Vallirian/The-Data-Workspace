@@ -58,49 +58,46 @@ def enhance_process_action_user_message(message: str, tenant_id: str, current_pr
     except Exception as e:
         return str(e)
     
-def enhance_extraction_action_user_message(message: str, tenant_id: str, current_process_name: str):
+def enhance_how_to_user_message(message: str, tenant_id: str):
     try:
-        base_enhacement_message = avars.EXTRACTION_COPILOT_USER_MESSAGE_ENHANCEMENT
+        base_enhacement_message = avars.HOW_TO_COPILOT_USER_MESSAGE_ENHANCEMENT
 
         # get process description
-        process_description_response_data = asql.execute_raw_query(
+        all_tables = set()
+        all_process_response_data = asql.execute_raw_query(
             tenant=tenant_id, 
-            queries=[(
-                f"SELECT * FROM `{avars.PROCESSES_TABLE_NAME}` WHERE `processName` = %s;",
-                [current_process_name]
-            )]
-        )
-        process_description = process_description_response_data[0]['processDescription']
+            queries=[(f"SELECT * FROM `{avars.PROCESSES_TABLE_NAME}`;",[])])
+        all_process_table_response_data = asql.execute_raw_query(
+            tenant=tenant_id, 
+            queries=[(f"SELECT * FROM `{avars.PROCESS_TABLE_RELATIONSHIP_TABLE_NAME}`;",[])])
         
-        # get tables for the process
-        process_table_response_data = asql.execute_raw_query(
-            tenant=tenant_id, 
-            queries=([(
-                "SELECT * FROM `process__table` WHERE `processName` = %s;",
-                [current_process_name]
-            )])
-        )
-        tables = []
-        for response_data_item in process_table_response_data:
-            tables += [v for k, v in response_data_item.items() if k == 'tableName']
-        base_enhacement_message += f"This is a list of table_name of tables that are part of this process: {tables}\n"
+        processes = {}
+        for process in all_process_response_data:
+            processes[process['processName']] = {
+                'processDescription': process['processDescription'],
+                'tables': []
+            }
+        for process_table in all_process_table_response_data:
+            processes[process_table['processName']]['tables'].append(process_table['tableName'])
+            all_tables.add(process_table['tableName'])
 
-        for table in tables:
+        # get column information
+        columns = {k: [] for k in all_tables}
+        for table in all_tables:
             columns_response_data = asql.execute_raw_query(tenant=tenant_id, queries=astmts.get_complete_table_columns_query(table))
             columns_response_data = autils.cast_datatype_to_python(columns_response_data)
-            relevant_columns = []
             for i in range(len(columns_response_data)):
-                if not columns_response_data[i]['isRelationship']:
-                    # current implementation does not support relationships
-                    relevant_columns.append({'columnName': columns_response_data[i]['columnName'], 'dataType': columns_response_data[i]['dataType']})
-            base_enhacement_message += f"The table {table} has the following columns: {relevant_columns}\n"
-        
-        base_enhacement_message += f"The current process the user is looking at has the process_name: {current_process_name}\n"
-        base_enhacement_message += f"The current process the user is looking at has the description: {process_description}\n"
+                if columns_response_data[i]['isRelationship']:
+                    columns_response_data[i]['columnName'] = f"{columns_response_data[i]['relatedTable']}__{columns_response_data[i]['columnName']}"
+                columns[table].append({'columnName': columns_response_data[i]['columnName'], 'dataType': columns_response_data[i]['dataType']})
+
+
+        base_enhacement_message += f"These are the processes available for the team and their tables: {process}\n"
+        base_enhacement_message += f"These are the columns information for all tables: {columns}\n"
         base_enhacement_message += f"The tenant_id of the user is: {tenant_id}\n"
         base_enhacement_message += f"The user has asked you the following question: {message}\n"
 
-        # print('base_enhacement_message', base_enhacement_message)
+        print('base_enhacement_message', base_enhacement_message)
         return base_enhacement_message
     except Exception as e:
         print(e)

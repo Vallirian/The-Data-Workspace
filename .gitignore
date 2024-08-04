@@ -163,7 +163,8 @@ cython_debug/
 
 
 # secret files
-.ev*
+.env*
+environments/
 
 # data
 data/

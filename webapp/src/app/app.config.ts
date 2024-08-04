@@ -1,4 +1,4 @@
-import { ApplicationConfig, inject } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, inject } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -7,6 +7,11 @@ import { HttpHandlerFn, HttpRequest, provideHttpClient, withInterceptors } from 
 import { AuthService } from './services/auth.service';
 import { NotificationService } from './services/notification.service';
 import { catchError, switchMap } from 'rxjs';
+
+
+import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
+import { getAuth, provideAuth } from '@angular/fire/auth';
+import { environment } from '../environments/environment';
 
 function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) {
   if (req.url.endsWith('/register/')) {
@@ -49,6 +54,10 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(),
     provideHttpClient(
       withInterceptors([authInterceptor])
-    )
+    ),
+    importProvidersFrom([
+      provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
+      provideAuth(() => getAuth())
+    ])
   ]
 };

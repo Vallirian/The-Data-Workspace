@@ -7,7 +7,7 @@ import { ApiService } from '../../services/api.service';
 import { NotificationInterface, TableListInterface } from '../../interfaces/main-interface';
 import { NotificationService } from '../../services/notification.service';
 import { Router, RouterOutlet } from '@angular/router';
-import { ExtractionChatComponent } from '../../components/copilot/extraction-chat/extraction-chat.component';
+import { HowToChatComponent } from '../../components/copilot/how-to-chat/how-to-chat.component';
 
 @Component({
   selector: 'app-workspace-home',
@@ -16,7 +16,7 @@ import { ExtractionChatComponent } from '../../components/copilot/extraction-cha
     CommonModule,
     FormsModule,
     RouterOutlet,
-    ExtractionChatComponent
+    HowToChatComponent
   ],
   templateUrl: './workspace-home.component.html',
   styleUrl: './workspace-home.component.scss'

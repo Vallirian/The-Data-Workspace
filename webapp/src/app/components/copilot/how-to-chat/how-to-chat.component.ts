@@ -6,8 +6,9 @@ import { NotificationService } from '../../../services/notification.service';
 import { MessagePipe } from '../../../pipes/message.pipe';
 import { CopilotChatInterface, CopilotMessageInterface } from '../../../interfaces/main-interface';
 
+
 @Component({
-  selector: 'app-extraction-chat',
+  selector: 'app-how-to-chat',
   standalone: true,
   imports: [
     CommonModule,
@@ -15,15 +16,12 @@ import { CopilotChatInterface, CopilotMessageInterface } from '../../../interfac
     ReactiveFormsModule,
     MessagePipe
   ],
-  templateUrl: './extraction-chat.component.html',
-  styleUrl: './extraction-chat.component.scss'
+  templateUrl: './how-to-chat.component.html',
+  styleUrl: './how-to-chat.component.scss'
 })
-export class ExtractionChatComponent {
+export class HowToChatComponent {
   @ViewChild('autoScrollContainer')
   private autoScrollContainer!: ElementRef;
-  
-  processNamesList: string[] = [];
-  processName: string = '';
 
   messages: CopilotMessageInterface[] = [];
   chats: CopilotChatInterface[] = []; 
@@ -38,7 +36,7 @@ export class ExtractionChatComponent {
   ){}
 
   ngOnInit(): void {
-    this.apiService.listAnalysisChats().subscribe({
+    this.apiService.listHowToChats().subscribe({
       next: (conversations: any[]) => {
         this.chats = conversations;
       },
@@ -46,30 +44,16 @@ export class ExtractionChatComponent {
         this.notificationService.addNotification({message: 'Failed to load conversations', type: 'error', dismissed: false, remainingTime: 5000});
       }
     });
-
-    this.apiService.listProcesses().subscribe({
-      next: (processes: any[]) => {
-        this.processNamesList = processes.map(p => p.processName);
-      },
-      error: (err) => {
-        this.notificationService.addNotification({message: 'Failed to load processes', type: 'error', dismissed: false, remainingTime: 5000});
-      }
-    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['processName'] && !changes['processName'].firstChange) {
-      this.processName = changes['processName'].currentValue;
-    }
+
   }
 
   ngAfterViewChecked(): void {
     //Called after every check of the component's view. Applies to components only.
     //Add 'implements AfterViewChecked' to the class.
     this.scrollToBottom();
-  }
-
-  onCloseConversation() {
   }
 
   scrollToBottom() {
@@ -79,13 +63,28 @@ export class ExtractionChatComponent {
     catch(err) {}
   }
 
+  onSelectConversation(chatId: string) {
+    this.selectedChatId = chatId;
+    console.log(chatId);
+    this.apiService.getHowToChat(chatId).subscribe({
+      next: (messages: CopilotMessageInterface[]) => {
+        console.log(messages);
+        this.messages = messages;
+        console.log(this.messages);
+      },
+      error: (err) => {
+        this.notificationService.addNotification({message: 'Failed to load conversation', type: 'error', dismissed: false, remainingTime: 5000});
+      }
+    });
+  }
+
+  onCloseConversation() {
+    // this.selectedConversationId = null;
+    // this.messages = [];
+  }
+
   onSendMessage(message: string) {
     if (!message || message.trim() === '' || this.answerLoading) {
-      return;
-    }
-
-    if (this.processName === '') {
-      this.notificationService.addNotification({message: 'Process name is required', type: 'error', dismissed: false, remainingTime: 5000});
       return;
     }
 
@@ -95,7 +94,7 @@ export class ExtractionChatComponent {
 
     // send message
     if (this.selectedChatId === null) {
-      this.apiService.startExtractionChat(message, this.processName).subscribe({
+      this.apiService.startHowToChat(message).subscribe({
         next: (newMessage: CopilotMessageInterface) => {
           this.selectedChatId = newMessage.chatId;
           this.messages.push(newMessage);
@@ -110,9 +109,8 @@ export class ExtractionChatComponent {
       });
     }
     else {
-      this.apiService.sendMessageExtractionChat(this.selectedChatId, message, this.processName).subscribe({
+      this.apiService.sendMessageHowToChat(this.selectedChatId, message).subscribe({
         next: (newMessage: CopilotMessageInterface) => {
-          
           this.messages.push(newMessage);
           this.currentMessage = '';
           this.answerLoading = false
