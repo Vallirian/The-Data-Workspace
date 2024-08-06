@@ -39,6 +39,22 @@ class TableListView(APIView):
             return Response({'error': f'Database error: operation failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
             return Response({'error': f'Unexpected error: failed to create table'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class TableDetailView(APIView):
+    def delete(self, request, table_name):
+        tenant_id = request.user.tenant.id
+
+        try:
+            asql.execute_raw_query(
+                tenant=tenant_id, 
+                queries=astmts.get_drop_table_query(table_name)
+            )
+            
+            return Response(table_name, status=status.HTTP_204_NO_CONTENT)
+        except OperationalError as e:
+            return Response({'error': f'Database error: operation failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as e:
+            return Response({'error': f'Unexpected error: failed to delete table'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 class ColumnListView(APIView):
     def get(self, request, table_name):
@@ -47,10 +63,7 @@ class ColumnListView(APIView):
         try:
             response_data = asql.execute_raw_query(
                 tenant=tenant_id, 
-                queries=[(
-                    f"SELECT * FROM `{avars.COLUMN_TABLE}` WHERE tableName = %s;",
-                    [table_name]
-                )]
+                queries=[(f"SELECT * FROM `{avars.COLUMN_TABLE}` WHERE tableName = '{table_name}';", [])]
             )
             
             return Response(response_data)

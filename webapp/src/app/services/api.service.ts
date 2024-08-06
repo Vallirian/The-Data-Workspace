@@ -23,6 +23,10 @@ export class ApiService {
     return this.http.post<string>(`${this.baseUrl}/table/`, {'tableName': tableName});
   }
 
+  deleteTable(tableName: string) {
+    return this.http.delete<string>(`${this.baseUrl}/table/${tableName}/`);
+  }
+
   // Column API
   listColumns(tableName: string) {
     return this.http.get<ColumnInterface[]>(`${this.baseUrl}/table/${tableName}/column/`);

@@ -19,7 +19,8 @@ def execute_raw_query(tenant: str, queries: list[tuple[str, list]]) -> list[dict
 
             # reorder query before executing
             reordered_queries = autils.reorder_query(queries)
-
+            print('reordered_queries', reordered_queries)
+            
             # Execute the query
             for query, params in reordered_queries:
                 cursor.execute(query, params)

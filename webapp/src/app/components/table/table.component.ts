@@ -248,6 +248,17 @@ export class TableComponent {
     this.selectEnabled = false;
   }
 
+  onDeleteTable() {
+    this.apiService.deleteTable(this.tableId).subscribe({
+      next: (res) => {
+        this.notificationService.addNotification({message: 'Table deleted', type: 'success', dismissed: false, remainingTime: 5000});
+      },
+      error: (err) => {
+        this.notificationService.addNotification({message: 'Failed to delete table', type: 'error', dismissed: false, remainingTime: 5000});
+      }
+    });
+  }
+
   // add new
   onAddNewRow() {
     const tempForm = this.formBuilder.group({});

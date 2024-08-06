@@ -11,6 +11,29 @@ def get_create_raw_table_query(table_name) -> list[tuple[str, list]]:
     """
     return [(query, [])]
 
+def get_drop_table_query(table_name) -> list[tuple[str, list]]:
+    # delete process table relationship
+    query = f"""
+        DELETE FROM `{avars.PROCESS_TABLE_RELATIONSHIP_TABLE_NAME}`
+        WHERE tableName = '{table_name}';
+    """
+    queries = [(query, [])]
+
+    # delete column table entries
+    query = f"""
+        DELETE FROM `{avars.COLUMN_TABLE}`
+        WHERE tableName = '{table_name}';
+    """
+    queries.append((query, []))
+
+    # drop table
+    query = f"""
+        DROP TABLE `{table_name}`;
+    """
+    queries.append((query, []))
+
+    return queries
+
 def get_add_column_query(column_name, table_name, is_relationship, related_table, data_type, tenant_id) -> list[tuple[str, list]]:
     if is_relationship:
         query = []
@@ -124,8 +147,8 @@ def get_delete_process_table_relationship_query(process_name: str, table_names: 
     for table_name in table_names:
         query.append((f"""
             DELETE FROM `{avars.PROCESS_TABLE_RELATIONSHIP_TABLE_NAME}`
-            WHERE processName = %s AND tableName = %s;
-        """, [process_name, table_name]))
+            WHERE processName = %s AND tableName = `{table_name}`;
+        """, [process_name]))
     return query
 
 # support tables
