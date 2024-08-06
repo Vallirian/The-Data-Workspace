@@ -78,6 +78,6 @@ export class WorkspaceHomeComponent {
   }
 
   get userName() {
-    return String(this.authService.currentUserSignal()?.username);
+    return String(this.authService.currentUser()?.username);
   }
 }

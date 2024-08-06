@@ -1,15 +1,14 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
-import { ColumnInterface, CopilotChatInterface, CopilotMessageInterface, ProcessInterface, ProcessTableRelationshipInterface, RelationshipColumnAPIInterface, TableListInterface, WorkspaceListInterface } from '../interfaces/main-interface';
-import { getAuth } from 'firebase/auth';
-import { AuthService } from './auth.service';
+import { Injectable } from '@angular/core';
+import { ColumnInterface, CopilotChatInterface, CopilotMessageInterface, ProcessInterface, ProcessTableRelationshipInterface} from '../interfaces/main-interface';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
 
-  private baseUrl = 'http://localhost:8000/api';
+  private baseUrl = environment.apiUrl;
 
   constructor(
     private http: HttpClient

@@ -4,7 +4,6 @@ import { AuthService } from '../../../services/auth.service';
 import { ValidateService } from '../../../services/validate.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { NotificationService } from '../../../services/notification.service';
 
 @Component({
   selector: 'app-login',
@@ -28,8 +27,7 @@ export class LoginComponent {
     private formBuilder: FormBuilder,
     private authService: AuthService,
     private validateService: ValidateService,
-    private router: Router,
-    private notificationService: NotificationService
+    private router: Router
   ){}
 
   onLogin() {
@@ -48,39 +46,13 @@ export class LoginComponent {
     }
 
     // login
-    this.authService.login(loginFormValue.email!, loginFormValue.password!)
-    .then((userCredential) => {
-      this.authService.currentUserSignal.set({
-        id: userCredential.user.uid, 
-        username: userCredential.user.displayName!
-      });
-
-      this.authService.setIdToken();
-
-      if (!userCredential.user.emailVerified) {
-        this.authService.sendVerificationEmail();
-        this.notificationService.addNotification({message: 'Please verify your email, check you eamil!', type: 'error', dismissed: false, remainingTime: 5000});
-        return;
-      }
-
-      userCredential.user.getIdToken()
-      .then((token) => {
-        console.log('id token', token);
-        if (!token) {
-          this.notificationService.addNotification({message: 'Login failed', type: 'error', dismissed: false, remainingTime: 5000});
-          return;
-        }
-
-        this.authService.idTokenSignal.set(token);
+    this.authService.login({email: loginFormValue.email!, password: loginFormValue.password!}).subscribe({
+      next: () => {
         this.router.navigate(['/home']);
-      });
-
-    },
-    (error) => {
-      console.error(error);
-      this.notificationService.addNotification({message: 'Login failed', type: 'error', dismissed: false, remainingTime: 5000});
-    });
-     
-
+      },
+      error: (err) => {
+        this.loginFormError = err.error.detail;
+      }
+    })
   }
 }

@@ -1,4 +1,4 @@
-from django.db import IntegrityError, transaction
+from django.db import transaction
 from django.db import connection
 from rest_framework.response import Response
 from rest_framework import status
@@ -8,42 +8,31 @@ from django.db.utils import OperationalError
 from helpers import arc_sql as asql, arc_statements as astmts, arc_utils as autils
 
 from user.models import CustomUser, Tenant
-import firebase_admin.auth as auth
-from firebase_admin import exceptions as firebase_exceptions
-
 
 class RegisterCustomUserView(APIView):
-    """ create a new account for a new tenant """
-    authentication_classes = [] # Disable authentication
-
+    # create a new account for a new tenant
+    permission_classes = [AllowAny]
 
     def post(self, request):
-        print('request.data', request.data)
+        tenant_display_name = request.data.get('tenantDisplayName')
         email = request.data.get('email')
         username = request.data.get('username')
         password = request.data.get('password')
         tenant_display_name = request.data.get('tenantDisplayName')
 
-        print('email', email)
-
-        if not all([email, username, password, tenant_display_name]):
-            return Response({'error': 'Missing required fields'}, status=status.HTTP_400_BAD_REQUEST)
+        for value in [email, username, password, tenant_display_name]:
+            if value is None:
+                return Response({'error': 'Please provide all required fields'}, status=status.HTTP_400_BAD_REQUEST)
         
         try:
-             # Create a new tenant
+            # create a new tenant
             tenant = Tenant.objects.create(displayName=tenant_display_name)
             tenant.save()
 
-            # Create a new user
-            new_user = CustomUser.objects.create_user(email=email, username=username, password=password)
-            new_user.tenant = tenant
+            # create a new user
+            new_user = CustomUser.objects.create(email=email, username=username, tenant=tenant)
+            new_user.set_password(password)
             new_user.save()
-            print('new_user', new_user)
-
-            # Register the user in Firebase
-            firebase_user = auth.create_user(email=email, password=password, display_name=username)
-            # custom_claims = {'tenantId': str(tenant.id)}
-            # auth.set_custom_user_claims(firebase_user.uid, custom_claims)
 
             # create schema for tenant 
             create_schema_response_data = asql.create_schema(tenant.id)
@@ -54,19 +43,9 @@ class RegisterCustomUserView(APIView):
 
             return Response({'message': 'User created successfully'}, status=status.HTTP_201_CREATED)
 
-        except IntegrityError as e:
-            print('IntegrityError', e)
-            transaction.rollback()
-            return Response({'error': 'Database integrity error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        except firebase_exceptions.FirebaseError as e:
-            print('FirebaseError', e)
-            transaction.rollback()
-            return Response({'error': 'Firebase error: ' + str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except OperationalError as e:
-            print('OperationalError', e)
-            transaction.rollback()
-            return Response({'error': 'Database operational error: ' + str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            print(e)
+            return Response({'error': f'Database error: operation failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
-            print('Exception', e)
-            transaction.rollback()
-            return Response({'error': 'Unexpected error: ' + str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            print(e)
+            return Response({'error': f'Unexpected error: failed to create user'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

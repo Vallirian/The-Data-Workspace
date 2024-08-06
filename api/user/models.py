@@ -1,4 +1,4 @@
-from django.contrib.auth.models import AbstractUser, BaseUserManager, PermissionsMixin,  Group, Permission
+import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from helpers import arc_utils as autils
@@ -61,20 +61,7 @@ class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=150)
     is_active = models.BooleanField(default=True)
-    tenant = models.ForeignKey(Tenant, on_delete=models.PROTECT, null=True, blank=True, related_name="custom_users")
-    groups = models.ManyToManyField(
-        Group,
-        blank=True,
-        related_name="customuser_groups",  # Unique related name
-        related_query_name="custom_users",   # Unique related query name for user objects
-    )
-    user_permissions = models.ManyToManyField(
-        Permission,
-        blank=True,
-        related_name="customuser_permissions",  # Unique related name
-        related_query_name="custom_users",         # Unique related query name for permission objects
-    )
-
+    tenant = models.ForeignKey(Tenant, on_delete=models.PROTECT, null=True, blank=True)
     
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]

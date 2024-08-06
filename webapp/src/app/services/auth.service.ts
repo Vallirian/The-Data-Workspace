@@ -5,48 +5,95 @@ import { UserInterface, UserLoginInteface, UserRegisterInteface } from '../inter
 import { isPlatformBrowser } from '@angular/common';
 import { UtilService } from './util.service';
 import { JwtService } from './jwt.service';
-import { Auth, browserLocalPersistence, idToken, setPersistence, signInWithEmailAndPassword, signOut, user } from '@angular/fire/auth';
-import { environment } from '../../environments/environment';
-import { getAuth, sendEmailVerification } from 'firebase/auth';
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  firebaseAuth = inject(Auth);
-  idTokenSignal = signal<string | null>(null);
-  currentUserSignal = signal<{id: string, username: string}>({id: '', username: ''});
+
+  private authTokenUrl = 'http://localhost:8000/api/token';
+  private signupBaseUrl = 'http://localhost:8000/api/user';
+  
+  private token: string | null = null;
+  currentUser = signal<UserInterface | null | undefined>(undefined)
 
   constructor(
     private http: HttpClient,
     private utilService: UtilService,
     private jwtService: JwtService,
     @Inject(PLATFORM_ID) private platformId: Object
-  ) {}
-
-  setIdToken() {
-    const auth = getAuth()
-    auth.currentUser?.getIdToken(true)
-      .then((token) => {
-        this.idTokenSignal.set(token);
-    });
-  }
-    
-  signup(user: UserRegisterInteface): Observable<UserInterface> {
-    return this.http.post<UserInterface>(`${environment.apiUrl}/user/register/`, user)
-  }
-
-  sendVerificationEmail() {
-    const auth = getAuth();
-    sendEmailVerification(auth.currentUser!)
+  ) {
+    if (isPlatformBrowser(this.platformId)) {
+      this.token = localStorage.getItem('access_token');
+    }
+    if (this.token) {
+      const decodedToken = jwtService.decodeJwt(this.token);
+      this.currentUser.set({
+        username: decodedToken.username,
+        id: decodedToken.user_id
+      });
+    }
   }
 
-  login(email: string, password: string) {
-    return signInWithEmailAndPassword(this.firebaseAuth, email, password)
+  getToken(): string | null {
+    if (isPlatformBrowser(this.platformId)) {
+      return localStorage.getItem('access_token');
+    }
+    return null;
+  }
+
+  saveToken(token: string): void {
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('access_token', token);
+    }
+  
+  }
+
+  isTokenExpired(): boolean {
+    if (!isPlatformBrowser(this.platformId)) {
+      return true;
+    }
+    const token = localStorage.getItem('access_token');
+
+    if (!token) {
+      return true;
+    }
+    return this.jwtService.isTokenExpired(token);
+  }
+
+  refreshToken(): Observable<any> {
+    if (!isPlatformBrowser(this.platformId)) {
+      return new Observable();
+    }
+
+    const refreshToken = localStorage.getItem('refresh_token');
+    return this.http.post<{ access: string }>(`${this.authTokenUrl}/refresh/`, { refresh: refreshToken }).pipe(
+      map(response => response.access),
+      tap(newToken => this.saveToken(newToken))
+    );
+  }
+
+  signup(user: UserRegisterInteface): Observable<any> {
+    return this.http.post(`${this.signupBaseUrl}/register/`, user);
+  }
+
+  login(user: UserLoginInteface): Observable<any> {
+    return this.http.post<{access: string; refresh: string}>(`${this.authTokenUrl}/`, user)
+      .pipe(
+        tap(tokens => {
+          if (isPlatformBrowser(this.platformId)) {
+            localStorage.setItem('access_token', tokens.access);
+            localStorage.setItem('refresh_token', tokens.refresh);
+          }
+        })
+      );
   }
 
   logout(): void {
-
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+    }
   }  
 }

@@ -51,7 +51,7 @@ export class NavbarComponent {
   }
 
   get user() {
-    return this.authService.currentUserSignal();
+    return this.authService.currentUser();
   }
 
   get breadCrumb() {

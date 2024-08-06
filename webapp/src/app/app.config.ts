@@ -1,4 +1,4 @@
-import { ApplicationConfig, importProvidersFrom, inject } from '@angular/core';
+import { ApplicationConfig, inject } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -6,11 +6,7 @@ import { provideClientHydration } from '@angular/platform-browser';
 import { HttpHandlerFn, HttpRequest, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { AuthService } from './services/auth.service';
 import { NotificationService } from './services/notification.service';
-
-
-import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
-import { getAuth, provideAuth } from '@angular/fire/auth';
-import { environment } from '../environments/environment';
+import { catchError, switchMap } from 'rxjs';
 
 function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) {
   if (req.url.endsWith('/register/')) {
@@ -19,17 +15,32 @@ function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) {
   }
 
   const authService = inject(AuthService);
-  if (authService.idTokenSignal() === null) { // temporary fix
-    authService.setIdToken();
+  const notificationService = inject(NotificationService);
+  let authToken = authService.getToken();
+
+  if (authToken && authService.isTokenExpired()) {
+    return authService.refreshToken().pipe(
+      switchMap((token: string) => {
+        authToken = token;
+        authService.saveToken(token);
+
+        // Clone the request to add the authentication header.
+        const headers = req.headers.append('Authorization', `Bearer ${authToken}`);
+        const authReq = req.clone({ headers });
+        return next(authReq);
+      }),
+      catchError((err) => {
+        notificationService.addNotification({ message: 'Failed to authenticate, please login again', type: 'error', dismissed: false, remainingTime: 5000 });
+        // Optionally, you can also redirect the user to the login page here
+        return next(req);
+      })
+    );
+  } else {
+    // Clone the request to add the authentication header.
+    const headers = req.headers.append('Authorization', `Bearer ${authToken}`);
+    const authReq = req.clone({ headers });
+    return next(authReq);
   }
-  const authToken = authService.idTokenSignal();
- 
-
-  // Clone the request to add the authentication header.
-  const headers = req.headers.append('Authorization', `Bearer ${authToken}`);
-  const authReq = req.clone({ headers });
-  return next(authReq);
-
 }
 
 export const appConfig: ApplicationConfig = {
@@ -38,10 +49,6 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(),
     provideHttpClient(
       withInterceptors([authInterceptor])
-    ),
-    importProvidersFrom([
-      provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
-      provideAuth(() => getAuth())
-    ])
+    )
   ]
 };
