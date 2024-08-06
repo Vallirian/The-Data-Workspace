@@ -23,7 +23,7 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './edit-table.component.scss'
 })
 export class EditTableComponent {
-  selectedSection: 'section-details' | 'section-copilot-chat' | 'section-automations' = 'section-copilot-chat';
+  selectedSection: 'section-details' | 'section-copilot-chat' = 'section-copilot-chat';
   tableId: string = '';
   tableData: any = {};
 

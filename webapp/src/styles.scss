@@ -90,6 +90,17 @@ body {
     }
 }
 
+.icon-in-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $padding-1;
+}
+
+.btn-group .last-btn {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
 
 .text-button-primary {
     color: $blue-60;
@@ -175,6 +186,10 @@ body {
     // border: none;
     // box-shadow: $shadow-0;
     border: 0.5px solid $gray-20;
+}
+
+.dropdown-item {
+    cursor: pointer;
 }
 
 // chat

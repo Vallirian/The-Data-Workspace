@@ -29,6 +29,10 @@ export class AnalysisChatComponent {
 
   currentMessage: string = '';
   answerLoading: boolean = false;
+  sampleQuestions: string[] = [
+    "Give me a general analysis of this table?",
+    "Give me averages in this table?"
+  ]
 
   constructor(
     private apiService: ApiService,
@@ -81,8 +85,8 @@ export class AnalysisChatComponent {
   }
 
   onCloseConversation() {
-    // this.selectedConversationId = null;
-    // this.messages = [];
+    this.selectedChatId = null;
+    this.messages = [];
   }
 
   onSendMessage(message: string) {
