@@ -54,7 +54,7 @@ export class AddColumnComponent {
           this.tablesList = tables;
         },
         error: (err) => {
-          this.notificationService.addNotification({message: 'Failed to fetch tables', type: 'error', dismissed: false, remainingTime: 5000});
+          this.notificationService.addNotification({message: err.error.error || 'Failed to fetch tables', type: 'error', dismissed: false, remainingTime: 5000});
         }
       });
     }  
@@ -67,7 +67,7 @@ export class AddColumnComponent {
         this.columnsList = columns;
       },
       error: (err) => {
-        this.notificationService.addNotification({message: 'Failed to fetch columns', type: 'error', dismissed: false, remainingTime: 5000});
+        this.notificationService.addNotification({message: err.error.error || 'Failed to fetch columns', type: 'error', dismissed: false, remainingTime: 5000});
       }
     });
   }
@@ -114,7 +114,7 @@ export class AddColumnComponent {
         this.onClose();
       },
       error: (err) => {
-        this.notificationService.addNotification({message: 'Failed to create column', type: 'error', dismissed: false, remainingTime: 5000});
+        this.notificationService.addNotification({message: err.error.error || 'Failed to create column', type: 'error', dismissed: false, remainingTime: 5000});
       }
     });
   }

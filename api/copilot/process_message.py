@@ -19,7 +19,7 @@ def enhance_analysis_action_user_message(message: str, tenant_id: str, current_t
 
         return base_enhacement_message
     except Exception as e:
-        return str(e)
+        raise 'Error while processing the user message'
     
 def enhance_process_action_user_message(message: str, tenant_id: str, current_process_name: str) -> str:
     try:
@@ -56,7 +56,7 @@ def enhance_process_action_user_message(message: str, tenant_id: str, current_pr
 
         return base_enhacement_message
     except Exception as e:
-        return str(e)
+        raise 'Error while processing the user message'
     
 def enhance_how_to_user_message(message: str, tenant_id: str):
     try:
@@ -101,4 +101,4 @@ def enhance_how_to_user_message(message: str, tenant_id: str):
         return base_enhacement_message
     except Exception as e:
         print(e)
-        return str(e)
+        raise 'Error while processing the user message'

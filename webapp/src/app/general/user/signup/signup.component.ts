@@ -76,7 +76,7 @@ export class SignupComponent {
         this.router.navigate(['/login']);
       },
       error: err => {
-        this.notificationService.addNotification({message: err || 'Failed to signup', type: 'error', dismissed: false, remainingTime: 5000});
+        this.notificationService.addNotification({message: err.error.error || 'Failed to signup', type: 'error', dismissed: false, remainingTime: 5000});
       }
     })
   }

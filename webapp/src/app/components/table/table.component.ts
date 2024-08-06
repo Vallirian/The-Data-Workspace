@@ -79,7 +79,7 @@ export class TableComponent {
         this.extractColumns();
       },
       error: (err) => {
-        this.notificationService.addNotification({ message: 'Failed to load table data', type: 'error', dismissed: false, remainingTime: 5000 });
+        this.notificationService.addNotification({ message: err.error.error || 'Failed to load table data', type: 'error', dismissed: false, remainingTime: 5000 });
       }
     });
   }
@@ -101,7 +101,7 @@ export class TableComponent {
         this.createRowForm();
       },
       error: (err) => {
-        this.notificationService.addNotification({ message: 'Failed to load columns', type: 'error', dismissed: false, remainingTime: 5000 });
+        this.notificationService.addNotification({ message: err.error.error || 'Failed to load columns', type: 'error', dismissed: false, remainingTime: 5000 });
       }
     });
   }
@@ -173,7 +173,7 @@ export class TableComponent {
           
         },
         error: (err) => {
-          this.notificationService.addNotification({ message: 'Failed to load related tables data', type: 'error', dismissed: false, remainingTime: 5000 });
+          this.notificationService.addNotification({ message: err.error.error || 'Failed to load related tables data', type: 'error', dismissed: false, remainingTime: 5000 });
         }
       });
     });
@@ -230,7 +230,7 @@ export class TableComponent {
         this.fetchRowData();
       },
       error: (err) => {
-        this.notificationService.addNotification({message: 'Failed to save table data', type: 'error', dismissed: false, remainingTime: 5000});
+        this.notificationService.addNotification({message: err.error.error || 'Failed to save table data', type: 'error', dismissed: false, remainingTime: 5000});
       }
     });
   }
@@ -254,7 +254,7 @@ export class TableComponent {
         this.notificationService.addNotification({message: 'Table deleted', type: 'success', dismissed: false, remainingTime: 5000});
       },
       error: (err) => {
-        this.notificationService.addNotification({message: 'Failed to delete table', type: 'error', dismissed: false, remainingTime: 5000});
+        this.notificationService.addNotification({message: err.error.error || 'Failed to delete table', type: 'error', dismissed: false, remainingTime: 5000});
       }
     });
   }

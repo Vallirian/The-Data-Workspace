@@ -45,7 +45,7 @@ export class AnalysisChatComponent {
         this.chats = conversations;
       },
       error: (err) => {
-        this.notificationService.addNotification({message: 'Failed to load conversations', type: 'error', dismissed: false, remainingTime: 5000});
+        this.notificationService.addNotification({message: err.error.error || 'Failed to load conversations', type: 'error', dismissed: false, remainingTime: 5000});
       }
     });
   }
@@ -79,7 +79,7 @@ export class AnalysisChatComponent {
         console.log(this.messages);
       },
       error: (err) => {
-        this.notificationService.addNotification({message: 'Failed to load conversation', type: 'error', dismissed: false, remainingTime: 5000});
+        this.notificationService.addNotification({message: err.error.error || 'Failed to load conversation', type: 'error', dismissed: false, remainingTime: 5000});
       }
     });
   }
@@ -108,7 +108,7 @@ export class AnalysisChatComponent {
           this.answerLoading = false;
         },
         error: (err) => {
-          this.notificationService.addNotification({message: 'Failed to start conversation', type: 'error', dismissed: false, remainingTime: 5000});
+          this.notificationService.addNotification({message: err.error.error || 'Failed to start conversation', type: 'error', dismissed: false, remainingTime: 5000});
           this.currentMessage = '';
           this.answerLoading = false
         }
@@ -122,7 +122,7 @@ export class AnalysisChatComponent {
           this.answerLoading = false
         },
         error: (err) => {
-          this.notificationService.addNotification({message: 'Failed to send message', type: 'error', dismissed: false, remainingTime: 5000});
+          this.notificationService.addNotification({message: err.error.error || 'Failed to send message', type: 'error', dismissed: false, remainingTime: 5000});
           this.currentMessage = '';
           this.answerLoading = false
         }

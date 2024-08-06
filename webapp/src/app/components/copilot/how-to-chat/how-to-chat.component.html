@@ -28,7 +28,7 @@
             <div class="input-group">
                 <input type="text" class="form-control chat-input-group" placeholder="ask your Copilot how to do anything in Processly" [(ngModel)]="currentMessage">
                 @if (answerLoading) {
-                    <button (click)="onSendMessage(currentMessage)" class="btn btn-outline-secondary chat-input-group" type="button">                
+                    <button class="btn btn-outline-secondary chat-input-group" type="button">                
                         <div class="spinner-border text-secondary" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>

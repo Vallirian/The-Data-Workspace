@@ -49,7 +49,7 @@ export class WorkspaceHomeComponent {
         this.tablesList = tables;
       },
       error: (err) => {
-        this.notificationService.addNotification({message: err, type: 'error', dismissed: false, remainingTime: 5000});
+        this.notificationService.addNotification({message: err.error.error || 'Failed to leaod tables, pleasse try again', type: 'error', dismissed: false, remainingTime: 5000});
       }
     });
 
@@ -73,13 +73,13 @@ export class WorkspaceHomeComponent {
               }
             },
             error: (err) => {
-              this.notificationService.addNotification({message: 'Failed to load process tables', type: 'error', dismissed: false, remainingTime: 5000});
+              this.notificationService.addNotification({message: err.error.error || 'Failed to load tables for process, please try again', type: 'error', dismissed: false, remainingTime: 5000});
             }
           });
         });
       },
       error: (err) => {
-        this.notificationService.addNotification({message: 'Failed to load processes', type: 'error', dismissed: false, remainingTime: 5000});
+        this.notificationService.addNotification({message: err.error.error || 'Failed to load processes, please try again', type: 'error', dismissed: false, remainingTime: 5000});
       }
     });
 
@@ -100,7 +100,7 @@ export class WorkspaceHomeComponent {
         this.notificationService.addNotification({message: 'Table created successfully', type: 'success', dismissed: false, remainingTime: 5000});
       },
       error: (err) => {
-        this.notificationService.addNotification({message: err.error.error, type: 'error', dismissed: false, remainingTime: 5000});
+        this.notificationService.addNotification({message: err.error.error || 'Failed to cteate table, please try again', type: 'error', dismissed: false, remainingTime: 5000});
         this.newTableName = null;
       }
     });

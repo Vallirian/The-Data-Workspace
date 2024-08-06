@@ -46,7 +46,7 @@ class FirebaseAuthentication(authentication.BaseAuthentication):
 
         except Exception as e:
             print('Token verification failed:', str(e))
-            raise exceptions.AuthenticationFailed(f'Token verification failed: {str(e)}')
+            raise exceptions.AuthenticationFailed(f'User verification failed')
 
         # Assuming email is used as the username in Firebase and Django
         User = get_user_model()

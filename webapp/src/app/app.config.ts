@@ -30,7 +30,7 @@ function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) {
         return next(authReq);
       }),
       catchError((err) => {
-        notificationService.addNotification({ message: 'Failed to authenticate, please login again', type: 'error', dismissed: false, remainingTime: 5000 });
+        notificationService.addNotification({ message: err.error.error || 'Failed to authenticate, please login again', type: 'error', dismissed: false, remainingTime: 5000 });
         // Optionally, you can also redirect the user to the login page here
         return next(req);
       })

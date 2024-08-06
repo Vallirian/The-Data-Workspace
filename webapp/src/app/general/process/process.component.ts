@@ -56,13 +56,13 @@ export class ProcessComponent {
               this.processTableRelationships.push(...processTables);
             },
             error: (err) => {
-              this.notificationService.addNotification({message: 'Failed to load process tables', type: 'error', dismissed: false, remainingTime: 5000});
+              this.notificationService.addNotification({message: err.error.error || 'Failed to load process tables', type: 'error', dismissed: false, remainingTime: 5000});
             }
           });
         });
       },
       error: (err) => {
-        this.notificationService.addNotification({message: 'Failed to load processes', type: 'error', dismissed: false, remainingTime: 5000});
+        this.notificationService.addNotification({message: err.error.error || 'Failed to load processes', type: 'error', dismissed: false, remainingTime: 5000});
       }
     });
 
@@ -71,7 +71,7 @@ export class ProcessComponent {
         this.tablesList = tables;
       },
       error: (err) => {
-        this.notificationService.addNotification({message: err, type: 'error', dismissed: false, remainingTime: 5000});
+        this.notificationService.addNotification({message: err.error.error || 'Failed to load tables', type: 'error', dismissed: false, remainingTime: 5000});
       }
     });
   }
@@ -96,7 +96,7 @@ export class ProcessComponent {
         this.notificationService.addNotification({message: 'Process created successfully', type: 'success', dismissed: false, remainingTime: 5000});
       },
       error: (err) => {
-        this.notificationService.addNotification({message: err, type: 'error', dismissed: false, remainingTime: 5000});
+        this.notificationService.addNotification({message: err.error.error || 'Process creation failed, please try again', type: 'error', dismissed: false, remainingTime: 5000});
         this.newProcessName = '';
         this.newProcessDescription = '';
       }
@@ -145,7 +145,7 @@ export class ProcessComponent {
         this.notificationService.addNotification({message: 'Process updated successfully', type: 'success', dismissed: false, remainingTime: 5000});
       },
       error: (err) => {
-        this.notificationService.addNotification({message: err, type: 'error', dismissed: false, remainingTime: 5000});
+        this.notificationService.addNotification({message: err.error.error || 'Failed to update process, please try again', type: 'error', dismissed: false, remainingTime: 5000});
       }
     });
   }
@@ -157,7 +157,7 @@ export class ProcessComponent {
         this.notificationService.addNotification({message: 'Process deleted successfully', type: 'success', dismissed: false, remainingTime: 5000});
       },
       error: (err) => {
-        this.notificationService.addNotification({message: err, type: 'error', dismissed: false, remainingTime: 5000});
+        this.notificationService.addNotification({message: err.error.error || 'Faield to delete process, please try again', type: 'error', dismissed: false, remainingTime: 5000});
       }
     });
   }
@@ -179,7 +179,7 @@ export class ProcessComponent {
           this.answerLoading = false;
         },
         error: (err) => {
-          this.notificationService.addNotification({message: 'Failed to start conversation', type: 'error', dismissed: false, remainingTime: 5000});
+          this.notificationService.addNotification({message: err.error.error || 'Failed to start conversation', type: 'error', dismissed: false, remainingTime: 5000});
           this.currentMessage = '';
           this.answerLoading = false
         }
@@ -193,7 +193,7 @@ export class ProcessComponent {
           this.answerLoading = false
         },
         error: (err) => {
-          this.notificationService.addNotification({message: 'Failed to send message', type: 'error', dismissed: false, remainingTime: 5000});
+          this.notificationService.addNotification({message: err.error.error || 'Failed to send message', type: 'error', dismissed: false, remainingTime: 5000});
           this.currentMessage = '';
           this.answerLoading = false
         }

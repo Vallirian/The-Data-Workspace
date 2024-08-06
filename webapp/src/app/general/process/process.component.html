@@ -7,7 +7,7 @@
             </svg>
         </span>
     </div>
-    <div class="d-flex flex-wrap">
+    <div class="d-flex flex-wrap scrollable">
         @for (prcs of processList; track $index) {
             <div (click)="onSelectProcess(prcs.processName)" data-bs-toggle="modal" data-bs-target="#updateProcessModal" class="card m-1" style="width: 24rem;">
                 <div class="card-body">
@@ -56,7 +56,9 @@
                 <div class="d-flex align-items-center">
                     <button 
                         (click)="editProcessType === 'manual' ? editProcessType = 'auto' : editProcessType = 'manual'" 
-                        class="btn btn-outline-secondary ai-gradient">
+                        class="btn btn-outline-secondary"
+                        [ngClass]="{'ai-gradient': editProcessType === 'manual'}"
+                    >
                         {{editProcessType === 'manual' ? 'Work with Copilot' : 'Switch to Manual'}}
                     </button>
                     <button type="button" class="btn-close mx-3" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -84,16 +86,29 @@
                 </div>
             }
             @else if (editProcessType === 'auto') {
-                @if(currentResponse.trim() !== '') {
-                    {{currentResponse}}
-                }
-                <input type="text" class="form-control" placeholder="Message" [(ngModel)]="currentMessage">
-                @if (answerLoading) {
-                    loading
-                }
-                @else {
-                    <button (click)="onSendMessage()">Send</button>
-                }
+                <div class="modal-body">
+                    @if(currentResponse.trim() !== '') {
+                        {{currentResponse}}
+                    }
+                    <input type="text" class="form-control mt-3" placeholder="Message" [(ngModel)]="currentMessage">
+                </div>
+                <div class="modal-footer d-flex justify-content-between">
+                    <div>
+                        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Done</button>
+                    </div>
+                   <div>
+                        @if (answerLoading) {
+                            <button class="btn btn-outline-secondary chat-input-group" type="button">                
+                                <div class="spinner-border text-secondary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </button>
+                        }
+                        @else {
+                            <button class="btn btn-primary" (click)="onSendMessage()">Send</button>
+                        }
+                   </div> 
+                </div>
             }
           </div>
         </div>

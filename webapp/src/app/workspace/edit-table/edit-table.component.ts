@@ -52,7 +52,7 @@ export class EditTableComponent {
           this.columns = columns;
         },
         error: (err) => {
-          this.notificationService.addNotification({message: 'Failed to load columns', type: 'error', dismissed: false, remainingTime: 5000});
+          this.notificationService.addNotification({message: err.error.error || 'Failed to load columns', type: 'error', dismissed: false, remainingTime: 5000});
         }
       });
 
@@ -74,7 +74,7 @@ export class EditTableComponent {
         this.notificationService.addNotification({message: 'Column deleted', type: 'success', dismissed: false, remainingTime: 5000});
       },
       error: (err) => {
-        this.notificationService.addNotification({message: 'Failed to delete column', type: 'error', dismissed: false, remainingTime: 5000});
+        this.notificationService.addNotification({message: err.error.error || 'Failed to delete column', type: 'error', dismissed: false, remainingTime: 5000});
       }
     });
   }

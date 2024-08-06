@@ -78,5 +78,5 @@ def send(history: list['str'], message: str, tenant_id: str, chat_type: str, tab
         return model_response.text
     except Exception as e:
         print('error', e)
-        return 'Unable to resolve response'
+        return 'Error while processing the user message, please try again'
     

@@ -129,4 +129,4 @@ class RawDataView(APIView):
             put_response_data = asql.execute_raw_query(tenant=tenant_id, queries=final_queries)
             return Response(put_response_data, status=status.HTTP_201_CREATED)
         except Exception as e:
-            return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error': 'Failed to update table'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
