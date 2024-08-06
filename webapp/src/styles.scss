@@ -1,7 +1,4 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
-body {
-    font-family: 'Open Sans', sans-serif;
-}
 
 @import './assets/styles/_color';
 @import './assets/styles/_spacing';
@@ -10,6 +7,11 @@ body {
 @import './assets/styles/_navbar';
 @import './assets/styles/_modal';
 @import './assets/styles/_chat';
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    // background-color: $gray-10;0
+}
 
 .app-container {
     display: flex;
@@ -24,12 +26,31 @@ body {
 }
 
 .arc-content-container {
-    background-color: $gray-10;
+    // background-color: $gray-10;
     height: 100%;
     width: 100%;
 }
 
 // buttoms
+.icon-button {
+    color: $gray-60;
+    border: none;
+    cursor: pointer;
+    margin-left: $padding-1;
+    margin-top: $padding-0;
+    height: fit-content;
+
+    display: flex;
+    align-items: center;
+
+    &:hover {
+        background-color: $gray-30;
+    }
+
+    &:active {
+        background-color: $gray-50;
+    }
+}
 .icon-button-primary {
     color: $blue-60;
     border: none;
@@ -49,6 +70,7 @@ body {
         background-color: $gray-50;
     }
 }
+
 
 .text-button-primary {
     color: $blue-60;
@@ -99,6 +121,7 @@ body {
 }
 
 .nav-item {
+    cursor: pointer;
     .active {
         border-bottom: 1px solid $gray-60;
     }
@@ -106,7 +129,7 @@ body {
 
 // table
 .arc-table-header {
-    background-color: $gray-30;
+    background-color: $gray-20;
     padding: $padding-1;
     font-weight: 600;
 

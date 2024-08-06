@@ -4,7 +4,7 @@ import { UtilService } from '../../services/util.service';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
-import { NotificationInterface, TableListInterface } from '../../interfaces/main-interface';
+import { NotificationInterface, ProcessInterface, ProcessTableRelationshipInterface, TableListInterface } from '../../interfaces/main-interface';
 import { NotificationService } from '../../services/notification.service';
 import { Router, RouterOutlet } from '@angular/router';
 import { HowToChatComponent } from '../../components/copilot/how-to-chat/how-to-chat.component';
@@ -28,6 +28,9 @@ export class WorkspaceHomeComponent {
   newTableName: string | null = null
   tablesList: string[] = [];
 
+  processNames: string[] = [];
+  tablesInProcess: string[] = [];
+  processTableRelationships: ProcessTableRelationshipInterface[] = [];
 
   constructor(
     private utilService: UtilService,
@@ -47,6 +50,36 @@ export class WorkspaceHomeComponent {
       },
       error: (err) => {
         this.notificationService.addNotification({message: err, type: 'error', dismissed: false, remainingTime: 5000});
+      }
+    });
+
+    this.apiService.listProcesses().subscribe({
+      next: (processes: ProcessInterface[]) => {
+        console.log(processes);
+
+        // get process table relationships
+        processes.forEach((process: ProcessInterface) => {
+          if (!this.processNames.includes(process.processName)) {
+            this.processNames.push(process.processName);
+          }
+
+          this.apiService.getPrcessTables(process.processName).subscribe({
+            next: (processTables: ProcessTableRelationshipInterface[]) => {
+              this.processTableRelationships.push(...processTables);
+              for (let i = 0; i < processTables.length; i++) {
+                if (!this.tablesInProcess.includes(processTables[i].tableName)) {
+                  this.tablesInProcess.push(processTables[i].tableName);
+                }
+              }
+            },
+            error: (err) => {
+              this.notificationService.addNotification({message: 'Failed to load process tables', type: 'error', dismissed: false, remainingTime: 5000});
+            }
+          });
+        });
+      },
+      error: (err) => {
+        this.notificationService.addNotification({message: 'Failed to load processes', type: 'error', dismissed: false, remainingTime: 5000});
       }
     });
 

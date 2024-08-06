@@ -5,6 +5,7 @@ import { UserInterface, UserLoginInteface, UserRegisterInteface } from '../inter
 import { isPlatformBrowser } from '@angular/common';
 import { UtilService } from './util.service';
 import { JwtService } from './jwt.service';
+import { environment } from '../../environments/environment';
 
 
 @Injectable({
@@ -12,8 +13,8 @@ import { JwtService } from './jwt.service';
 })
 export class AuthService {
 
-  private authTokenUrl = 'http://localhost:8000/api/token';
-  private signupBaseUrl = 'http://localhost:8000/api/user';
+  private authTokenUrl = `${environment.apiUrl}/token`;
+  private signupBaseUrl = `${environment.apiUrl}/user`;
   
   private token: string | null = null;
   currentUser = signal<UserInterface | null | undefined>(undefined)

@@ -68,7 +68,6 @@ export class ProcessComponent {
 
     this.apiService.listTables().subscribe({
       next: (tables: string[]) => {
-        console.log(tables);
         this.tablesList = tables;
       },
       error: (err) => {
