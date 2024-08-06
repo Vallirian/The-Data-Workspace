@@ -90,6 +90,26 @@ body {
     }
 }
 
+.icon-button-danger {
+    color: $red-60;
+    border: none;
+    cursor: pointer;
+    margin-left: $padding-1;
+    margin-top: $padding-0;
+    height: fit-content;
+
+    display: flex;
+    align-items: center;
+
+    &:hover {
+        background-color: $gray-30;
+    }
+
+    &:active {
+        background-color: $gray-50;
+    }
+}
+
 .icon-in-button {
     display: flex;
     align-items: center;
@@ -173,6 +193,24 @@ body {
 .fine-print {
     font-size: 0.8rem;
     color: $gray-60;
+}
+
+// others
+.content-with-hidden-sub-content {
+    .hidden-sub-content {
+        display: none;
+        visibility: hidden;
+        opacity: 0;
+        transition: visibility 0s, opacity 0.5s linear; 
+    }
+
+    &:hover {
+        .hidden-sub-content {
+            display: block;
+            visibility: visible;
+            opacity: 1;
+        }
+    }
 }
 
 // scroll

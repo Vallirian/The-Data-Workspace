@@ -36,6 +36,10 @@ export class ApiService {
     return this.http.post<ColumnInterface>(`${this.baseUrl}/table/${tableName}/column/`, data);
   }
 
+  deleteColumn(tableName: string, columnName: string) {
+    return this.http.delete<string>(`${this.baseUrl}/table/${tableName}/column/${columnName}/`);
+  }
+
   // Process API
   listProcesses() {
     return this.http.get<ProcessInterface[]>(`${this.baseUrl}/process/`);

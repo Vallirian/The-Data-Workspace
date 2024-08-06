@@ -56,6 +56,28 @@ def get_add_column_query(column_name, table_name, is_relationship, related_table
         ''' , [])]
     return query + get_add_column_to_column_table_query(column_name, table_name, is_relationship, related_table, data_type)
 
+def get_delete_column_query(column_name, table_name, tenant_id) -> list[tuple[str, list]]:
+    queries = []
+    existing_columns = asql.execute_raw_query(tenant=tenant_id, queries=[(f"""DESCRIBE `{table_name}`;""" , [])])
+
+    # drop column from table
+    for column in existing_columns:
+        if column['Field'] == column_name:
+            queries.append((f'''
+                ALTER TABLE `{table_name}`
+                    DROP COLUMN `{column_name}`;
+            ''' , []))
+            break
+
+    # delete column from column table
+    queries.append((f'''
+        DELETE FROM `{avars.COLUMN_TABLE}`
+        WHERE columnName = '{column_name}' AND tableName = '{table_name}';
+    ''' , []))
+
+    return queries
+          
+
 def get_add_column_to_column_table_query(column_name, table_name, is_relationship, related_table, data_type) -> list[tuple[str, list]]:
     current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     is_relationship = 1 if is_relationship else 0

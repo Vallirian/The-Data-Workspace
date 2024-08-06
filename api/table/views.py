@@ -109,3 +109,19 @@ class ColumnListView(APIView):
             return Response({'error': f'Database error: operation failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
             return Response({'error': f'Unexpected error: failed to add column'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class ColumnDetailView(APIView):
+    def delete(self, request, table_name, column_name):
+        tenant_id = request.user.tenant.id
+
+        try:
+            asql.execute_raw_query(
+                tenant=tenant_id, 
+                queries=astmts.get_delete_column_query(column_name=column_name, table_name=table_name, tenant_id=tenant_id)
+            )
+            
+            return Response(column_name, status=status.HTTP_204_NO_CONTENT)
+        except OperationalError as e:
+            return Response({'error': f'Database error: operation failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as e:
+            return Response({'error': f'Unexpected error: failed to delete column'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

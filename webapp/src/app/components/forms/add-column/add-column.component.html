@@ -15,7 +15,7 @@
 </div>
 
 @if (isRelationship) {
-    <form [formGroup]="relationshipColumnForm" class="row gy-2 gx-3 align-items-center">
+    <form [formGroup]="relationshipColumnForm" class="row gy-2 gx-3 align-items-center ">
         <div class="form-floating">
             <select formControlName="rightTable" (change)="onSelectRightTable()" class="form-select" [id]="'floatingSelectrightTable'" aria-label="Floating label select example">
                 <option *ngFor="let table of tablesList" [value]="table">{{ table }}</option>

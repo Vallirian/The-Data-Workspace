@@ -88,12 +88,17 @@
                                             <option [value]="0">false</option>
                                         </select>
                                     }
-                                    @else {
-                                        @if (getCell(rowId, colId).dataType === 'datetime') {
-                                            <span (dblclick)="onSelectCellForUpdate(rowId, colId)" >{{formatDate(getCell(rowId, colId).value)}}</span>
+                                    @else {   
+                                        @if (getCell(rowId, colId).value == null) {
+                                            <span (dblclick)="onSelectCellForUpdate(rowId, colId)" >-</span>
                                         }
                                         @else {
-                                            <span (dblclick)="onSelectCellForUpdate(rowId, colId)" >{{getCell(rowId, colId).value}}</span>
+                                            @if (getCell(rowId, colId).dataType === 'datetime') {
+                                                <span (dblclick)="onSelectCellForUpdate(rowId, colId)" >{{formatDate(getCell(rowId, colId).value)}}</span>
+                                            }
+                                            @else {
+                                                <span (dblclick)="onSelectCellForUpdate(rowId, colId)" >{{getCell(rowId, colId).value}}</span>
+                                            }
                                         }
                                     }
                                 </span>
@@ -116,7 +121,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-            You are about to delete {{getCountOfDeletedRows()}} row<span *ngIf="getCountOfDeletedRows() > 1">s</span>. Are you sure you want to delete <span *ngIf="getCountOfDeletedRows() > 1">these</span><span *ngIf="getCountOfDeletedRows() < 2">this</span> row<span *ngIf="getCountOfDeletedRows() > 1">s</span>?
+            You are about to delete <strong>{{getCountOfDeletedRows()}}</strong> row<span *ngIf="getCountOfDeletedRows() > 1">s</span>. Are you sure you want to delete <span *ngIf="getCountOfDeletedRows() > 1">these</span><span *ngIf="getCountOfDeletedRows() < 2">this</span> row<span *ngIf="getCountOfDeletedRows() > 1">s</span>?
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -135,7 +140,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-            You are about to delete {{tableId}} table. Are you sure you want to delete {{tableId}} table?
+            You are about to delete <strong>{{tableId}}</strong> table. Are you sure you want to delete {{tableId}} table?
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>

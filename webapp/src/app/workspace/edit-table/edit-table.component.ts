@@ -32,6 +32,8 @@ export class EditTableComponent {
   relationshipColumns: RelationshipColumnInterface[] = [];
   relationshipAPIColumns: RelationshipColumnAPIInterface[] = [];
 
+  columnSelectedForDelete: string = '';
+
   constructor(
     private apiService: ApiService,
     private activatedRoute: ActivatedRoute,
@@ -63,6 +65,18 @@ export class EditTableComponent {
 
   onAddNewColumn() {
     this.addNewColumnFormOpen = true;
+  }
+
+  onDeleteColumn(columnName: string) {
+    this.apiService.deleteColumn(this.tableId, columnName).subscribe({
+      next: (res) => {
+        this.columns = this.columns.filter(column => column.columnName !== columnName);
+        this.notificationService.addNotification({message: 'Column deleted', type: 'success', dismissed: false, remainingTime: 5000});
+      },
+      error: (err) => {
+        this.notificationService.addNotification({message: 'Failed to delete column', type: 'error', dismissed: false, remainingTime: 5000});
+      }
+    });
   }
 
   onCloseAddNewColumnForm() {
