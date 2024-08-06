@@ -29,6 +29,9 @@ export class HowToChatComponent {
 
   currentMessage: string = '';
   answerLoading: boolean = false;
+  sampleQuestions: string[] = [
+    ""
+  ]
 
   constructor(
     private apiService: ApiService,

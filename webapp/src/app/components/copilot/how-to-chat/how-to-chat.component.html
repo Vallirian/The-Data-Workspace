@@ -1,11 +1,21 @@
 @if (selectedChatId == null) {
     <!-- start a new chat or select an existing one -->
     <div class="container-with-scrollable-content">
-        <div class="list-group scrollable">
-            @for (chat of chats; track $index) {
-                <div (click)="onSelectConversation(chat.id)" class="list-group-item list-group-item-action">{{chat.displayName}} {{formatDate(chat.createdAt)}}</div>
-            }
+        <div class="scrollable">
+            <div class="container-with-scrollable-content" style="height: 25%;">
+                <div class="list-group scrollable">
+                    @for (chat of chats; track $index) {
+                        <div (click)="onSelectConversation(chat.id)" class="list-group-item list-group-item-action">
+                            {{chat.displayName}} {{formatDate(chat.createdAt)}}
+                        </div>
+                    }
+                </div>
+            </div>
+            <div>
+                questions
+            </div>
         </div>
+
         <div class="input-group">
             <input type="text" class="form-control" placeholder="start conversation for AI-powered analysis" [(ngModel)]="currentMessage">
             @if (answerLoading) {

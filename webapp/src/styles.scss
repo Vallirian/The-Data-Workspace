@@ -139,11 +139,17 @@ body {
 }
 
 // scroll
-.arc-scrollable {
-    overflow-y: auto;
-    overflow-x: hidden;
-}
+// .arc-scrollable {
+//     overflow-y: auto;
+//     overflow-x: hidden;
+// }
 
+// Cards
+.card {
+    // border: none;
+    // box-shadow: $shadow-0;
+    border: 0.5px solid $gray-20;
+}
 
 // test
 .test {
