@@ -30,7 +30,9 @@ export class HowToChatComponent {
   currentMessage: string = '';
   answerLoading: boolean = false;
   sampleQuestions: string[] = [
-    ""
+    "How do I update customer information?",
+    "How can I update an order?",
+    "Can you help me submit a time off request?"
   ]
 
   constructor(
