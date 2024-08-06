@@ -10,6 +10,9 @@ class RawDataView(APIView):
         tenant_id = request.user.tenant.id
         table_columns = asql.execute_raw_query(tenant=tenant_id, queries=[(f"SELECT * FROM `{avars.COLUMN_TABLE}` WHERE tableName = '{table_name}';", [])])
         print('table_columns', table_columns)
+
+        # remove placeholder column for empty tables
+        table_columns = [col for col in table_columns if col["columnName"] != None]
         
         # limit the columns to be queried
         requested_columns = request.query_params.get("columns")
@@ -24,6 +27,7 @@ class RawDataView(APIView):
             else:
                 column_query += f'`{col["columnName"]}`, ' if f'{col["columnName"]}, ' not in column_query else ''
         column_query = column_query[:-2]
+        print('column_query', column_query)
         
         join_query = ''
         for col in table_columns:
@@ -38,7 +42,7 @@ class RawDataView(APIView):
             query = query[:-1]
 
         query += f"""
-            FROM {table_name}
+            FROM `{table_name}`
             {join_query}
         """
         query += f'ORDER BY `{table_name}`.`updatedAt` DESC;'

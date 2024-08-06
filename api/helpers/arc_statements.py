@@ -69,7 +69,7 @@ def get_add_column_to_column_table_query(column_name, table_name, is_relationshi
     return query
 
 def get_complete_table_columns_query(table_name) -> list[tuple[str, list]]:
-    query = f"SELECT * FROM {avars.COLUMN_TABLE} WHERE tableName = '{table_name}';"
+    query = f"SELECT * FROM `{avars.COLUMN_TABLE}` WHERE tableName = '{table_name}';"
     return [(query, [])]
 
 def get_complete_table_query(tenant_id, table_name) -> list[tuple[str, list]]:
@@ -99,7 +99,7 @@ def get_complete_table_query(tenant_id, table_name) -> list[tuple[str, list]]:
         query = query[:-1]
 
     query += f"""
-        FROM {table_name}
+        FROM `{table_name}`
         {join_query}
     """
     query += f'ORDER BY `{table_name}`.`updatedAt` DESC;'

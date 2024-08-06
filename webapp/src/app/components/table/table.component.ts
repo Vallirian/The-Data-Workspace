@@ -313,11 +313,14 @@ export class TableComponent {
     return table || [];
   }
 
-  getColumnById(columnName: string): ColumnInterface {
+  getColumnById(columnName: string | null): ColumnInterface {
     /**
      * given a column id, which is a column name, return the column object
      * if column is a relationship column (identified by `__` in the column name), accomodate for that
      */
+    if (columnName === null) {
+      return {} as ColumnInterface;
+    }
     if (columnName.includes('__')) {
       const [tableId, columnId] = columnName.split('__');
       // user column.relatedTable because the this.column is filtered by this.tableId on fetch
