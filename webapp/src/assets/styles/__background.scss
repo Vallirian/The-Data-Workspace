@@ -13,3 +13,8 @@
     background-image: radial-gradient($gray-50 1px, transparent 1px);
     background-size: $row-height-0 $row-height-0;
 }
+
+.ai-gradient {
+    background-image: $gradient-ai;
+    color: white;
+}

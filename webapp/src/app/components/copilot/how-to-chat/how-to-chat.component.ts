@@ -84,8 +84,8 @@ export class HowToChatComponent {
   }
 
   onCloseConversation() {
-    // this.selectedConversationId = null;
-    // this.messages = [];
+    this.selectedChatId = null;
+    this.messages = [];
   }
 
   onSendMessage(message: string) {

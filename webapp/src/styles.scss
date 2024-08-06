@@ -70,6 +70,25 @@ body {
         background-color: $gray-50;
     }
 }
+.icon-button-secondary {
+    color: $gray-60;
+    border: none;
+    cursor: pointer;
+    margin-left: $padding-1;
+    margin-top: $padding-0;
+    height: fit-content;
+
+    display: flex;
+    align-items: center;
+
+    &:hover {
+        background-color: $gray-30;
+    }
+
+    &:active {
+        background-color: $gray-50;
+    }
+}
 
 
 .text-button-primary {
@@ -138,18 +157,32 @@ body {
     }
 }
 
+// text
+.fine-print {
+    font-size: 0.8rem;
+    color: $gray-60;
+}
+
 // scroll
 // .arc-scrollable {
 //     overflow-y: auto;
 //     overflow-x: hidden;
 // }
 
-// Cards
+// cards
 .card {
     // border: none;
     // box-shadow: $shadow-0;
     border: 0.5px solid $gray-20;
 }
+
+// chat
+.chat-input-group {
+    border: none;
+    box-shadow: $shadow-0;
+}
+
+
 
 // test
 .test {
