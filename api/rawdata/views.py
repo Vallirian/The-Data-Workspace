@@ -84,7 +84,8 @@ class RawDataView(APIView):
                 print('final_query', final_query)
 
                 final_queries.append((final_query, params))
-            
+
+            # update rows
             for row in updated_rows:
                 for row_id, column_changes in row.items():
                     params = []
@@ -108,6 +109,16 @@ class RawDataView(APIView):
                     print('params', params)
 
                     final_queries.append((final_query, params))
+
+            # delete rows
+            deleted_rows = request.data["deleted"]
+            for row_id in deleted_rows:
+                final_query = f"""
+                    DELETE FROM `{table_name}` 
+                    WHERE `id` = %s;
+                """
+                final_queries.append((final_query, [row_id]))
+
 
             put_response_data = asql.execute_raw_query(tenant=tenant_id, queries=final_queries)
             return Response(put_response_data, status=status.HTTP_201_CREATED)

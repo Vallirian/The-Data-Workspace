@@ -4,7 +4,7 @@ import { ApiService } from '../../services/api.service';
 import { NotificationService } from '../../services/notification.service';
 import { ColumnInterface, RelationshipColumnAPIInterface } from '../../interfaces/main-interface';
 import { UtilService } from '../../services/util.service';
-import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ValidateService } from '../../services/validate.service';
 import { NumberOnlyDirective } from '../../directives/number-only.directive';
 
@@ -13,6 +13,7 @@ import { NumberOnlyDirective } from '../../directives/number-only.directive';
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     ReactiveFormsModule,
     NumberOnlyDirective
   ],
@@ -40,7 +41,8 @@ export class TableComponent {
   };
   rows = this.formBuilder.group({});
   selectEnabled: boolean = false;
-  selectedRowIds: string[] = [];
+
+  searchTerm: string = '';
 
   constructor(
     private apiService: ApiService,
@@ -114,8 +116,7 @@ export class TableComponent {
         tempForm.addControl(
           columnId, 
           this.formBuilder.group(
-            {value: [row[columnId]], dataType: this.getColumnById(columnId).dataType, isEdited: [false]},
-            {validators: this.validatorService.valueDataTypeFormValidator()}
+            {value: [row[columnId]], dataType: this.getColumnById(columnId).dataType, isEdited: [false]}
           )
         );
       });
@@ -234,13 +235,25 @@ export class TableComponent {
     });
   }
 
+  onDeleteRows() {
+    // get a list of selected row ids
+    const selectedRowIds = this.getRowsFormControls().filter((rowId) => this.getRowMetaForm(rowId).get('isDeleted')?.value);
+    console.log('selectedRowIds', selectedRowIds);
+
+    // delete rows
+    this.changes.deleted = selectedRowIds;
+    this.onSave();
+
+    // reset
+    this.selectEnabled = false;
+  }
+
   // add new
   onAddNewRow() {
     const tempForm = this.formBuilder.group({});
     this.displayedColumnIds.forEach((columnId) => {
       tempForm.addControl(columnId, this.formBuilder.group(
-        {value: [''], dataType: this.getColumnById(columnId).dataType, isNew: [true], isEdited: [true]},
-        {validators: this.validatorService.valueDataTypeFormValidator()}
+        {value: [''], dataType: this.getColumnById(columnId).dataType, isNew: [true], isEdited: [true]}
       ));
     });
 
@@ -313,11 +326,28 @@ export class TableComponent {
     return this.rows.get(rowId) as FormGroup;
   }
 
+  getRowFormAsString(rowId: string): string {
+    // get column values
+    let columnValues: string = '';
+    const row = this.getRowForm(rowId).value;
+    Object.keys(row).forEach((columnId) => {
+      if (columnId !== '__rowMeta') {
+        columnValues += `${row[columnId].value} `;
+      }
+    })
+    columnValues = columnValues.trim().toLowerCase();
+    return columnValues;
+  }
+
   getRowMetaForm(rowId: string): FormGroup {
     if (!this.rows.get(rowId)) {
       return this.formBuilder.group({});
     }
     return this.getRowForm(rowId).get('__rowMeta') as FormGroup;
+  }
+
+  getCountOfDeletedRows(): number {
+    return this.getRowsFormControls().filter((rowId) => this.getRowMetaForm(rowId).get('isDeleted')?.value).length;
   }
 
   getCellForm(rowId: string, columnId: string): FormGroup {

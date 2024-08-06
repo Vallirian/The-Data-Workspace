@@ -63,7 +63,6 @@ export class ApiService {
   updateRawTable(tableId: string, data: any) {
     return this.http.put(`${this.baseUrl}/raw/${tableId}/`, data);
   }
-
   
   // copilot API
     // analysis chat

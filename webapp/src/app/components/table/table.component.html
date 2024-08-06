@@ -1,9 +1,9 @@
 <div class="d-flex justify-content-between mt-3">
     <div class="flex-fill">
-        <input type="text" class="form-control" placeholder="search...">
+        <input type="text" class="form-control" placeholder="search..." [(ngModel)]="searchTerm">
     </div>
     <div style="margin-left: 24px;">
-        <button *ngIf="selectEnabled" class="btn btn-primary">Deleted Selected</button>
+        <button *ngIf="selectEnabled" data-bs-toggle="modal" data-bs-target="#deleteRowsModal" class="btn btn-primary">Deleted Selected</button>
         <button (click)="selectEnabled = !selectEnabled" class="btn btn-primary">Select</button>
         <button (click)="onAddNewRow()" class="btn btn-primary">+Add Row</button>
         <button (click)="onSave()" class="btn btn-primary">Save</button>
@@ -20,49 +20,71 @@
         </thead>
         <tbody [formGroup]="rows">
             @for (rowId of getRowsFormControls(); track $index) {
-                <tr>
-                    @for (colId of displayedColumnIds; track $index) {
-                        <td >
-                            @if(displayedColumnIds[0] === colId && selectEnabled) {
-                                <span [formGroup]="getRowMetaForm(rowId)">
-                                    <input formControlName="isDeleted" class="form-check-input mx-2" type="checkbox">
-                                </span>
-                            }
-                            <span [formGroup]="getCellForm(rowId, colId)">
-                                @if (cellIsEdited(rowId, colId)) {
-                                    <input formControlName="value" type="datetime-local" class="form-control" *ngIf="getCell(rowId, colId).dataType === 'datetime'">
-                                    @if (getCell(rowId, colId).dataType === 'string') {
-                                        @if (columnIsRelationship(colId)) {
-                                            <select formControlName="value" class="form-select">
-                                                @for (columnData of getRelationshipColumnData(colId); track $index) {
-                                                    <!-- save column id here, assign the column id to table_id on save -->
-                                                    <option [value]="columnData.id">{{columnData[getColumnNameFromRelationshipColumnName(colId)]}}</option>
-                                                }
-                                            </select>
-                                        }
-                                        @else {
-                                            <input formControlName="value" type="text" class="form-control">
-                                        }
-                                    }
-                                    <input formControlName="value" type="number" class="form-control" *ngIf="getCell(rowId, colId).dataType === 'number'" appNumberOnly>
-                                    <select formControlName="value" class="form-select" *ngIf="getCell(rowId, colId).dataType === 'boolean'">
-                                        <option [value]="1">true</option>
-                                        <option [value]="0">false</option>
-                                    </select>
+                @if((searchTerm === '') || (searchTerm !== '' && getRowFormAsString(rowId).includes(searchTerm.trim().toLowerCase()))) {
+                    <tr [formGroupName]="rowId">
+                        @for (colId of displayedColumnIds; track $index) {
+                            <td >
+                                @if(displayedColumnIds[0] === colId && selectEnabled) {
+                                    <span [formGroup]="getRowMetaForm(rowId)">
+                                        <input formControlName="isDeleted" class="form-check-input mx-2" type="checkbox">
+                                    </span>
                                 }
-                                @else {
-                                    @if (getCell(rowId, colId).dataType === 'datetime') {
-                                        <span (dblclick)="onSelectCellForUpdate(rowId, colId)" >{{formatDate(getCell(rowId, colId).value)}}</span>
+                                <span [formGroup]="getCellForm(rowId, colId)">
+                                    @if (cellIsEdited(rowId, colId)) {
+                                        <input formControlName="value" type="datetime-local" class="form-control" *ngIf="getCell(rowId, colId).dataType === 'datetime'">
+                                        @if (getCell(rowId, colId).dataType === 'string') {
+                                            @if (columnIsRelationship(colId)) {
+                                                <select formControlName="value" class="form-select">
+                                                    @for (columnData of getRelationshipColumnData(colId); track $index) {
+                                                        <!-- save column id here, assign the column id to table_id on save -->
+                                                        <option [value]="columnData.id">{{columnData[getColumnNameFromRelationshipColumnName(colId)]}}</option>
+                                                    }
+                                                </select>
+                                            }
+                                            @else {
+                                                <input formControlName="value" type="text" class="form-control">
+                                            }
+                                        }
+                                        <input formControlName="value" type="number" class="form-control" *ngIf="getCell(rowId, colId).dataType === 'number'" appNumberOnly>
+                                        <select formControlName="value" class="form-select" *ngIf="getCell(rowId, colId).dataType === 'boolean'">
+                                            <option [value]="1">true</option>
+                                            <option [value]="0">false</option>
+                                        </select>
                                     }
                                     @else {
-                                        <span (dblclick)="onSelectCellForUpdate(rowId, colId)" >{{getCell(rowId, colId).value}}</span>
+                                        @if (getCell(rowId, colId).dataType === 'datetime') {
+                                            <span (dblclick)="onSelectCellForUpdate(rowId, colId)" >{{formatDate(getCell(rowId, colId).value)}}</span>
+                                        }
+                                        @else {
+                                            <span (dblclick)="onSelectCellForUpdate(rowId, colId)" >{{getCell(rowId, colId).value}}</span>
+                                        }
                                     }
-                                }
-                            </span>
-                        </td>
-                    }
-                </tr>
+                                </span>
+                            </td>
+                        }
+                    </tr>
+                }
             }
         </tbody>
     </table>
+</div>
+
+
+  <!-- delete rows modal -->
+<div class="modal fade" id="deleteRowsModal" tabindex="-1" aria-labelledby="deleteRowsModalLable" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="deleteRowsModalLable">Delete {{getCountOfDeletedRows()}} Row<span *ngIf="getCountOfDeletedRows() > 1">s</span></h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            You are about to delete {{getCountOfDeletedRows()}} row<span *ngIf="getCountOfDeletedRows() > 1">s</span>. Are you sure you want to delete <span *ngIf="getCountOfDeletedRows() > 1">these</span><span *ngIf="getCountOfDeletedRows() < 2">this</span> row<span *ngIf="getCountOfDeletedRows() > 1">s</span>?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button (click)="onDeleteRows()" type="button" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
+        </div>
+      </div>
+    </div>
 </div>
