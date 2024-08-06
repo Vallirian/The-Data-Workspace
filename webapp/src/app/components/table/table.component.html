@@ -1,29 +1,10 @@
-<!-- <div>
-    {{columns|json}}
-</div>
-<br>
-<div>
-    {{relationshipAPIColumns|json}}
-</div>
-<br>
-<div>
-    {{rowData|json}}
-</div>
-<br>
-<div>
-    {{allColumnIds|json}}
-</div>
-<br>
-<div>
-    {{displayedColumnIds|json}}
-</div> -->
-
-
 <div class="d-flex justify-content-between mt-3">
     <div class="flex-fill">
         <input type="text" class="form-control" placeholder="search...">
     </div>
     <div style="margin-left: 24px;">
+        <button *ngIf="selectEnabled" class="btn btn-primary">Deleted Selected</button>
+        <button (click)="selectEnabled = !selectEnabled" class="btn btn-primary">Select</button>
         <button (click)="onAddNewRow()" class="btn btn-primary">+Add Row</button>
         <button (click)="onSave()" class="btn btn-primary">Save</button>
     </div>
@@ -41,39 +22,47 @@
             @for (rowId of getRowsFormControls(); track $index) {
                 <tr>
                     @for (colId of displayedColumnIds; track $index) {
-                        <td [formGroup]="getCellForm(rowId, colId)">
-                            @if (cellIsEdited(rowId, colId)) {
-                                <input formControlName="value" type="datetime-local" class="form-control" *ngIf="getCell(rowId, colId).dataType === 'datetime'">
-                                @if (getCell(rowId, colId).dataType === 'string') {
-                                    @if (columnIsRelationship(colId)) {
-                                        <select formControlName="value" class="form-select">
-                                            @for (columnData of getRelationshipColumnData(colId); track $index) {
-                                                <!-- save column id here, assign the column id to table_id on save -->
-                                                <option [value]="columnData.id">{{columnData[getColumnNameFromRelationshipColumnName(colId)]}}</option>
-                                            }
-                                        </select>
+                        <td >
+                            @if(displayedColumnIds[0] === colId && selectEnabled) {
+                                <span [formGroup]="getRowMetaForm(rowId)">
+                                    <input formControlName="isDeleted" class="form-check-input mx-2" type="checkbox">
+                                </span>
+                            }
+                            <span [formGroup]="getCellForm(rowId, colId)">
+                                @if (cellIsEdited(rowId, colId)) {
+                                    <input formControlName="value" type="datetime-local" class="form-control" *ngIf="getCell(rowId, colId).dataType === 'datetime'">
+                                    @if (getCell(rowId, colId).dataType === 'string') {
+                                        @if (columnIsRelationship(colId)) {
+                                            <select formControlName="value" class="form-select">
+                                                @for (columnData of getRelationshipColumnData(colId); track $index) {
+                                                    <!-- save column id here, assign the column id to table_id on save -->
+                                                    <option [value]="columnData.id">{{columnData[getColumnNameFromRelationshipColumnName(colId)]}}</option>
+                                                }
+                                            </select>
+                                        }
+                                        @else {
+                                            <input formControlName="value" type="text" class="form-control">
+                                        }
+                                    }
+                                    <input formControlName="value" type="number" class="form-control" *ngIf="getCell(rowId, colId).dataType === 'number'" appNumberOnly>
+                                    <select formControlName="value" class="form-select" *ngIf="getCell(rowId, colId).dataType === 'boolean'">
+                                        <option [value]="1">true</option>
+                                        <option [value]="0">false</option>
+                                    </select>
+                                }
+                                @else {
+                                    @if (getCell(rowId, colId).dataType === 'datetime') {
+                                        <span (dblclick)="onSelectCellForUpdate(rowId, colId)" >{{formatDate(getCell(rowId, colId).value)}}</span>
                                     }
                                     @else {
-                                        <input formControlName="value" type="text" class="form-control">
+                                        <span (dblclick)="onSelectCellForUpdate(rowId, colId)" >{{getCell(rowId, colId).value}}</span>
                                     }
                                 }
-                                <input formControlName="value" type="number" class="form-control" *ngIf="getCell(rowId, colId).dataType === 'number'" appNumberOnly>
-                                <select formControlName="value" class="form-select" *ngIf="getCell(rowId, colId).dataType === 'boolean'">
-                                    <option [value]="1">true</option>
-                                    <option [value]="0">false</option>
-                                </select>
-                            }
-                            @else {
-                                <span *ngIf="getCell(rowId, colId).dataType === 'datetime'">{{formatDate(getCell(rowId, colId).value)}}</span>
-                                <span *ngIf="getCell(rowId, colId).dataType === 'string'">{{getCell(rowId, colId).value}}</span>
-                                <span *ngIf="getCell(rowId, colId).dataType === 'number'">{{getCell(rowId, colId).value}}</span>
-                                <span *ngIf="getCell(rowId, colId).dataType === 'boolean'">{{getCell(rowId, colId).value}}</span>
-                            }
+                            </span>
                         </td>
                     }
                 </tr>
             }
         </tbody>
     </table>
-    <div class="text-button-primary mt-3" (click)="onAddNewRow()">+ Add Row</div>
 </div>

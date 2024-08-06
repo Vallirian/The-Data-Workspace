@@ -56,6 +56,7 @@ class RawDataView(APIView):
         try:
             # add rows
             added_rows = request.data["added"]
+            updated_rows = request.data["updated"]
             current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
             for row in added_rows:
@@ -83,6 +84,30 @@ class RawDataView(APIView):
                 print('final_query', final_query)
 
                 final_queries.append((final_query, params))
+            
+            for row in updated_rows:
+                for row_id, column_changes in row.items():
+                    params = []
+                    set_part = []
+
+                    for col_id, col_val in column_changes.items():
+                        set_part.append(f'`{col_id}` = %s')
+                        params.append(col_val)
+                    
+                    params.append(row_id)
+                    set_part = ', '.join(set_part)
+
+                    # construct the query
+                    final_query = f"""
+                        UPDATE `{table_name}` 
+                        SET {set_part}
+                        WHERE `id` = %s;
+                    """ # TODO: add updatedAt
+
+                    print('final_query', final_query)
+                    print('params', params)
+
+                    final_queries.append((final_query, params))
 
             put_response_data = asql.execute_raw_query(tenant=tenant_id, queries=final_queries)
             return Response(put_response_data, status=status.HTTP_201_CREATED)

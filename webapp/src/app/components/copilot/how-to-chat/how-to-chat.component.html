@@ -7,7 +7,11 @@
                 <div class="list-group scrollable">
                     @for (chat of chats; track $index) {
                         <div (click)="onSelectConversation(chat.id)" class="list-group-item list-group-item-action">
-                            {{chat.displayName}} {{formatDate(chat.createdAt)}}
+                            {{chat.displayName}} 
+                            <br>
+                            <p class="message-time">
+                                {{formatDate(chat.createdAt)}}
+                            </p>
                         </div>
                     }
                 </div>
@@ -44,12 +48,7 @@
 }
 @else {
     <div class="container-with-scrollable-content">
-        <div class="d-flex justify-content-end">
-            <span (click)="onCloseConversation()" class="icon-button-secondary ">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
-                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
-                </svg>
-            </span>
+        <div class="d-flex justify-content-end mb-2">
             <span (click)="onCloseConversation()" class="icon-button-secondary ">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
                     <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>

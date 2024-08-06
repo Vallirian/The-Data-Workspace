@@ -39,6 +39,8 @@ export class TableComponent {
     deleted: [] as any[]
   };
   rows = this.formBuilder.group({});
+  selectEnabled: boolean = false;
+  selectedRowIds: string[] = [];
 
   constructor(
     private apiService: ApiService,
@@ -106,15 +108,46 @@ export class TableComponent {
     this.rows = this.formBuilder.group({});
     this.rowData.forEach((row) => {
       const tempForm = this.formBuilder.group({});
+
+      // add columns to form
       this.displayedColumnIds.forEach((columnId) => {
-        tempForm.addControl(columnId, this.formBuilder.group(
-          {value: [row[columnId]], dataType: this.getColumnById(columnId).dataType, isNew: [false], isEdited: [false]},
-          {validators: this.validatorService.valueDataTypeFormValidator()}
-        ));
+        tempForm.addControl(
+          columnId, 
+          this.formBuilder.group(
+            {value: [row[columnId]], dataType: this.getColumnById(columnId).dataType, isEdited: [false]},
+            {validators: this.validatorService.valueDataTypeFormValidator()}
+          )
+        );
       });
+
+      // add row meta to form
+      tempForm.addControl(
+        '__rowMeta', 
+        this.formBuilder.group({
+          isNew: [false],
+          isDeleted: [false]
+        })
+      ); 
+
       this.rows.addControl(row.id, tempForm);
     });
     this.fetchRelatedTablesData();
+
+    /**
+     * {
+     *  rowId: {
+     *    columnId: {
+     *      value: ''
+     *      dataType: ''
+     *      isNew: false
+      *     isEdited: false
+     *    },
+     *    __rowMeta: {
+     *      isNew: false
+     *      isDeleted: false
+     *    }
+     * }
+     */
   }
 
   fetchRelatedTablesData() {
@@ -147,13 +180,15 @@ export class TableComponent {
   }
 
   onSave() {
+    console.log(this.rows.value);
     // collect changes
     for (const rowId of this.getRowsFormControls()) {
       const row = this.getRowForm(rowId);
       const rowChanges: {[key: string]: {[key: string]: string | number |  boolean | Date | null}} = {[rowId]: {}};
+      // console.log('row', row);
       
       if (row.dirty || row.dirty) {
-        let isRowNew = false;
+        // console.log('rowId', rowId);
         for (let columnId of Object.keys(row.controls)) {
           const column = this.getCellForm(rowId, columnId);
 
@@ -167,13 +202,13 @@ export class TableComponent {
           if (column.dirty) {
             rowChanges[rowId][columnId] = column.get('value')?.value;
           }
-          if (column.get('isNew')?.value) {
-            isRowNew = column.get('isNew')?.value;
-          }
         }
 
-        if (isRowNew) {
+        const rowMeta = row.get('__rowMeta')?.value;
+        if (rowMeta.isNew) {
           this.changes.added.push(rowChanges);
+        } else if (rowMeta.isDeleted) {
+          this.changes.deleted.push(rowChanges);
         } else {
           this.changes.updated.push(rowChanges);
         }
@@ -182,12 +217,13 @@ export class TableComponent {
 
     // save changes
     console.log('changes', this.changes);
+    console.log(this.rows)
     this.apiService.updateRawTable(this.tableId, this.changes).subscribe({
       next: (res) => {
         this.notificationService.addNotification({message: 'Table data saved', type: 'success', dismissed: false, remainingTime: 5000});
         this.changes = {
           added: [] as {[key: string]: {[key: string]: string | number |  boolean | Date | null}}[],
-          updated: [] as any[],
+          updated: [] as {[key: string]: {[key: string]: string | number |  boolean | Date | null}}[],
           deleted: [] as any[]
         };
         this.fetchRowData();
@@ -198,6 +234,7 @@ export class TableComponent {
     });
   }
 
+  // add new
   onAddNewRow() {
     const tempForm = this.formBuilder.group({});
     this.displayedColumnIds.forEach((columnId) => {
@@ -206,9 +243,31 @@ export class TableComponent {
         {validators: this.validatorService.valueDataTypeFormValidator()}
       ));
     });
+
+    // add row meta to form
+    tempForm.addControl(
+      '__rowMeta', 
+      this.formBuilder.group({
+        isNew: [true],
+        isDeleted: [false]
+      })
+    );
+
     this.rows.addControl(this.utilService.generateCustomUUID(), tempForm);
   }
 
+  // update exsiting
+  onSelectCellForUpdate(rowId: string, colId: string) {
+    console.log('rowId', rowId);
+    console.log('colId', colId);
+    this.setColumEditted(rowId, colId);
+  }
+
+  setColumEditted(rowId: string, colId: string) {
+    this.getCellForm(rowId, colId).get('isEdited')?.setValue(true);
+  }
+
+  // getters
   getColumnNameFromRelationshipColumnName(columnId: string): string {
     return columnId.split('__')[1];
   }
@@ -252,6 +311,13 @@ export class TableComponent {
       return this.formBuilder.group({});
     }
     return this.rows.get(rowId) as FormGroup;
+  }
+
+  getRowMetaForm(rowId: string): FormGroup {
+    if (!this.rows.get(rowId)) {
+      return this.formBuilder.group({});
+    }
+    return this.getRowForm(rowId).get('__rowMeta') as FormGroup;
   }
 
   getCellForm(rowId: string, columnId: string): FormGroup {
