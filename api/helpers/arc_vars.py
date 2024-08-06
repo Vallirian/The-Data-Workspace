@@ -37,7 +37,7 @@ NOT_ALLOWED_OBJECT_NAMES = [
     "_id",
     "__",
     "view_",
-    " ",
+    # " ",
 ]
 
 

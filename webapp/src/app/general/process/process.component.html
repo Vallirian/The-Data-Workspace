@@ -1,20 +1,21 @@
-<!-- <div>
-    {{processTableRelationships | json}}
-</div> -->
-<div class="container-fluid">
+<div class="container-fluid container-with-scrollable-content pt-3">
     <div class="d-flex">
-    <p class="fs-6 text-left">Processes</p>
-    <span class="icon-button-primary">
-        <svg data-bs-toggle="modal" data-bs-target="#createProcessModal" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
-        <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
-        </svg>
-    </span>
+        <p class="fs-6 text-left">Processes</p>
+        <span class="icon-button-primary">
+            <svg data-bs-toggle="modal" data-bs-target="#createProcessModal" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+            </svg>
+        </span>
     </div>
-    <div class="d-flex">
+    <div class="d-flex flex-wrap">
         @for (prcs of processList; track $index) {
-            <div (click)="onSelectProcess(prcs.processName)" data-bs-toggle="modal" data-bs-target="#updateProcessModal" class="card m-1" style="width: 8rem;">
+            <div (click)="onSelectProcess(prcs.processName)" data-bs-toggle="modal" data-bs-target="#updateProcessModal" class="card m-1" style="width: 24rem;">
                 <div class="card-body">
-                    <p class="card-text">{{prcs.processName}}</p>
+                    <span class="d-flex">
+                        <p class="fs-5 flex-fill">{{prcs.processName}}</p>
+                        <p class="text-secondary">{{getNumberOfTablesForProcess(prcs.processName)}} tables</p>
+                    </span>
+                    <p class="card-text">{{prcs.processDescription}}</p>
                 </div>
             </div>
         }
@@ -30,10 +31,10 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-            <div class="col-12">
+            <div class="col-12 my-1">
               <input type="text" class="form-control" placeholder="Name" [(ngModel)]="newProcessName">
             </div>
-            <div class="col-12">
+            <div class="col-12 my-1">
                 <input type="text" class="form-control" placeholder="Description" [(ngModel)]="newProcessDescription">
             </div>
         </div>
@@ -51,25 +52,35 @@
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
             <div class="modal-content">
             <div class="modal-header">
-              <h1 class="modal-title fs-5" id="updateProcessModalLable">Update {{selectedProcess}} Process</h1>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              <button (click)="editProcessType === 'manual' ? editProcessType = 'auto' : editProcessType = 'manual'">Change mode</button>
+                <h1 class="modal-title fs-5" id="updateProcessModalLable">Update {{selectedProcess}} Process</h1>
+                <div class="d-flex align-items-center">
+                    <button 
+                        (click)="editProcessType === 'manual' ? editProcessType = 'auto' : editProcessType = 'manual'" 
+                        class="btn btn-outline-secondary ai-gradient">
+                        {{editProcessType === 'manual' ? 'Work with Copilot' : 'Switch to Manual'}}
+                    </button>
+                    <button type="button" class="btn-close mx-3" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
             </div>
             @if (editProcessType === 'manual') {
                 <div [formGroup]="processTableForm" class="modal-body">
                     <span formArrayName="tableNames">
                         <div *ngFor="let ctrl of tableNames.controls; let i=index" class="col-12">
-                            {{i}}
-                            <select [formControlName]="i" class="form-select" aria-label="Select table">
+                            <select [formControlName]="i" class="form-select my-1" aria-label="Select table">
                                 <option *ngFor="let table of tablesList" [value]="table">{{ table }}</option>
                             </select>
                         </div>
                     </span>
-                    <button (click)="onAddTable()">Add Table</button>
+                    <button class="text-button-primary mt-3" (click)="onAddTable()">+ Add Table</button>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button (click)="onUpdateProcess()" type="button" class="btn btn-primary" data-bs-dismiss="modal">Create</button>
+                <div class="modal-footer d-flex justify-content-between">
+                    <div>
+                        <button (click)="onDeleteProcess(selectedProcess)" type="button" class="btn btn-danger" data-bs-dismiss="modal">Delete Process</button>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-secondary mx-2" data-bs-dismiss="modal">Cancel</button>
+                        <button (click)="onUpdateProcess()" type="button" class="btn btn-primary" data-bs-dismiss="modal">Update</button>
+                    </div>
                 </div>
             }
             @else if (editProcessType === 'auto') {

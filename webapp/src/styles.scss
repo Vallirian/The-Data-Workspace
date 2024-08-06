@@ -222,8 +222,8 @@ body {
 // cards
 .card {
     // border: none;
-    // box-shadow: $shadow-0;
-    border: 0.5px solid $gray-20;
+    box-shadow: $shadow-0;
+    border: 0.5px solid $gray-10;
 }
 
 .dropdown-item {

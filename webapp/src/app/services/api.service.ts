@@ -57,6 +57,10 @@ export class ApiService {
     return this.http.put<string[]>(`${this.baseUrl}/process/${processId}/`, {'tableNames': tableNames});
   }
 
+  deleteProcess(processId: string) {
+    return this.http.delete<string>(`${this.baseUrl}/process/${processId}/`);
+  } 
+
   // raw Table API
   getRawTable(tableId: string) {
     return this.http.get(`${this.baseUrl}/raw/${tableId}/`);

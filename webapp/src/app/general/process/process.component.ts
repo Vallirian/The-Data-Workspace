@@ -92,11 +92,13 @@ export class ProcessComponent {
         // placehold before we get the actual data on the next GET request
         this.processList.push({processName: this.newProcessName, createdAt: new Date(), processDescription: this.newProcessDescription});
         this.newProcessName = '';
+        this.newProcessDescription = '';
         this.notificationService.addNotification({message: 'Process created successfully', type: 'success', dismissed: false, remainingTime: 5000});
       },
       error: (err) => {
         this.notificationService.addNotification({message: err, type: 'error', dismissed: false, remainingTime: 5000});
         this.newProcessName = '';
+        this.newProcessDescription = '';
       }
     });
   }
@@ -121,7 +123,6 @@ export class ProcessComponent {
   }
 
   onUpdateProcess() {
-    console.log('process table form', this.processTableForm.value);
     if (!this.selectedProcess) {
       this.notificationService.addNotification({message: 'Please select a process', type: 'error', dismissed: false, remainingTime: 5000});
       return;
@@ -149,9 +150,19 @@ export class ProcessComponent {
     });
   }
 
+  onDeleteProcess(processName: string) {
+    this.apiService.deleteProcess(processName).subscribe({
+      next: (deletedProcess: string) => {
+        this.processList = this.processList.filter((process: ProcessInterface) => process.processName !== processName);
+        this.notificationService.addNotification({message: 'Process deleted successfully', type: 'success', dismissed: false, remainingTime: 5000});
+      },
+      error: (err) => {
+        this.notificationService.addNotification({message: err, type: 'error', dismissed: false, remainingTime: 5000});
+      }
+    });
+  }
+
   // AI chat
-
-
   onSendMessage() {
     if (!this.currentMessage || this.currentMessage.trim() === '' || this.answerLoading) {
       return;
@@ -192,6 +203,10 @@ export class ProcessComponent {
   }
 
   // getters
+  getNumberOfTablesForProcess(processName: string) {
+    return this.processTableRelationships.filter((prcsTable: ProcessTableRelationshipInterface) => prcsTable.processName === processName && this.tablesList.includes(prcsTable.tableName)).length;
+  }
+
   get tableNames() {
     return this.processTableForm.get('tableNames') as FormArray;
   }

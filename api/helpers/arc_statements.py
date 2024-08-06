@@ -154,6 +154,13 @@ def get_create_new_process_query(process_name, process_description) -> list[tupl
     """ , [process_name, process_description, current_timestamp])]
     return query
 
+def get_delete_process_query(process_name) -> list[tuple[str, list]]:
+    query = f"""
+        DELETE FROM `{avars.PROCESSES_TABLE_NAME}`
+        WHERE processName = '{process_name}';
+    """
+    return [(query, [])]
+
 def get_create_new_process_table_relationship_query(process_name: str, table_names: list['str']) -> list[tuple[str, list]]:
     current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     query = []
@@ -169,7 +176,7 @@ def get_delete_process_table_relationship_query(process_name: str, table_names: 
     for table_name in table_names:
         query.append((f"""
             DELETE FROM `{avars.PROCESS_TABLE_RELATIONSHIP_TABLE_NAME}`
-            WHERE processName = %s AND tableName = `{table_name}`;
+            WHERE processName = %s AND tableName = '{table_name}';
         """, [process_name]))
     return query
 
