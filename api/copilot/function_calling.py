@@ -117,8 +117,6 @@ def descriptive_analytics(tenant_id:str, table_name:str, filter:dict=None, group
 
         # filter
         if filter:
-            print('filtering')
-            print(filter)
             data = Filtering.filter_by_condition(
                 data, 
                 column=filter['column'], 
