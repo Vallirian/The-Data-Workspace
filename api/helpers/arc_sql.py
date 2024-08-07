@@ -10,8 +10,8 @@ def execute_raw_query(tenant: str, queries: list[tuple[str, list]]) -> list[dict
     :return: The result of the last query executed.
     """
     # object names are pre-validated so should not be passed as parameters
-    print('-------- execute_raw_query start --------')
-    print('tenant', tenant)
+    # print('-------- execute_raw_query start --------')
+    # print('tenant', tenant)
     with transaction.atomic():
         with connection.cursor() as cursor:
             # Switch to the specified tenant schema
@@ -19,7 +19,7 @@ def execute_raw_query(tenant: str, queries: list[tuple[str, list]]) -> list[dict
 
             # reorder query before executing
             reordered_queries = autils.reorder_query(queries)
-            print('reordered_queries', reordered_queries)
+            # print('reordered_queries', reordered_queries)
             
             # Execute the query
             for query, params in reordered_queries:
@@ -41,7 +41,7 @@ def execute_raw_query(tenant: str, queries: list[tuple[str, list]]) -> list[dict
             results[0][col] = None
     else:
         results = [dict(zip(column_names, row)) for row in rows]
-    print('-------- execute_raw_query end --------')
+    # print('-------- execute_raw_query end --------')
     return results
 
 def create_schema(tenant: str):

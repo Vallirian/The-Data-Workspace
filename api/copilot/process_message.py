@@ -13,7 +13,7 @@ def enhance_analysis_action_user_message(message: str, tenant_id: str, current_t
         base_enhacement_message = avars.ANALYSIS_COPILOT_USER_MESSAGE_ENHANCEMENT
         base_enhacement_message += f"The current table the user is looking at has the table_name: {current_table_name}\n"
         base_enhacement_message += f"This is the columns information for the table {current_table_name}: {columns_response_data}\n"
-        base_enhacement_message += f"If the column comes from a different table that is related to {current_table_name} table, them the 'isRelationship' will be True.\n"
+        base_enhacement_message += f"If the column comes from a different table that is related to  the current table, them the column name will have a double dash or '__' in it. The value before the double dash or '__' is the related table name, and the value after is the column name from that related table\n"
         base_enhacement_message += f"The tenant_id of the user is: {tenant_id}\n"
         base_enhacement_message += f"The user has asked the following question: {message}\n"
 
@@ -47,10 +47,10 @@ def enhance_process_action_user_message(message: str, tenant_id: str, current_pr
                 if columns_response_data[i]['isRelationship']:
                     columns_response_data[i]['columnName'] = f"{columns_response_data[i]['relatedTable']}__{columns_response_data[i]['columnName']}"
             base_enhacement_message += f"The table {table} has the following columns: {columns_response_data}\n"
-            base_enhacement_message += f"If the column comes from a different table that is related to {table} table, them the 'isRelationship' will be True.\n"
         
         base_enhacement_message += f"The current process the user is looking at has the process_name: {current_process_name}\n"
         base_enhacement_message += f"The current process the user is looking at has the description: {process_description}\n"
+        base_enhacement_message += f"If the column comes from a different table that is related to  the current table, them the column name will have a double dash or '__' in it. The value before the double dash or '__' is the related table name, and the value after is the column name from that related table\n"
         base_enhacement_message += f"The tenant_id of the user is: {tenant_id}\n"
         base_enhacement_message += f"The user has asked the following question: {message}\n"
 
@@ -94,6 +94,7 @@ def enhance_how_to_user_message(message: str, tenant_id: str):
 
         base_enhacement_message += f"These are the processes available for the team and their tables: {process}\n"
         base_enhacement_message += f"These are the columns information for all tables: {columns}\n"
+        base_enhacement_message += f"If the column comes from a different table that is related to  the current table, them the column name will have a double dash or '__' in it. The value before the double dash or '__' is the related table name, and the value after is the column name from that related table\n"
         base_enhacement_message += f"The tenant_id of the user is: {tenant_id}\n"
         base_enhacement_message += f"The user has asked you the following question: {message}\n"
 

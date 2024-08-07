@@ -80,6 +80,7 @@ def get_pd_df_from_query_result(data: list['dict']) -> 'pd.DataFrame':
 
     df = pd.DataFrame(data)
     print('df', df)
+    print('columns', df.columns)
     return df
 
 # ----- AI -----

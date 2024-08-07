@@ -40,13 +40,22 @@ NOT_ALLOWED_OBJECT_NAMES = [
     # " ",
 ]
 
+# function_calling variables
+STRING_COMPARISON_OPERATORS = ["contains", "is"]
+NUMERIC_COMPARISON_OPERATORS = [">", ">=", "<", "<=", "="]
+BOOLEAN_COMPARISON_OPERATORS = ["="]
+DATE_COMPARISON_OPERATORS = [">", ">=", "<", "<=", "="]
+GROUP_BY_AGGREGATORS = ["sum", "average", "count"]
+TIME_SERIES_PERIODS = ["day", "week", "day of week", "month", "year"]
+
 
 # AI Copilot variables
 FUNCTION_DECLARATIONS = {
     "function_declarations": [
+        # descriptive analytics
         {
-            "name": "get_descriptive_analytics_for_table",
-            "description": "Retrieve descriptive analytics for a specified table with options for filtering by a column and applying arithmetic operations on another column. For example, filter 'employees' table by 'department' with a value of 'Sales' using an 'equal to' operator and then apply a 'count' arithmetic operation on 'employee_id'.",
+            "name": "descriptive_analytics",
+            "description": "Performs statistical operations such as mean, median, mode, etc., on data retrieved from a specified table. It supports optional filtering and grouping to refine the analysis.",
             "parameters": {
                 "type_": "OBJECT",
                 "properties": {
@@ -56,41 +65,113 @@ FUNCTION_DECLARATIONS = {
                     },
                     "table_name": {
                         "type_": "STRING",
-                        "description": "Name of the table to analyze."
+                        "description": "Name of the table from which data is to be retrieved and analyzed."
                     },
-                    "filter_column": {
-                        "type_": "STRING",
-                        "description": "Column name to apply the filter on. Optional. Required if 'filter_value' and 'filter_operator' are specified.",
-                        "nullable": True
+                    "filter": {
+                        "type_": "OBJECT",
+                        "description": "Optional filtering parameters. Requires column, condition, and value.",
+                        "properties": {
+                            "column": {"type_": "STRING"},
+                            "condition": {"type_": "STRING", "enum": ["contains", "is", ">", ">=", "<", "<=", "="]},
+                            "value": {"type_": "STRING"}
+                        }
                     },
-                    "filter_value": {
-                        "type_": "STRING",
-                        "description": "Value to filter the column by, accommodating both numeric and string values. Optional. Required if 'filter_operator' is specified.",
-                        "nullable": True
+                    "group": {
+                        "type_": "OBJECT",
+                        "description": "Optional grouping parameters. Requires column and aggregation type.",
+                        "properties": {
+                            "column": {"type_": "STRING"},
+                            "aggregation": {"type_": "STRING", "enum": ["sum", "average", "count"]}
+                        }
                     },
-                    "filter_operator": {
+                    "column": {
                         "type_": "STRING",
-                        "format_": "enum",
-                        "enum": ["greater than", "less than", "equal to", "contains", "not equal"],
-                        "description": "Operator to apply for the filtering. Options include 'greater than', 'less than', 'equal to', 'contains', 'not equal'. Optional.",
-                        "nullable": True
+                        "description": "The specific column to perform the operation on. Required."
                     },
-                    "arithmetic_column": {
+                    "operation": {
                         "type_": "STRING",
-                        "description": "Column name on which to perform the arithmetic operation. Optional. Required if 'arithmetic_operator' is specified.",
-                        "nullable": True
-                    },
-                    "arithmetic_operator": {
-                        "type_": "STRING",
-                        "format_": "enum",
-                        "enum": ["sum", "average", "count", "ratio"],
-                        "description": "Arithmetic operation to perform on the specified arithmetic column. Options include 'sum', 'average', 'count', 'ratio'. Optional.",
-                        "nullable": True
+                        "enum": ["mean", "median", "mode", "sum", "count", "range", "frequency_distribution", "relative_frequency_distribution"],
+                        "description": "The statistical operation to perform. Required."
                     }
                 },
-                "required": ["tenant_id", "table_name"]
+                "required": ["tenant_id", "table_name", "column", "operation"]
             }
         },
+        {
+            "name": "proportion_analytics",
+            "description": "Calculates the percentage of occurrences of a specified value within a given column of a table, optionally within a defined time period.",
+            "parameters": {
+                "type_": "OBJECT",
+                "properties": {
+                    "tenant_id": {
+                        "type_": "STRING",
+                        "description": "Unique identifier for the tenant to ensure data isolation."
+                    },
+                    "table_name": {
+                        "type_": "STRING",
+                        "description": "Name of the table from which data is to be retrieved and analyzed."
+                    },
+                    "column": {
+                        "type_": "STRING",
+                        "description": "The column to analyze for the specified value. Required."
+                    },
+                    "value": {
+                        "type_": "STRING",
+                        "description": "The value to calculate the percentage occurrence of. Required."
+                    },
+                    "period": {
+                        "type_": "STRING",
+                        "enum": ["day", "week", "day of week", "month", "year"],
+                        "description": "Optional time period to consider for the analysis."
+                    },
+                    "operation": {
+                        "type_": "STRING",
+                        "enum": ["percentage"],
+                        "description": "The operation to perform. Currently, only 'percentage' is supported."
+                    }
+                },
+                "required": ["tenant_id", "table_name", "column", "value", "operation"]
+            }
+        },
+        {
+            "name": "time_series_analytics",
+            "description": "Performs time series analysis operations like rate of change over a specified period on a date column within data retrieved from a specified table.",
+            "parameters": {
+                "type_": "OBJECT",
+                "properties": {
+                    "tenant_id": {
+                        "type_": "STRING",
+                        "description": "Unique identifier for the tenant to ensure data isolation."
+                    },
+                    "table_name": {
+                        "type_": "STRING",
+                        "description": "Name of the table from which data is to be retrieved and analyzed."
+                    },
+                    "number_column": {
+                        "type_": "STRING",
+                        "description": "The numeric column in the dataset to calculate the rate of change on. Required."
+                    },
+                    "date_column": {
+                        "type_": "STRING",
+                        "description": "The date column in the dataset to base the time series analysis on. Required."
+                    },
+                    "period": {
+                        "type_": "STRING",
+                        "enum": ["day", "week", "day of week", "month", "year"],
+                        "description": "The time period over which to calculate the rate of change. Required."
+                    },
+                    "operation": {
+                        "type_": "STRING",
+                        "enum": ["average_rate_of_change"],
+                        "description": "The operation to perform. Currently, only 'average_rate_of_change' is supported."
+                    }
+                },
+                "required": ["tenant_id", "table_name", "number_column", "date_column", "period", "operation"]
+            }
+        },
+
+        
+        # process
         {
             "name": "create_table",
             "description": "Creates a new table in the database with specified columns and datatypes. Validates the table name, column names, and column datatypes, and then attempts to create the table and add columns.",
@@ -152,23 +233,27 @@ FUNCTION_DECLARATIONS = {
     ]
 }
 
-# Analysis variables
-ANALYSIS_COPILOT_SYSTEM_INSTRUCTIONS = """
-You are an assistant in a business management system, you help users analyze their data.
-You use provided functions when neccesary to fetch data from the database, do calculations, and provide insights to the user.
+GENERAL_COPILOT_SYSTEM_INSTRUCTIONS = """
+You are an assistant in a business management system.
 Your formality level should be professional, helpful, and moderately friendly.
 Your verbal communication should be clear and concise.
+"""
+
+# Analysis variables
+ANALYSIS_COPILOT_SYSTEM_INSTRUCTIONS = GENERAL_COPILOT_SYSTEM_INSTRUCTIONS+"""
+You help users analyze their data.
+You use provided functions when neccesary to fetch data from the database, do calculations, and provide insights to the user.
+
 """
 ANALYSIS_COPILOT_USER_MESSAGE_ENHANCEMENT =f"""
 Do not make any assumptions, only provide insights based on the data provided.
 """
-ANALYSIS_COPILOT_ALLOWED_FUNCTIONS = ['get_descriptive_analytics_for_table']
+ANALYSIS_COPILOT_ALLOWED_FUNCTIONS = ['descriptive_analytics', 'proportion_analytics', 'time_series_analytics']
 
 # Process variables
-PROCESS_COPILOT_SYSTEM_INSTRUCTIONS = """
-You are an assistant in a business management system, you help users organize their tables under processes.
+PROCESS_COPILOT_SYSTEM_INSTRUCTIONS = GENERAL_COPILOT_SYSTEM_INSTRUCTIONS+"""
+You help users organize their tables under processes.
 You use provided functions when neccesary to create tables and add tables to processes.
-Your formality level should be professional, helpful, and moderately friendly.
 Before creating a table or adding a table to a process, confirm with the user.
 """
 PROCESS_COPILOT_USER_MESSAGE_ENHANCEMENT =f"""
@@ -177,11 +262,9 @@ Do not make any assumptions, only provide insights based on the data provided.
 PROCESS_COPILOT_ALLOWED_FUNCTIONS = ['create_table', 'add_tables_to_process']
 
 # How-to variables
-HOW_TO_COPILOT_SYSTEM_INSTRUCTIONS = """
-You are an assistant in a business management system and you are talking to the user directly, you help users understand how to do manipulate the tables in the system to perform actions.
+HOW_TO_COPILOT_SYSTEM_INSTRUCTIONS = GENERAL_COPILOT_SYSTEM_INSTRUCTIONS+"""
+You help users understand how to do manipulate the tables in the system to perform actions.
 Tables are organized under processes, tables in one process are related to each other, and one table can be used in multiple processes.
-Your formality level should be professional, helpful, and moderately friendly.
-Your verbal communication should be clear and concise.
 If fields are not provided, feel free to leave them empty.
 """
 HOW_TO_COPILOT_USER_MESSAGE_ENHANCEMENT =f"""

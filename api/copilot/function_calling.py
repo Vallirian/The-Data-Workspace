@@ -1,30 +1,71 @@
 from datetime import datetime
-from helpers import arc_utils as autils, arc_vars as avars, arc_sql as asql, arc_statements as astmts
+from helpers import arc_utils as autils, arc_vars as avars, arc_sql as asql, arc_statements as astmts, arc_validate as aval
+
+from analytics.data_wrangling import Filtering, Grouping
+from analytics.statistics import CentralTendency, Summary, Dispersion, Position, Tabular, Time
 
 import google.generativeai as genai
  
 # ---------- Function Callers ---------- #
-def parse_command(command: genai.protos.FunctionCall):
-    """
-    Parse a FunctionCall object from Gemini into a dictionary of function name and arguments.
-    """
-    function_name = command.name
-    args_dict = {}
+# Recursive function to extract arguments
+def extract_arguments(fields):
+    arguments = {}
+    
+    for field in fields:
+        key = field['key']
+        value = field['value']
+        
+        if type(value) == str:
+            arguments[key] = value
+        else:
+            arguments[key] = extract_arguments(value.args.item())
+    
+    return arguments
 
-    # Loop through each field and extract the key and value
+# Main function to start extraction
+def parse_command(command: genai.protos.FunctionCall):
+    # data = command.__dict__
+    # print('data', data)
+    # print('data type', type(data))
+
+    # print(command.args.fields)
+    print('command', command)
     for k, v in command.args.items():
-        args_dict[k] = v
-    print('function args', {'name': function_name, 'args': args_dict})
-    return {'name': function_name, 'args': args_dict}
+
+        print(v, type(v))
+
+
+    # if '_pb' in data and 'args' in data['_pb'] and 'fields' in data['_pb']['args']:
+    #     return extract_arguments(data['_pb']['args']['fields'])
+    # return {}
+
+# def parse_command(command: genai.protos.FunctionCall):
+#     """
+#     Parse a FunctionCall object from Gemini into a dictionary of function name and arguments.
+#     """
+#     function_name = command.name
+#     args_dict = {}
+#     print('command', command)
+#     print('command dict', command.__dict__)
+
+#     # Loop through each field and extract the key and value
+#     for k, v in command.args.items():
+#         value = v
+#         print('value', value, type(value))
+
+#         args_dict[k] = v
+#     print('function args', {'name': function_name, 'args': args_dict})
+#     return {'name': function_name, 'args': args_dict}
 
 def execute_function(command: genai.protos.FunctionCall):
     """
     Execute a function based on a parsed command dictionary.
     """
-    print('executing function', command)
+    # print('executing function', command)
     try:
         # Parse the command to get the function name and arguments
         parsed_command = parse_command(command)
+        print('parsed_command', parsed_command)
         func_name = parsed_command["name"]
         args = parsed_command["args"]
 
@@ -97,96 +138,125 @@ def add_tables_to_process(table_names: list['str'], tenant_id: str, process_name
     except Exception as e:
         return f'Failed to add tables to process: {str(e)}'
     
-
-def get_descriptive_analytics_for_table(
-        tenant_id: str, table_name: str, filter_column: str=None, filter_value: str | float=None, 
-        filter_operator: str=None, arithmetic_column: str=None, 
-        arithmetic_operator: str=None
-    ):
+# ---------- Analytics Functions ---------- #
+def descriptive_analytics(tenant_id:str, table_name:str, filter:dict=None, group:dict=None, column:str=None, operation:str=None):
     """
-    Retrieve descriptive analytics for a specified table with options for filtering by a column and applying 
-    arithmetic operations on another column. For example, filter 'employees' table by 'department' with a value of 
-    'Sales' using an 'equal to' operator and then apply a 'count' arithmetic operation on 'employee_id'.
+    filter = {
+        'column': 'column_name',
+        'condition': '>',
+        'value': 10
+    },
+    group = {
+        'column': 'column_name',
+        'aggregation': 'sum'
+    },
+    column = 'column_name',
+    operation = 'mean'
     """
-
-    try:
-        # Get data
+    print('descriptive analytics')
+    try: 
+        # get data
         response_data = asql.execute_raw_query(tenant=tenant_id, queries=astmts.get_complete_table_query(tenant_id, table_name))
         original_df = autils.get_pd_df_from_query_result(response_data)
-        df = original_df.copy()
+        data = original_df.copy()
 
-        # Filter data
-        if filter_column and filter_value:
-            if filter_operator not in ['greater than', 'less than', 'equal to', 'contains', 'not equal']:
-                return 'Invalid filter operator, choose from: greater than, less than, equal to, contains, not equal'
-            
-            if filter_column not in df.columns:
-                return 'Filter column does not exist, choose from: ' + ', '.join(df.columns)
-            
-            if filter_operator == 'contains':
-                if type(filter_value) != str:
-                    return 'Filter value must be a string for contains operator'
-                df = df[df[filter_column].str.contains(filter_value, case=False)] # case insensitive
-            elif filter_operator == 'not equal':
-                if df[filter_column].dtype == 'object':
-                    df = df[df[filter_column].str.lower() != filter_value.lower()]
-                else:
-                    try:
-                        filter_value = float(filter_value)
-                        df = df[df[filter_column] != filter_value]
-                    except ValueError:
-                        return 'Filter value must be a number for greater than or less than operators'
+        # validate input
+        validation_error = aval.validate_input_func_calling_descriptive_analytics(tenant_id, table_name, filter, group, column, operation)
+        if validation_error:
+            return validation_error
 
-            elif filter_operator == 'greater than':
-                # the filter_value always comes as a string, so we need to convert it to float
-                try:
-                    filter_value = float(filter_value)
-                except ValueError:
-                    return 'Filter value must be a number for greater than or less than operators'
-                df = df[df[filter_column] > filter_value]
-            elif filter_operator == 'less than':
-                # the filter_value always comes as a string, so we need to convert it to float
-                try:
-                    filter_value = float(filter_value)
-                    print('filter_value for lessthan', filter_value)
-                except ValueError:
-                    return 'Filter value must be a number for greater than or less than operators'
-                df = df[df[filter_column] < filter_value]
-                print('df after less than', df)
-            elif filter_operator == 'equal to':
-                if df[filter_column].dtype == 'object': # is string
-                    df = df[df[filter_column].str.lower() == filter_value.lower()]
-                else:
-                    try:
-                        filter_value = float(filter_value)
-                        df = df[df[filter_column] == filter_value]
-                    except ValueError:
-                        return 'The filter column is not a string, so the filter value must be a number'
+        # filter
+        if filter:
+            data = Filtering.filter_by_condition(
+                data, 
+                column=filter['column'], 
+                condition=filter['condition'], 
+                value=filter['value']
+            )
 
-        # Arithmetic operations
-        if arithmetic_column and arithmetic_operator:
-            if arithmetic_column not in df.columns:
-                return 'Arithmetic column does not exist, choose from: ' + ', '.join(df.columns)
-            
-            if arithmetic_operator not in ['sum', 'average', 'count', 'ratio']:
-                return 'Invalid arithmetic operator, choose from: sum, average, count, ratio'
-            
-            # Perform operation
-            df = df[arithmetic_column]
-            if arithmetic_operator == 'sum':
-                return float(df.sum())
-            elif arithmetic_operator == 'average':
-                return float(df.mean())
-            elif arithmetic_operator == 'count':
-                return int(df.shape[0])
-            elif arithmetic_operator == 'ratio':
-                if original_df.shape[0] == 0:  # Prevent division by zero
-                    return 'Cannot calculate ratio: original dataset is empty'
-                return float(df.shape[0] / original_df.shape[0])
+        # group
+        if group:
+            data = Grouping.group_by_column(
+                data, 
+                column=group['column'], 
+                aggregation=group['aggregation']
+            )
+
+        # compute
+        if operation == 'mean':
+            return CentralTendency.mean(data, column)
+        elif operation == 'median':
+            return CentralTendency.median(data, column)
+        elif operation == 'mode':
+            return CentralTendency.mode(data, column)
+        elif operation == 'sum':
+            return Summary.sum(data, column)
+        elif operation == 'count':
+            return Summary.count(data, column)
+        elif operation == 'range':
+            return Dispersion.range(data, column)
+        elif operation == 'frequency_distribution':
+            return Tabular.frequency_distribution(data, column)
+        elif operation == 'relative_frequency_distribution':
+            return Tabular.relative_frequency_distribution(data, column)
+        
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+def proportion_analytics(tenant_id:str, table_name:str, column:str, value:str, period:str=None, operation:str=None):
+    """
+    column = 'column_name',
+    value = 'value_name',
+    period = 'day' | 'week' | 'month' | 'day of week' | 'year'
+    """
+    try: 
+        response_data = asql.execute_raw_query(tenant=tenant_id, queries=astmts.get_complete_table_query(tenant_id, table_name))
+        original_df = autils.get_pd_df_from_query_result(response_data)
+        data = original_df.copy()
+
+        # validate input
+        validation_error = aval.validate_input_func_calling_proportion_analytics(tenant_id, table_name, column, value, period, operation)
+        if validation_error:
+            return validation_error
+        
+        if operation == 'percentage':
+            return  Position.percentage(data, column, value, period)
 
     except Exception as e:
-        return str(e)
-    
+        return f"Error: {str(e)}"
+
+def time_series_analytics(tenant_id:str, table_name:str, number_column:str, date_column:str, period:str, operation:str=None):
+    try: 
+        response_data = asql.execute_raw_query(tenant=tenant_id, queries=astmts.get_complete_table_query(tenant_id, table_name))
+        original_df = autils.get_pd_df_from_query_result(response_data)
+        data = original_df.copy()
+        
+        # validate input
+        validation_error = aval.validate_input_func_calling_time_series_analytics(tenant_id, table_name, date_column, period, operation)
+        if validation_error:
+            return validation_error
+
+        if operation == 'average_rate_of_change':
+            return Time.average_rate_of_change(data, number_column, date_column, period)
+        
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 if __name__ == '__main__':
     pass

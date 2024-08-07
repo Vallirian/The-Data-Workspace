@@ -60,11 +60,13 @@ class Summary:
         :param column: Column name for which the sum is to be calculated
         :return: Sum value of the specified column
         """
+        print('data in sum', data[column])
         # Ensure the column exists in the DataFrame
         if column not in data.columns:
             raise ValueError(f"Column '{column}' does not exist in the DataFrame.")
         
         # Calculate and return the sum
+        print('data[column].sum()', data[column].sum())
         return data[column].sum()
 
     @staticmethod
@@ -223,7 +225,7 @@ class Tabular:
 
 class Time:
     @staticmethod
-    def rate_of_change(data, column, time_period):
+    def average_rate_of_change(data, number_column, time_column, time_period):
         """
         Calculates the rate of change for a specified column over a given time period.
 
@@ -233,24 +235,35 @@ class Time:
         :return: pandas Series representing the rate of change
         """
         # Ensure the column exists in the DataFrame
-        if column not in data.columns:
-            raise ValueError(f"Column '{column}' does not exist in the DataFrame.")
+        if number_column not in data.columns:
+            raise ValueError(f"Column '{number_column}' does not exist in the DataFrame.")
         
         # Ensure the column is of numeric type
-        if not pd.api.types.is_numeric_dtype(data[column]):
-            raise ValueError(f"Column '{column}' must be of numeric type.")
+        if not pd.api.types.is_numeric_dtype(data[number_column]):
+            raise ValueError(f"Column '{number_column}' must be of numeric type.")
+        
+        if time_column not in data.columns:
+            raise ValueError(f"Column '{time_column}' does not exist in the DataFrame.")
+        
+        if not pd.api.types.is_datetime64_any_dtype(data[time_column]):
+            raise ValueError(f"Column '{time_column}' must be of datetime type.")
         
         # Ensure the DataFrame has a datetime index
         if not pd.api.types.is_datetime64_any_dtype(data.index):
             raise ValueError("DataFrame index must be of datetime type.")
+
+        if time_period not in ['day', 'week', 'month', 'day of week', 'year']:
+            raise ValueError(f"Invalid time_period '{time_period}'. Valid options are 'day', 'week', 'month', 'day of week', 'year'.")
         
-        # Validate the time_period parameter
-        valid_time_periods = ['D', 'W', 'M', 'Q', 'A']  # Daily, Weekly, Monthly, Quarterly, Annually
-        if time_period not in valid_time_periods:
-            raise ValueError(f"Invalid time_period '{time_period}'. Valid options are {valid_time_periods}.")
-        
-        # Calculate the rate of change
-        resampled_data = data[column].resample(time_period).mean()
-        rate_of_change = resampled_data.pct_change() * 100
+        value_map = {
+            'day': data[time_column].dt.day,
+            'day of week': data[time_column].dt.dayofweek,
+            'week': data[time_column].dt.week,
+            'month': data[time_column].dt.month,
+            'year': data[time_column].dt.year
+        }
+
+        data = data.groupby(value_map[time_period]).mean()
+        rate_of_change = data[number_column].pct_change() * 100
         
         return rate_of_change
