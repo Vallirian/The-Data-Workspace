@@ -108,7 +108,7 @@ class Dispersion:
 
 class Position:
     @staticmethod
-    def percentage(data, column, operation, value):
+    def percentage(data, column, operation, value, period):
         """
         Calculates the percentage of values in the specified column that meet a certain condition.
 
@@ -126,18 +126,18 @@ class Position:
         col_type = data[column].dtype
         
         # Check if the column type and operation are supported
-        if pd.api.types.is_numeric_dtype(col_type):
+        if pd.api.types.is_numeric_dtype(col_type) or pd.api.types.is_datetime64_any_dtype(col_type):
             if operation not in ['>', '>=', '<', '<=', '=']:
                 raise ValueError("Unsupported operation for numeric data. Use '>', '>=', '<', '<=', '='.")
         elif pd.api.types.is_string_dtype(col_type):
             if operation not in ['contains', 'is']:
                 raise ValueError("Unsupported operation for string data. Use 'contains' or 'is'.")
-        elif pd.api.types.is_datetime64_any_dtype(col_type):
-            if operation not in ['day', 'day of week', 'week', 'month', 'year']:
-                raise ValueError("Unsupported operation for datetime data. Use 'day', 'day of week', 'week', 'month', 'year'.")
         elif pd.api.types.is_bool_dtype(col_type):
             if operation != '=':
                 raise ValueError("Unsupported operation for boolean data. Use '='.")
+        elif pd.api.types.is_datetime64_any_dtype(col_type):
+            if period not in ['day', 'day of week', 'week', 'month', 'year']:
+                raise ValueError("Unsupported period for datetime data. Use 'day', 'day of week', 'week', 'month', 'year'.")
         else:
             raise ValueError("Unsupported data type.")
 
@@ -159,16 +159,24 @@ class Position:
             elif operation == 'is':
                 condition = data[column] == value
         elif pd.api.types.is_datetime64_any_dtype(col_type):
-            if operation == 'day':
-                condition = data[column].dt.day == value
-            elif operation == 'day of week':
-                condition = data[column].dt.dayofweek == value
-            elif operation == 'week':
-                condition = data[column].dt.isocalendar().week == value
-            elif operation == 'month':
-                condition = data[column].dt.month == value
-            elif operation == 'year':
-                condition = data[column].dt.year == value
+            value_map = {
+                'day': data[column].dt.day,
+                'day of week': data[column].dt.dayofweek,
+                'week': data[column].dt.week,
+                'month': data[column].dt.month,
+                'year': data[column].dt.year
+            }
+            if operation == '>':
+                condition = value_map[period] > value
+            elif operation == '>=':
+                condition = value_map[period] >= value
+            elif operation == '<':
+                condition = value_map[period] < value
+            elif operation == '<=':
+                condition = value_map[period] <= value
+            elif operation == '=':
+                condition = value_map[period] == value
+            
         elif pd.api.types.is_bool_dtype(col_type):
             condition = data[column] == value
 
@@ -178,54 +186,6 @@ class Position:
         percentage_matching = (matching_count / total_count) * 100
 
         return percentage_matching
-
-    @staticmethod
-    def quartile(data, column):
-        """
-        Calculates the quartiles of a specified column in the DataFrame.
-
-        :param data: pandas DataFrame containing the data
-        :param column: Column name for which the quartiles are to be calculated
-        :return: A dictionary with the quartile values
-        """
-        # Ensure the column exists in the DataFrame
-        if column not in data.columns:
-            raise ValueError(f"Column '{column}' does not exist in the DataFrame.")
-        
-        # Calculate the quartiles
-        quartiles = data[column].quantile([0.25, 0.5, 0.75]).to_dict()
-        quartiles['min'] = data[column].min()
-        quartiles['max'] = data[column].max()
-        
-        return quartiles
-
-    @staticmethod
-    def ratio(data, numerator, denominator):
-        """
-        Calculates the ratio of the sum of two specified columns in the DataFrame.
-
-        :param data: pandas DataFrame containing the data
-        :param numerator: Column name to be used as the numerator
-        :param denominator: Column name to be used as the denominator
-        :return: Ratio of the sum of the numerator column to the sum of the denominator column
-        """
-        # Ensure the columns exist in the DataFrame
-        if numerator not in data.columns:
-            raise ValueError(f"Column '{numerator}' does not exist in the DataFrame.")
-        if denominator not in data.columns:
-            raise ValueError(f"Column '{denominator}' does not exist in the DataFrame.")
-        
-        # Calculate the ratio
-        numerator_sum = data[numerator].sum()
-        denominator_sum = data[denominator].sum()
-        
-        if denominator_sum == 0:
-            raise ValueError("Denominator sum is zero, cannot calculate ratio.")
-        
-        ratio_value = numerator_sum / denominator_sum
-        
-        return ratio_value
-
 
 class Tabular:
     @staticmethod
@@ -259,7 +219,6 @@ class Tabular:
         
         # Calculate and return the relative frequency distribution
         return data[column].value_counts(normalize=True) * 100
-
 
 
 class Time:
