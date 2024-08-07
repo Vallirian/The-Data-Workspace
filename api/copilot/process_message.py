@@ -98,8 +98,6 @@ def enhance_how_to_user_message(message: str, tenant_id: str):
         base_enhacement_message += f"The tenant_id of the user is: {tenant_id}\n"
         base_enhacement_message += f"The user has asked you the following question: {message}\n"
 
-        print('base_enhacement_message', base_enhacement_message)
         return base_enhacement_message
     except Exception as e:
-        print(e)
         raise 'Error while processing the user message'

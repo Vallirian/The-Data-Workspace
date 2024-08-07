@@ -12,7 +12,6 @@ def execute_function(command: genai.protos.FunctionCall):
     """
     Execute a function based on a parsed command dictionary.
     """
-    # print('executing function', command)
     try:
         # Parse the command to get the function name and arguments
         parsed_command = type(command).to_dict(command)
@@ -103,7 +102,6 @@ def descriptive_analytics(tenant_id:str, table_name:str, filter:dict=None, group
     column = 'column_name',
     operation = 'mean'
     """
-    print('descriptive analytics')
     try: 
         # get data
         response_data = asql.execute_raw_query(tenant=tenant_id, queries=astmts.get_complete_table_query(tenant_id, table_name))

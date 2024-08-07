@@ -60,13 +60,11 @@ class Summary:
         :param column: Column name for which the sum is to be calculated
         :return: Sum value of the specified column
         """
-        print('data in sum', data[column])
         # Ensure the column exists in the DataFrame
         if column not in data.columns:
             raise ValueError(f"Column '{column}' does not exist in the DataFrame.")
         
         # Calculate and return the sum
-        print('data[column].sum()', data[column].sum())
         return data[column].sum()
 
     @staticmethod

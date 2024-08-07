@@ -16,10 +16,8 @@ class ProcessListView(APIView):
                     return Response([])
             return Response(response_data)
         except OperationalError as e:
-            print(e)
             return Response({'error': f'Database error: operation failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
-            print(e)
             return Response({'error': f'Unexpected error: failed to fetch processes'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     def post(self, request):
@@ -38,10 +36,8 @@ class ProcessListView(APIView):
             asql.execute_raw_query(tenant=tenant_id, queries=astmts.get_create_new_process_query(process_name, process_description))
             return Response(process_name, status=status.HTTP_201_CREATED)
         except OperationalError as e:
-            print(e)
             return Response({'error': f'Database error: operation failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
-            print(e)
             return Response({'error': f'Unexpected error: failed to create process'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 class ProcessTableRelationshipListView(APIView):
@@ -82,10 +78,8 @@ class ProcessTableRelationshipListView(APIView):
                 queries=[(f"SELECT * FROM `{avars.PROCESS_TABLE_RELATIONSHIP_TABLE_NAME}` WHERE processName = %s;", [process_name])]
             )
         except OperationalError as e:
-            print('OperationalError:', e)
             return Response({'error': f'Database error: operation failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
-            print('Exception:', e)
             return Response({'error': f'Unexpected error: failed to fetch process table relationships'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         existing_table_names = [item['tableName'] for item in response_data]
@@ -102,10 +96,8 @@ class ProcessTableRelationshipListView(APIView):
             
             return Response(tables_to_add, status=status.HTTP_201_CREATED)
         except OperationalError as e:
-            print('OperationalError:', e)
             return Response({'error': f'Database error: operation failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
-            print('Exception:', e)
             return Response({'error': f'Unexpected error: failed to create process table relationship'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     def delete(self, request, process_name):

@@ -44,8 +44,6 @@ class RegisterCustomUserView(APIView):
             return Response({'message': 'User created successfully'}, status=status.HTTP_201_CREATED)
 
         except OperationalError as e:
-            print(e)
             return Response({'error': f'Database error: operation failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
-            print(e)
             return Response({'error': f'Unexpected error: failed to create user'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

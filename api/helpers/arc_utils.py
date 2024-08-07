@@ -79,8 +79,6 @@ def get_pd_df_from_query_result(data: list['dict']) -> 'pd.DataFrame':
                 entry[key] = float(value)
 
     df = pd.DataFrame(data)
-    print('df', df)
-    print('columns', df.columns)
     return df
 
 # ----- AI -----
@@ -96,7 +94,6 @@ def cast_datatype_to_python(data: list[dict]) -> list[dict]:
         return value
 
     def recursive_convert(input_item):
-        # print('input_item', input_item, 'type', type(input_item))
         """Recursively convert data types in a dictionary or list."""
         if isinstance(input_item, dict):
             return {k: recursive_convert(v) for k, v in input_item.items()}
@@ -119,7 +116,6 @@ def get_function_declaration(function_names: list['str']) -> dict:
         if function_declaration["name"] in function_names:
             function_config["function_declarations"].append(function_declaration)
     
-    # print('function_config', function_config)
     return function_config
             
 if __name__ == '__main__':

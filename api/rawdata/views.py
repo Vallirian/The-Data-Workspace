@@ -9,7 +9,6 @@ class RawDataView(APIView):
     def get(self, request, table_name):
         tenant_id = request.user.tenant.id
         table_columns = asql.execute_raw_query(tenant=tenant_id, queries=[(f"SELECT * FROM `{avars.COLUMN_TABLE}` WHERE tableName = '{table_name}';", [])])
-        print('table_columns', table_columns)
 
         # remove placeholder column for empty tables
         table_columns = [col for col in table_columns if col["columnName"] != None]
@@ -27,7 +26,6 @@ class RawDataView(APIView):
             else:
                 column_query += f'`{col["columnName"]}`, ' if f'{col["columnName"]}, ' not in column_query else ''
         column_query = column_query[:-2]
-        print('column_query', column_query)
         
         join_query = ''
         for col in table_columns:
@@ -51,9 +49,7 @@ class RawDataView(APIView):
             response_data = asql.execute_raw_query(tenant=tenant_id, queries=[(query, [])])
             return Response(response_data)
         except Exception as e:
-            print('error in rawdataview', e)
             return Response({'error': f'Unable to fetch data for table {table_name}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
         
     def put(self, request, table_name):
         tenant_id = request.user.tenant.id
@@ -87,8 +83,6 @@ class RawDataView(APIView):
                     INSERT INTO `{table_name}` ({", ".join(columns_part)}) 
                     VALUES ({", ".join(['%s' for _ in range(values_count)])});
                 """
-                print('final_query', final_query)
-
                 final_queries.append((final_query, params))
 
             # update rows
@@ -110,9 +104,6 @@ class RawDataView(APIView):
                         SET {set_part}
                         WHERE `id` = %s;
                     """ # TODO: add updatedAt
-
-                    print('final_query', final_query)
-                    print('params', params)
 
                     final_queries.append((final_query, params))
 
