@@ -1,5 +1,4 @@
-from django.urls import path, include
-from rest_framework_nested import routers
+from django.urls import path
 from process.views import ProcessListView, ProcessTableRelationshipListView
 
 urlpatterns = [

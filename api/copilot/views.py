@@ -5,7 +5,6 @@ from rest_framework.response import Response
 from rest_framework import status
 from helpers import arc_vars as avars, arc_utils as autils, arc_sql as asql, arc_statements as astmts
 
-import google.generativeai as genai
 from copilot import send_message as gemini_chat
 
 class CopilotAnalysisChat(APIView):

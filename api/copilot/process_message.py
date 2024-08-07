@@ -1,7 +1,5 @@
 from helpers import arc_utils as autils, arc_vars as avars, arc_sql as asql, arc_statements as astmts
 
-import google.generativeai as genai
-
 def enhance_analysis_action_user_message(message: str, tenant_id: str, current_table_name: str) -> str:
     try:
         columns_response_data = asql.execute_raw_query(tenant=tenant_id, queries=astmts.get_complete_table_columns_query(current_table_name))

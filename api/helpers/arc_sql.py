@@ -1,5 +1,5 @@
 from django.db import connection, transaction
-from helpers import arc_vars as avars, arc_utils as autils
+from helpers import arc_utils as autils
 
 
 def execute_raw_query(tenant: str, queries: list[tuple[str, list]]) -> list[dict]:

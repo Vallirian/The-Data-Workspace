@@ -55,7 +55,6 @@ export class WorkspaceHomeComponent {
 
     this.apiService.listProcesses().subscribe({
       next: (processes: ProcessInterface[]) => {
-        console.log(processes);
 
         // get process table relationships
         processes.forEach((process: ProcessInterface) => {

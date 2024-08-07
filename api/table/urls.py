@@ -1,5 +1,4 @@
-from django.urls import path, include
-from rest_framework_nested import routers
+from django.urls import path
 from table.views import TableListView, ColumnListView, TableDetailView, ColumnDetailView
 
 urlpatterns = [

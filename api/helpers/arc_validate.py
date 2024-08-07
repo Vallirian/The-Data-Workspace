@@ -1,4 +1,4 @@
-from helpers import arc_vars as avars, arc_utils as autils
+from helpers import arc_vars as avars
 
 # ---------- function calling ---------- #
 def validate_input_func_calling_descriptive_analytics(tenant_id:str, table_name:str, filter:dict=None, group:dict=None, column:str=None, operation:str=None):

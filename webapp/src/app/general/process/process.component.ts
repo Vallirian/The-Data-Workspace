@@ -47,7 +47,6 @@ export class ProcessComponent {
     this.apiService.listProcesses().subscribe({
       next: (processes: ProcessInterface[]) => {
         this.processList = processes;
-        console.log(processes);
 
         // get process table relationships
         processes.forEach((process: ProcessInterface) => {
@@ -104,7 +103,6 @@ export class ProcessComponent {
   }
 
   onSelectProcess(processName: string) {
-    console.log('selected process', processName);
     // remove previous table names
     this.tableNames.clear();
 

@@ -80,8 +80,6 @@ export class AddColumnComponent {
   }
 
   onSave() {
-    console.log(this.columnForm.value);
-    console.log(this.relationshipColumnForm.value);
     if (this.tableId === undefined) {
       this.notificationService.addNotification({message: 'Table not provided', type: 'error', dismissed: false, remainingTime: 5000});
       return

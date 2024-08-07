@@ -181,15 +181,12 @@ export class TableComponent {
   }
 
   onSave() {
-    console.log(this.rows.value);
     // collect changes
     for (const rowId of this.getRowsFormControls()) {
       const row = this.getRowForm(rowId);
       const rowChanges: {[key: string]: {[key: string]: string | number |  boolean | Date | null}} = {[rowId]: {}};
-      // console.log('row', row);
       
       if (row.dirty || row.dirty) {
-        // console.log('rowId', rowId);
         for (let columnId of Object.keys(row.controls)) {
           const column = this.getCellForm(rowId, columnId);
 
@@ -217,8 +214,6 @@ export class TableComponent {
     }
 
     // save changes
-    console.log('changes', this.changes);
-    console.log(this.rows)
     this.apiService.updateRawTable(this.tableId, this.changes).subscribe({
       next: (res) => {
         this.notificationService.addNotification({message: 'Table data saved', type: 'success', dismissed: false, remainingTime: 5000});
@@ -238,7 +233,6 @@ export class TableComponent {
   onDeleteRows() {
     // get a list of selected row ids
     const selectedRowIds = this.getRowsFormControls().filter((rowId) => this.getRowMetaForm(rowId).get('isDeleted')?.value);
-    console.log('selectedRowIds', selectedRowIds);
 
     // delete rows
     this.changes.deleted = selectedRowIds;
@@ -282,8 +276,6 @@ export class TableComponent {
 
   // update exsiting
   onSelectCellForUpdate(rowId: string, colId: string) {
-    console.log('rowId', rowId);
-    console.log('colId', colId);
     this.setColumEditted(rowId, colId);
   }
 

@@ -71,12 +71,9 @@ export class AnalysisChatComponent {
 
   onSelectConversation(chatId: string) {
     this.selectedChatId = chatId;
-    console.log(chatId);
     this.apiService.getAnalysisChat(chatId).subscribe({
       next: (messages: CopilotMessageInterface[]) => {
-        console.log(messages);
         this.messages = messages;
-        console.log(this.messages);
       },
       error: (err) => {
         this.notificationService.addNotification({message: err.error.error || 'Failed to load conversation', type: 'error', dismissed: false, remainingTime: 5000});

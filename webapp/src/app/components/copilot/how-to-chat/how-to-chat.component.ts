@@ -70,12 +70,9 @@ export class HowToChatComponent {
 
   onSelectConversation(chatId: string) {
     this.selectedChatId = chatId;
-    console.log(chatId);
     this.apiService.getHowToChat(chatId).subscribe({
       next: (messages: CopilotMessageInterface[]) => {
-        console.log(messages);
         this.messages = messages;
-        console.log(this.messages);
       },
       error: (err) => {
         this.notificationService.addNotification({message: err.error.error || 'Failed to load conversation', type: 'error', dismissed: false, remainingTime: 5000});

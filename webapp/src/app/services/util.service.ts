@@ -54,7 +54,6 @@ export class UtilService {
   b64ToString(base64String: string): string | null {
     // Attempt to decode a Base64 encoded string
     try {
-      console.log('Decoding Base64 string:', base64String);
       return atob(base64String);
     } catch (e) {
       console.error('Error decoding Base64 string', e);
