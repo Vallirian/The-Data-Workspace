@@ -53,6 +53,7 @@ def send(history: list['str'], message: str, tenant_id: str, chat_type: str, tab
             tool_config=tool_config
         )
         print('here 3')
+        print(message, final_message)
 
         print('model_response', model_response)
         is_function_call = 'function_call' in model_response.candidates[0].content.parts[0]

@@ -5,58 +5,9 @@ from analytics.data_wrangling import Filtering, Grouping
 from analytics.statistics import CentralTendency, Summary, Dispersion, Position, Tabular, Time
 
 import google.generativeai as genai
+from google.protobuf import json_format
  
 # ---------- Function Callers ---------- #
-# Recursive function to extract arguments
-def extract_arguments(fields):
-    arguments = {}
-    
-    for field in fields:
-        key = field['key']
-        value = field['value']
-        
-        if type(value) == str:
-            arguments[key] = value
-        else:
-            arguments[key] = extract_arguments(value.args.item())
-    
-    return arguments
-
-# Main function to start extraction
-def parse_command(command: genai.protos.FunctionCall):
-    # data = command.__dict__
-    # print('data', data)
-    # print('data type', type(data))
-
-    # print(command.args.fields)
-    print('command', command)
-    for k, v in command.args.items():
-
-        print(v, type(v))
-
-
-    # if '_pb' in data and 'args' in data['_pb'] and 'fields' in data['_pb']['args']:
-    #     return extract_arguments(data['_pb']['args']['fields'])
-    # return {}
-
-# def parse_command(command: genai.protos.FunctionCall):
-#     """
-#     Parse a FunctionCall object from Gemini into a dictionary of function name and arguments.
-#     """
-#     function_name = command.name
-#     args_dict = {}
-#     print('command', command)
-#     print('command dict', command.__dict__)
-
-#     # Loop through each field and extract the key and value
-#     for k, v in command.args.items():
-#         value = v
-#         print('value', value, type(value))
-
-#         args_dict[k] = v
-#     print('function args', {'name': function_name, 'args': args_dict})
-#     return {'name': function_name, 'args': args_dict}
-
 def execute_function(command: genai.protos.FunctionCall):
     """
     Execute a function based on a parsed command dictionary.
@@ -64,8 +15,7 @@ def execute_function(command: genai.protos.FunctionCall):
     # print('executing function', command)
     try:
         # Parse the command to get the function name and arguments
-        parsed_command = parse_command(command)
-        print('parsed_command', parsed_command)
+        parsed_command = type(command).to_dict(command)
         func_name = parsed_command["name"]
         args = parsed_command["args"]
 
@@ -167,6 +117,8 @@ def descriptive_analytics(tenant_id:str, table_name:str, filter:dict=None, group
 
         # filter
         if filter:
+            print('filtering')
+            print(filter)
             data = Filtering.filter_by_condition(
                 data, 
                 column=filter['column'], 
