@@ -135,14 +135,40 @@ class Position:
         elif pd.api.types.is_bool_dtype(col_type):
             if operation != '=':
                 raise ValueError("Unsupported operation for boolean data. Use '='.")
-        elif pd.api.types.is_datetime64_any_dtype(col_type):
-            if period not in ['day', 'day of week', 'week', 'month', 'year']:
-                raise ValueError("Unsupported period for datetime data. Use 'day', 'day of week', 'week', 'month', 'year'.")
         else:
             raise ValueError("Unsupported data type.")
+        
+        if pd.api.types.is_datetime64_any_dtype(col_type):
+            if period not in ['day', 'day of week', 'week', 'month', 'year']:
+                raise ValueError("Unsupported period for datetime data. Use 'day', 'day of week', 'week', 'month', 'year'.")
 
         # Apply the condition based on the column type and operation
-        if pd.api.types.is_numeric_dtype(col_type):
+        if pd.api.types.is_datetime64_any_dtype(col_type):
+            data_peried_map = {
+                'day': data[column].dt.day,
+                'day of week': data[column].dt.dayofweek,
+                'week': data[column].dt.week,
+                'month': data[column].dt.month,
+                'year': data[column].dt.year
+            }
+            value_map = {
+                'day': value.day,
+                'day of week': value.weekday(),
+                'week': value.week,
+                'month': value.month,
+                'year': value.year
+            }
+            if operation == '>':
+                condition = data_peried_map[period] > value_map[period]
+            elif operation == '>=':
+                condition = data_peried_map[period] >= value_map[period]
+            elif operation == '<':
+                condition = data_peried_map[period] < value_map[period]
+            elif operation == '<=':
+                condition = data_peried_map[period] <= value_map[period]
+            elif operation == '=':
+                condition = data_peried_map[period] == value_map[period]
+        elif pd.api.types.is_numeric_dtype(col_type):
             if operation == '>':
                 condition = data[column] > value
             elif operation == '>=':
@@ -158,24 +184,6 @@ class Position:
                 condition = data[column].str.contains(value, na=False)
             elif operation == '=':
                 condition = data[column] == value
-        elif pd.api.types.is_datetime64_any_dtype(col_type):
-            value_map = {
-                'day': data[column].dt.day,
-                'day of week': data[column].dt.dayofweek,
-                'week': data[column].dt.week,
-                'month': data[column].dt.month,
-                'year': data[column].dt.year
-            }
-            if operation == '>':
-                condition = value_map[period] > value
-            elif operation == '>=':
-                condition = value_map[period] >= value
-            elif operation == '<':
-                condition = value_map[period] < value
-            elif operation == '<=':
-                condition = value_map[period] <= value
-            elif operation == '=':
-                condition = value_map[period] == value
             
         elif pd.api.types.is_bool_dtype(col_type):
             condition = data[column] == value
