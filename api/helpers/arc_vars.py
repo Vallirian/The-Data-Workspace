@@ -3,6 +3,7 @@ COMMON_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S" # 2021-01-01 00:00:00, AKA the SQL 
 COMMON_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 # Database variables
+SUPPORTED_COLUMN_DATATYPES = ["string", "number", "boolean", "datetime"] # UUID is not supported because it AI Copilot does not differentiate between proper use case for UUID and string
 DATA_TYPE_MAP = {
     "UUID": "VARCHAR(128)",
     "string": "TEXT", 
@@ -45,7 +46,7 @@ NOT_ALLOWED_OBJECT_NAMES = [
 ]
 
 # function_calling variables
-STRING_COMPARISON_OPERATORS = ["contains", "is"]
+STRING_COMPARISON_OPERATORS = ["contains"]
 NUMERIC_COMPARISON_OPERATORS = [">", ">=", "<", "<=", "="]
 BOOLEAN_COMPARISON_OPERATORS = ["="]
 DATE_COMPARISON_OPERATORS = [">", ">=", "<", "<=", "="]
@@ -76,7 +77,7 @@ FUNCTION_DECLARATIONS = {
                         "description": "Optional filtering parameters. Requires column, condition, and value.",
                         "properties": {
                             "column": {"type_": "STRING"},
-                            "condition": {"type_": "STRING", "enum": ["contains", "is", ">", ">=", "<", "<=", "="]},
+                            "condition": {"type_": "STRING", "enum": STRING_COMPARISON_OPERATORS + NUMERIC_COMPARISON_OPERATORS},
                             "value": {"type_": "STRING"}
                         }
                     },
@@ -125,7 +126,7 @@ FUNCTION_DECLARATIONS = {
                     },
                     "period": {
                         "type_": "STRING",
-                        "enum": ["day", "week", "day of week", "month", "year"],
+                        "enum": TIME_SERIES_PERIODS,
                         "description": "Optional time period to consider for the analysis."
                     },
                     "operation": {
@@ -201,7 +202,7 @@ FUNCTION_DECLARATIONS = {
                         "type_": "ARRAY",
                         "items": {
                             "type_": "STRING",
-                            "enum": ["UUID", "string", "number", "boolean", "datetime"]
+                            "enum": SUPPORTED_COLUMN_DATATYPES
                         },
                         "description": "List of datatypes for each column to be created, corresponding to each name in 'column_names'. Valid options include 'UUID', 'string', 'number', 'boolean', 'datetime'."
                     }
@@ -244,10 +245,10 @@ Your verbal communication should be clear and concise.
 """
 
 # Analysis variables
-ANALYSIS_COPILOT_SYSTEM_INSTRUCTIONS = GENERAL_COPILOT_SYSTEM_INSTRUCTIONS+"""
+ANALYSIS_COPILOT_SYSTEM_INSTRUCTIONS = GENERAL_COPILOT_SYSTEM_INSTRUCTIONS+f"""
 You help users analyze their data.
 You use provided functions when neccesary to fetch data from the database, do calculations, and provide insights to the user.
-
+For dates use the format {COMMON_DATETIME_FORMAT} or {COMMON_DATE_FORMAT}.
 """
 ANALYSIS_COPILOT_USER_MESSAGE_ENHANCEMENT =f"""
 Do not make any assumptions, only provide insights based on the data provided.

@@ -16,7 +16,11 @@ def send(history: list['str'], message: str, tenant_id: str, chat_type: str, tab
         final_message = process_message.enhance_analysis_action_user_message(message=message, tenant_id=tenant_id, current_table_name=table_name)
         system_instructions = avars.ANALYSIS_COPILOT_SYSTEM_INSTRUCTIONS
         functions_tool = autils.get_function_declaration(avars.ANALYSIS_COPILOT_ALLOWED_FUNCTIONS)
-        tool_config = content_types.to_tool_config({"function_calling_config": {"mode": 'AUTO'}})
+        tool_config = content_types.to_tool_config({
+            "function_calling_config": {
+                "mode": 'ANY', 
+                "allowed_function_names":avars.ANALYSIS_COPILOT_ALLOWED_FUNCTIONS
+            }})
     elif chat_type == 'process':
         final_message = process_message.enhance_process_action_user_message(message=message, tenant_id=tenant_id, current_process_name=process_name)
         system_instructions = avars.PROCESS_COPILOT_SYSTEM_INSTRUCTIONS
@@ -29,6 +33,7 @@ def send(history: list['str'], message: str, tenant_id: str, chat_type: str, tab
         functions_tool = None
 
     try:
+        # print('history:', history)
         model = genai.GenerativeModel(
             os.environ.get("GEMINI_AI_MODEL"),
             tools=[
@@ -49,6 +54,7 @@ def send(history: list['str'], message: str, tenant_id: str, chat_type: str, tab
 
         is_function_call = 'function_call' in model_response.candidates[0].content.parts[0]
         while is_function_call:
+            print('function_call:', model_response.candidates[0].content.parts[0].function_call)
             function_call = model_response.candidates[0].content.parts[0].function_call
             function_call_exec_result = function_calling.execute_function(function_call)
             model_response = gemini_chat.send_message(
@@ -65,7 +71,9 @@ def send(history: list['str'], message: str, tenant_id: str, chat_type: str, tab
             )
             is_function_call = 'function_call' in model_response.candidates[0].content.parts[0]
 
+        print('model_response:', model_response)
         return model_response.text
     except Exception as e:
+        print('model_error:', e)
         return 'Error while processing the user message, please try again'
     

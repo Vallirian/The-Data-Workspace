@@ -2,7 +2,7 @@ from django.db.utils import OperationalError
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from helpers import arc_vars as avars, arc_utils as autils, arc_sql as asql, arc_statements as astmts
+from helpers import arc_vars as avars, arc_utils as autils, arc_sql as asql, arc_statements as astmts, arc_validate as aval
 
 class ProcessListView(APIView):
     def get(self, request):
@@ -27,7 +27,7 @@ class ProcessListView(APIView):
 
         if not process_name:
             return Response({'error': f'Process name is required'}, status=status.HTTP_400_BAD_REQUEST)
-        table_name_valid, table_name_validation_error = autils.validate_object_name(process_name)
+        table_name_valid, table_name_validation_error = aval.validate_object_name(process_name)
         if not table_name_valid:
             return Response({'error': table_name_validation_error}, status=status.HTTP_400_BAD_REQUEST)
         
@@ -67,7 +67,7 @@ class ProcessTableRelationshipListView(APIView):
         if not isinstance(table_names, list):
             return Response({'error': f'Table names must be a list'}, status=status.HTTP_400_BAD_REQUEST)
         for table_name in table_names:
-            table_name_valid, table_name_validation_error = autils.validate_object_name(table_name)
+            table_name_valid, table_name_validation_error = aval.validate_object_name(table_name)
             if not table_name_valid:
                 return Response({'error': table_name_validation_error}, status=status.HTTP_400_BAD_REQUEST)
 

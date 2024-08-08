@@ -114,7 +114,7 @@ class Position:
 
         :param data: pandas DataFrame containing the data
         :param column: Column name for which the percentage is to be calculated
-        :param operation: Operation to apply ('>', '>=', '<', '<=', '=', 'contains', 'is')
+        :param operation: Operation to apply ('>', '>=', '<', '<=', '=', 'contains')
         :param value: Value to compare against or check for containment
         :return: Percentage of values that meet the condition
         """
@@ -130,8 +130,8 @@ class Position:
             if operation not in ['>', '>=', '<', '<=', '=']:
                 raise ValueError("Unsupported operation for numeric data. Use '>', '>=', '<', '<=', '='.")
         elif pd.api.types.is_string_dtype(col_type):
-            if operation not in ['contains', 'is']:
-                raise ValueError("Unsupported operation for string data. Use 'contains' or 'is'.")
+            if operation not in ['contains', '=']:
+                raise ValueError("Unsupported operation for string data. Use 'contains' or '='.")
         elif pd.api.types.is_bool_dtype(col_type):
             if operation != '=':
                 raise ValueError("Unsupported operation for boolean data. Use '='.")
@@ -156,7 +156,7 @@ class Position:
         elif pd.api.types.is_string_dtype(col_type):
             if operation == 'contains':
                 condition = data[column].str.contains(value, na=False)
-            elif operation == 'is':
+            elif operation == '=':
                 condition = data[column] == value
         elif pd.api.types.is_datetime64_any_dtype(col_type):
             value_map = {

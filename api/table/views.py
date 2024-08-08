@@ -2,7 +2,7 @@ from django.db.utils import OperationalError
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from helpers import arc_vars as avars, arc_utils as autils, arc_sql as asql, arc_statements as astmts
+from helpers import arc_vars as avars, arc_utils as autils, arc_sql as asql, arc_statements as astmts, arc_validate as aval
 
     
 class TableListView(APIView):
@@ -26,7 +26,7 @@ class TableListView(APIView):
 
         if not table_name:
             return Response({'error': f'Table name is required'}, status=status.HTTP_400_BAD_REQUEST)
-        table_name_valid, table_name_validation_error = autils.validate_object_name(table_name)
+        table_name_valid, table_name_validation_error = aval.validate_object_name(table_name)
         if not table_name_valid:
             return Response({'error': table_name_validation_error}, status=status.HTTP_400_BAD_REQUEST)
         
@@ -81,7 +81,7 @@ class ColumnListView(APIView):
 
         if not column_name:
             return Response({'error': f'Column name is required'}, status=status.HTTP_400_BAD_REQUEST)
-        column_name_valid, column_name_validation_error = autils.validate_object_name(column_name)
+        column_name_valid, column_name_validation_error = aval.validate_object_name(column_name)
         if not column_name_valid:
             return Response({'error': column_name_validation_error}, status=status.HTTP_400_BAD_REQUEST)
         

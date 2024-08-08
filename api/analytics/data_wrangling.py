@@ -18,10 +18,15 @@ class Filtering:
         
         # Check the data type of the column
         col_type = data[column].dtype
+        print('in filter by condition', col_type)
 
         # Define filtering logic based on column type and condition
-        if pd.api.types.is_numeric_dtype(col_type) or pd.api.types.is_datetime64_any_dtype(col_type):
-            return Filtering._filter_numeric_or_date(data, column, condition, value)
+        if pd.api.types.is_datetime64_any_dtype(col_type) or pd.api.types.is_datetime64_ns_dtype(col_type):
+            # check date type first because it is a subclass of numeric
+            print('is date')
+            return Filtering._filter_date(data, column, condition, value)
+        elif pd.api.types.is_numeric_dtype(col_type) or pd.api.types.is_datetime64_any_dtype(col_type):
+            return Filtering._filter_numeric(data, column, condition, value)
         elif pd.api.types.is_string_dtype(col_type):
             return Filtering._filter_string(data, column, condition, value)
         elif pd.api.types.is_bool_dtype(col_type):
@@ -30,7 +35,24 @@ class Filtering:
             raise ValueError("Unsupported data type.")
 
     @staticmethod
-    def _filter_numeric_or_date(data, column, condition, value):
+    def _filter_date(data, column, condition, value):
+        print('in filter date', data[column].dt.date)
+        print('in filter date', value.date())
+        if condition == '>':
+            return data[data[column].dt.date > value.date()]
+        elif condition == '>=':
+            return data[data[column].dt.date >= value.date()]
+        elif condition == '<':
+            return data[data[column].dt.date < value.date()]
+        elif condition == '<=':
+            return data[data[column].dt.date <= value.date()]
+        elif condition == '=':
+            return data[data[column].dt.date == value.date()]
+        else:
+            raise ValueError("Unsupported date condition.")
+
+    @staticmethod
+    def _filter_numeric(data, column, condition, value):
         if condition == '>':
             return data[data[column] > value]
         elif condition == '>=':
@@ -48,7 +70,7 @@ class Filtering:
     def _filter_string(data, column, condition, value):
         if condition == 'contains':
             return data[data[column].str.contains(value, na=False)]
-        elif condition == 'is':
+        elif condition == '=':
             value = value.lower()
             value = value.strip()
             return data[data[column] == value]
