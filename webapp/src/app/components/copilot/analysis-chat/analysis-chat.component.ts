@@ -29,6 +29,7 @@ export class AnalysisChatComponent {
   messages: CopilotMessageInterface[] = [];
   chats: CopilotChatInterface[] = []; 
   selectedChatId: string | null = null;
+  functionModeAny: boolean = false; // to force function call by AI API
 
   currentMessage: string = '';
   answerLoading: boolean = false;
@@ -115,7 +116,7 @@ export class AnalysisChatComponent {
       });
     }
     else {
-      this.apiService.sendMessageAnalysisChat(this.selectedChatId, message, this.tableId).subscribe({
+      this.apiService.sendMessageAnalysisChat(this.selectedChatId, message, this.tableId, this.functionModeAny ? 'ANY' : 'AUTO').subscribe({
         next: (newMessage: CopilotMessageInterface) => {
           this.messages.push(newMessage);
           this.currentMessage = '';

@@ -6,15 +6,21 @@ def get_current_datetime():
     return datetime.now().strftime(avars.COMMON_DATETIME_FORMAT)
 
 def parse_datetime_from_str(date_str):
+    print('in date conversion received value', date_str, type(date_str))
+    conversion_error = False
+
     try:
+        # try to convert to full datetime string
         return datetime.strptime(date_str, avars.COMMON_DATETIME_FORMAT)
-    except ValueError:
-        date_time_obj = datetime.strptime(date_str, avars.COMMON_DATE_FORMAT)
-        date_time_obj = date_time_obj.replace(hour=0, minute=0, second=0)
+    except Exception as e:
+        conversion_error = True
 
-        print('in date conversion', date_time_obj, type(date_time_obj))
-
-        return date_time_obj
+    if conversion_error:
+        try:
+            # try to convert to date string
+            return datetime.strptime(date_str, avars.COMMON_DATE_FORMAT)
+        except Exception as e:
+            raise f"Error: {str(e)}"
 
 
 # ----- AI API -----
@@ -35,7 +41,7 @@ def convert_string_to_col_dtype(tenant_id: str, table_name: str, column_name: st
         response_data = asql.execute_raw_query(tenant=tenant_id, queries=astmts.get_column_table_by_column_name_query(table_name=table_name, column_name=column_name))
         column_dtype = response_data[0]['dataType']
 
-        print('in dtype conversion', column_dtype, value)
+        print('in dtype conversion', column_dtype, type(column_dtype), value)
 
         if column_dtype == 'datetime':
             return parse_datetime_from_str(value)

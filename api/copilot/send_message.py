@@ -6,7 +6,7 @@ import google.generativeai as genai
 from google.generativeai.types import content_types
 
 
-def send(history: list['str'], message: str, tenant_id: str, chat_type: str, table_name: str=None, process_name: str=None) -> str:
+def send(history: list['str'], message: str, tenant_id: str, chat_type: str, table_name: str=None, process_name: str=None, function_mode:str='AUTO') -> str:
     genai.configure(api_key=os.environ.get("GOOGLE_AI_API_KEY"))
 
     if not chat_type or chat_type not in avars.COPILOT_CHAT_TYPES:
@@ -16,11 +16,16 @@ def send(history: list['str'], message: str, tenant_id: str, chat_type: str, tab
         final_message = process_message.enhance_analysis_action_user_message(message=message, tenant_id=tenant_id, current_table_name=table_name)
         system_instructions = avars.ANALYSIS_COPILOT_SYSTEM_INSTRUCTIONS
         functions_tool = autils.get_function_declaration(avars.ANALYSIS_COPILOT_ALLOWED_FUNCTIONS)
-        tool_config = content_types.to_tool_config({
-            "function_calling_config": {
-                "mode": 'ANY', 
-                "allowed_function_names":avars.ANALYSIS_COPILOT_ALLOWED_FUNCTIONS
-            }})
+        if function_mode == 'AUTO':
+            tool_config = content_types.to_tool_config({"function_calling_config": {"mode": 'AUTO'}})
+        elif function_mode == 'NONE':
+            tool_config = content_types.to_tool_config({"function_calling_config": {"mode": 'NONE'}})
+        else:
+            tool_config = content_types.to_tool_config({
+                "function_calling_config": {
+                    "mode": 'ANY', 
+                    "allowed_function_names":avars.ANALYSIS_COPILOT_ALLOWED_FUNCTIONS
+                }})
     elif chat_type == 'process':
         final_message = process_message.enhance_process_action_user_message(message=message, tenant_id=tenant_id, current_process_name=process_name)
         system_instructions = avars.PROCESS_COPILOT_SYSTEM_INSTRUCTIONS

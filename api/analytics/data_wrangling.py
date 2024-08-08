@@ -18,7 +18,7 @@ class Filtering:
         
         # Check the data type of the column
         col_type = data[column].dtype
-        print('in filter by condition', col_type)
+        print('in filter by condition', col_type, value, type(value))
 
         # Define filtering logic based on column type and condition
         if pd.api.types.is_datetime64_any_dtype(col_type) or pd.api.types.is_datetime64_ns_dtype(col_type):

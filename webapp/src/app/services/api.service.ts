@@ -97,11 +97,12 @@ export class ApiService {
     return this.http.post<CopilotMessageInterface>(`${this.baseUrl}/copilot/`, {'message': message}, {params});
   }
 
-  sendMessageAnalysisChat(chatId: string, message: string, tableName: string) {
+  sendMessageAnalysisChat(chatId: string, message: string, tableName: string, functionMode:'AUTO' | 'ANY' | 'NONE' ='AUTO') {
     const params = new HttpParams()
       .set('chatId', chatId)
       .set('tableName', tableName)
-      .set('chatType', 'analysis');
+      .set('chatType', 'analysis')
+      .set('functionMode', functionMode);
     return this.http.put<CopilotMessageInterface>(`${this.baseUrl}/copilot/`, {'message': message}, {params});
   }
   

@@ -1,6 +1,6 @@
 # data type variables
 COMMON_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S" # 2021-01-01 00:00:00, AKA the SQL Datetime format
-COMMON_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+COMMON_DATE_FORMAT = "%Y-%m-%d" 
 
 # Database variables
 SUPPORTED_COLUMN_DATATYPES = ["string", "number", "boolean", "datetime"] # UUID is not supported because it AI Copilot does not differentiate between proper use case for UUID and string

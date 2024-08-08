@@ -107,6 +107,7 @@ class CopilotAnalysisChat(APIView):
         user_message = request.data.get("message") 
         process_name = request.query_params.get("processName")
         chat_type = request.query_params.get("chatType")
+        function_mode = request.query_params.get("functionMode")
 
 
         if not user_message:
@@ -142,7 +143,7 @@ class CopilotAnalysisChat(APIView):
             # ask the model for a response
             model_response_text = gemini_chat.send(
                 history=history, message=user_message, tenant_id=tenant_id, chat_type=chat_type, 
-                table_name=table_name, process_name=process_name
+                table_name=table_name, process_name=process_name, function_mode=function_mode
             )
             
             # save model's response
