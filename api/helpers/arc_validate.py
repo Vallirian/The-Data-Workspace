@@ -76,7 +76,7 @@ def validate_input_func_calling_time_series_analytics(tenant_id:str, table_name:
         return 'Period is required'
     if not operation:
         return 'Operation is required'
-    if operation not in ['rate_of_change']:
+    if operation not in ['average_rate_of_change']:
         return f"Invalid operation '{operation}'."
     
     if period and period not in avars.TIME_SERIES_PERIODS:

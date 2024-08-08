@@ -103,42 +103,6 @@ FUNCTION_DECLARATIONS = {
             }
         },
         {
-            "name": "proportion_analytics",
-            "description": "Calculates the percentage of occurrences of a specified value within a given column of a table, optionally within a defined time period.",
-            "parameters": {
-                "type_": "OBJECT",
-                "properties": {
-                    "tenant_id": {
-                        "type_": "STRING",
-                        "description": "Unique identifier for the tenant to ensure data isolation."
-                    },
-                    "table_name": {
-                        "type_": "STRING",
-                        "description": "Name of the table from which data is to be retrieved and analyzed."
-                    },
-                    "column": {
-                        "type_": "STRING",
-                        "description": "The column to analyze for the specified value. Required."
-                    },
-                    "value": {
-                        "type_": "STRING",
-                        "description": "The value to calculate the percentage occurrence of. Required."
-                    },
-                    "period": {
-                        "type_": "STRING",
-                        "enum": TIME_SERIES_PERIODS,
-                        "description": "Optional time period to consider for the analysis."
-                    },
-                    "operation": {
-                        "type_": "STRING",
-                        "enum": ["percentage"],
-                        "description": "The operation to perform. Currently, only 'percentage' is supported."
-                    }
-                },
-                "required": ["tenant_id", "table_name", "column", "value", "operation"]
-            }
-        },
-        {
             "name": "time_series_analytics",
             "description": "Performs time series analysis operations like rate of change over a specified period on a date column within data retrieved from a specified table.",
             "parameters": {
@@ -242,6 +206,7 @@ GENERAL_COPILOT_SYSTEM_INSTRUCTIONS = """
 You are an assistant in a business management system.
 Your formality level should be professional, helpful, and moderately friendly.
 Your verbal communication should be clear and concise.
+If you recive error message from functions, do not provide the error message to the user. Instead, try with a different approach two times before providing a general, user-friendly error message.
 """
 
 # Analysis variables
@@ -253,7 +218,7 @@ For dates use the format {COMMON_DATETIME_FORMAT} or {COMMON_DATE_FORMAT}.
 ANALYSIS_COPILOT_USER_MESSAGE_ENHANCEMENT =f"""
 Do not make any assumptions, only provide insights based on the data provided.
 """
-ANALYSIS_COPILOT_ALLOWED_FUNCTIONS = ['descriptive_analytics', 'proportion_analytics', 'time_series_analytics']
+ANALYSIS_COPILOT_ALLOWED_FUNCTIONS = ['descriptive_analytics', 'time_series_analytics']
 
 # Process variables
 PROCESS_COPILOT_SYSTEM_INSTRUCTIONS = GENERAL_COPILOT_SYSTEM_INSTRUCTIONS+"""

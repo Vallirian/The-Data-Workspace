@@ -106,95 +106,6 @@ class Dispersion:
         return range_value
 
 
-class Position:
-    @staticmethod
-    def percentage(data, column, operation, value, period):
-        """
-        Calculates the percentage of values in the specified column that meet a certain condition.
-
-        :param data: pandas DataFrame containing the data
-        :param column: Column name for which the percentage is to be calculated
-        :param operation: Operation to apply ('>', '>=', '<', '<=', '=', 'contains')
-        :param value: Value to compare against or check for containment
-        :return: Percentage of values that meet the condition
-        """
-        # Ensure the column exists in the DataFrame
-        if column not in data.columns:
-            raise ValueError(f"Column '{column}' does not exist in the DataFrame.")
-        
-        # Determine the data type of the column
-        col_type = data[column].dtype
-        
-        # Check if the column type and operation are supported
-        if pd.api.types.is_numeric_dtype(col_type) or pd.api.types.is_datetime64_any_dtype(col_type):
-            if operation not in ['>', '>=', '<', '<=', '=']:
-                raise ValueError("Unsupported operation for numeric data. Use '>', '>=', '<', '<=', '='.")
-        elif pd.api.types.is_string_dtype(col_type):
-            if operation not in ['contains', '=']:
-                raise ValueError("Unsupported operation for string data. Use 'contains' or '='.")
-        elif pd.api.types.is_bool_dtype(col_type):
-            if operation != '=':
-                raise ValueError("Unsupported operation for boolean data. Use '='.")
-        else:
-            raise ValueError("Unsupported data type.")
-        
-        if pd.api.types.is_datetime64_any_dtype(col_type):
-            if period not in ['day', 'day of week', 'week', 'month', 'year']:
-                raise ValueError("Unsupported period for datetime data. Use 'day', 'day of week', 'week', 'month', 'year'.")
-
-        # Apply the condition based on the column type and operation
-        if pd.api.types.is_datetime64_any_dtype(col_type):
-            data_peried_map = {
-                'day': data[column].dt.day,
-                'day of week': data[column].dt.dayofweek,
-                'week': data[column].dt.week,
-                'month': data[column].dt.month,
-                'year': data[column].dt.year
-            }
-            value_map = {
-                'day': value.day,
-                'day of week': value.weekday(),
-                'week': value.week,
-                'month': value.month,
-                'year': value.year
-            }
-            if operation == '>':
-                condition = data_peried_map[period] > value_map[period]
-            elif operation == '>=':
-                condition = data_peried_map[period] >= value_map[period]
-            elif operation == '<':
-                condition = data_peried_map[period] < value_map[period]
-            elif operation == '<=':
-                condition = data_peried_map[period] <= value_map[period]
-            elif operation == '=':
-                condition = data_peried_map[period] == value_map[period]
-        elif pd.api.types.is_numeric_dtype(col_type):
-            if operation == '>':
-                condition = data[column] > value
-            elif operation == '>=':
-                condition = data[column] >= value
-            elif operation == '<':
-                condition = data[column] < value
-            elif operation == '<=':
-                condition = data[column] <= value
-            elif operation == '=':
-                condition = data[column] == value
-        elif pd.api.types.is_string_dtype(col_type):
-            if operation == 'contains':
-                condition = data[column].str.contains(value, na=False)
-            elif operation == '=':
-                condition = data[column] == value
-            
-        elif pd.api.types.is_bool_dtype(col_type):
-            condition = data[column] == value
-
-        # Calculate the percentage
-        total_count = len(data)
-        matching_count = data[condition].count()[column]
-        percentage_matching = (matching_count / total_count) * 100
-
-        return percentage_matching
-
 class Tabular:
     @staticmethod
     def frequency_distribution(data, column):
@@ -240,6 +151,7 @@ class Time:
         :param time_period: Time period over which to calculate the rate of change (e.g., 'D' for daily, 'W' for weekly, 'M' for monthly)
         :return: pandas Series representing the rate of change
         """
+        print('in average rate of change')
         # Ensure the column exists in the DataFrame
         if number_column not in data.columns:
             raise ValueError(f"Column '{number_column}' does not exist in the DataFrame.")
@@ -253,23 +165,26 @@ class Time:
         
         if not pd.api.types.is_datetime64_any_dtype(data[time_column]):
             raise ValueError(f"Column '{time_column}' must be of datetime type.")
-        
-        # Ensure the DataFrame has a datetime index
-        if not pd.api.types.is_datetime64_any_dtype(data.index):
-            raise ValueError("DataFrame index must be of datetime type.")
 
         if time_period not in ['day', 'week', 'month', 'day of week', 'year']:
             raise ValueError(f"Invalid time_period '{time_period}'. Valid options are 'day', 'week', 'month', 'day of week', 'year'.")
         
+        print('in average rate of change', data[time_column].dt.date)
+
         value_map = {
             'day': data[time_column].dt.day,
             'day of week': data[time_column].dt.dayofweek,
-            'week': data[time_column].dt.week,
+            'week': data[time_column].dt.isocalendar().week,
             'month': data[time_column].dt.month,
             'year': data[time_column].dt.year
         }
 
-        data = data.groupby(value_map[time_period]).mean()
-        rate_of_change = data[number_column].pct_change() * 100
-        
+        # Group by the selected time period and calculate the mean for each group
+        grouped_data = data.groupby(value_map[time_period]).mean(numeric_only=True)
+
+        # Calculate the percentage change for the specified number column
+        rate_of_change = grouped_data[number_column].pct_change() * 100
+        rate_of_change.index = rate_of_change.index.astype(str) # Convert the index to string to convert to dict later
+        print('rate_of_change:', rate_of_change)
+
         return rate_of_change
