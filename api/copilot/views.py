@@ -3,7 +3,7 @@ from datetime import datetime
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from helpers import arc_vars as avars, arc_utils as autils, arc_sql as asql, arc_statements as astmts
+from helpers import arc_vars as avars, arc_utils as autils, arc_sql as asql, arc_statements as astmts, arc_dtypes as adtypes
 
 from copilot import send_message as gemini_chat
 
@@ -86,7 +86,7 @@ class CopilotAnalysisChat(APIView):
             
             resonse_message = {
                 'id': autils.custom_uuid(), # create palceholder id, the correct id will be grabbed from the database in the next message
-                'createdAt': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                'createdAt': adtypes.get_current_datetime(),
                 "message": model_response_text,
                 "chatId": new_caht_id,
                 "userType": avars.COPILOT_MODEL_USER_TYPE,
@@ -153,7 +153,7 @@ class CopilotAnalysisChat(APIView):
 
             resonse_message = {
                 'id': autils.custom_uuid(), # create palceholder id, the correct id will be grabbed from the database in the next message
-                'createdAt': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                'createdAt': adtypes.get_current_datetime(),
                 "message": model_response_text,
                 "chatId": chat_id,
                 "userType": avars.COPILOT_MODEL_USER_TYPE,

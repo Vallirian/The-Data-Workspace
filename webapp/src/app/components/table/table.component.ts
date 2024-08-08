@@ -1,5 +1,5 @@
 import { Component, Input, SimpleChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { NotificationService } from '../../services/notification.service';
 import { ColumnInterface, RelationshipColumnAPIInterface } from '../../interfaces/main-interface';
@@ -7,6 +7,7 @@ import { UtilService } from '../../services/util.service';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ValidateService } from '../../services/validate.service';
 import { NumberOnlyDirective } from '../../directives/number-only.directive';
+import { CustomDatetimePipe } from '../../pipes/custom-datetime.pipe';
 
 @Component({
   selector: 'app-table',
@@ -15,8 +16,10 @@ import { NumberOnlyDirective } from '../../directives/number-only.directive';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    NumberOnlyDirective
+    NumberOnlyDirective,
+    CustomDatetimePipe
   ],
+  providers: [DatePipe], // DatePipe to support the CustomDatetimePipe
   templateUrl: './table.component.html',
   styleUrl: './table.component.scss'
 })
@@ -213,6 +216,8 @@ export class TableComponent {
       }
     }
 
+    console.log(this.changes);
+
     // save changes
     this.apiService.updateRawTable(this.tableId, this.changes).subscribe({
       next: (res) => {
@@ -376,13 +381,5 @@ export class TableComponent {
 
   columnIsRelationship(columnId: string): boolean {
     return this.getColumnById(columnId).isRelationship;
-  }
-
-  // formatters
-  formatDate(value: any): string {
-    if (value && (typeof value === 'string' || value instanceof Date)) {
-      return new Date(value).toLocaleString();
-    }
-    return '';
   }
 }

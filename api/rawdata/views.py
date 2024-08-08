@@ -2,7 +2,7 @@ from datetime import datetime
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from helpers import arc_vars as avars, arc_utils as autils, arc_sql as asql
+from helpers import arc_vars as avars, arc_utils as autils, arc_sql as asql, arc_dtypes as adtypes
 
 class RawDataView(APIView):
     def get(self, request, table_name):
@@ -58,7 +58,7 @@ class RawDataView(APIView):
             # add rows
             added_rows = request.data["added"]
             updated_rows = request.data["updated"]
-            current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            current_timestamp = adtypes.get_current_datetime()
 
             for row in added_rows:
                 columns_part = []

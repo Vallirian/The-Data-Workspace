@@ -1,3 +1,7 @@
+# data type variables
+COMMON_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S" # 2021-01-01 00:00:00, AKA the SQL Datetime format
+COMMON_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+
 # Database variables
 DATA_TYPE_MAP = {
     "UUID": "VARCHAR(128)",

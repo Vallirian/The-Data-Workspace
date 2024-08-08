@@ -1,10 +1,11 @@
 import { Component, ElementRef, Input, SimpleChanges, ViewChild } from '@angular/core';
 import { ApiService } from '../../../services/api.service';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NotificationService } from '../../../services/notification.service';
 import { MessagePipe } from '../../../pipes/message.pipe';
 import { CopilotChatInterface, CopilotMessageInterface } from '../../../interfaces/main-interface';
+import { CustomDatetimePipe } from '../../../pipes/custom-datetime.pipe';
 
 
 @Component({
@@ -14,8 +15,10 @@ import { CopilotChatInterface, CopilotMessageInterface } from '../../../interfac
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    MessagePipe
+    MessagePipe,
+    CustomDatetimePipe
   ],
+  providers: [DatePipe], // DatePipe to support the CustomDatetimePipe
   templateUrl: './how-to-chat.component.html',
   styleUrl: './how-to-chat.component.scss'
 })
@@ -124,23 +127,5 @@ export class HowToChatComponent {
         }
       });
     }
-  }
-
-  // formatters 
-  formatDate(value: any): string {
-    if (value && (typeof value === 'string' || value instanceof Date)) {
-      const date = new Date(value);
-      const today = new Date();
-      const isToday = date.toDateString() === today.toDateString();
-  
-      if (isToday) {
-        return `Today, ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-      } else {
-        const differenceInTime = today.getTime() - date.getTime();
-        const differenceInDays = Math.floor(differenceInTime / (1000 * 3600 * 24));
-        return `${differenceInDays} days ago`;
-      }
-    }
-    return '';
   }
 }

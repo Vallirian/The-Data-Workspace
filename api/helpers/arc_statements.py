@@ -1,5 +1,5 @@
 from datetime import datetime
-from helpers import arc_vars as avars, arc_utils as autils, arc_sql as asql
+from helpers import arc_vars as avars, arc_utils as autils, arc_sql as asql, arc_dtypes as adtypes
 
 # Raw data tables
 def get_create_raw_table_query(table_name) -> list[tuple[str, list]]:
@@ -79,7 +79,7 @@ def get_delete_column_query(column_name, table_name, tenant_id) -> list[tuple[st
           
 
 def get_add_column_to_column_table_query(column_name, table_name, is_relationship, related_table, data_type) -> list[tuple[str, list]]:
-    current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    current_timestamp = adtypes.get_current_datetime()
     is_relationship = 1 if is_relationship else 0
     related_table = related_table if is_relationship else None
     
@@ -130,7 +130,7 @@ def get_complete_table_query(tenant_id, table_name) -> list[tuple[str, list]]:
 
 # Copilot tables
 def get_create_new_chat_query(chat_id, display_name, user_id) -> list[tuple[str, list]]:
-    current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    current_timestamp = adtypes.get_current_datetime()
     query = [(f"""
         INSERT INTO `{avars.COPILOT_CHAT_TABLE_NAME}` (id, createdAt, displayName, userId)
             VALUES (%s, %s, %s, %s);
@@ -138,7 +138,7 @@ def get_create_new_chat_query(chat_id, display_name, user_id) -> list[tuple[str,
     return query
 
 def get_create_new_message_query(message, chat_id, user_type, user_id) -> list[tuple[str, list]]:
-    current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    current_timestamp = adtypes.get_current_datetime()
     query = [(f"""
         INSERT INTO `{avars.COPILOT_MESSAGE_TABLE_NAME}` (id, createdAt, message, chatId, userType, userId)
             VALUES (%s, %s, %s, %s, %s, %s);
@@ -147,7 +147,7 @@ def get_create_new_message_query(message, chat_id, user_type, user_id) -> list[t
 
 # Process tables
 def get_create_new_process_query(process_name, process_description) -> list[tuple[str, list]]:
-    current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    current_timestamp = adtypes.get_current_datetime()
     query = [(f"""
         INSERT INTO `{avars.PROCESSES_TABLE_NAME}` (processName, processDescription, createdAt)
             VALUES (%s, %s, %s);
@@ -162,7 +162,7 @@ def get_delete_process_query(process_name) -> list[tuple[str, list]]:
     return [(query, [])]
 
 def get_create_new_process_table_relationship_query(process_name: str, table_names: list['str']) -> list[tuple[str, list]]:
-    current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    current_timestamp = adtypes.get_current_datetime()
     query = []
     for table_name in table_names:
         query.append((f"""

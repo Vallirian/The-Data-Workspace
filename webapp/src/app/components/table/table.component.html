@@ -94,7 +94,7 @@
                                         }
                                         @else {
                                             @if (getCell(rowId, colId).dataType === 'datetime') {
-                                                <span (dblclick)="onSelectCellForUpdate(rowId, colId)" >{{formatDate(getCell(rowId, colId).value)}}</span>
+                                                <span (dblclick)="onSelectCellForUpdate(rowId, colId)" >{{getCell(rowId, colId).value | customDatetime:'short'}}</span>
                                             }
                                             @else {
                                                 <span (dblclick)="onSelectCellForUpdate(rowId, colId)" >{{getCell(rowId, colId).value}}</span>

@@ -10,7 +10,7 @@
                             {{chat.displayName}} 
                             <br>
                             <p class="message-time">
-                                {{formatDate(chat.createdAt)}}
+                                {{chat.createdAt.toString()| customDatetime:'short':'title'}}
                             </p>
                         </div>
                     }
@@ -66,7 +66,7 @@
                             }" class="profile-box">
                         </div>
                         <span class="message-time">
-                            {{msg.userType === 'model' ? 'Copilot' : 'You'}}, {{formatDate(msg.createdAt)}}
+                            {{msg.userType === 'model' ? 'Copilot' : 'You'}}, {{msg.createdAt.toString()| customDatetime:'short'}}
                         </span>
                     </div>
                     <div [innerHTML]="msg.message | message"></div>
