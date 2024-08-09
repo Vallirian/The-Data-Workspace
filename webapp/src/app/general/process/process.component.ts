@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CopilotMessageInterface, ProcessInterface, ProcessTableRelationshipInterface } from '../../interfaces/main-interface';
 import { AuthService } from '../../services/auth.service';
+import { MessagePipe } from '../../pipes/message.pipe';
 
 @Component({
   selector: 'app-process',
@@ -12,7 +13,8 @@ import { AuthService } from '../../services/auth.service';
   imports: [
     CommonModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MessagePipe
   ],
   templateUrl: './process.component.html',
   styleUrl: './process.component.scss'
@@ -118,6 +120,10 @@ export class ProcessComponent {
 
   onAddTable() {
     this.tableNames.push(this.formBuilder.control(''));
+  }
+
+  onRemoveTable(index: number) {
+    this.tableNames.removeAt(index);
   }
 
   onUpdateProcess() {

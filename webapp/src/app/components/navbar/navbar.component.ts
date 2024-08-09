@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { UtilService } from '../../services/util.service';
 import { Router, RouterLink } from '@angular/router';
 import { NavbarService } from '../../services/navbar.service';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-navbar',
@@ -56,5 +57,9 @@ export class NavbarComponent {
 
   get breadCrumb() {
     return this.navbarService.breadCrumb();
+  }
+
+  get documentationUrl() {
+    return environment.documentationUrl;
   }
 }

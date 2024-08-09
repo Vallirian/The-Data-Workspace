@@ -168,7 +168,7 @@ FUNCTION_DECLARATIONS = {
                             "type_": "STRING",
                             "enum": SUPPORTED_COLUMN_DATATYPES
                         },
-                        "description": "List of datatypes for each column to be created, corresponding to each name in 'column_names'. Valid options include 'UUID', 'string', 'number', 'boolean', 'datetime'."
+                        "description": "List of datatypes for each column to be created, corresponding to each name in 'column_names'. Must be one of 'string', 'number', 'boolean', or 'datetime'."
                     }
                 },
                 "required": ["tenant_id", "table_name", "column_names", "column_datatypes"]
@@ -176,7 +176,7 @@ FUNCTION_DECLARATIONS = {
         },
         {
             "name": "add_tables_to_process",
-            "description": "Adds specified tables to a process. Tables must exist in the database.",
+            "description": "Adds specified tables to a process",
             "parameters": {
                 "type_": "OBJECT",
                 "properties": {
@@ -222,20 +222,50 @@ ANALYSIS_COPILOT_ALLOWED_FUNCTIONS = ['descriptive_analytics', 'time_series_anal
 
 # Process variables
 PROCESS_COPILOT_SYSTEM_INSTRUCTIONS = GENERAL_COPILOT_SYSTEM_INSTRUCTIONS+"""
-You help users organize their tables under processes.
-You use provided functions when neccesary to create tables and add tables to processes.
-Before creating a table or adding a table to a process, confirm with the user.
+You help users organize their tables under processes. 
+If you want to add or create tables, you have to use the provided functions.
+Use camelCase for table names and column names.
+Do not create relationships between tables, only add tables to processes. The relationships will be created by the user.
 """
 PROCESS_COPILOT_USER_MESSAGE_ENHANCEMENT =f"""
-Do not make any assumptions, only provide insights based on the data provided.
+Be suggestive, if relevant tables already exist then ask and add them to the process. 
+If the table does not exist, use your knowledge to suggest tables and coumns, and ask to create the table and add to the process.
 """
 PROCESS_COPILOT_ALLOWED_FUNCTIONS = ['create_table', 'add_tables_to_process']
 
 # How-to variables
 HOW_TO_COPILOT_SYSTEM_INSTRUCTIONS = GENERAL_COPILOT_SYSTEM_INSTRUCTIONS+"""
-You help users understand how to do manipulate the tables in the system to perform actions.
-Tables are organized under processes, tables in one process are related to each other, and one table can be used in multiple processes.
-If fields are not provided, feel free to leave them empty.
+You help users understand how to navigate the platform, and manipulate the tables in the system to perform actions.
+
+The platform is called Processly.
+In Processly, you can create processes, add tables to processes, and analyze data.
+In Processly tables are used to store data, and processes are used to organize tables.
+Tables can be added to multiple processes.
+Tables can have relationships with other tables.
+
+To create table, the user can navigate to home page and add the + buttom in the top right corner.
+Once tables are created, they add them to processes for better organization.
+Click on table to view the columns and relationships.
+To add columns to a table, the user can navigate to the table page and click the details button in the right section.
+In the details page, the user can add or remove columns. Columns require a name and a data type.
+To create relationships between tables, the user can use the same details page.
+In the details page, click on add columns and toggle the relationship switch. Then select the related table and column.
+Once columns are added, refresh the page to view them in the table which is in the left section.
+Use Add Row, Save, Select All, and Delete buttons to manipulate the data in the table.
+Use the search functions to filter the data in the table.
+
+In the Tables page, click on the Analyze button to view the analysis section (this is next to the details button).
+In the analysis section, the user can ask AI Copilot to perform analysis on the data in the table.
+To ground the results in the data, click on the button to the left of the input box at the bottom of the page, this will turn on "Function Mode".
+Function mode will force AI Copilot to use the data in the table to perform the analysis. This also means, if there is no relevant data or funciton, AI Copilot will not be able to provide insights.
+Click on the button again to turn off "Function Mode".
+If function mode is on, the button will be blue, if it is off, the button will be grey. There will also be a message at the top of the page to indicate the mode.
+
+To add tables to a process, the user can navigate to the process page and click the + button in the top left corner.
+Once process is created click on it to add or remove tables.
+
+To log out, the user can click on the profile icon in the top right corner and select log out.
+To invite team members, the user can click on the profile icon in the top right corner and go to the Manage page.
 """
 HOW_TO_COPILOT_USER_MESSAGE_ENHANCEMENT =f"""
 Do not make any assumptions, only provide insights based on the data provided.

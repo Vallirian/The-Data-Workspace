@@ -36,8 +36,7 @@ def execute_function(command: genai.protos.FunctionCall):
 # ---------- Function Implementations ---------- #
 def create_table(tenant_id: str, table_name: str, column_names: list[str], column_datatypes: list[str]) -> str:
     """
-    Creates a new table in the database with specified columns and datatypes. Validates the table name, column names, and column datatypes, 
-    and then attempts to create the table and add columns.
+    Creates a new table in the database with specified columns and datatypes
     """
     try:
         validation_error = aval.validate_input_func_create_table(tenant_id, table_name, column_names, column_datatypes)
@@ -190,20 +189,6 @@ def time_series_analytics(tenant_id:str, table_name:str, number_column:str, date
     except Exception as e:
         print('error in time series analytics:', e)
         return f"Error: {str(e)}"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

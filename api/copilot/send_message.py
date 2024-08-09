@@ -32,13 +32,15 @@ def send(history: list['str'], message: str, tenant_id: str, chat_type: str, tab
         functions_tool = autils.get_function_declaration(avars.PROCESS_COPILOT_ALLOWED_FUNCTIONS)
         tool_config = content_types.to_tool_config({"function_calling_config": {"mode": 'AUTO'}})
     elif chat_type == 'howTo':
+        print('how_to_user_message:', message)
         final_message = process_message.enhance_how_to_user_message(message=message, tenant_id=tenant_id)
+        print('final_message:', final_message)
         system_instructions = avars.HOW_TO_COPILOT_SYSTEM_INSTRUCTIONS
         tool_config = content_types.to_tool_config({"function_calling_config": {"mode": 'NONE'}})
-        functions_tool = None
+        functions_tool = {"function_declarations": []}
 
     try:
-        # print('history:', history)
+        print('history:', history)
         model = genai.GenerativeModel(
             os.environ.get("GEMINI_AI_MODEL"),
             tools=[

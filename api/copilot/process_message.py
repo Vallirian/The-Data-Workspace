@@ -38,13 +38,15 @@ def enhance_process_action_user_message(message: str, tenant_id: str, current_pr
             tables += [v for k, v in response_data_item.items() if v not in avars.INTERNAL_TABLES]
         base_enhacement_message += f"This is a list of table_name for tables that already exist in the database: {tables}\n"
 
+        columns = {k: [] for k in tables}
         for table in tables:
             columns_response_data = asql.execute_raw_query(tenant=tenant_id, queries=astmts.get_complete_table_columns_query(table))
             columns_response_data = autils.cast_datatype_to_python(columns_response_data)
             for i in range(len(columns_response_data)):
                 if columns_response_data[i]['isRelationship']:
                     columns_response_data[i]['columnName'] = f"{columns_response_data[i]['relatedTable']}__{columns_response_data[i]['columnName']}"
-            base_enhacement_message += f"The table {table} has the following columns: {columns_response_data}\n"
+                columns[table].append({'columnName': columns_response_data[i]['columnName'], 'dataType': columns_response_data[i]['dataType']})
+            base_enhacement_message += f"The table {table} has the following columns: {columns}\n"
         
         base_enhacement_message += f"The current process the user is looking at has the process_name: {current_process_name}\n"
         base_enhacement_message += f"The current process the user is looking at has the description: {process_description}\n"
@@ -69,15 +71,20 @@ def enhance_how_to_user_message(message: str, tenant_id: str):
             tenant=tenant_id, 
             queries=[(f"SELECT * FROM `{avars.PROCESS_TABLE_RELATIONSHIP_TABLE_NAME}`;",[])])
         
+        print('all_process_response_data:', all_process_table_response_data)
         processes = {}
         for process in all_process_response_data:
             processes[process['processName']] = {
                 'processDescription': process['processDescription'],
                 'tables': []
             }
+        print('process:', processes)
         for process_table in all_process_table_response_data:
-            processes[process_table['processName']]['tables'].append(process_table['tableName'])
-            all_tables.add(process_table['tableName'])
+            if processes.get(process_table['processName']) is not None:  # check if the process exists, avoid mismatch
+                processes[process_table['processName']]['tables'].append(process_table['tableName'])
+                all_tables.add(process_table['tableName'])
+            
+        print('process_table:', process_table)
 
         # get column information
         columns = {k: [] for k in all_tables}
@@ -98,4 +105,5 @@ def enhance_how_to_user_message(message: str, tenant_id: str):
 
         return base_enhacement_message
     except Exception as e:
+        print('error in enhance_how_to_user_message:', e)
         raise 'Error while processing the user message'

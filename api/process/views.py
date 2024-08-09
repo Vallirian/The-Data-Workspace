@@ -63,7 +63,7 @@ class ProcessTableRelationshipListView(APIView):
         table_names = request.data.get("tableNames")
 
         if not table_names:
-            return Response({'error': f'Table name is required'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': f'Table names is required'}, status=status.HTTP_400_BAD_REQUEST)
         if not isinstance(table_names, list):
             return Response({'error': f'Table names must be a list'}, status=status.HTTP_400_BAD_REQUEST)
         for table_name in table_names:
