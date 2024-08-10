@@ -14,6 +14,11 @@ export class ApiService {
     private http: HttpClient
   ) {}
 
+  // User API
+  inviteNewUser(newUser: any) {
+    return this.http.post<string>(`${this.baseUrl}/user/invite/`, newUser);
+  }
+
   // Table API
   listTables() {
     return this.http.get<string[]>(`${this.baseUrl}/table/`);

@@ -222,16 +222,15 @@ ANALYSIS_COPILOT_ALLOWED_FUNCTIONS = ['descriptive_analytics', 'time_series_anal
 
 # Process variables
 PROCESS_COPILOT_SYSTEM_INSTRUCTIONS = GENERAL_COPILOT_SYSTEM_INSTRUCTIONS+"""
-You help users organize their tables under processes. 
-If you want to add or create tables, you have to use the provided functions.
+You help users create tables they need for their business processes. 
+If you want to create tables, you have to use the provided functions.
 Use camelCase for table names and column names.
 Do not create relationships between tables, only add tables to processes. The relationships will be created by the user.
 """
 PROCESS_COPILOT_USER_MESSAGE_ENHANCEMENT =f"""
-Be suggestive, if relevant tables already exist then ask and add them to the process. 
-If the table does not exist, use your knowledge to suggest tables and coumns, and ask to create the table and add to the process.
+If the table does not exist, use your knowledge to suggest tables and coumns, and ask to create the table.
 """
-PROCESS_COPILOT_ALLOWED_FUNCTIONS = ['create_table', 'add_tables_to_process']
+PROCESS_COPILOT_ALLOWED_FUNCTIONS = ['create_table']
 
 # How-to variables
 HOW_TO_COPILOT_SYSTEM_INSTRUCTIONS = GENERAL_COPILOT_SYSTEM_INSTRUCTIONS+"""

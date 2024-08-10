@@ -57,10 +57,15 @@ class CustomUserManager(BaseUserManager):
         return user
     
 class CustomUser(AbstractUser):
+    USER_ROLES = [
+        ('admin', 'Admin'),
+        ('member', 'Member'),
+    ]
     id = models.CharField(primary_key=True, default=autils.custom_uuid, editable=False, max_length=255)
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=150)
     is_active = models.BooleanField(default=True)
+    role = models.CharField(max_length=50, choices=USER_ROLES, default='member')
     tenant = models.ForeignKey(Tenant, on_delete=models.PROTECT, null=True, blank=True)
     
     USERNAME_FIELD = "email"
