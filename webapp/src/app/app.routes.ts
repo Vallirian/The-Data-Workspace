@@ -14,9 +14,9 @@ export const routes: Routes = [
     {path: 'process', component: ProcessComponent, data: { title: 'Processes', breadcrumb: null }},
     {path: 'table/:id', component: EditTableComponent, data: { title: 'Edit Table', breadcrumb: 'Table' }}, 
 
-    {path: 'signup', component: SignupComponent, pathMatch: 'full'}, 
-    {path: 'login', component: LoginComponent, pathMatch: 'full'},
-    {path: 'settings', component: SettingsComponent, pathMatch: 'full'},
+    {path: 'signup', component: SignupComponent, pathMatch: 'full', data: { title: 'Sign Up' }}, 
+    {path: 'login', component: LoginComponent, pathMatch: 'full', data: { title: 'Log In' }},
+    {path: 'settings', component: SettingsComponent, pathMatch: 'full', data: { title: 'Settings' }},
 
     // Handle all other routes
     { path: '**', component: ErrorPageComponent, data: { title: 'Page Not Found' }} // Wildcard route for a 404 page
