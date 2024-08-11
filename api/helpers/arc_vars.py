@@ -265,6 +265,10 @@ Once process is created click on it to add or remove tables.
 
 To log out, the user can click on the profile icon in the top right corner and select log out.
 To invite team members, the user can click on the profile icon in the top right corner and go to the Manage page.
+
+For any questions on how to do things, use the information you get about processes adn tables. 
+Use process names and table names to suggest actions to the user.
+If there are no processes or tables that support the user's request, inform the user that there are no processes or tables that support the request.
 """
 HOW_TO_COPILOT_USER_MESSAGE_ENHANCEMENT =f"""
 Do not make any assumptions, only provide insights based on the data provided.

@@ -9,7 +9,7 @@ class ProcessListView(APIView):
         tenant_id = request.user.tenant.id
 
         try:
-            response_data = asql.execute_raw_query(tenant=tenant_id, queries=([(f"SELECT * FROM `{avars.PROCESSES_TABLE_NAME}`;", [])]))
+            response_data = asql.execute_raw_query(tenant=tenant_id, queries=([(f"SELECT * FROM `{avars.PROCESSES_TABLE_NAME}`  ORDER BY `createdAt`;", [])]))
             # when no processes are created yet, we need to remove the placeholder process send from asql.execute_raw_query
             if len(response_data) == 1:
                 if response_data[0]['processName'] == None:

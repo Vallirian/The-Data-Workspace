@@ -71,17 +71,15 @@ def enhance_how_to_user_message(message: str, tenant_id: str):
             tenant=tenant_id, 
             queries=[(f"SELECT * FROM `{avars.PROCESS_TABLE_RELATIONSHIP_TABLE_NAME}`;",[])])
         
-        print('all_process_response_data:', all_process_table_response_data)
         processes = {}
-        for process in all_process_response_data:
-            processes[process['processName']] = {
-                'processDescription': process['processDescription'],
-                'tables': []
+        for _process in all_process_response_data:
+            processes[_process['processName']] = {
+                'processDescription': _process['processDescription'],
+                'tables_related_to_process': []
             }
-        print('process:', processes)
         for process_table in all_process_table_response_data:
             if processes.get(process_table['processName']) is not None:  # check if the process exists, avoid mismatch
-                processes[process_table['processName']]['tables'].append(process_table['tableName'])
+                processes[process_table['processName']]['tables_related_to_process'].append(process_table['tableName'])
                 all_tables.add(process_table['tableName'])
             
         print('process_table:', process_table)
@@ -97,7 +95,7 @@ def enhance_how_to_user_message(message: str, tenant_id: str):
                 columns[table].append({'columnName': columns_response_data[i]['columnName'], 'dataType': columns_response_data[i]['dataType']})
 
 
-        base_enhacement_message += f"These are the processes available for the team and their tables: {process}\n"
+        base_enhacement_message += f"These are the processes available for the team and their tables: {processes}\n"
         base_enhacement_message += f"These are the columns information for all tables: {columns}\n"
         base_enhacement_message += f"If the column comes from a different table that is related to  the current table, them the column name will have a double dash or '__' in it. The value before the double dash or '__' is the related table name, and the value after is the column name from that related table\n"
         base_enhacement_message += f"The tenant_id of the user is: {tenant_id}\n"

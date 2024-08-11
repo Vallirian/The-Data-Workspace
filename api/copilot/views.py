@@ -29,7 +29,7 @@ class CopilotAnalysisChat(APIView):
             try:
                 chat = asql.execute_raw_query(
                     tenant=tenant_id, 
-                    queries=[(f"SELECT * FROM `{avars.COPILOT_CHAT_TABLE_NAME}` ORDER BY `createdAt` DESC;", [])]
+                    queries=[(f"SELECT * FROM `{avars.COPILOT_CHAT_TABLE_NAME}` WHERE userId=%s ORDER BY `createdAt` DESC;", [request.user.id])]
                 )
                 if not chat:
                     return Response({"message": "No chat found"}, status=status.HTTP_404_NOT_FOUND)
