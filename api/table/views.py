@@ -2,7 +2,7 @@ from django.db.utils import OperationalError
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from helpers import arc_vars as avars, arc_utils as autils, arc_sql as asql, arc_statements as astmts, arc_validate as aval
+from helpers import arc_vars as avars, arc_sql as asql, arc_statements as astmts, arc_validate as aval
 
     
 class TableListView(APIView):

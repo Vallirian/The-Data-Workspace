@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, Input, Output, PLATFORM_ID, SimpleChanges } from '@angular/core';
+import { Component, Inject, PLATFORM_ID } from '@angular/core';
 import { NotificationInterface } from '../../interfaces/main-interface';
 import { CommonModule } from '@angular/common';
 import { NotificationService } from '../../services/notification.service';

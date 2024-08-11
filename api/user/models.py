@@ -1,4 +1,3 @@
-import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from helpers import arc_utils as autils

@@ -82,8 +82,6 @@ def enhance_how_to_user_message(message: str, tenant_id: str):
                 processes[process_table['processName']]['tables_related_to_process'].append(process_table['tableName'])
                 all_tables.add(process_table['tableName'])
             
-        print('process_table:', process_table)
-
         # get column information
         columns = {k: [] for k in all_tables}
         for table in all_tables:
@@ -103,5 +101,4 @@ def enhance_how_to_user_message(message: str, tenant_id: str):
 
         return base_enhacement_message
     except Exception as e:
-        print('error in enhance_how_to_user_message:', e)
         raise 'Error while processing the user message'

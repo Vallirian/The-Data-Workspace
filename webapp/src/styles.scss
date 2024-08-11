@@ -5,12 +5,10 @@
 @import './assets/styles/_background';
 @import './assets/styles/_layout';
 @import './assets/styles/_navbar';
-@import './assets/styles/_modal';
 @import './assets/styles/_chat';
 
 body {
     font-family: 'Open Sans', sans-serif;
-    // background-color: $gray-10;0
 }
 
 .app-container {
@@ -26,7 +24,6 @@ body {
 }
 
 .arc-content-container {
-    // background-color: $gray-10;
     height: 100%;
     width: 100%;
 }
@@ -188,7 +185,6 @@ body {
     }
 }
 
-
 // text
 .fine-print {
     font-size: 0.8rem;
@@ -213,12 +209,6 @@ body {
     }
 }
 
-// scroll
-// .arc-scrollable {
-//     overflow-y: auto;
-//     overflow-x: hidden;
-// }
-
 // cards
 .card {
     // border: none;
@@ -234,17 +224,4 @@ body {
 .chat-input-group {
     border: none;
     box-shadow: $shadow-0;
-}
-
-
-
-// test
-.test {
-    background-color:aquamarine;
-    border: 1px solid $gray-50;
-}
-
-.test1 {
-    background-color:dodgerblue;
-    border: 1px solid $gray-50;
 }

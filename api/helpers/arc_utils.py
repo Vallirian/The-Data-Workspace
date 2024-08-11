@@ -5,6 +5,7 @@ import pandas as pd
 from helpers import arc_vars as avars
 
 def custom_uuid():
+    # UUID4 without dashes to be used as a primary to accommodate MySQL without quotes
     return str(uuid.uuid4()).replace('-', '')
 
 # ----- Database -----
@@ -93,7 +94,6 @@ def get_function_declaration(function_names: list['str']) -> dict:
     
     return function_config
 
-# def convert_string_to_correct_type(table_namevalue: str):
 
 if __name__ == '__main__':
     pass

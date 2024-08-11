@@ -32,15 +32,12 @@ def send(history: list['str'], message: str, tenant_id: str, chat_type: str, tab
         functions_tool = autils.get_function_declaration(avars.PROCESS_COPILOT_ALLOWED_FUNCTIONS)
         tool_config = content_types.to_tool_config({"function_calling_config": {"mode": 'AUTO'}})
     elif chat_type == 'howTo':
-        print('how_to_user_message:', message)
         final_message = process_message.enhance_how_to_user_message(message=message, tenant_id=tenant_id)
-        print('final_message:', final_message)
         system_instructions = avars.HOW_TO_COPILOT_SYSTEM_INSTRUCTIONS
         tool_config = content_types.to_tool_config({"function_calling_config": {"mode": 'NONE'}})
         functions_tool = {"function_declarations": []}
 
     try:
-        print('history:', history)
         model = genai.GenerativeModel(
             os.environ.get("GEMINI_AI_MODEL"),
             tools=[
@@ -61,7 +58,6 @@ def send(history: list['str'], message: str, tenant_id: str, chat_type: str, tab
 
         is_function_call = 'function_call' in model_response.candidates[0].content.parts[0]
         while is_function_call:
-            print('function_call:', model_response.candidates[0].content.parts[0].function_call)
             function_call = model_response.candidates[0].content.parts[0].function_call
             function_call_exec_result = function_calling.execute_function(function_call)
             model_response = gemini_chat.send_message(
@@ -78,9 +74,7 @@ def send(history: list['str'], message: str, tenant_id: str, chat_type: str, tab
             )
             is_function_call = 'function_call' in model_response.candidates[0].content.parts[0]
 
-        print('model_response:', model_response)
         return model_response.text
     except Exception as e:
-        print('model_error:', e)
         return 'Error while processing the user message, please try again'
     

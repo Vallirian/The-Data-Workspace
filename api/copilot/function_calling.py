@@ -18,18 +18,13 @@ def execute_function(command: genai.protos.FunctionCall):
         args = parsed_command["args"]
 
         # Retrieve and execute the function
-        print(f"Executing function: {func_name} with args: {args}")
         function = globals()[func_name]
-        print('function:', function)
         return function(**args)
     except KeyError as e:
-        print(f"Error: Missing key {str(e)} in command structure.")
         return f"Error: Missing key {str(e)} in command structure."
     except TypeError as e:
-        print(f"Type Error: {str(e)}")
         return f"Type Error: {str(e)}"
     except Exception as e:
-        print(f"An error occurred: {str(e)}")
         return f"An error occurred: {str(e)}"
     
 
@@ -90,10 +85,8 @@ def descriptive_analytics(tenant_id:str, table_name:str, filter:dict=None, group
     operation = 'mean'
     """
     try: 
-        print('in descriptive analytics', tenant_id, table_name, filter, group, column, operation)
         # if filter value is giveve, convert it to the correct data type (always comes in as string to simplify the input for AI API)
         if filter and filter.get('value'):
-            print('converting filter value')
             filter['value'] = adtypes.convert_string_to_col_dtype(tenant_id, table_name, filter['column'], filter['value'])
 
         # get data
@@ -125,71 +118,53 @@ def descriptive_analytics(tenant_id:str, table_name:str, filter:dict=None, group
 
         # compute
         if operation == 'mean':
-            print('calling mean')
             return float(CentralTendency.mean(data, column))
         elif operation == 'median':
-            print('calling median')
             return float(CentralTendency.median(data, column))
         elif operation == 'mode':
-            print('calling mode')
             return float(CentralTendency.mode(data, column))
         elif operation == 'sum':
-            print('calling sum')
             return float(Summary.sum(data, column))
         elif operation == 'count':
-            print('calling count')
             return float(Summary.count(data, column))
         elif operation == 'range':
-            print('calling range')
             return float(Dispersion.range(data, column))
         elif operation == 'frequency_distribution':
             ditribution = Tabular.frequency_distribution(data, column).to_dict()
             response_str = json.dumps(ditribution)
             return response_str
         elif operation == 'relative_frequency_distribution':
-            print('calling relative_frequency_distribution')
             ditribution = Tabular.relative_frequency_distribution(data, column).to_dict()
             response_str = json.dumps(ditribution)
             return response_str
         
     except Exception as e:
-        print('error in descriptive analytics:', e)
         return f"Error: {str(e)}"
 
 def time_series_analytics(tenant_id:str, table_name:str, number_column:str, date_column:str, period:str, operation:str=None):
-    print('in time series analytics', tenant_id, table_name, number_column, date_column, period, operation)
     try: 
         response_data = asql.execute_raw_query(tenant=tenant_id, queries=astmts.get_complete_table_query(tenant_id, table_name))
         original_df = autils.get_pd_df_from_query_result(response_data)
         data = original_df.copy()
-        print('data:', data)
         
         # validate input
         validation_error = aval.validate_input_func_calling_time_series_analytics(tenant_id, table_name, date_column, period, operation)
         if validation_error:
-            print('validation error:', validation_error)
             return validation_error
-        print('validated')
 
         if operation == 'average_rate_of_change':
             rate_of_change = Time.average_rate_of_change(data, number_column, date_column, period)
-            print('type of rate_of_change:', type(rate_of_change), rate_of_change)
             if len(rate_of_change) == 0:
-                print('No rate of change available, please try again with a different period.')
                 return 'No rate of change available, please try again with a different period.'
             if len(rate_of_change) == 1:
-                print('Only one data point available, please try again with a different period.')
                 return 'Only one data point available, please try again with a different period.'
             else:
                 rate_of_change = rate_of_change.to_dict()
                 response_str = json.dumps(rate_of_change)
-                print('rate_of_change returned:', response_str)
                 return response_str
         
     except Exception as e:
-        print('error in time series analytics:', e)
         return f"Error: {str(e)}"
-
 
 
 if __name__ == '__main__':

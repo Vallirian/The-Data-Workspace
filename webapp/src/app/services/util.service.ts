@@ -56,7 +56,6 @@ export class UtilService {
     try {
       return atob(base64String);
     } catch (e) {
-      console.error('Error decoding Base64 string', e);
       return null;
     }
   }
@@ -70,7 +69,6 @@ export class UtilService {
         return null;
       }
     } catch (e) {
-      console.error('Error parsing JSON from Base64 string:', e);
       return null;
     }
   }

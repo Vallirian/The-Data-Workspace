@@ -216,8 +216,6 @@ export class TableComponent {
       }
     }
 
-    console.log(this.changes);
-
     // save changes
     this.apiService.updateRawTable(this.tableId, this.changes).subscribe({
       next: (res) => {

@@ -14,43 +14,26 @@
     flex-direction: row;
     height: 100%;
     width: 100%;
-    // gap: 8px;
 }
 
 .preview-section {
     padding-top: $padding-3;
-    // background-color: $white;
     width: 70%;
     height: 100%;
-    // padding: $padding-1;
-    // box-shadow: $shadow-0;
-    // border: 1px solid $gray-20;
 }
 
 .working-section {
-    // background-color: $white;
     background-color: $gray-10;
     width:30%;
     height: 100%;
     border-left: 1px solid $gray-20;
     padding: $padding-1;
-    // margin-left: $padding-1;
-    // box-shadow: $shadow-0;
 }
-
-// .full-width-content {
-//     // height: 100%;
-//     width: 100%;
-//     overflow: auto;
-// }
 
 .container-with-scrollable-content {
     display: flex;
     flex-direction: column;
     height: 100%;
-    // width: 100%;
-
-    // background-color: darkorchid;
     
     .scrollable {
         width: 100%;

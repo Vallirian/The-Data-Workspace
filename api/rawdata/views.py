@@ -1,4 +1,3 @@
-from datetime import datetime
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -102,7 +101,7 @@ class RawDataView(APIView):
                         UPDATE `{table_name}` 
                         SET {set_part}
                         WHERE `id` = %s;
-                    """ # TODO: add updatedAt
+                    """
 
                     final_queries.append((final_query, params))
 

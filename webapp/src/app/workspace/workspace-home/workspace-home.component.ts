@@ -1,10 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { UtilService } from '../../services/util.service';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
-import { NotificationInterface, ProcessInterface, ProcessTableRelationshipInterface, TableListInterface } from '../../interfaces/main-interface';
+import { NotificationInterface, ProcessInterface, ProcessTableRelationshipInterface } from '../../interfaces/main-interface';
 import { NotificationService } from '../../services/notification.service';
 import { Router, RouterOutlet } from '@angular/router';
 import { HowToChatComponent } from '../../components/copilot/how-to-chat/how-to-chat.component';

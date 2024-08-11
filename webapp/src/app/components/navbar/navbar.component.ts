@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { UtilService } from '../../services/util.service';
 import { Router, RouterLink } from '@angular/router';

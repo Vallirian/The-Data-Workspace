@@ -18,12 +18,10 @@ class Filtering:
         
         # Check the data type of the column
         col_type = data[column].dtype
-        print('in filter by condition', col_type, value, type(value))
 
         # Define filtering logic based on column type and condition
         if pd.api.types.is_datetime64_any_dtype(col_type) or pd.api.types.is_datetime64_ns_dtype(col_type):
             # check date type first because it is a subclass of numeric
-            print('is date')
             return Filtering._filter_date(data, column, condition, value)
         elif pd.api.types.is_numeric_dtype(col_type) or pd.api.types.is_datetime64_any_dtype(col_type):
             return Filtering._filter_numeric(data, column, condition, value)
@@ -36,8 +34,6 @@ class Filtering:
 
     @staticmethod
     def _filter_date(data, column, condition, value):
-        print('in filter date', data[column].dt.date)
-        print('in filter date', value.date())
         if condition == '>':
             return data[data[column].dt.date > value.date()]
         elif condition == '>=':

@@ -1,3 +1,10 @@
+# ----------------------------------------------------------------------------- #
+# Contains functions for executing raw SQL queries on the specified tenant schema.
+# All non-user and tennat related queries should be executed in this file to ensure
+# that the correct schema is used (data isolation).
+# ----------------------------------------------------------------------------- #
+
+
 from django.db import connection, transaction
 from helpers import arc_utils as autils
 

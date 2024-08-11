@@ -1,4 +1,13 @@
-from datetime import datetime
+# ------------------------------------------------------------------------ #
+# Description:
+# This file contains functions that return SQL queries for creating and
+# modifying tables in the database.
+# 
+# Generating SQL queries in this way allows for the separation of concerns
+# between the database schema and the application logic. 
+# ------------------------------------------------------------------------ #
+
+
 from helpers import arc_vars as avars, arc_utils as autils, arc_sql as asql, arc_dtypes as adtypes
 
 # Raw data tables

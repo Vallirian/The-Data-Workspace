@@ -151,7 +151,6 @@ class Time:
         :param time_period: Time period over which to calculate the rate of change (e.g., 'D' for daily, 'W' for weekly, 'M' for monthly)
         :return: pandas Series representing the rate of change
         """
-        print('in average rate of change')
         # Ensure the column exists in the DataFrame
         if number_column not in data.columns:
             raise ValueError(f"Column '{number_column}' does not exist in the DataFrame.")
@@ -168,8 +167,6 @@ class Time:
 
         if time_period not in ['day', 'week', 'month', 'day of week', 'year']:
             raise ValueError(f"Invalid time_period '{time_period}'. Valid options are 'day', 'week', 'month', 'day of week', 'year'.")
-        
-        print('in average rate of change', data[time_column].dt.date)
 
         value_map = {
             'day': data[time_column].dt.day,
@@ -185,6 +182,5 @@ class Time:
         # Calculate the percentage change for the specified number column
         rate_of_change = grouped_data[number_column].pct_change() * 100
         rate_of_change.index = rate_of_change.index.astype(str) # Convert the index to string to convert to dict later
-        print('rate_of_change:', rate_of_change)
 
         return rate_of_change

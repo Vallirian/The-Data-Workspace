@@ -6,7 +6,6 @@ def get_current_datetime():
     return datetime.now().strftime(avars.COMMON_DATETIME_FORMAT)
 
 def parse_datetime_from_str(date_str):
-    print('in date conversion received value', date_str, type(date_str))
     conversion_error = False
 
     try:
@@ -41,7 +40,6 @@ def convert_string_to_col_dtype(tenant_id: str, table_name: str, column_name: st
         response_data = asql.execute_raw_query(tenant=tenant_id, queries=astmts.get_column_table_by_column_name_query(table_name=table_name, column_name=column_name))
         column_dtype = response_data[0]['dataType']
 
-        print('in dtype conversion', column_dtype, type(column_dtype), value)
 
         if column_dtype == 'datetime':
             return parse_datetime_from_str(value)

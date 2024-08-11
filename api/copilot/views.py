@@ -1,5 +1,3 @@
-import os
-from datetime import datetime
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -46,7 +44,6 @@ class CopilotAnalysisChat(APIView):
         table_name = request.query_params.get("tableName")
         process_name = request.query_params.get("processName")
         chat_type = request.query_params.get("chatType")
-        print('chat_type:', chat_type)
 
         if not chat_type or chat_type not in avars.COPILOT_CHAT_TYPES:
             return Response({"message": "Please provide a valid scope"}, status=status.HTTP_400_BAD_REQUEST)
@@ -56,7 +53,6 @@ class CopilotAnalysisChat(APIView):
                 {"message": "Please provide a message"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        print('message:', message)
         
         try:
             # create a new conversation
@@ -65,20 +61,17 @@ class CopilotAnalysisChat(APIView):
                 tenant=tenant_id, 
                 queries=astmts.get_create_new_chat_query(chat_id=new_caht_id, display_name=message, user_id=request.user.id)
             )
-            print('new_chat_response_data:', new_chat_response_data)
             # record the user's message
             new_message_response_data = asql.execute_raw_query(
                 tenant=tenant_id, 
                 queries=astmts.get_create_new_message_query(message=message, chat_id=new_caht_id, user_type=avars.COPILOT_USER_USER_TYPE, user_id=request.user.id)
             )
-            print('new_message_response_data:', new_message_response_data)
 
             # ask the model for a response
             model_response_text = gemini_chat.send(
                 history=[], message=message, tenant_id=tenant_id, chat_type=chat_type, 
                 table_name=table_name, process_name=process_name
             )
-            print('model_response_text:', model_response_text)
 
             # save model's response
             new_model_meessage_response_data = asql.execute_raw_query(
@@ -97,7 +90,6 @@ class CopilotAnalysisChat(APIView):
 
             return Response(resonse_message, status=status.HTTP_200_OK)
         except Exception as e:
-            print('model_error in view:', e)
             return Response({'error': 'Failed to start a new chat'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     def put(self, request):
@@ -165,5 +157,4 @@ class CopilotAnalysisChat(APIView):
             }
             return Response(resonse_message, status=status.HTTP_200_OK)
         except Exception as e:
-            print('model_error in view:', e)
             return Response({'error': 'Failed to process user message'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

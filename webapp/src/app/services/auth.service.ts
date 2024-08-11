@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Inject, inject, Injectable, PLATFORM_ID, signal, Signal } from '@angular/core';
+import { Inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import { map, Observable, tap } from 'rxjs';
 import { UserInterface, UserLoginInteface, UserRegisterInteface } from '../interfaces/main-interface';
 import { isPlatformBrowser } from '@angular/common';
