@@ -464,12 +464,7 @@ The frontend will send the complete report structure, including sections, column
     "chat_id": "c_123",
     "message_id": "m_124",
     "user_role": "model",
-    "message_content": {
-        "name": "February Profit",
-        "description": "Profit from last month",
-        "value": 5662.32,
-        "translated_sql": "---sql query--"
-    },
+    "message_content":5662.32,
     "message_type": "PQL",
     "created_at": "2024-09-21T12:01:00Z"
 }
@@ -497,24 +492,14 @@ The frontend will send the complete report structure, including sections, column
         {
             "message_id": "m_123",
             "user_role": "user",
-            "message_content": {
-                "name": null,
-                "description": null,
-                "value": "What is the profit from last month?",
-                "translated_sql": null
-            },
+            "message_content": "What is the profit from last month?",
             "message_type": "PQL",
             "created_at": "2024-09-21T12:00:00Z"
         },
         {
             "message_id": "m_124",
             "user_role": "model",
-            "message_content": {
-                "name": "February Profit",
-                "description": "Profit from last month",
-                "value": 5662.32,
-                "translated_sql": "---sql query--"
-            },
+            "message_content": 5662.32,
             "message_type": "PQL",
             "created_at": "2024-09-21T12:01:00Z"
         }
@@ -548,12 +533,7 @@ The frontend will send the complete report structure, including sections, column
 {
     "message_id": "m_457",  // Backend generates new message ID
     "user_role": "model",
-    "message_content": {
-        "name": null,
-        "description": null,
-        "value":  "The profit for North America is 300, and for Europe is 262.21.",
-        "translated_sql": null
-    },
+    "message_content":"The profit for North America is 300, and for Europe is 262.21.",
     "message_type": "STANDARD",
     "created_at": "2024-09-21T12:05:00Z"
 }
