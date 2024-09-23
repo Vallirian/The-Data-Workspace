@@ -272,36 +272,6 @@ Form Data:
 
 ---
 
-### **Re-upload Data for a Workbook**
-
-- **Endpoint:** `/workbooks/{id}/re-upload`
-- **Method:** `POST`
-- **Description:** Re-uploads data to an existing workbook, replacing the current data but retaining the workbook’s metadata (like descriptions).
-
-#### **Request (Multipart Form Data):**
-
-```bash
-POST /workbooks/12345/re-upload
-
-```
-
-Form Data:
-
-- **file**: (File upload, e.g., `.csv` or `.xlsx`)
-
-#### **Response:**
-
-```json
-{
-    "message": "Data re-uploaded successfully",
-    "workbook_id": "12345",
-    "table_id": "table_001",
-    "file_name": "new_sales_data_2024.csv",
-    "updated_at": "2024-09-21T12:40:00Z"
-}
-
-```
-
 ### **View Data in Table**
 
 - **Endpoint:** `/workbooks/{id}/data`

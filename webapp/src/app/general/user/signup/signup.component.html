@@ -1,0 +1,29 @@
+<div class="centered-container rounded-1">
+    <div class="centered-container container-fluid pattern-dots-2">
+    </div>
+    <div class="container-fluid">
+        @if (page == 'login') {
+            <div class="row m-3">
+                <div class="col-12">
+                    <p class="fs-5">Login</p>
+                </div>
+                <div>
+                    button
+                </div>
+                <p>Don't have an account? <a href="#">Signup</a></p>
+            </div>
+        }
+        @else {
+            <div class="row m-3">
+                <div class="col-12">
+                    <p class="fs-5">Create an account</p>
+                </div>
+                <div>
+                    button
+                </div>
+                <p>Already have an account? <a href="#">Login</a></p>
+            </div>
+        }
+
+    </div>
+</div>

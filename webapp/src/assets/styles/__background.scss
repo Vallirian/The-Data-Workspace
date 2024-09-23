@@ -1,0 +1,21 @@
+@import './_color';
+@import './_spacing';
+
+.pattern-dots-0 {
+    background-color: $white;
+    background-image: radial-gradient($gray-50 1px, transparent 1px);
+    background-size: $row-height-0 $row-height-0;
+}
+
+
+.pattern-dots-1 {
+    background-color: $gray-10;
+    background-image: radial-gradient($gray-50 1px, transparent 1px);
+    background-size: $row-height-0 $row-height-0;
+}
+
+.pattern-dots-2 {
+    background-color:  transparent;
+    background-image: radial-gradient($gray-50 1px, transparent 1px);
+    background-size: $row-height-0 $row-height-0;
+}

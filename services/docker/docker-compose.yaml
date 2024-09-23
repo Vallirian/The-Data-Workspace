@@ -9,6 +9,7 @@ services:
       - "3306:3306"
     env_file:
       - .env
+      
   api:
     build:
       context: ../../api
@@ -24,15 +25,15 @@ services:
     depends_on:
       - db
 
-  # webapp:
-  #   build:
-  #     context: ../../webapp
-  #     dockerfile: Dockerfile
-  #   container_name: webapp
-  #   ports:
-  #     - "4200:4200"
-  #   volumes:
-  #     - ../../webapp:/app
-  #     - /app/node_modules # separate volume for node_modules to avoid unnecessary npm installs
-  #   command: ng serve --host 0.0.0.0 --port 4200
+  webapp:
+    build:
+      context: ../../webapp
+      dockerfile: Dockerfile
+    container_name: webapp
+    ports:
+      - "4200:4200"
+    volumes:
+      - ../../webapp:/app
+      - /app/node_modules # separate volume for node_modules to avoid unnecessary npm installs
+    command: ng serve --host 0.0.0.0 --port 4200
 
