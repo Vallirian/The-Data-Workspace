@@ -10,6 +10,7 @@
                 </svg>
             </button>
             <ul class="dropdown-menu">
+              <li><div class="dropdown-item">{{getUser()?.displayName || ''}}</div></li>
               <li><button class="dropdown-item" (click)="logout()">Logout</button></li>
             </ul>
         </div>
