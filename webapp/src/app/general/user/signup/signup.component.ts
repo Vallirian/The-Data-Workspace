@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-signup',
@@ -11,11 +12,19 @@ import { Component } from '@angular/core';
 export class SignupComponent {
   page: string = 'login';
 
-  constructor() {
+  constructor(
+    private authService: AuthService
+  ) {
   }
 
   togglePage(event: Event) {
     event.preventDefault();
     this.page = this.page === 'login' ? 'signup' : 'login';
+  }
+
+  loginWithGoogle(event: Event) {
+    event.preventDefault();
+    this.authService.loginWithGoogle();
+    console.log('loginWithGoogle');
   }
 }
