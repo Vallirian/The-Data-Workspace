@@ -1,0 +1,62 @@
+@import './_color';
+@import './_spacing';
+
+.arc-button-secondary {
+    background-color: $cool-gray-20;
+    color: $cool-gray-90;
+    // border: 1px solid $cool-gray-60;
+    border-radius: $border-radius-0;
+    padding: $padding-1 $padding-1;
+    cursor: pointer;
+    // transition: background-color 0.3s, color 0.3s;
+
+    &:hover {
+        background-color: $cool-gray-30;
+        color: $cool-gray-80;
+    }
+
+    &:active {
+        background-color: $cool-gray-30;
+        color: $cool-gray-80;
+    }
+
+    &:disabled {
+        background-color: $cool-gray-10;
+        color: $cool-gray-60;
+        cursor: not-allowed;
+    }
+
+    &.arc-button-secondary--small {
+        padding: $padding-0 $padding-1;
+    }
+
+    &.arc-button-secondary--large {
+        padding: $padding-1 $padding-3;
+    }
+
+    &.arc-button-secondary--full {
+        width: 100%;
+    }
+}
+
+.arc-card {
+    background-color: $white;
+    border: 1px solid $cool-gray-20;
+    border-radius: $border-radius-0;
+    padding: $padding-1;
+    margin-bottom: $padding-1;
+}
+
+.arc-link-primary {
+    color: $blue-60;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.3s;
+    padding: 0 $padding-0;
+
+    &:hover {
+        background-color: $cool-gray-20;
+        color: $cool-gray-80;
+        border-radius: $border-radius-0;
+    }
+}

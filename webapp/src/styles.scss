@@ -4,6 +4,7 @@
 @import './assets/styles/_spacing';
 @import './assets/styles/_background';
 @import './assets/styles/_layout';
+@import './assets/styles/_component';
 
 body {
     font-family: 'Open Sans', sans-serif;
@@ -26,4 +27,9 @@ body {
 .arc-content-container {
     height: 100%;
     width: 100%;
+}
+
+// test1
+.test1 {
+    background-color: blue;
 }

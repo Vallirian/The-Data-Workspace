@@ -14,7 +14,8 @@ export class SignupComponent {
   constructor() {
   }
 
-  togglePage() {
+  togglePage(event: Event) {
+    event.preventDefault();
     this.page = this.page === 'login' ? 'signup' : 'login';
   }
 }
