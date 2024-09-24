@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './general/navbar/navbar.component';
 import { Auth, onAuthStateChanged } from '@angular/fire/auth';
 import { AuthService } from './services/auth.service';
@@ -18,14 +18,17 @@ export class AppComponent {
 
   constructor(
     private firebaseAuth: Auth,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     onAuthStateChanged(this.firebaseAuth, (user) => {
       if (user) {
         this.authService.user = user;
+        this.router.navigate(['/home']);
       } else {
+        this.router.navigate(['/login-or-signup']);
         console.log('User is signed out');
       }
     });

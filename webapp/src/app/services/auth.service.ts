@@ -25,6 +25,7 @@ export class AuthService {
   }
 
   logout() {
+    console.log('logout-authservice');
     this.firebaseAuth.signOut()
       .then(() => {
         this.user = null;

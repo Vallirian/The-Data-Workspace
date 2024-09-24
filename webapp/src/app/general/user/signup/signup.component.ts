@@ -25,6 +25,5 @@ export class SignupComponent {
   loginWithGoogle(event: Event) {
     event.preventDefault();
     this.authService.loginWithGoogle();
-    console.log('loginWithGoogle');
   }
 }

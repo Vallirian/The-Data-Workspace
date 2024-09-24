@@ -20,8 +20,15 @@ body {
     background-color: $cool-gray-10;
 }
 
+.arc-navbar-container {
+    border-bottom: 1px solid $cool-gray-20;
+}
+
 .arc-navbar {
-    height: $row-height-01;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $padding-1;
 }
 
 .arc-content-container {
