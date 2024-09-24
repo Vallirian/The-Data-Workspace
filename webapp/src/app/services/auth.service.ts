@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Auth, GoogleAuthProvider, signInWithPopup } from '@angular/fire/auth';
 import { UserInterface } from '../interfaces/main';
+import { NotificationService } from './notification.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,8 @@ export class AuthService {
   googleAuthProvider = new GoogleAuthProvider;
 
   constructor(
-    private firebaseAuth: Auth  
+    private firebaseAuth: Auth,
+    private notificationService: NotificationService
   ) { }
 
   loginWithGoogle() {
@@ -20,7 +22,12 @@ export class AuthService {
         this.user = result.user
       })
       .catch((error) => {
-        console.error(error);
+        this.notificationService.addNotification({
+          message: error.message,
+          type: 'error',
+          remainingTime: 5000,
+          dismissed: false
+        });
       })
   }
 
@@ -31,7 +38,12 @@ export class AuthService {
         this.user = null;
       })
       .catch((error) => {
-        console.error(error);
+        this.notificationService.addNotification({
+          message: error.message,
+          type: 'error',
+          remainingTime: 5000,
+          dismissed: false
+        });
       });
   }
 }

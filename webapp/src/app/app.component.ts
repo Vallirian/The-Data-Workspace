@@ -5,11 +5,12 @@ import { Auth, onAuthStateChanged } from '@angular/fire/auth';
 import { AuthService } from './services/auth.service';
 import { CommonModule } from '@angular/common';
 import { SignupComponent } from './general/user/signup/signup.component';
+import { NotificationComponent } from './general/notification/notification.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, NavbarComponent, CommonModule, SignupComponent],
+  imports: [RouterOutlet, NavbarComponent, CommonModule, SignupComponent, NotificationComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.sass'
 })
@@ -26,7 +27,7 @@ export class AppComponent {
     onAuthStateChanged(this.firebaseAuth, (user) => {
       if (user) {
         this.authService.user = user;
-        this.router.navigate(['/home']);
+        this.router.navigate(['/workbooks']);
       } else {
         this.router.navigate(['/login-or-signup']);
         console.log('User is signed out');

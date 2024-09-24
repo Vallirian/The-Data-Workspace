@@ -4,5 +4,5 @@ import { HomeComponent } from './workbook/home/home.component';
 
 export const routes: Routes = [
     {path: 'login-or-signup', component: SignupComponent, pathMatch: 'full'},
-    {path: 'home', component: HomeComponent, pathMatch: 'full'}
+    {path: 'workbooks', component: HomeComponent, pathMatch: 'full'}
 ];
