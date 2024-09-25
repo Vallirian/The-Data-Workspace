@@ -1,7 +1,9 @@
 import os
 from pathlib import Path
-# import firebase_admin
-# from firebase_admin import credentials
+import firebase_admin
+from firebase_admin import credentials
+import json
+import base64
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,16 +22,20 @@ DEBUG = True
 ALLOWED_HOSTS = []
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",
+    "http://localhost:4200", 
     "http://127.0.0.1:4200",
 ]
 
 # firebase settings
-# firebase_cred = credentials.Certificate(os.getenv("FIREBASE_SDK"))
-# firebase_admin.initializa_app(firebase_cred)
+firebase_cred = credentials.Certificate(
+    json.loads(base64.b64decode(os.getenv("FIREBASE_SDK").encode('utf-8')).decode('utf-8'))
+)
+firebase_admin.initialize_app(firebase_cred)
 
 # Application definition
 
 INSTALLED_APPS = [
+    'rest_framework',
     'corsheaders',
 
     "django.contrib.admin",
@@ -43,6 +49,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -50,6 +58,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    
+    "user.firebase_middleware.FirebaseTokenAuthMiddleware",
 ]
 
 ROOT_URLCONF = "api.urls"
