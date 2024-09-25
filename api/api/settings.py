@@ -1,4 +1,8 @@
+import os
 from pathlib import Path
+# import firebase_admin
+# from firebase_admin import credentials
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -14,11 +18,20 @@ SECRET_KEY = "django-insecure-dh$)o+mnd#&&9&b7u5^tknof(7)4j_ard-=*!k&@77rx$c&y*8
 DEBUG = True
 
 ALLOWED_HOSTS = []
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:4200",
+    "http://127.0.0.1:4200",
+]
 
+# firebase settings
+# firebase_cred = credentials.Certificate(os.getenv("FIREBASE_SDK"))
+# firebase_admin.initializa_app(firebase_cred)
 
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
+
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
