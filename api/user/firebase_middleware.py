@@ -18,9 +18,13 @@ class FirebaseTokenAuthMiddleware(MiddlewareMixin):
 
 
                 # Fetch or create the user in Django based on the Firebase UID
-                user, created = User.objects.get_or_create(username=firebase_uid, defaults={
-                    'email': decoded_token.get('email', '')
-                })
+                # FIXME: replace the default incremental integer primary key with the Firebase UID
+                user, created = User.objects.get_or_create(
+                    username=firebase_uid, 
+                    defaults={
+                        'email': decoded_token.get('email', '')
+                    }
+                )
                 
                 # Attach the Django User to request.user
                 request.user = user

@@ -5,13 +5,11 @@ import { from, lastValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 const addBearerToken = async(req: HttpRequest<any>, next: HttpHandlerFn): Promise<HttpEvent<any>> => {
-  console.log('addBearerToken');
   const firebaseAuth = inject(Auth);
   const user = await firebaseAuth.currentUser;
   const token = user ? await user.getIdToken() : null;
 
   if (token) {
-    console.log('addBearerToken-token', token);
     req = req.clone({
       setHeaders: { Authorization: `Bearer ${token}` }
     });
@@ -23,8 +21,6 @@ const addBearerToken = async(req: HttpRequest<any>, next: HttpHandlerFn): Promis
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   // Add bearer token to request headers going to the api
   if (req.url.startsWith(environment.apiBaseUrl)) {
-    console.log('authInterceptor');
-    console.log('authInterceptor-req', req);
     return from(addBearerToken(req, next));
   }
   else {

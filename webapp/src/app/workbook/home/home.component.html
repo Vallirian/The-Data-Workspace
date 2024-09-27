@@ -2,7 +2,7 @@
     <div class="scrollable d-flex flex-row flex-wrap gap-2">
         <!-- FIXME: change to dynamic sizing by calculation or limit car height -->
         @if (workbooks.length < 5) {
-            <div class="arc-card arc-button-secondary" style="width: 15rem; height: 15rem;"> 
+            <div (click)="onCreateWorkbook()" class="arc-card arc-button-secondary" style="width: 15rem; height: 15rem;"> 
                 <!-- 19% because we want 5 cards and 20% would overflow and change cards per row to 4-->
                <div class="d-flex flex-column h-100 justify-content-center align-items-center" >
                     <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" class="bi bi-plus-lg mb-3" viewBox="0 0 16 16">
@@ -18,22 +18,20 @@
                      <!-- 19% because we want 5 cards and 20% would overflow and change cards per row to 4-->
                     <div class="d-flex flex-column h-100" >
                         <div>
-                            <h6 class="card-subtitle mb-2 text-body-secondary">Card subtitle</h6>
+                            <h6 class="card-subtitle mb-2 text-body-secondary">{{getWorkbookTableMeta($index) ? getWorkbookTableMeta($index).name : 'Untitled Workbook'}}</h6>
                         </div>
                         <div class="card-text text-limit ">
-                            Some quick example text to build on the card title and make up
-                            build on the card title and make upbuild on the card title and make up
-                            build on the card title and make up the bulk of the card's content.
+                            {{getWorkbookTableMeta($index) ? getWorkbookTableMeta($index).description : 'Add a description'}}
                         </div>
                         <div class="mt-auto">
-                            <p class="text-secondary ">Created xyz</p>
+                            <p class="text-secondary ">{{wb.createdAt.toString()| datetime: 'medium'}}</p>
                         </div>
                     </div>
                 </div>
             }
         }
         @else {
-            <div class="arc-card arc-button-secondary" style="width: 19%;"> 
+            <div (click)="onCreateWorkbook()" class="arc-card arc-button-secondary" style="width: 19%;"> 
                 <!-- 19% because we want 5 cards and 20% would overflow and change cards per row to 4-->
                <div class="d-flex flex-column h-100 justify-content-center align-items-center" >
                     <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" class="bi bi-plus-lg mb-3" viewBox="0 0 16 16">

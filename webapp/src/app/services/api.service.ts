@@ -23,7 +23,7 @@ export class ApiService {
   }
 
   createWorkbook() {
-    return this.http.post(`${this.baseApiUrl}/workbooks/`, {});
+    return this.http.post<WorkbookInterface>(`${this.baseApiUrl}/workbooks/`, {});
   }
 
   deleteWorkbook(id: string) {

@@ -23,9 +23,6 @@ export class AuthService {
       .then(async (result) => {
         this.user = result.user
         const token = await result.user.getIdToken();
-        
-        // Send token to server to register user
-        this.http.post(`${environment.apiBaseUrl}/user/register/`, {}).subscribe();
       })
       .catch((error) => {
         this.notificationService.addNotification({

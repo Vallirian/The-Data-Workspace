@@ -1,13 +1,17 @@
 import { Component } from '@angular/core';
 import { NotificationService } from '../../services/notification.service';
-import { WorkbookInterface } from '../../interfaces/main';
-import { CommonModule } from '@angular/common';
+import { WorkbookInterface, DataTableMetaInterface, DataTableColumnMetaInterface } from '../../interfaces/main';
+import { CommonModule, DatePipe } from '@angular/common';
 import { ApiService } from '../../services/api.service';
+import { DatetimePipe } from '../../pipes/datetime.pipe';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, DatetimePipe],
+  providers: [
+    DatePipe // Required for DatetimePipe
+  ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
@@ -32,6 +36,26 @@ export class HomeComponent {
           remainingTime: 5000
         });
       }
-  );
+    );
+  }
+
+  onCreateWorkbook() {
+    this.apiService.createWorkbook().subscribe(
+      (data: WorkbookInterface) => {
+        this.workbooks.push(data);
+      },
+      (error) => {
+        this.notificationService.addNotification({
+          type: 'error',
+          message: error.message.error || 'Failed to create workbook',
+          dismissed: false,
+          remainingTime: 5000
+        });
+      }
+    );
+  }
+
+  getWorkbookTableMeta(index: number): DataTableMetaInterface {
+    return this.workbooks[index].DataTableMeta;
   }
 }
