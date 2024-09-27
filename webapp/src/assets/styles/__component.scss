@@ -44,7 +44,6 @@
     border: 1px solid $cool-gray-20;
     border-radius: $border-radius-0;
     padding: $padding-1;
-    margin-bottom: $padding-1;
 }
 
 .arc-link-primary {
@@ -59,4 +58,12 @@
         color: $cool-gray-80;
         border-radius: $border-radius-0;
     }
+}
+
+.text-limit {
+    display: -webkit-box;
+    -webkit-line-clamp: 4; /* Limit number of lines */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

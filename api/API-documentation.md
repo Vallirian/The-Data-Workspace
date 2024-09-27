@@ -95,27 +95,8 @@
 ### **Create New Workbook**
 
 - **Endpoint:** `/workbooks`
-- **Method:** `POST`
-- **Description:** Creates a new workbook for the user.
 
-#### Request:
-
-```json
-
-{
-    "name": "My Workbook"
-}
-```
-
-#### Response:
-
-```json
-{
-    "id": "123",
-    "name": "My Workbook",
-    "created_at": "2024-09-21T12:00:00Z"
-}
-```
+* Creating a workbook is done autmatically once the data is uploaded and data table is created
 
 ### **List Workbooks**
 
@@ -129,41 +110,13 @@
 [
     {
         "id": "123",
-        "name": "My Workbook",
-        "created_at": "2024-09-21T12:00:00Z"
+        "createdAt": "2024-09-21T12:00:00Z"
     },
     {
         "id": "124",
-        "name": "Another Workbook",
-        "created_at": "2024-09-22T08:00:00Z"
+        "createdAt": "2024-09-22T08:00:00Z"
     }
 ]
-```
-
-### **Rename Workbook**
-
-- **Endpoint:** `/workbooks/{id}`
-- **Method:** `PUT`
-- **Description:** Renames an existing workbook by updating its `name`.
-
-#### **Request:**
-
-```json
-{
-    "name": "New Workbook Name"
-}
-
-```
-
-#### **Response:**
-
-```json
-{
-    "id": "124",
-    "name": "New Workbook Name",
-    "created_at": "2024-09-22T08:00:00Z"
-}
-
 ```
 
 ### **Delete Workbook**

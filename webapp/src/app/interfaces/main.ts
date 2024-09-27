@@ -11,3 +11,8 @@ export interface NotificationInterface {
     remainingTime: number;
     intervalId?: any; // used internally
 }
+
+export interface WorkbookInterface {
+    id: string;
+    createdAt: Date;
+}

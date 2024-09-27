@@ -1,3 +1,50 @@
-<div class="container-fluid full-section arc-card d-flex">
-    hi NY
+<div class="container-fluid full-section d-flex container-with-scrollable-content">
+    <div class="scrollable d-flex flex-row flex-wrap gap-1">
+        <div class="row g-3 align-items-start">
+            <div class="col-2">
+                <div class="arc-card h-100" >
+                    <div class="card-body h-100">
+                      <h6 class="card-subtitle mb-2 text-body-secondary">Card subtitle</h6>
+                      <p class="card-text text-limit ">Upload</p>
+                      <p class="text-secondary">Created xyz</p>
+                    </div>
+                </div>
+            </div>
+            @for (item of items; track $index) {
+                    <div class="col-2">
+                        <div class="arc-card h-100" >
+                            <div class="card-body">
+                            <h6 class="card-subtitle mb-2 text-body-secondary">Card subtitle</h6>
+                            <p class="card-text text-limit ">Some quick example text to build on the card title and make up
+                                build on the card title and make upbuild on the card title and make up
+                                build on the card title and make up the bulk of the card's content.</p>
+                            <p class="text-secondary">Created xyz</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+        </div>
+        <!-- @for (item of items; track $index) {
+            <div class="arc-card" >
+                <div class="card-body">
+                  <h6 class="card-subtitle mb-2 text-body-secondary">Card subtitle</h6>
+                  <p class="card-text text-limit ">Some quick example text to build on the card title and make up
+                    build on the card title and make upbuild on the card title and make up
+                    build on the card title and make up the bulk of the card's content.</p>
+                  <p class="text-secondary">Created xyz</p>
+                </div>
+            </div>
+        }
+        @for (wb of workbooks; track $index) {
+            <div class="arc-card" style="width: 15rem; height: 12rem;">
+                <div class="card-body">
+                  <h6 class="card-subtitle mb-2 text-body-secondary">Card subtitle</h6>
+                  <p class="card-text text-limit ">Some quick example text to build on the card title and make up
+                    build on the card title and make upbuild on the card title and make up
+                    build on the card title and make up the bulk of the card's content.</p>
+                  <p class="text-secondary">Created xyz</p>
+                </div>
+            </div>
+        } -->
+    </div>
 </div>
