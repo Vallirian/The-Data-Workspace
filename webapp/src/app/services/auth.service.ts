@@ -19,14 +19,13 @@ export class AuthService {
   ) { }
 
   loginWithGoogle() {
-    console.log('loginWithGoogle-authservice');
     signInWithPopup(this.firebaseAuth, this.googleAuthProvider)
       .then(async (result) => {
         this.user = result.user
         const token = await result.user.getIdToken();
         
         // Send token to server to register user
-        this.http.post(`${environment.apiBaseUrl}/user/register/`, { token }).subscribe();
+        this.http.post(`${environment.apiBaseUrl}/user/register/`, {}).subscribe();
       })
       .catch((error) => {
         this.notificationService.addNotification({
@@ -39,7 +38,6 @@ export class AuthService {
   }
 
   logout() {
-    console.log('logout-authservice');
     this.firebaseAuth.signOut()
       .then(() => {
         this.user = null;

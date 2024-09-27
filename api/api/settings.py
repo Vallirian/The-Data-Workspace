@@ -19,12 +19,18 @@ SECRET_KEY = "django-insecure-dh$)o+mnd#&&9&b7u5^tknof(7)4j_ard-=*!k&@77rx$c&y*8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1']
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",
-    "http://localhost:4200", 
     "http://127.0.0.1:4200",
 ]
+CORS_ALLOW_ALL_ORIGINS = True
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:4200',
+    'http://127.0.0.1:4200'
+]
+
+
 
 # firebase settings
 firebase_cred = credentials.Certificate(
@@ -45,7 +51,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
-    'services'
+    'services',
+    'user'
 ]
 
 MIDDLEWARE = [
@@ -84,12 +91,17 @@ WSGI_APPLICATION = "api.wsgi.application"
 
 
 # Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.getenv('MYSQL_DATABASE'),
+        'USER': 'root', # has to be root becase we are accessing different schemas
+        'PASSWORD': os.getenv('MYSQL_ROOT_PASSWORD'),
+        'HOST': os.getenv('DB_HOST', 'db'),
+        'PORT': os.getenv('DB_PORT', '3306'),
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+        }
     }
 }
 
