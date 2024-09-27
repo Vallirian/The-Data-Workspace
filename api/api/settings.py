@@ -52,7 +52,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 
     'services',
-    'user'
+    'user',
+    'workbook',
 ]
 
 MIDDLEWARE = [

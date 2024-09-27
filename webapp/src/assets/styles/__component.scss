@@ -62,7 +62,7 @@
 
 .text-limit {
     display: -webkit-box;
-    -webkit-line-clamp: 4; /* Limit number of lines */
+    -webkit-line-clamp: 6; /* Limit number of lines */
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;

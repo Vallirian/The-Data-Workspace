@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from firebase_admin import auth
 from django.utils.deprecation import MiddlewareMixin
 from django.urls import resolve
+from django.contrib.auth.models import User 
 
 class FirebaseTokenAuthMiddleware(MiddlewareMixin):
     def process_request(self, request):
@@ -13,7 +14,16 @@ class FirebaseTokenAuthMiddleware(MiddlewareMixin):
             try:
                 # Verify the token using Firebase Admin SDK
                 decoded_token = auth.verify_id_token(token)
-                request.firebase_user = decoded_token  # Attach the decoded token to the request
+                firebase_uid = decoded_token['uid']  # Get the Firebase UID from the token
+
+
+                # Fetch or create the user in Django based on the Firebase UID
+                user, created = User.objects.get_or_create(username=firebase_uid, defaults={
+                    'email': decoded_token.get('email', '')
+                })
+                
+                # Attach the Django User to request.user
+                request.user = user
 
                 if resolve(request.path_info).route.startswith('api/'): 
                     # If the request is for the API, mark it as CSRF exempt 

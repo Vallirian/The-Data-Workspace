@@ -95,8 +95,27 @@
 ### **Create New Workbook**
 
 - **Endpoint:** `/workbooks`
+- **Method:** `POST`
+- **Description:** Creates a new workbook for the user.
 
-* Creating a workbook is done autmatically once the data is uploaded and data table is created
+#### Request:
+
+```json
+
+{
+    "id": "123",
+    "createdAt": "2024-09-21T12:00:00Z"
+}
+```
+
+#### Response:
+
+```json
+{
+    "id": "123",
+    "createdAt": "2024-09-21T12:00:00Z"
+}
+```
 
 ### **List Workbooks**
 
