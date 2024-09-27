@@ -14,7 +14,7 @@
                </div>
            </div>
             @for (wb of workbooks; track $index) {
-                <div class="arc-card arc-button-secondary" style="width: 15rem; height: 15rem;"> 
+                <div (click)="navigateToEditWorkbook($index)" class="arc-card arc-button-secondary" style="width: 15rem; height: 15rem;"> 
                      <!-- 19% because we want 5 cards and 20% would overflow and change cards per row to 4-->
                     <div class="d-flex flex-column h-100" >
                         <div>
@@ -43,7 +43,7 @@
                </div>
            </div>
             @for (wb of workbooks; track $index) {
-                <div class="arc-card arc-button-secondary" style="width: 19%;"> 
+                <div (click)="navigateToEditWorkbook($index)" class="arc-card arc-button-secondary" style="width: 19%;"> 
                      <!-- 19% because we want 5 cards and 20% would overflow and change cards per row to 4-->
                     <div class="d-flex flex-column h-100" >
                         <div>

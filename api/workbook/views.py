@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404
 
 class WorkbookListAPIView(APIView):
     def get(self, request):
-        workbooks = Workbook.objects.filter(user=request.user)
+        workbooks = Workbook.objects.filter(user=request.user).order_by('-createdAt')
         serializer = WorkbookSerializer(workbooks, many=True)
         return Response(serializer.data)
 
@@ -18,7 +18,7 @@ class WorkbookListAPIView(APIView):
 
 class WorkbookDetailAPIView(APIView):
     def get(self, request, pk):
-        workbook = get_object_or_404(Workbook, id=pk, user=request.user)
+        workbook = get_object_or_404(Workbook, id=pk, user=request.user).order_by('-createdAt')
         serializer = WorkbookSerializer(workbook)
         return Response(serializer.data)
     
