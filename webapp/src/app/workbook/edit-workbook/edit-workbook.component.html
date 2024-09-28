@@ -29,7 +29,7 @@
 @if ((importType !== null) && (importModalOpen)) {
     <div id="importDataModal" class="arc-modal" (click)="handleBackdropClick($event)">
       <div class="arc-modal-content"  (click)="$event.stopPropagation()">
-        <app-import-data-home [importType]="importType" [tableMetaId]="workbook?.dataTable || ''"></app-import-data-home>
+        <app-import-data-home [importType]="importType" [workbookId]="workbookId" [tableMetaId]="workbook?.dataTable || ''"></app-import-data-home>
       </div>
     </div>
   }

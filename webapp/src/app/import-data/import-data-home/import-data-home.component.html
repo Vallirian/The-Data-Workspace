@@ -1,2 +1,39 @@
-{{importType}}
-{{tableMetaId}}
+<div style="height: 500px;" class="d-flex flex-column justify-content-between">
+    @if (importType?.toLowerCase() === 'csv') {
+        @if (csvData.length > 0) {
+            <div>
+                {{tableMetaData?.name}}
+            </div>
+            <div class="table-responsive mt-3 scrollable">
+                <table class="table table-hover">
+                    <thead>
+                        <tr  class="arc-table-header">
+                            @for (header of csvHeaders; track $index) {
+                                <th>{{ header.name }}</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (row of csvData; track $index) {
+                            <tr>
+                                @for (header of csvHeaders; track $index) {
+                                    <td>{{ row[header.name] }}</td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+        <div class="d-flex justify-content-center">
+            <!-- Hidden file input -->
+            <input type="file" id="fileInput" (change)="onFileChange($event)" style="display: none;" />
+
+            <!-- Custom button that triggers the file input -->
+            <label for="fileInput" class="btn arc-button-secondary arc-button-secondary--small arc-button-center">
+                Upload CSV
+            </label>
+        </div>
+    }
+</div>

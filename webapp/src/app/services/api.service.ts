@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
-import { WorkbookInterface } from '../interfaces/main';
+import { DataTableMetaInterface, WorkbookInterface } from '../interfaces/main';
 
 @Injectable({
   providedIn: 'root'
@@ -31,7 +31,7 @@ export class ApiService {
   }
 
   // DataTables
-  getDataTableMeta(id: string) {
-    return this.http.get(`${this.baseApiUrl}/workbooks/${id}/table-meta/`);
+  getDataTableMeta(workbookId: string, tableId: String) {
+    return this.http.get<DataTableMetaInterface>(`${this.baseApiUrl}/table-meta/${workbookId}/${tableId}/`);
   }
 }

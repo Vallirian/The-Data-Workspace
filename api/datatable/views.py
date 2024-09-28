@@ -7,15 +7,15 @@ from workbook.models import Workbook
 from .serializers import DataTableMetaSerializer
 
 class DataTableMetaByWorkbookAPIView(APIView):
-    def get(self, request, workbook_id):
+    def get(self, request, workbook_id, table_id):
         workbook = get_object_or_404(Workbook, id=workbook_id, user=request.user)
-        data_table_meta = get_object_or_404(DataTableMeta, workbook=workbook)
+        data_table_meta = get_object_or_404(DataTableMeta, workbook=workbook, id=table_id)
         serializer = DataTableMetaSerializer(data_table_meta)
         return Response(serializer.data)
 
-    def put(self, request, workbook_id):
+    def put(self, request, workbook_id, table_id):
         workbook = get_object_or_404(Workbook, id=workbook_id, user=request.user)
-        data_table_meta = get_object_or_404(DataTableMeta, workbook=workbook)
+        data_table_meta = get_object_or_404(DataTableMeta, workbook=workbook, id=table_id)
         serializer = DataTableMetaSerializer(data_table_meta, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()

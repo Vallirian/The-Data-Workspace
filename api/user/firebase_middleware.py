@@ -37,6 +37,7 @@ class FirebaseTokenAuthMiddleware(MiddlewareMixin):
                 return None  # Continue processing the request
 
             except Exception as e:
+                print(f'Error processing the authentication token: {e}')
                 return JsonResponse({'error': 'Invalid or expired token'}, status=401)
         
         # If no token provided, deny access
