@@ -29,7 +29,6 @@ export class AppComponent {
     onAuthStateChanged(this.firebaseAuth, (user) => {
       if (user) {
         this.authService.user = user;
-        this.router.navigate(['/workbooks']);
       } else {
         this.router.navigate(['/login-or-signup']);
       }

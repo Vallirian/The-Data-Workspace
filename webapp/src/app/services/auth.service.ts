@@ -4,6 +4,7 @@ import { UserInterface } from '../interfaces/main';
 import { NotificationService } from './notification.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +16,8 @@ export class AuthService {
   constructor(
     private firebaseAuth: Auth,
     private notificationService: NotificationService,
-    private http: HttpClient
+    private http: HttpClient,
+    private router: Router
   ) { }
 
   loginWithGoogle() {
@@ -23,6 +25,8 @@ export class AuthService {
       .then(async (result) => {
         this.user = result.user
         const token = await result.user.getIdToken();
+
+        this.router.navigate(['/workbooks']);
       })
       .catch((error) => {
         this.notificationService.addNotification({
