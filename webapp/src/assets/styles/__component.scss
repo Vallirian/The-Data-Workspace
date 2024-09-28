@@ -9,6 +9,10 @@
     padding: $padding-1 $padding-1;
     cursor: pointer;
     // transition: background-color 0.3s, color 0.3s;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
 
     &:hover {
         background-color: $cool-gray-30;

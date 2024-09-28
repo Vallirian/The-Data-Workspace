@@ -24,7 +24,7 @@ export class AuthService {
     signInWithPopup(this.firebaseAuth, this.googleAuthProvider)
       .then(async (result) => {
         this.user = result.user
-        const token = await result.user.getIdToken();
+        // const token = await result.user.getIdToken();
 
         this.router.navigate(['/workbooks']);
       })
