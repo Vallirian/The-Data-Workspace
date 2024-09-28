@@ -18,10 +18,14 @@
                      <!-- 19% because we want 5 cards and 20% would overflow and change cards per row to 4-->
                     <div class="d-flex flex-column h-100" >
                         <div>
-                            <h6 class="card-subtitle mb-2 text-body-secondary">{{getWorkbookTableMeta($index) ? getWorkbookTableMeta($index).name : 'Untitled Workbook'}}</h6>
+                            <!-- <h6 class="card-subtitle mb-2 text-body-secondary">{{getWorkbookTableMeta($index) ? getWorkbookTableMeta($index).name : 'Untitled Workbook'}}</h6> -->
+                             <!-- TODO: use tworkbook.table's name and description -->
+                            <h6 class="card-subtitle mb-2 text-body-secondary">{{'Untitled Workbook'}}</h6>
                         </div>
                         <div class="card-text text-limit ">
-                            {{getWorkbookTableMeta($index) ? getWorkbookTableMeta($index).description : 'Add a description'}}
+                            <!-- {{getWorkbookTableMeta($index) ? getWorkbookTableMeta($index).description : 'Add a description'}} -->
+                             <!-- TODO: use tworkbook.table's name and description -->
+                            {{ 'Add a description' }}
                         </div>
                         <div class="mt-auto">
                             <p class="text-secondary ">{{wb.createdAt.toString()| datetime: 'medium'}}</p>

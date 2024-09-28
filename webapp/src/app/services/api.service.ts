@@ -29,4 +29,9 @@ export class ApiService {
   deleteWorkbook(id: string) {
     return this.http.delete(`${this.baseApiUrl}/workbooks/${id}/`);
   }
+
+  // DataTables
+  getDataTableMeta(id: string) {
+    return this.http.get(`${this.baseApiUrl}/workbooks/${id}/table-meta/`);
+  }
 }

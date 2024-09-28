@@ -15,13 +15,17 @@ export interface NotificationInterface {
 export interface WorkbookInterface {
     id: string;
     createdAt: Date;
-    DataTableMeta: DataTableMetaInterface;
+    dataTable: string;
 }
 
 export interface DataTableMetaInterface {
     id: string;
     name: string;
     description: string;
+    dataSourceAdded: boolean;
+    dataSource: 'CSV' | null;
+    extractionStatus: 'pending' | 'success' | 'error';
+    extractionDetails: string;
     columns: DataTableColumnMetaInterface [];
 }
 

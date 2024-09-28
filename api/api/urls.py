@@ -5,4 +5,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/user/", include("user.urls")),
     path("api/workbooks/", include("workbook.urls")),
+    path("api/workbooks/<uuid:workbook_id>/table-meta", include("datatable.urls")),
 ]

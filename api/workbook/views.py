@@ -4,6 +4,7 @@ from rest_framework import status
 from .models import Workbook
 from .serializers import WorkbookSerializer
 from django.shortcuts import get_object_or_404
+from datatable.models import DataTableMeta
 
 class WorkbookListAPIView(APIView):
     def get(self, request):
@@ -13,12 +14,16 @@ class WorkbookListAPIView(APIView):
 
     def post(self, request):
         workbook = Workbook.objects.create(user=request.user)
+        data_table = DataTableMeta.objects.create(name=f"Untitled Table", description="Table description", dataSourceAdded=False)
+        workbook.dataTable = data_table
+        workbook.save()
+
         serializer = WorkbookSerializer(workbook)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class WorkbookDetailAPIView(APIView):
     def get(self, request, pk):
-        workbook = get_object_or_404(Workbook, id=pk, user=request.user).order_by('-createdAt')
+        workbook = get_object_or_404(Workbook, id=pk, user=request.user)
         serializer = WorkbookSerializer(workbook)
         return Response(serializer.data)
     

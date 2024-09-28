@@ -1,6 +1,13 @@
 @import './_color';
 @import './_spacing';
 
+.arc-button-center {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
 .arc-button-secondary {
     background-color: $cool-gray-20;
     color: $cool-gray-90;
@@ -9,10 +16,6 @@
     padding: $padding-1 $padding-1;
     cursor: pointer;
     // transition: background-color 0.3s, color 0.3s;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
 
     &:hover {
         background-color: $cool-gray-30;
@@ -71,3 +74,25 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+  /* Modal container */
+  .arc-modal {
+    display: block;
+    position: fixed; 
+    z-index: 1; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0, 0, 0, 0.3); 
+    
+    .arc-modal-content {
+      background-color: $white; 
+      margin: 15% auto;
+      padding: $padding-1; 
+      border-radius: $border-radius-0; 
+      border: 1px solid $cool-gray-20; 
+      width: 70%;
+    }
+  }

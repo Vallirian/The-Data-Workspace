@@ -6,6 +6,8 @@ class Workbook(models.Model):
     id = models.UUIDField(primary_key=True, max_length=32, default=uuid.uuid4().hex, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     createdAt = models.DateTimeField(auto_now_add=True)
+    dataTable = models.OneToOneField('datatable.DataTableMeta', on_delete=models.CASCADE, related_name='workbook', null=True, blank=True)
+
 
     def __str__(self):
         return self.id

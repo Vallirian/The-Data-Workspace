@@ -61,7 +61,7 @@ export class HomeComponent {
     this.router.navigate([`/workbook/${this.workbooks[index].id}`]);
   }
 
-  getWorkbookTableMeta(index: number): DataTableMetaInterface {
-    return this.workbooks[index].DataTableMeta;
+  getWorkbookTableMeta(index: number): string {
+    return this.workbooks[index].dataTable;
   }
 }
