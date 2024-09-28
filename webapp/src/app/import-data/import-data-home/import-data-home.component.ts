@@ -19,10 +19,9 @@ export class ImportDataHomeComponent {
 
   tableMetaData: DataTableMetaInterface | null = null;
 
-  dataTypes = ['string', 'integer', 'float', 'boolean', 'date'];
+  dataTypes = ['string', 'integer', 'float', 'date YYYY-MM-DD', 'date MM/DD/YYYY', 'date DD/MM/YYYY'];
   csvData: any[] = [];
   csvHeaders: DataTableColumnMetaInterface[] = [];
-
 
   constructor(
     private apiService: ApiService,
@@ -83,7 +82,7 @@ export class ImportDataHomeComponent {
       reader.readAsText(file);
 
       if (this.tableMetaData) {
-        this.tableMetaData.name = file.name;
+        this.tableMetaData.name = file.name.split('.')[0];
       }
     }
   }
@@ -98,6 +97,7 @@ export class ImportDataHomeComponent {
           id: header,
           name: header,
           dtype: 'string',
+          format: '',
           description: ''
         });
       })
@@ -109,6 +109,23 @@ export class ImportDataHomeComponent {
         remainingTime: 5000
       });
     }
+  }
+
+  onChangeHeaderDataType(index: number, event: any) {
+    const selectedValue = event.target.value; 
+    const header = this.csvHeaders[index];
+  
+    // Check if the selected data type is a date
+    if (selectedValue.startsWith('date')) {
+      // Extract and set the date format from the selected value
+      header.dtype = 'date';
+      header.format = selectedValue.split(' ')[1]; // This extracts the date format (e.g., YYYY-MM-DD)
+    } else {
+      // For non-date types, just update the dtype and reset the format
+      header.dtype = selectedValue;
+      header.format = ''; // Clear the format if it's not a date
+    }
+      
   }
 
 

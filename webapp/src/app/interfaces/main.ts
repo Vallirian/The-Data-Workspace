@@ -32,6 +32,7 @@ export interface DataTableMetaInterface {
 export interface DataTableColumnMetaInterface {
     id: string;
     name: string;
-    dtype: 'string' | 'number' | 'boolean' | 'date';
+    dtype: 'string' | 'integer' | 'float' | 'date';
+    format: string;
     description: string;
 }
