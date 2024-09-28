@@ -4,12 +4,12 @@ import { WorkbookInterface, DataTableMetaInterface, DataTableColumnMetaInterface
 import { CommonModule, DatePipe } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { DatetimePipe } from '../../pipes/datetime.pipe';
-import { Router } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, DatetimePipe],
+  imports: [CommonModule, DatetimePipe, RouterOutlet],
   providers: [
     DatePipe // Required for DatetimePipe
   ],
@@ -58,7 +58,7 @@ export class HomeComponent {
   }
 
   navigateToEditWorkbook(index: number) {
-    this.router.navigate([`/workbooks/${this.workbooks[index].id}`]);
+    this.router.navigate([`/workbook/${this.workbooks[index].id}`]);
   }
 
   getWorkbookTableMeta(index: number): DataTableMetaInterface {

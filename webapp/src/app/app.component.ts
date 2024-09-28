@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './general/navbar/navbar.component';
 import { Auth, onAuthStateChanged } from '@angular/fire/auth';
 import { AuthService } from './services/auth.service';
@@ -10,7 +10,9 @@ import { NotificationComponent } from './general/notification/notification.compo
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, NavbarComponent, CommonModule, SignupComponent, NotificationComponent],
+  imports: [RouterOutlet, NavbarComponent, CommonModule, SignupComponent, NotificationComponent,
+    RouterLink
+  ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.sass'
 })

@@ -4,7 +4,11 @@ import { HomeComponent } from './workbook/home/home.component';
 import { EditWorkbookComponent } from './workbook/edit-workbook/edit-workbook.component';
 
 export const routes: Routes = [
-    {path: 'login-or-signup', component: SignupComponent},
+    {path: 'workbook/:id', component: EditWorkbookComponent},
     {path: 'workbooks', component: HomeComponent},
-    {path: 'workbooks/:id', component: EditWorkbookComponent}
+    
+    
+    {path: 'login-or-signup', component: SignupComponent},
+
+    {path: '', redirectTo: '/workbooks', pathMatch: 'full'},
 ];
