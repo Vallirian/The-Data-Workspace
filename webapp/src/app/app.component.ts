@@ -32,7 +32,6 @@ export class AppComponent {
         this.router.navigate(['/workbooks']);
       } else {
         this.router.navigate(['/login-or-signup']);
-        console.log('User is signed out');
       }
     });
   }
