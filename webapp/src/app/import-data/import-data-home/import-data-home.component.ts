@@ -4,6 +4,7 @@ import { NotificationService } from '../../services/notification.service';
 import { DataTableColumnMetaInterface, DataTableMetaInterface } from '../../interfaces/main';
 import { CommonModule } from '@angular/common';
 import * as d3 from 'd3';
+import { ImportDataService } from '../../services/validations/import-data.service';
 
 @Component({
   selector: 'app-import-data-home',
@@ -25,7 +26,8 @@ export class ImportDataHomeComponent {
 
   constructor(
     private apiService: ApiService,
-    private notificationService: NotificationService 
+    private notificationService: NotificationService,
+    private importDataService: ImportDataService
   ) { }
 
   ngOnInit(): void {
@@ -125,7 +127,64 @@ export class ImportDataHomeComponent {
       header.dtype = selectedValue;
       header.format = ''; // Clear the format if it's not a date
     }
-      
+  }
+
+  validateData(): boolean {
+    if (!this.tableMetaData) {
+      return false;
+    }
+
+    const tableNameValidation = this.importDataService.validateTableName(this.tableMetaData.name);
+    if (!tableNameValidation.result) {
+      this.notificationService.addNotification({
+        message: tableNameValidation.message,
+        type: 'error',
+        dismissed: false,
+        remainingTime: 5000
+      });
+      return false;
+    }
+
+    const columnNames = this.csvHeaders.map((header) => header.name);
+    const columnValidation = this.importDataService.validateColumnNames(columnNames);
+    if (!columnValidation.result) {
+      this.notificationService.addNotification({
+        message: columnValidation.message,
+        type: 'error',
+        dismissed: false,
+        remainingTime: 5000
+      });
+      return false;
+    }
+
+    const dataTypes = this.csvHeaders.map((header) => header.dtype);
+    const dataTypeValidation = this.importDataService.validateDataTypes(this.csvData, dataTypes);
+    if (!dataTypeValidation.result) {
+      this.notificationService.addNotification({
+        message: dataTypeValidation.message,
+        type: 'error',
+        dismissed: false,
+        remainingTime: 5000
+      });
+      return  false;
+    }
+
+    return true;
+  }
+
+  onSaveData(): void {
+    if (!(this.tableMetaData)  || !(this.csvData.length > 0)) {
+      console.log('No data to save');
+      return;
+    }
+
+    if (!this.validateData()) {
+      console.log('Data validation failed');
+      return;
+    }
+
+    console.log('Saving data...');
+
   }
 
 

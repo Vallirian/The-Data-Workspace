@@ -5,11 +5,13 @@
                 <div class="col-9 d-flex">
                     <p class="fs-4">{{tableMetaData?.name}}</p>
                 </div>
-                <div class="col-3 d-flex justify-content-end">
-                    <button class="btn arc-button-primary arc-button-primary--small" type="button">
-                        Save
-                    </button>
-                </div>
+                @if (csvData.length > 0) {
+                    <div class="col-3 d-flex justify-content-end">
+                        <button (click)="onSaveData()" class="btn arc-button-primary arc-button-primary--small" type="button">
+                            Save
+                        </button>
+                    </div>
+                }
             </div>
             <div class="table-responsive mt-3 scrollable">
                 <table class="table table-hover">
