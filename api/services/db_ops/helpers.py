@@ -31,17 +31,6 @@ def dictfetchall(cursor):
     ]
 
 def validate_value(value, data_type, data_format=None):
-    """
-    Validate the value based on the data type.
-
-    Parameters:
-    - value: The value to be validated.
-    - data_type (str): The type of the value ('string', 'integer', 'float', 'date').
-
-    Returns:
-    - bool: True if valid, False otherwise.
-    """
-    # Validate based on the data type
     if data_type == 'string':
         return isinstance(value, str)
     

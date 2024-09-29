@@ -4,4 +4,5 @@ from .models import DataTableMeta
 class DataTableMetaSerializer(serializers.ModelSerializer):
     class Meta:
         model = DataTableMeta
-        fields = ['id', 'name', 'description', 'dataSource', 'extractionStatus', 'extractionDetails']
+        fields = ['id', 'name', 'description', 'dataSourceAdded', 'dataSource', 'extractionStatus', 
+                  'extractionDetails']

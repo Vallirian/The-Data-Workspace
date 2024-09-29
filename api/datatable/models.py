@@ -7,20 +7,19 @@ class DataTableMeta(models.Model):
     dataSourceAdded = models.BooleanField(default=False)
 
     DATA_SOURCE_CHOICES = [
-        ('csv', 'CSV'),
-        (None, 'NONE'),
+        ('csv', 'csv'),
+        (None, 'none'),
     ]
     dataSource = models.CharField(max_length=10, choices=DATA_SOURCE_CHOICES, null=True, blank=True)
 
     EXTRACTION_STATUS_CHOICES = [
-        ('pending', 'PEDNING'),
-        ('success', 'SUCCESS'),
-        ('error', 'ERROR'),
+        ('pending', 'pending'),
+        ('success', 'success'),
+        ('error', 'error'),
     ]
     extractionStatus = models.CharField(max_length=10, choices=EXTRACTION_STATUS_CHOICES, default='pending')
 
     extractionDetails = models.TextField()
-    columns = models.ManyToManyField('DataTableColumnMeta')
 
     def __str__(self):
         return self.name

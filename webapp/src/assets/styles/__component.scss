@@ -83,6 +83,43 @@
     }
 }
 
+.arc-button-danger {
+    background-color: $red-60;
+    color: $white;
+    border-radius: $border-radius-0;
+    padding: $padding-1 $padding-1;
+    cursor: pointer;
+    height: fit-content;
+
+    &:hover {
+        background-color: $red-60;
+        color: $white;
+    }
+
+    &:active {
+        background-color: $red-60;
+        color: $white;
+    }
+
+    &:disabled {
+        background-color: $cool-gray-10;
+        color: $cool-gray-60;
+        cursor: not-allowed;
+    }
+
+    &.arc-button-danger--small {
+        padding: $padding-0 $padding-1;
+    }
+
+    &.arc-button-danger--large {
+        padding: $padding-1 $padding-3;
+    }
+
+    &.arc-button-danger--full {
+        width: 100%;
+    }
+}
+
 .arc-card {
     background-color: $white;
     border: 1px solid $cool-gray-20;

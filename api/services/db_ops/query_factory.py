@@ -1,5 +1,5 @@
 from datetime import datetime
-import db_ops.helpers as db_hlp
+from . import helpers as db_hlp
 
 def generate_create_table_sql(table_name, columns):
     """

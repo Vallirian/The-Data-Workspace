@@ -1,9 +1,7 @@
 from django.http import HttpRequest
 from django.db import connection
-import csv
-
-import db_ops.helpers as db_hlp
-import db_ops.query_factory as qf
+from . import helpers as db_hlp
+from . import query_factory as qf
 
 class TypColumnMeta:
     def __init__(self) -> None:
@@ -87,8 +85,6 @@ class DataTableMeta:
     def __str__(self) -> str:
         return self.table.name
 
-
-    
 class RawDataExtraction:
     def __init__(self, request: HttpRequest, workbook_id: str, table_id: str) -> None:
         self.request = request
@@ -96,6 +92,7 @@ class RawDataExtraction:
         self.table_id = table_id
         self.table = DataTableMeta(table_id)
         self.table.fetch()
+       
 
     def create_table_if_not_exists(self):
         _table_name = f'table___{self.table_id}'
@@ -136,16 +133,7 @@ class RawDataExtraction:
 
         return True, 'Success'
 
-    def extract_data(self, etype: str, file_path: str):
-        """
-        Extract data from the raw data
-        :param 
-            - etype: str, extraction type
-            - file_path: str, path to the file where django has saved the raw data for temporary backup
-
-        return: 
-            - bool, str of (True, 'Success') or (False, 'Error message')
-        """
+    def extract_data(self, etype: str, data: dict):
         meta_valid, message = self.validate_meta()
         if not meta_valid:
             return False, message
@@ -155,37 +143,35 @@ class RawDataExtraction:
             return False, 'Invalid extraction type'
         
         # validate path
-        if not file_path:
-            return False, 'Invalid file path'
+        if not data:
+            return False, 'Data not found'
         
         if etype == 'csv':
             try:
-                with open(file_path, 'r') as f:
-                    data = csv.DictReader(f)
+                # validate rows
+                if not data:
+                    return False, 'No data found'
+                
+                for i in range(len(data)):
+                    row = data[i]
+                    for column, value in row.items():
+                        expected_column = self.table.get_column_by_name(column)
+                        if not expected_column:
+                            return False, f'Column `{column}`not found in the table'
+                        
+                        if not db_hlp.validate_value(value=value, data_type=expected_column.dtype, data_format=expected_column.format):
+                            return False, f'Invalid value found in row {i+1} for column `{column}`'
+                        
+                # add data to the table
+                self.create_table_if_not_exists()
 
-                    # validate rows
-                    if not data:
-                        return False, 'No data found in the file'
-                    
-                    for i in range(len(data)):
-                        row = data[i]
-                        for column, value in row.items():
-                            expected_column = self.table.get_column_by_name(column)
-                            if not expected_column:
-                                return False, f'Column `{column}`not found in the table'
-                            
-                            if not db_hlp.validate_value(value=value, data_type=expected_column.dtype, data_format=expected_column.format):
-                                return False, f'Invalid value found in row {i+1} for column `{column}`'
-                            
-                    # add data to the table
-                    self.create_table_if_not_exists()
+                # insert data
+                column_formats = {column.name: column.format for column in self.table.columns}
+                query = qf.generate_insert_data_sql(f'table___{self.table_id}', data, column_formats)
+                with connection.cursor() as cursor:
+                    cursor.execute(query)
 
-                    # insert data
-                    column_formats = {column.name: column.format for column in self.table.columns}
-                    query = qf.generate_insert_data_sql(f'table___{self.table_id}', data, column_formats)
-                    with connection.cursor() as cursor:
-                        cursor.execute(query)
-
-                    return True, 'Success'
+                return True, 'Success'
             except Exception as e:
+                print(f'Error on extraction: {e}')
                 return False, str(e)

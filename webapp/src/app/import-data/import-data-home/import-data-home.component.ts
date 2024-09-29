@@ -173,6 +173,11 @@ export class ImportDataHomeComponent {
   }
 
   onSaveData(): void {
+    if (!this.workbookId || !this.tableMetaId) {
+      console.log('No workbook or table meta id');
+      return
+    }
+
     if (!(this.tableMetaData)  || !(this.csvData.length > 0)) {
       console.log('No data to save');
       return;
@@ -183,7 +188,31 @@ export class ImportDataHomeComponent {
       return;
     }
 
-    console.log('Saving data...');
+    const data = {
+      data: this.csvData,
+      columns: this.csvHeaders,
+      dataSource: 'csv',
+      name: this.tableMetaData.name,
+    };
+
+    this.apiService.extractData(this.workbookId, this.tableMetaId, data).subscribe(
+      (response) => {
+        this.notificationService.addNotification({
+          message: 'Data extraction started successfully',
+          type: 'success',
+          dismissed: false,
+          remainingTime: 5000
+        });
+      },
+      (error) => {
+        this.notificationService.addNotification({
+          message: error.error.error || 'Failed to extract data',
+          type: 'error',
+          dismissed: false,
+          remainingTime: 5000
+        });
+      }
+    );
 
   }
 

@@ -34,4 +34,9 @@ export class ApiService {
   getDataTableMeta(workbookId: string, tableId: String) {
     return this.http.get<DataTableMetaInterface>(`${this.baseApiUrl}/table-meta/${workbookId}/${tableId}/`);
   }
+
+  // Extraction
+  extractData(workbookId: string, tableId: string, data: any) {
+    return this.http.post(`${this.baseApiUrl}/table-meta/${workbookId}/${tableId}/extract/`, data);
+  }
 }
