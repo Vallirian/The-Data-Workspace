@@ -16,7 +16,7 @@ INVALID_CHARACTERS_IN_COLUMN_NAME = [
 ]
 
 ALLOWED_DATE_FORMATS = [
-    'YYYY-MM-DD', 'MM/DD/YYYY', 'DD/MM/YYYY'
+     'MM/DD/YYYY', 'DD/MM/YYYY', 'MM-DD-YYYY', 'DD-MM-YYYY'
 ]
 
 MAX_COLUMNS = 50
@@ -31,38 +31,46 @@ def dictfetchall(cursor):
     ]
 
 def validate_value(value, data_type, data_format=None):
+    if (value is None) or (value == ''):
+        return True, ''
+    
     if data_type == 'string':
-        return isinstance(value, str)
+        try:
+            str(value)  
+            return True, ''
+        except ValueError as e:
+            return False, str(e)
     
     elif data_type == 'integer':
         try:
             int(value)  
-            return True
-        except ValueError:
-            return False
+            return True, ''
+        except ValueError as e:
+            return False, str(e)
     
     elif data_type == 'float':
         try:
             float(value)  
-            return True
-        except ValueError:
-            return False
+            return True, ''
+        except ValueError as e:
+            return False, str(e)
     
     elif data_type == 'date':
         return is_valid_date(value, data_format)
     else:
-        return False
+        return False, 'Invalid data type'
 
-def is_valid_date(date_str, data_format):
+def is_valid_date(date_str, data_format: str):
     if data_format not in ALLOWED_DATE_FORMATS:
         return False
     
     try:
         # Try to parse the date string into a datetime object
-        datetime.strptime(date_str, data_format)
-        return True
-    except ValueError:
-        return False
+        _python_date_format = data_format.replace('YYYY', '%Y').replace('MM', '%m').replace('DD', '%d')
+        datetime.strptime(date_str, _python_date_format)
+        return True, ''
+    except ValueError as e:
+        return False, str(e)
 
 if __name__ == '__main__':
     pass

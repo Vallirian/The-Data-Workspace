@@ -1,4 +1,4 @@
-import { Component, Input, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
 import { ApiService } from '../../services/api.service';
 import { NotificationService } from '../../services/notification.service';
 import { DataTableColumnMetaInterface, DataTableMetaInterface } from '../../interfaces/main';
@@ -17,10 +17,14 @@ export class ImportDataHomeComponent {
   @Input() workbookId: string | null = null;
   @Input() tableMetaId: string | null = null;
   @Input() importType: 'csv' | null = null;
+  @Output() closeImportDataModal = new EventEmitter<string>();
 
   tableMetaData: DataTableMetaInterface | null = null;
 
-  dataTypes = ['string', 'integer', 'float', 'date YYYY-MM-DD', 'date MM/DD/YYYY', 'date DD/MM/YYYY'];
+  dataTypes = ['string', 'integer', 'float', 
+            'date MM/DD/YYYY', 'date DD/MM/YYYY',
+            'date MM-DD-YYYY', 'date DD-MM-YYYY',
+  ];
   csvData: any[] = [];
   csvHeaders: DataTableColumnMetaInterface[] = [];
 
@@ -203,6 +207,7 @@ export class ImportDataHomeComponent {
           dismissed: false,
           remainingTime: 5000
         });
+        this.closeImportDataModal.emit('success');
       },
       (error) => {
         this.notificationService.addNotification({
@@ -211,9 +216,38 @@ export class ImportDataHomeComponent {
           dismissed: false,
           remainingTime: 5000
         });
+        this.fetchTableMeta();
       }
     );
 
+  }
+
+  onDeleteData(): void {
+    if (!this.workbookId || !this.tableMetaId) {
+      return
+    }
+
+    this.apiService.deleteData(this.workbookId, this.tableMetaId).subscribe(
+      (response) => {
+        this.notificationService.addNotification({
+          message: 'Data deleted successfully',
+          type: 'success',
+          dismissed: false,
+          remainingTime: 5000
+        });
+
+        this.fetchTableMeta();
+      },
+      (error) => {
+        this.notificationService.addNotification({
+          message: error.error.error || 'Failed to delete data',
+          type: 'error',
+          dismissed: false,
+          remainingTime: 5000
+        });
+        this.fetchTableMeta();
+      }
+    );
   }
 
 

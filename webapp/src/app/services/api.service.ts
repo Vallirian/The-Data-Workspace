@@ -39,4 +39,8 @@ export class ApiService {
   extractData(workbookId: string, tableId: string, data: any) {
     return this.http.post(`${this.baseApiUrl}/table-meta/${workbookId}/${tableId}/extract/`, data);
   }
+
+  deleteData(workbookId: string, tableId: string) {
+    return this.http.delete(`${this.baseApiUrl}/table-meta/${workbookId}/${tableId}/extract/`);
+  }
 }

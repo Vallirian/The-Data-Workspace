@@ -55,12 +55,10 @@ class DataTableMeta:
             self.columns.append(column)
 
     def get_table_meta(self):
-        query = """
-            SELECT * FROM datatable_datatablemeta WHERE id = %s
-        """
+        _query, _inputs = qf.gen_get_table_meta_sql(self.table_id)
 
         with connection.cursor() as cursor:
-            cursor.execute(query, [self.table_id])
+            cursor.execute(_query, _inputs)
             result = db_hlp.dictfetchall(cursor)
 
         for row in result:
@@ -81,6 +79,7 @@ class DataTableMeta:
     def fetch(self):
         self.get_table_meta()
         self.get_column_meta()
+        print('fetched table', self.table.id)
 
     def __str__(self) -> str:
         return self.table.name
@@ -91,18 +90,21 @@ class RawDataExtraction:
         self.workbook_id = workbook_id
         self.table_id = table_id
         self.table = DataTableMeta(table_id)
+        self._raw_data_table_name = f'table___{self.table_id}'
         self.table.fetch()
        
 
     def create_table_if_not_exists(self):
-        _table_name = f'table___{self.table_id}'
         _columns = []
         for column in self.table.columns:
-            _columns.append(({column.name}, db_hlp.DATA_TYPE_MAP[{column.dtype}]))
+            print('column', column)
+            _columns.append((column.name, db_hlp.DATA_TYPE_MAP[column.dtype]))
+        print('columns', _columns)
 
-        query = qf.generate_create_table_sql(_table_name, _columns)
+        _query, _inputs = qf.generate_create_table_sql(self._raw_data_table_name, _columns)
+        print('create table query', _query, _inputs)
         with connection.cursor() as cursor:
-            cursor.execute(query)
+            cursor.execute(_query, _inputs)
 
     def validate_meta(self):
         # validate table
@@ -119,7 +121,7 @@ class RawDataExtraction:
         if len(self.table.columns) > db_hlp.MAX_COLUMNS:
             return False, f'Maximum {db_hlp.MAX_COLUMNS} columns allowed, {len(self.table.columns)} found'
         
-        column_names = set()
+        column_names = []
         for column in self.table.columns:
             if column.dtype not in db_hlp.DATA_TYPE_MAP:
                 return False, 'Invalid data type'
@@ -129,7 +131,8 @@ class RawDataExtraction:
             
             if column.name in column_names:
                 return False, 'Duplicate column name found'
-            column_names.add(column.name)      
+            
+            column_names.append(column.name)
 
         return True, 'Success'
 
@@ -146,6 +149,7 @@ class RawDataExtraction:
         if not data:
             return False, 'Data not found'
         
+        print('data validated', data)
         if etype == 'csv':
             try:
                 # validate rows
@@ -158,20 +162,36 @@ class RawDataExtraction:
                         expected_column = self.table.get_column_by_name(column)
                         if not expected_column:
                             return False, f'Column `{column}`not found in the table'
-                        
-                        if not db_hlp.validate_value(value=value, data_type=expected_column.dtype, data_format=expected_column.format):
-                            return False, f'Invalid value found in row {i+1} for column `{column}`'
+                        _validation_result, _validation_message = db_hlp.validate_value(value=value, data_type=expected_column.dtype, data_format=expected_column.format)
+                        if not _validation_result:
+                            return False, f'Error validting row {i+1}: {_validation_message}'
                         
                 # add data to the table
                 self.create_table_if_not_exists()
+                print('table created')
 
                 # insert data
                 column_formats = {column.name: column.format for column in self.table.columns}
-                query = qf.generate_insert_data_sql(f'table___{self.table_id}', data, column_formats)
+                print('column formats', column_formats)
+                _query, _inputs = qf.generate_insert_data_sql(f'table___{self.table_id}', data, column_formats)
                 with connection.cursor() as cursor:
-                    cursor.execute(query)
+                    cursor.execute(_query, _inputs)
 
-                return True, 'Success'
+                return True, 'Data extracted successfully'
             except Exception as e:
                 print(f'Error on extraction: {e}')
                 return False, str(e)
+        else:
+            return False, 'Invalid extraction type'
+        
+    def delete_table(self):
+        _query, _inputs = qf.generate_delete_table_sql(self._raw_data_table_name)
+
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(_query, _inputs)
+                
+            return True, 'Success'
+        except Exception as e:
+            print(f'Error on table deletion: {e}')
+            return False, str(e)

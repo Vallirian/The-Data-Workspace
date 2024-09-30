@@ -1,7 +1,7 @@
 from django.db import models
 import uuid
 class DataTableMeta(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4().hex, editable=False)
+    id = models.CharField(primary_key=True, default=uuid.uuid4, editable=False, unique=True, max_length=36)
     name = models.CharField(max_length=255)
     description = models.TextField()
     dataSourceAdded = models.BooleanField(default=False)
@@ -32,7 +32,7 @@ class DataTableColumnMeta(models.Model):
         ('date', 'date'),
     ]
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4().hex, editable=False)
+    id = models.CharField(primary_key=True, default=uuid.uuid4, editable=False, unique=True, max_length=36)
     name = models.CharField(max_length=255)
     dtype = models.CharField(max_length=7, choices=DTYPE_CHOICES)
     format = models.CharField(max_length=100) 

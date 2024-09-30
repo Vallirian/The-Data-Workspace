@@ -2,21 +2,12 @@ from datetime import datetime
 from . import helpers as db_hlp
 
 def generate_create_table_sql(table_name, columns):
-    """
-    Generate a CREATE TABLE IF NOT EXISTS SQL statement.
-
-    Parameters:
-    - table_name (str): The name of the table.
-    - columns (list of tuples): A list where each tuple contains a column name and its data type.
-
-    Returns:
-    - str: The generated SQL query.
-    """
     # Start the CREATE TABLE statement
     sql = f"CREATE TABLE IF NOT EXISTS `{table_name}` (\n"
     
     # Add each column name and its data type
     column_definitions = []
+    print('columns to create sql with', columns)
     for column_name, data_type in columns:
         column_definitions.append(f" `{column_name}` {data_type}")
     
@@ -28,20 +19,20 @@ def generate_create_table_sql(table_name, columns):
     
     return sql, []
 
-def validate_and_format_date(value, date_format):
-    if value is None:
+def validate_and_format_date(value, date_format: str):
+    if (value is None) or (value == ''):
         return None
     
     try:
-        parsed_date = datetime.strptime(value, date_format)
+        _python_date_format = date_format.replace('YYYY', '%Y').replace('MM', '%m').replace('DD', '%d')
+        parsed_date = datetime.strptime(value, _python_date_format)
 
         # Return the date formatted as 'YYYY-MM-DD' (SQL standard format)
         return parsed_date.strftime('%Y-%m-%d')
-    except ValueError:
+    except ValueError as e:
+        print('Invalid date format', value, str(e))
         raise ValueError(f"Invalid date format: {value}")
     
-    
-
 def generate_insert_data_sql(table_name, rows, column_formats: dict):
     if not rows:
         return None
@@ -61,16 +52,15 @@ def generate_insert_data_sql(table_name, rows, column_formats: dict):
         for col in raw_columns:
             value = row.get(col)
             column_format = column_formats.get(col) 
-
+            print('value', value, 'column_format', column_format)
             if column_format in db_hlp.ALLOWED_DATE_FORMATS:
-                formatted_date = validate_and_format_date(value)
-                if formatted_date is None:
-                    raise ValueError(f"Invalid date format for column '{col}': {value}")
+                formatted_date = validate_and_format_date(value, column_format)
                 row_values.append(formatted_date)
+                print('formatted_date', formatted_date)
             else:
                 # Handle generic values (treat all non-DATE fields as is)
                 row_values.append(value)
-            
+            print('row_values', row_values)
             # Append a placeholder for each value
             formatted_values.append('%s')
 
@@ -86,6 +76,11 @@ def generate_insert_data_sql(table_name, rows, column_formats: dict):
     
     return insert_sql, all_values
 
+def generate_delete_table_sql(table_name):
+    return f"DROP TABLE IF EXISTS `{table_name}`;", []
+
+def gen_get_table_meta_sql(table_id):
+    return f"SELECT * FROM `datatable_datatablemeta` WHERE `id` = %s;", [table_id]
 
 if __name__ == "__main__":
     pass

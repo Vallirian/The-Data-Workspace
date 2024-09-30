@@ -52,10 +52,15 @@ export class EditWorkbookComponent {
     this.importModalOpen = importType ? true : false;
   }
 
-    // Handle clicking outside of modal content (backdrop click)
-    handleBackdropClick(event: MouseEvent): void {
-      if (event.target === event.currentTarget) {
-        this.toggleImportData(null);
-      }
+  // Handle clicking outside of modal content (backdrop click)
+  handleBackdropClick(event: MouseEvent): void {
+    if (event.target === event.currentTarget) {
+      this.toggleImportData(null);
     }
+  }
+
+  closeImportDataModal(): void {
+    this.importType = null;
+    this.importModalOpen = false;
+  }
 }
