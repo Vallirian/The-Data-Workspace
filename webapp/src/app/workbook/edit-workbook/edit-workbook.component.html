@@ -1,9 +1,22 @@
 <div class="centered-container gap-3">
-    <div class="container-fluid full-section arc-card w-75">
+    <div class="container-fluid full-section arc-card w-75 d-flex flex-column">
         <div class="d-flex">
             <div class="col-9 d-flex justify-content-center">
-                <div>Report</div>
-                <div>Table</div>
+                <ul class="nav nav-pills">
+                    <!-- Left Tab Section -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="javascript:void(0)"
+                        [ngClass]="{ active: leftTab === 'report' }" (click)="leftTab = 'report'" aria-current="page">
+                            Report
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="javascript:void(0)"
+                        [ngClass]="{ active: leftTab === 'data' }" (click)="leftTab = 'data'" aria-current="page">
+                            Table
+                        </a>
+                    </li>
+                  </ul>
             </div>
             <div class="col-3 d-flex justify-content-end">
                 <div class="dropdown">
@@ -19,6 +32,17 @@
                     </ul>
                 </div>
             </div>
+        </div>
+        <div class="container-with-scrollable-content">
+            @if (leftTab == 'report') {
+                hi NY
+            }
+            @else {
+                <app-data-table 
+                    [workbookId]="workbookId" [tableMetaId]="workbook?.dataTable || ''" 
+                    class="container-with-scrollable-content">
+                </app-data-table>
+            }
         </div>
     </div>
 

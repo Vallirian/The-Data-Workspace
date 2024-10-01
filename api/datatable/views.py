@@ -4,10 +4,12 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from .models import DataTableMeta, DataTableColumnMeta
 from workbook.models import Workbook
-from .serializers import DataTableMetaSerializer
+from .serializers import DataTableMetaSerializer, DataTableColumnMetaSerializer
 from django.core.files.storage import default_storage
 from services.db_ops.db import RawDataExtraction
-
+import services.db_ops.query_factory as qf
+import services.db_ops.helpers as db_hlp
+from django.db import connection
 
 class DataTableMetaByWorkbookAPIView(APIView):
     def get(self, request, workbook_id, table_id):
@@ -15,15 +17,48 @@ class DataTableMetaByWorkbookAPIView(APIView):
         data_table_meta = get_object_or_404(DataTableMeta, workbook=workbook, id=table_id)
         serializer = DataTableMetaSerializer(data_table_meta)
         return Response(serializer.data)
-
-    def put(self, request, workbook_id, table_id):
+    
+class DataTableMetaColumnsByWorkbookAPIView(APIView):
+    def get(self, request, workbook_id, table_id):
         workbook = get_object_or_404(Workbook, id=workbook_id, user=request.user)
         data_table_meta = get_object_or_404(DataTableMeta, workbook=workbook, id=table_id)
-        serializer = DataTableMetaSerializer(data_table_meta, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        columns = DataTableColumnMeta.objects.filter(dataTable=data_table_meta)
+        serializer = DataTableColumnMetaSerializer(columns, many=True)
+        return Response(serializer.data)
+    
+class DataTableAPIView(APIView):
+    def get(self, request, workbook_id, table_id):
+        try:
+            page = 1 if 'page' not in request.query_params else int(request.query_params['page'])
+            page_size = 25
+
+            workbook = get_object_or_404(Workbook, id=workbook_id, user=request.user)
+            data_table_meta = get_object_or_404(DataTableMeta, workbook=workbook, id=table_id)
+
+            _table_name = f'table___{data_table_meta.id}'
+            _items_query, _items_inputs = qf.gen_get_raw_data_sql(_table_name, page, page_size)
+            _count_query, _count_inputs = qf.gen_get_raw_data_count_sql(_table_name)
+
+            with connection.cursor() as cursor:
+                cursor.execute(_items_query, _items_inputs)
+                _items_result = db_hlp.dictfetchall(cursor)
+
+                cursor.execute(_count_query, _count_inputs)
+                _count_result = db_hlp.dictfetchall(cursor)
+                print('count', _count_result)
+
+            result = {
+                "items": _items_result,
+                "total_items_count": _count_result[0]['count'],
+                "current_page": page,
+                "page_size": page_size
+            }
+            
+            return Response(result)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        
 
 class DataTableExtractionAPIView(APIView):
     def post(self, request, workbook_id, table_id):

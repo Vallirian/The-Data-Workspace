@@ -195,3 +195,5 @@ class RawDataExtraction:
         except Exception as e:
             print(f'Error on table deletion: {e}')
             return False, str(e)
+        
+        

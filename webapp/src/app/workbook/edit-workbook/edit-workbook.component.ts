@@ -5,11 +5,12 @@ import { ImportDataHomeComponent } from '../../import-data/import-data-home/impo
 import { WorkbookInterface } from '../../interfaces/main';
 import { ApiService } from '../../services/api.service';
 import { NotificationService } from '../../services/notification.service';
+import { DataTableComponent } from '../data-table/data-table.component';
 
 @Component({
   selector: 'app-edit-workbook',
   standalone: true,
-  imports: [CommonModule, ImportDataHomeComponent],
+  imports: [CommonModule, ImportDataHomeComponent, DataTableComponent],
   templateUrl: './edit-workbook.component.html',
   styleUrl: './edit-workbook.component.scss'
 })
@@ -18,6 +19,9 @@ export class EditWorkbookComponent {
   workbook: WorkbookInterface | null = null;
   importType: 'csv' | null = null;
   importModalOpen: boolean = false;
+
+  leftTab: 'report' | 'data' = 'data';
+  rightTab: 'chat' | 'savedFormula' = 'chat';
 
   constructor(
     private activatedRoute: ActivatedRoute,

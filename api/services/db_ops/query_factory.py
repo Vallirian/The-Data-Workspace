@@ -82,5 +82,11 @@ def generate_delete_table_sql(table_name):
 def gen_get_table_meta_sql(table_id):
     return f"SELECT * FROM `datatable_datatablemeta` WHERE `id` = %s;", [table_id]
 
+def gen_get_raw_data_sql(table_name, page, page_size):
+    return f"SELECT * FROM `{table_name}` LIMIT %s OFFSET %s;", [page_size, page_size * (page - 1)]
+
+def gen_get_raw_data_count_sql(table_name):
+    return f"SELECT COUNT(*) as count FROM `{table_name}`;", []
+
 if __name__ == "__main__":
     pass
