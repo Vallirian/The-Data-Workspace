@@ -20,8 +20,9 @@ body {
     background-color: $cool-gray-10;
 }
 
-.arc-navbar-container {
-    // border-bottom: 1px solid $cool-gray-20;
+.arc-navbar-sub-container {
+    background-color: $white;
+    border-radius: $border-radius-1;
 }
 
 .arc-navbar {
@@ -39,4 +40,8 @@ body {
 // test1
 .test1 {
     background-color: blue;
+}
+
+.test0 {
+    background-color: green;
 }

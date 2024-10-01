@@ -1,24 +1,21 @@
-<div class="centered-container gap-3">
-    <div class="container-fluid full-section arc-card w-75 d-flex flex-column">
-        <div class="d-flex">
-            <div class="col-9 d-flex justify-content-center">
-                <ul class="nav nav-pills">
-                    <!-- Left Tab Section -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="javascript:void(0)"
-                        [ngClass]="{ active: leftTab === 'report' }" (click)="leftTab = 'report'" aria-current="page">
-                            Report
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="javascript:void(0)"
-                        [ngClass]="{ active: leftTab === 'data' }" (click)="leftTab = 'data'" aria-current="page">
-                            Table
-                        </a>
-                    </li>
-                  </ul>
-            </div>
-            <div class="col-3 d-flex justify-content-end">
+<div class="full-section">
+    <div class="d-flex fle-row gap-3 mb-2">
+        <div class="arc-navbar-sub-container w-75 d-flex flex-row  justify-content-between align-items-center px-2">
+            <ul class="nav nav-pills">
+                <li class="nav-item">
+                    <a class="nav-link" href="javascript:void(0)"
+                    [ngClass]="{ active: leftTab === 'report' }" (click)="leftTab = 'report'" aria-current="page">
+                        Report
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="javascript:void(0)"
+                    [ngClass]="{ active: leftTab === 'data' }" (click)="leftTab = 'data'" aria-current="page">
+                        Table
+                    </a>
+                </li>
+            </ul>
+            <div class="d-flex flex-column justify-content-center">
                 <div class="dropdown">
                     <button class="btn arc-button-secondary arc-button-secondary--small arc-button-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-database-add me-2" viewBox="0 0 16 16">
@@ -33,20 +30,26 @@
                 </div>
             </div>
         </div>
-        <div class="container-with-scrollable-content">
+        <div class="arc-navbar-sub-container w-25 d-flex flex-column">
+            <app-navbar></app-navbar>
+        </div>
+    </div>
+    <div class="full-section container-with-scrollable-content d-flex gap-3 ">
+        <div class="test1 container-with-scrollable-content arc-card w-75">
             @if (leftTab == 'report') {
+    
                 hi NY
             }
             @else {
                 <app-data-table 
                     [workbookId]="workbookId" [tableMetaId]="workbook?.dataTable || ''" 
-                    class="container-with-scrollable-content">
+                    class="container-with-scrollable-content test0">
                 </app-data-table>
             }
         </div>
-    </div>
-
-    <div class="container-fluid full-section arc-card w-25">
+    
+        <div class="container-fluid full-section arc-card w-25">
+        </div>
     </div>
 </div>
 

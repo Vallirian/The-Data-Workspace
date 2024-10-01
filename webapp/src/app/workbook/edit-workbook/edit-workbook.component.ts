@@ -6,11 +6,12 @@ import { WorkbookInterface } from '../../interfaces/main';
 import { ApiService } from '../../services/api.service';
 import { NotificationService } from '../../services/notification.service';
 import { DataTableComponent } from '../data-table/data-table.component';
+import { NavbarComponent } from '../../general/navbar/navbar.component';
 
 @Component({
   selector: 'app-edit-workbook',
   standalone: true,
-  imports: [CommonModule, ImportDataHomeComponent, DataTableComponent],
+  imports: [CommonModule, ImportDataHomeComponent, DataTableComponent, NavbarComponent],
   templateUrl: './edit-workbook.component.html',
   styleUrl: './edit-workbook.component.scss'
 })

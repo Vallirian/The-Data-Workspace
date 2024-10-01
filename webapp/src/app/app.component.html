@@ -1,9 +1,4 @@
 <div class="app-container">
-  @if (getUser()) {
-    <div class="container-fluid arc-navbar-container">
-      <app-navbar></app-navbar>
-    </div>
-  }
   <div class="arc-content-container p-2">
     @if (getUser()) {
       <router-outlet></router-outlet>
@@ -11,7 +6,8 @@
     @else {
       <app-signup></app-signup>
     }
-    <app-notification></app-notification>
   </div>
 </div>
 
+
+<app-notification></app-notification>
