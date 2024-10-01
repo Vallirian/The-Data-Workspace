@@ -1,6 +1,6 @@
 "use client";
 
-import { auth, googleProvider } from "@/app/firebase";
+import { auth, googleProvider } from "@/services/firebase";
 import { Button } from "@/components/ui/button";
 import { EnvelopeOpenIcon } from "@radix-ui/react-icons";
 import { Input } from "@/components/ui/input";
@@ -8,9 +8,12 @@ import { GithubIcon } from "lucide-react";
 import { GoogleAuthProvider, signInWithPopup, User } from "firebase/auth";
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation"; 
+
 
 export default function Login() {
     const [user, setUser] = useState<User | null>(null);
+    const router = useRouter(); 
 
     const handleLogin = () => {
         signInWithPopup(auth, googleProvider)
@@ -22,6 +25,8 @@ export default function Login() {
                 // The signed-in user info.
                 const user = result.user;
                 setUser(user);
+
+                router.push('/workbooks'); 
             })
             .catch((error) => {
                 const errorCode = error.code;
