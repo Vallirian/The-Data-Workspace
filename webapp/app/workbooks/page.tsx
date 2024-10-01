@@ -11,7 +11,6 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -20,35 +19,57 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreVertical, Plus, ChevronRight } from "lucide-react";
 import axiosInstance from "@/services/axios";
-import { WorkbookInterface } from "@/interfaces/main";
+import { DataTableMetaInterface, WorkbookInterface } from "@/interfaces/main";
 import { addDays, format } from "date-fns";
 import ArcNavbar from "@/components/arcNavbar";
 
 export default function WorkbooksPage() {
     const [workbooks, setWorkbooks] = useState<WorkbookInterface[]>([]);
+    const [tableMetas, setTableMetas] = useState<DataTableMetaInterface[]>([]);
     const router = useRouter();
 
     useEffect(() => {
-        // Fetch workbooks from API
-        fetchWorkbooks();
+        // Fetch workbooks and metadata from API once to avoid multiple calls in render
+        fetchWorkbooksAndMetadata();
     }, []);
 
-    const fetchWorkbooks = async () => {
+    const fetchWorkbooksAndMetadata = async () => {
+        try {
+            // Fetch all workbooks
+            const workbooksResponse = await axiosInstance.get(
+                `${process.env.NEXT_PUBLIC_API_URL}/workbooks/`
+            );
+            const workbooksData = await workbooksResponse.data;
+            setWorkbooks(workbooksData);
+
+            // Fetch metadata for each workbook's table
+            const tableMetaPromises = workbooksData.map((workbook: WorkbookInterface) =>
+                fetchTableMeta(workbook.id, workbook.dataTable)
+            );
+            const tableMetasData = await Promise.all(tableMetaPromises);
+            setTableMetas(tableMetasData);
+        } catch (error) {
+            console.error("Error fetching workbooks or metadata", error);
+        }
+    };
+
+    const fetchTableMeta = async (workbookId: string, tableId: string) => {
         try {
             const response = await axiosInstance.get(
-                process.env.NEXT_PUBLIC_API_URL + "/workbooks/"
+                `${process.env.NEXT_PUBLIC_API_URL}/table-meta/${workbookId}/${tableId}/`
             );
-            const data = await response.data;
-            setWorkbooks(data);
+            return response.data;
         } catch (error) {
-            console.error("Error fetching workbooks", error);
+            console.error("Error fetching table meta", error);
+            return null;
         }
     };
 
     const createWorkbook = async () => {
         try {
             const response = await axiosInstance.post(
-                process.env.NEXT_PUBLIC_API_URL + "/workbooks/", {}
+                `${process.env.NEXT_PUBLIC_API_URL}/workbooks/`,
+                {}
             );
             const newWorkbook = await response.data;
             setWorkbooks([...workbooks, newWorkbook]);
@@ -71,7 +92,20 @@ export default function WorkbooksPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
                     <NewWorkbookCard onCreate={createWorkbook} />
                     {workbooks.map((workbook) => (
-                        <WorkbookCard key={workbook.id} workbook={workbook} />
+                        <WorkbookCard
+                            key={workbook.id}
+                            workbook={workbook}
+                            tableName={
+                                tableMetas.find(
+                                    (tableMeta) => tableMeta?.id === workbook.dataTable
+                                )?.name || "Unknown Table"
+                            }
+                            tableDescription={
+                                tableMetas.find(
+                                    (tableMeta) => tableMeta?.id === workbook.dataTable
+                                )?.description || "No description"
+                            }
+                        />
                     ))}
                 </div>
             </main>
@@ -94,10 +128,18 @@ function NewWorkbookCard({ onCreate }: { onCreate: () => void }) {
     );
 }
 
-function WorkbookCard({ workbook }: { workbook: WorkbookInterface }) {
+function WorkbookCard({
+    workbook,
+    tableName,
+    tableDescription,
+}: {
+    workbook: WorkbookInterface;
+    tableName: string;
+    tableDescription: string;
+}) {
     const router = useRouter();
     const handleCardClick = () => {
-        router.push(`/workbooks/${workbook.id}`); // Navigate to workbooks/:id 
+        router.push(`/workbooks/${workbook.id}`); // Navigate to workbooks/:id
     };
 
     return (
@@ -107,7 +149,7 @@ function WorkbookCard({ workbook }: { workbook: WorkbookInterface }) {
         >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                    {workbook.dataTable}
+                    {tableName}
                 </CardTitle>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -128,7 +170,7 @@ function WorkbookCard({ workbook }: { workbook: WorkbookInterface }) {
             </CardHeader>
             <CardContent>
                 <p className="text-xs text-muted-foreground">
-                    {workbook.dataTable}
+                    {tableDescription}
                 </p>
             </CardContent>
             <CardFooter className="mt-auto">
