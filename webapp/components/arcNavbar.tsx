@@ -62,46 +62,9 @@ export default function ArcNavbar() {
 
     return (
         <nav className="p-4 flex justify-between items-center">
-            <Breadcrumb>
-                {/* Home Link (Special Case for '/workbooks') */}
-                {pathname === "/workbooks" ? (
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href="/workbooks">Home</BreadcrumbLink>
-                    </BreadcrumbItem>
-                ) : (
-                    <>
-                        <BreadcrumbItem>
-                            <BreadcrumbLink href="/workbooks">
-                                Home
-                            </BreadcrumbLink>
-                        </BreadcrumbItem>
-
-                        {/* Map remaining segments to a breadcrumb */}
-                        {pathSegments.map((segment, index) => {
-                            // Build the route for each breadcrumb link
-                            const href = `/${pathSegments
-                                .slice(0, index + 1)
-                                .join("/")}`;
-
-                            // Capitalize the breadcrumb text
-                            const breadcrumbText =
-                                segment.charAt(0).toUpperCase() +
-                                segment.slice(1);
-
-                            return (
-                                <BreadcrumbItem key={index}>
-                                    <BreadcrumbSeparator />
-                                    <Link href={href} passHref legacyBehavior>
-                                        <BreadcrumbLink>
-                                            {breadcrumbText}
-                                        </BreadcrumbLink>
-                                    </Link>
-                                </BreadcrumbItem>
-                            );
-                        })}
-                    </>
-                )}
-            </Breadcrumb>
+            <BreadcrumbItem>
+                <BreadcrumbLink href="/workbooks">Workbooks</BreadcrumbLink>
+            </BreadcrumbItem>
             <UserDropdown />
         </nav>
     );
