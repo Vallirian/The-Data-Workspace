@@ -1,6 +1,10 @@
 "use client";
+
+import { useToast } from "@/hooks/use-toast";
+import { ToastAction } from "@/components/ui/toast";
+import { Toaster } from "@/components/ui/toaster";
 import { UploadCSVProps } from "@/interfaces/props";
-import { SetStateAction, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import {
     Table,
     TableBody,
@@ -12,13 +16,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
-import {
     ChevronLeft,
     ChevronRight,
     ChevronsLeft,
@@ -26,45 +23,110 @@ import {
 } from "lucide-react";
 import { space } from "postcss/lib/list";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
-
-// Sample data
-const initialData = [
-    { id: 1, name: "John Doe", email: "john@example.com", role: "Admin" },
-    { id: 2, name: "Jane Smith", email: "jane@example.com", role: "User" },
-    { id: 3, name: "Bob Johnson", email: "bob@example.com", role: "User" },
-    { id: 4, name: "Alice Brown", email: "alice@example.com", role: "Manager" },
-    {
-        id: 5,
-        name: "Charlie Davis",
-        email: "charlie@example.com",
-        role: "User",
-    },
-    { id: 6, name: "Eva Wilson", email: "eva@example.com", role: "Admin" },
-    { id: 7, name: "Frank Miller", email: "frank@example.com", role: "User" },
-    { id: 8, name: "Grace Lee", email: "grace@example.com", role: "Manager" },
-    { id: 9, name: "Henry Taylor", email: "henry@example.com", role: "User" },
-    { id: 10, name: "Ivy Clark", email: "ivy@example.com", role: "Admin" },
-    { id: 11, name: "Jack Robinson", email: "jack@example.com", role: "User" },
-    {
-        id: 12,
-        name: "Karen White",
-        email: "karen@example.com",
-        role: "Manager",
-    },
-    { id: 13, name: "Liam Harris", email: "liam@example.com", role: "User" },
-    { id: 14, name: "Mia Turner", email: "mia@example.com", role: "Admin" },
-    { id: 15, name: "Noah Martin", email: "noah@example.com", role: "User" },
-];
+import axiosInstance from "@/services/axios";
+import { set } from "date-fns";
+import {
+    DataTableColumnMetaInterface,
+    DataTableMetaInterface,
+} from "@/interfaces/main";
 
 export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
-    const [data, setData] = useState(initialData);
+    const { toast } = useToast();
+
+    const [data, setData] = useState([]);
+    const [tableMeta, setTableMeta] = useState<DataTableMetaInterface | null>(
+        null
+    );
+    const [columns, setColumns] = useState<DataTableColumnMetaInterface[]>([]);
+
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
+    const [totalPages, setTotalPages] = useState(1);
+
     const [sortColumn, setSortColumn] = useState("name");
     const [sortDirection, setSortDirection] = useState("asc");
     const [filterValue, setFilterValue] = useState("");
 
-    // Sorting function
+    // data tools
+    useEffect(() => {
+        getTableMeta();
+        getTableMetaColumns();
+    }, [workbookId, tableId]);
+
+    const getData = async () => {
+        try {
+            const response = await axiosInstance.get(
+                `${process.env.NEXT_PUBLIC_API_URL}/table-meta/${workbookId}/${tableId}/raw/`
+            );
+
+            setData(response.data.items);
+            setCurrentPage(response.data.currentPage);
+            setItemsPerPage(response.data.pageSize);
+            setTotalPages(Math.ceil(response.data.totalItemsCount / response.data.pageSize));
+        } catch (error) {
+            toast({
+                variant: "destructive",
+                title: "Error getting data",
+                description: "Failed to fetch data",
+                action: (
+                    <ToastAction altText="Ok" onClick={getData}>
+                        Ok
+                    </ToastAction>
+                ),
+            });
+        }
+    };
+
+    const getTableMeta = async () => {
+        try {
+            const response = await axiosInstance.get(
+                `${process.env.NEXT_PUBLIC_API_URL}/table-meta/${workbookId}/${tableId}/`
+            );
+
+            setTableMeta(response.data);
+
+            if (response.data.dataSourceAdded) {
+                /*
+                    added here because we need to wait for the table meta to be fetched
+                    and its hard to perfect the async timing in useEffect
+                */
+                getData();
+            }
+        } catch (error) {
+            toast({
+                variant: "destructive",
+                title: "Error getting table meta",
+                description: "Failed to fetch table meta",
+                action: (
+                    <ToastAction altText="Ok" onClick={getTableMeta}>
+                        Ok
+                    </ToastAction>
+                ),
+            });
+        }
+    };
+
+    const getTableMetaColumns = async () => {
+        try {
+            const response = await axiosInstance.get(
+                `${process.env.NEXT_PUBLIC_API_URL}/table-meta/${workbookId}/${tableId}/columns/`
+            );
+            setColumns(response.data);
+        } catch (error) {
+            toast({
+                variant: "destructive",
+                title: "Error getting table meta columns",
+                description: "Failed to fetch table meta columns",
+                action: (
+                    <ToastAction altText="Ok" onClick={getTableMetaColumns}>
+                        Ok
+                    </ToastAction>
+                ),
+            });
+        }
+    };
+
+    // Table tools
     const sortData = (column: SetStateAction<string>) => {
         if (column === sortColumn) {
             setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -74,17 +136,16 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
         }
     };
 
-    // Filtering function
     const filterData = (data: any[]) => {
-        return data.filter(
-            (item) =>
-                item.name.toLowerCase().includes(filterValue.toLowerCase()) ||
-                item.email.toLowerCase().includes(filterValue.toLowerCase()) ||
-                item.role.toLowerCase().includes(filterValue.toLowerCase())
+        return data.filter((item) =>
+            columns.some((column) =>
+                String(item[column.name])
+                    .toLowerCase()
+                    .includes(filterValue.toLowerCase())
+            )
         );
     };
 
-    // Apply sorting and filtering
     const sortedAndFilteredData = filterData([...data]).sort((a, b) => {
         if (a[sortColumn] < b[sortColumn])
             return sortDirection === "asc" ? -1 : 1;
@@ -93,8 +154,6 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
         return 0;
     });
 
-    // Pagination
-    const totalPages = Math.ceil(sortedAndFilteredData.length / itemsPerPage);
     const paginatedData = sortedAndFilteredData.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
@@ -102,8 +161,11 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
 
     return (
         <div className="flex flex-col h-full">
+            <Toaster />
             <div className="flex justify-between items-center p-4 border-b">
-                <h1 className="text-2xl font-bold">Full-Screen Data Table</h1>
+                <h1 className="text-2xl font-bold">
+                    {tableMeta?.name || "Untitled Table"}
+                </h1>
                 <div className="flex items-center space-x-2">
                     <Input
                         placeholder="Filter..."
@@ -111,22 +173,6 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
                         onChange={(e) => setFilterValue(e.target.value)}
                         className="w-64"
                     />
-                    <Select
-                        value={itemsPerPage.toString()}
-                        onValueChange={(value) =>
-                            setItemsPerPage(Number(value))
-                        }
-                    >
-                        <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Items per page" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="5">5 per page</SelectItem>
-                            <SelectItem value="10">10 per page</SelectItem>
-                            <SelectItem value="20">20 per page</SelectItem>
-                            <SelectItem value="50">50 per page</SelectItem>
-                        </SelectContent>
-                    </Select>
                 </div>
             </div>
             <div className="flex-grow overflow-hidden">
@@ -135,50 +181,32 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead
-                                        className="w-[100px]"
-                                        onClick={() => sortData("id")}
-                                    >
-                                        ID{" "}
-                                        {sortColumn === "id" &&
-                                            (sortDirection === "asc"
-                                                ? "↑"
-                                                : "↓")}
-                                    </TableHead>
-                                    <TableHead onClick={() => sortData("name")}>
-                                        Name{" "}
-                                        {sortColumn === "name" &&
-                                            (sortDirection === "asc"
-                                                ? "↑"
-                                                : "↓")}
-                                    </TableHead>
-                                    <TableHead
-                                        onClick={() => sortData("email")}
-                                    >
-                                        Email{" "}
-                                        {sortColumn === "email" &&
-                                            (sortDirection === "asc"
-                                                ? "↑"
-                                                : "↓")}
-                                    </TableHead>
-                                    <TableHead onClick={() => sortData("role")}>
-                                        Role{" "}
-                                        {sortColumn === "role" &&
-                                            (sortDirection === "asc"
-                                                ? "↑"
-                                                : "↓")}
-                                    </TableHead>
+                                    {columns.map((column) => (
+                                        <TableHead
+                                            key={column.id}
+                                            onClick={() =>
+                                                sortData(column.name)
+                                            }
+                                        >
+                                            {column.name}
+                                            {sortColumn === column.name &&
+                                                (sortDirection === "asc"
+                                                    ? "↑"
+                                                    : "↓")}
+                                        </TableHead>
+                                    ))}
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {paginatedData.map((item) => (
-                                    <TableRow key={item.id}>
-                                        <TableCell className="font-medium">
-                                            {item.id}
-                                        </TableCell>
-                                        <TableCell>{item.name}</TableCell>
-                                        <TableCell>{item.email}</TableCell>
-                                        <TableCell>{item.role}</TableCell>
+                                {paginatedData.map((item, rowIndex) => (
+                                    <TableRow key={rowIndex}>
+                                        {columns.map((column) => (
+                                            <TableCell
+                                                key={`${rowIndex}${column.id}`}
+                                            >
+                                                {item[column.name]}
+                                            </TableCell>
+                                        ))}
                                     </TableRow>
                                 ))}
                             </TableBody>

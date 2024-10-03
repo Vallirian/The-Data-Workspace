@@ -22,7 +22,7 @@ class DataTableMetaColumnsByWorkbookAPIView(APIView):
     def get(self, request, workbook_id, table_id):
         workbook = get_object_or_404(Workbook, id=workbook_id, user=request.user)
         data_table_meta = get_object_or_404(DataTableMeta, workbook=workbook, id=table_id)
-        columns = DataTableColumnMeta.objects.filter(dataTable=data_table_meta)
+        columns = DataTableColumnMeta.objects.filter(dataTable=data_table_meta).order_by('order')
         serializer = DataTableColumnMetaSerializer(columns, many=True)
         return Response(serializer.data)
     
@@ -49,9 +49,9 @@ class DataTableAPIView(APIView):
 
             result = {
                 "items": _items_result,
-                "total_items_count": _count_result[0]['count'],
-                "current_page": page,
-                "page_size": page_size
+                "totalItemsCount": _count_result[0]['count'],
+                "currentPage": page,
+                "pageSize": page_size
             }
             
             return Response(result)
@@ -85,13 +85,14 @@ class DataTableExtractionAPIView(APIView):
 
         # create columns
         _columns = []
-        for column in request.data['columns']:
+        for idx, column in enumerate(request.data['columns']):
             _column = DataTableColumnMeta()
             _column.name = column['name']
             _column.dtype = column['dtype']
             _column.format = column['format']
             _column.description = column['description']
             _column.dataTable = data_table_meta
+            _column.order = idx + 1  # Set the order based on the index
             _columns.append(_column)
         DataTableColumnMeta.objects.bulk_create(_columns)
 

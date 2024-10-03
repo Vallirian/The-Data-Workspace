@@ -36,6 +36,7 @@ class DataTableColumnMeta(models.Model):
     name = models.CharField(max_length=255)
     dtype = models.CharField(max_length=7, choices=DTYPE_CHOICES)
     format = models.CharField(max_length=100) 
+    order = models.PositiveIntegerField()
     description = models.TextField()
     dataTable = models.ForeignKey(DataTableMeta, on_delete=models.CASCADE, related_name='columns')
 
