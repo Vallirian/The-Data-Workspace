@@ -102,7 +102,7 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
                             name: file.name.split(".")[0],
                             description: "",
                             dataSourceAdded: true,
-                            dataSource: "CSV",
+                            dataSource: "csv",
                             extractionStatus: "pending",
                             extractionDetails: "",
                             columns: [],
@@ -220,7 +220,7 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
                 {
                     data: data,
                     columns: columns,
-                    dataSource: "CSV",
+                    dataSource: "csv",
                     name: tableMeta?.name || "Unknown Table",
                 }
             );

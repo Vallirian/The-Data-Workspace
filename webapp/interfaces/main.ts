@@ -23,7 +23,7 @@ export interface DataTableMetaInterface {
     name: string;
     description: string;
     dataSourceAdded: boolean;
-    dataSource: 'CSV' | null;
+    dataSource: 'csv' | null;
     extractionStatus: 'pending' | 'success' | 'error';
     extractionDetails: string;
     columns: DataTableColumnMetaInterface [];

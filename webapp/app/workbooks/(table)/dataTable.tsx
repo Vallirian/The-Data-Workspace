@@ -4,7 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { Toaster } from "@/components/ui/toaster";
 import { UploadCSVProps } from "@/interfaces/props";
-import { SetStateAction, useEffect, useState } from "react";
+import { SetStateAction, use, useEffect, useRef, useState } from "react";
 import {
     Table,
     TableBody,
@@ -20,6 +20,8 @@ import {
     ChevronRight,
     ChevronsLeft,
     ChevronsRight,
+    Edit2,
+    Save,
 } from "lucide-react";
 import { space } from "postcss/lib/list";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
@@ -62,7 +64,11 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
             setData(response.data.items);
             setCurrentPage(response.data.currentPage);
             setItemsPerPage(response.data.pageSize);
-            setTotalPages(Math.ceil(response.data.totalItemsCount / response.data.pageSize));
+            setTotalPages(
+                Math.ceil(
+                    response.data.totalItemsCount / response.data.pageSize
+                )
+            );
         } catch (error) {
             toast({
                 variant: "destructive",
@@ -84,6 +90,7 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
             );
 
             setTableMeta(response.data);
+            setTableDescription(response.data.description);
 
             if (response.data.dataSourceAdded) {
                 /*
@@ -159,10 +166,148 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
         currentPage * itemsPerPage
     );
 
+    const [tableDescription, setTableDescription] = useState(
+        "Add table description"
+    );
+    const [editingTableDescription, setEditingTableDescription] =
+        useState(false);
+    const [editingColumnDescription, setEditingColumnDescription] =
+        useState("");
+    const tableDescriptionRef = useRef<HTMLTextAreaElement>(null);
+    const columnDescriptionRefs = useRef<{
+        [key: string]: HTMLTextAreaElement | null;
+    }>({});
+
+    useEffect(() => {
+        if (editingTableDescription && tableDescriptionRef.current) {
+            tableDescriptionRef.current.focus();
+        }
+    }, [editingTableDescription]);
+
+    useEffect(() => {
+        if (
+            editingColumnDescription &&
+            columnDescriptionRefs.current[editingColumnDescription]
+        ) {
+            columnDescriptionRefs.current[editingColumnDescription]?.focus();
+        }
+    }, [editingColumnDescription]);
+
+    const putTableMeta = async (updatedMeta: DataTableMetaInterface) => {
+        try {
+            await axiosInstance.put(
+                `${process.env.NEXT_PUBLIC_API_URL}/table-meta/${workbookId}/${tableId}/`,
+                updatedMeta // Send the updated tableMeta
+            );
+
+            toast({
+                title: "Table description saved",
+                description: "Table description updated successfully.",
+            });
+        } catch (error) {
+            toast({
+                variant: "destructive",
+                title: "Error saving table description",
+                description: "Failed to save table description",
+                action: (
+                    <ToastAction
+                        altText="Ok"
+                        onClick={() => putTableMeta(updatedMeta)}
+                    >
+                        Ok
+                    </ToastAction>
+                ),
+            });
+        }
+    };
+
+    const handleTableDescriptionSave = () => {
+        if (tableDescriptionRef.current) {
+            const newDescription = tableDescriptionRef.current.value;
+
+            // Update tableMeta with new description
+            setTableMeta((prev) => {
+                if (!prev) return prev;
+                const updatedMeta = {
+                    ...prev,
+                    description: newDescription,
+                };
+                putTableMeta(updatedMeta); // Call putTableMeta directly with updated meta
+                return updatedMeta; // Return the updated meta state
+            });
+
+            // Update the table description state
+            setTableDescription(newDescription);
+
+            // Stop editing the table description
+            setEditingTableDescription(false);
+        }
+    };
+
+    const putColumnMeta = async (column: DataTableColumnMetaInterface) => {
+        try {
+            await axiosInstance.put(
+                `${process.env.NEXT_PUBLIC_API_URL}/table-meta/${workbookId}/${tableId}/columns/${column.id}/`,
+                column // Send the updated column directly
+            );
+
+            toast({
+                title: "Column description saved",
+                description: "Column description saved successfully",
+            });
+        } catch (error) {
+            toast({
+                variant: "destructive",
+                title: "Error saving column description",
+                description: "Failed to save column description",
+                action: (
+                    <ToastAction
+                        altText="Ok"
+                        onClick={() => putColumnMeta(column)}
+                    >
+                        Ok
+                    </ToastAction>
+                ),
+            });
+        }
+    };
+
+    const handleColumnDescriptionSave = (columnKey: string) => {
+        if (columnDescriptionRefs.current[columnKey]) {
+            const newDescription =
+                columnDescriptionRefs.current[columnKey]?.value;
+
+            // Update the columns state using a callback to ensure the updated state is available
+            setColumns((prevColumns) => {
+                const updatedColumns = prevColumns.map((col) =>
+                    col.id === columnKey
+                        ? {
+                              ...col,
+                              description: newDescription || col.description,
+                          }
+                        : col
+                );
+
+                // Call putColumnMeta with the updated column
+                const updatedColumn = updatedColumns.find(
+                    (col) => col.id === columnKey
+                );
+                if (updatedColumn) {
+                    putColumnMeta(updatedColumn); // Pass the updated column directly
+                }
+
+                return updatedColumns; // Return the new state
+            });
+
+            // Stop editing the column description
+            setEditingColumnDescription("");
+        }
+    };
+
     return (
         <div className="flex flex-col h-full">
             <Toaster />
-            <div className="flex justify-between items-center p-4 border-b">
+            <div className="flex justify-between items-center p-4">
                 <h1 className="text-2xl font-bold">
                     {tableMeta?.name || "Untitled Table"}
                 </h1>
@@ -175,6 +320,38 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
                     />
                 </div>
             </div>
+            <div className="p-4 text-sm text-gray-500  border-b">
+                {editingTableDescription ? (
+                    <div className="flex items-center">
+                        <textarea
+                            ref={tableDescriptionRef}
+                            defaultValue={tableDescription}
+                            className="w-full p-2 border rounded-md"
+                            rows={2}
+                        />
+                        <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={handleTableDescriptionSave}
+                            className="ml-2"
+                        >
+                            <Save className="h-4 w-4" />
+                        </Button>
+                    </div>
+                ) : (
+                    <div className="flex items-center">
+                        <span>{tableDescription}</span>
+                        <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setEditingTableDescription(true)}
+                            className="ml-2"
+                        >
+                            <Edit2 className="h-4 w-4" />
+                        </Button>
+                    </div>
+                )}
+            </div>
             <div className="flex-grow overflow-hidden">
                 <ScrollArea className="h-full">
                     <div className="p-4">
@@ -183,16 +360,75 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
                                 <TableRow>
                                     {columns.map((column) => (
                                         <TableHead
+                                            className="cursor-pointer"
                                             key={column.id}
                                             onClick={() =>
                                                 sortData(column.name)
                                             }
                                         >
-                                            {column.name}
-                                            {sortColumn === column.name &&
-                                                (sortDirection === "asc"
-                                                    ? "↑"
-                                                    : "↓")}
+                                            <div>{column.name}</div>
+                                            <div className="text-xs text-gray-500">
+                                                {editingColumnDescription ===
+                                                column.id ? (
+                                                    <div className="flex items-center">
+                                                        <textarea
+                                                            ref={(el) => {
+                                                                columnDescriptionRefs.current[
+                                                                    column.id
+                                                                ] = el;
+                                                            }}
+                                                            defaultValue={
+                                                                column.description
+                                                            }
+                                                            className="p-1 border rounded-md"
+                                                            rows={2}
+                                                            onClick={(e) =>
+                                                                e.stopPropagation()
+                                                            }
+                                                        />
+                                                        <Button
+                                                            size="sm"
+                                                            variant="ghost"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleColumnDescriptionSave(
+                                                                    column.id
+                                                                );
+                                                            }}
+                                                            className="ml-1"
+                                                        >
+                                                            <Save className="h-3 w-3" />
+                                                        </Button>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex items-center">
+                                                        <span>
+                                                            {column.description ||
+                                                                "Add column description"}
+                                                        </span>
+                                                        <Button
+                                                            size="sm"
+                                                            variant="ghost"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setEditingColumnDescription(
+                                                                    column.id
+                                                                );
+                                                            }}
+                                                            className="ml-1"
+                                                        >
+                                                            <Edit2 className="h-3 w-3" />
+                                                        </Button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            {sortColumn === column.id && (
+                                                <span className="ml-1">
+                                                    {sortDirection === "asc"
+                                                        ? "↑"
+                                                        : "↓"}
+                                                </span>
+                                            )}
                                         </TableHead>
                                     ))}
                                 </TableRow>

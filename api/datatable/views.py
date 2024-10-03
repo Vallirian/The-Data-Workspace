@@ -18,6 +18,16 @@ class DataTableMetaByWorkbookAPIView(APIView):
         serializer = DataTableMetaSerializer(data_table_meta)
         return Response(serializer.data)
     
+    def put(self, request, workbook_id, table_id):
+        print(request.data)
+        workbook = get_object_or_404(Workbook, id=workbook_id, user=request.user)
+        data_table_meta = get_object_or_404(DataTableMeta, workbook=workbook, id=table_id)
+        serializer = DataTableMetaSerializer(data_table_meta, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 class DataTableMetaColumnsByWorkbookAPIView(APIView):
     def get(self, request, workbook_id, table_id):
         workbook = get_object_or_404(Workbook, id=workbook_id, user=request.user)
@@ -25,6 +35,31 @@ class DataTableMetaColumnsByWorkbookAPIView(APIView):
         columns = DataTableColumnMeta.objects.filter(dataTable=data_table_meta).order_by('order')
         serializer = DataTableColumnMetaSerializer(columns, many=True)
         return Response(serializer.data)
+    
+class DataTableMetaColumnsDetailByWorkbookAPIView(APIView):
+    def get(self, request, workbook_id, table_id, column_id):
+        workbook = get_object_or_404(Workbook, id=workbook_id, user=request.user)
+        data_table_meta = get_object_or_404(DataTableMeta, workbook=workbook, id=table_id)
+        column = get_object_or_404(DataTableColumnMeta, dataTable=data_table_meta, id=column_id)
+        serializer = DataTableColumnMetaSerializer(column)
+        return Response(serializer.data)
+    
+    def put(self, request, workbook_id, table_id, column_id):
+        workbook = get_object_or_404(Workbook, id=workbook_id, user=request.user)
+        data_table_meta = get_object_or_404(DataTableMeta, workbook=workbook, id=table_id)
+        column = get_object_or_404(DataTableColumnMeta, dataTable=data_table_meta, id=column_id)
+        serializer = DataTableColumnMetaSerializer(column, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, workbook_id, table_id, column_id):
+        workbook = get_object_or_404(Workbook, id=workbook_id, user=request.user)
+        data_table_meta = get_object_or_404(DataTableMeta, workbook=workbook, id=table_id)
+        column = get_object_or_404(DataTableColumnMeta, dataTable=data_table_meta, id=column_id)
+        column.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
     
 class DataTableAPIView(APIView):
     def get(self, request, workbook_id, table_id):
