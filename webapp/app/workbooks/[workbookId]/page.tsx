@@ -1,41 +1,43 @@
 "use client";
 
 import ArcNavbar from "@/components/arcNavbar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ArcBreadcrumb from "@/components/navigation/arcBreadcrumb";
 import ArcAvatar from "@/components/navigation/arcAvatar";
-import { User } from "firebase/auth";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuGroup,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuPortal,
-    DropdownMenuSeparator,
-    DropdownMenuShortcut,
-    DropdownMenuSub,
-    DropdownMenuSubContent,
-    DropdownMenuSubTrigger,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import UploadCSV from "../(importData)/uploadCsv";
 import { Upload } from "lucide-react";
+import { useParams } from "next/navigation";
+import axiosInstance from "@/services/axios";
+import { WorkbookInterface } from "@/interfaces/main";
+
 
 export default function Page() {
+    const { workbookId } = useParams();
+    const [workbook, setWorkbook] = useState<WorkbookInterface | null>(null);
+    // Fetch tableId when workbookId is available
+    useEffect(() => {
+        if (workbookId) {
+            axiosInstance.get(`/workbooks/${workbookId}/`).then((response) => {
+                setWorkbook(response.data);
+            });
+        }
+    }, [workbookId]);
+
     const [chatMessages, setChatMessages] = useState<string[]>([]);
     const [inputMessage, setInputMessage] = useState("");
-    const [activeLeftTab, setActiveLeftTab] = useState("import");
-    const [activeRightTab, setActiveRightTab] = useState("chat");
     const [savedFormulas, setSavedFormulas] = useState<string[]>([
         "Formula 1",
         "Formula 2",
         "Formula 3",
     ]);
+
+    const [activeLeftTab, setActiveLeftTab] = useState("import");
+    const [activeRightTab, setActiveRightTab] = useState("chat");
+    
 
     // --- Chat ---
     const handleSendMessage = () => {
@@ -44,6 +46,10 @@ export default function Page() {
             setInputMessage("");
         }
     };
+
+    if ((!workbook) || !workbookId || !workbook.dataTable) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <div className="flex flex-col h-screen bg-background">
@@ -120,7 +126,7 @@ export default function Page() {
                     {activeLeftTab === "import" && (
                         <ScrollArea className="h-full p-4">
 
-                            <UploadCSV />
+                            <UploadCSV workbookId={workbookId as string} tableId={workbook.dataTable as string} />
                             {/* Add a table or more content here to test scrolling */}
                         </ScrollArea>
                     )}

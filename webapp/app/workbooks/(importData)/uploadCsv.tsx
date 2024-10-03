@@ -4,6 +4,20 @@ import { useState, useRef, useEffect } from "react";
 import * as d3 from "d3";
 import { Button } from "@/components/ui/button";
 import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
     Dialog,
     DialogContent,
     DialogHeader,
@@ -26,21 +40,48 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { DataTableColumnMetaInterface } from "@/interfaces/main";
-import { set } from "date-fns";
-// import { useToast } from "@/components/hooks/use-toast"
+import {
+    DataTableColumnMetaInterface,
+    DataTableMetaInterface,
+} from "@/interfaces/main";
+import { format, set } from "date-fns";
+import ImportDataService from "./validateUpload";
+import axiosInstance from "@/services/axios";
+import { MoreVertical } from "lucide-react";
 
 const dataTypes = ["string", "integer", "float", "date"];
-const dateFormats = ["MM/DD/YYYY", "DD/MM/YYYY", "MM-DD-YYYY", "DD-MM-YYYY"];
+const dateFormats = [
+    "MM/DD/YYYY",
+    "DD/MM/YYYY",
+    "MM-DD-YYYY",
+    "DD-MM-YYYY",
+    "",
+];
 
-export default function UploadCSV() {
+import { useToast } from "@/hooks/use-toast";
+import { ToastAction } from "@/components/ui/toast";
+import { Toaster } from "@/components/ui/toaster";
+
+interface UploadCSVProps {
+    workbookId: string;
+    tableId: string;
+}
+
+export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
+    const { toast } = useToast();
+
     const [isOpen, setIsOpen] = useState(false);
     const [data, setData] = useState<any[]>([]);
+
+    const [tableMeta, setTableMeta] = useState<DataTableMetaInterface | null>(
+        null
+    );
     const [columns, setColumns] = useState<DataTableColumnMetaInterface[]>([]);
+    const { validateTableName, validateColumnNames, validateDataTypes } =
+        ImportDataService();
+
     const [tableName, setTableName] = useState("");
     const fileInputRef = useRef<HTMLInputElement>(null);
-
-    // const { toast } = useToast()
 
     useEffect(() => {
         if (data.length > 0) {
@@ -48,6 +89,7 @@ export default function UploadCSV() {
         }
     }, [data]);
 
+    // file upload
     const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
@@ -57,6 +99,18 @@ export default function UploadCSV() {
                 try {
                     const parsedData = d3.csvParse(csv);
                     setData(parsedData);
+                    if (parsedData) {
+                        setTableMeta({
+                            id: file.name.split(".")[0],
+                            name: file.name.split(".")[0],
+                            description: "",
+                            dataSourceAdded: true,
+                            dataSource: "CSV",
+                            extractionStatus: "pending",
+                            extractionDetails: "",
+                            columns: [],
+                        });
+                    }
                     setColumns(
                         Object.keys(parsedData[0] || {}).map((name) => ({
                             id: name,
@@ -78,13 +132,9 @@ export default function UploadCSV() {
 
     const handleColumnTypeChange = (
         columnName: string,
-        dtype: "string" | "integer" | "float" | "date",
-        format: string = ""
+        dtype: "string" | "integer" | "float" | "date"
     ) => {
-        if (
-            !dataTypes.includes(dtype) ||
-            (dtype === "date" && !dateFormats.includes(format))
-        ) {
+        if (!dataTypes.includes(dtype)) {
             return;
         }
 
@@ -94,73 +144,191 @@ export default function UploadCSV() {
                     return {
                         ...column,
                         dtype: dtype,
-                        format: dtype === "date" ? format : "",
                     };
                 }
                 return column;
             })
         );
-
-        console.log("columns", columns);
     };
 
-    // Validation logic
-    const validateTableName = () => {
-        if (!tableName) {
-            // toast({
-            //     title: "Error",
-            //     description: "Table name is required",
-            //     variant: "error",
-            // });
-            return false;
+    const handleColumnFormatChange = (
+        columnName: string,
+        format: "MM/DD/YYYY" | "DD/MM/YYYY" | "MM-DD-YYYY" | "DD-MM-YYYY"
+    ) => {
+        if (!dateFormats.includes(format)) {
+            return;
         }
-        return true;
-    };
+        setColumns((prevColumns) =>
+            prevColumns.map((column) => {
+                if (column.name === columnName) {
+                    if (column.dtype !== "date") {
+                        return column;
+                    }
 
-    const validateColumns = () => {
-        if (columns.length === 0) {
-            // toast({
-            //     title: "Error",
-            //     description: "No columns detected",
-            //     variant: "error",
-            // });
-            return false;
-        }
-        return true;
-    };
-
-    const validateDataTypes = () => {
-        // Here you can check if the data types in the columns match the actual data in `data`
-        return true; // Placeholder for actual validation logic
+                    return {
+                        ...column,
+                        format: format,
+                    };
+                }
+                return column;
+            })
+        );
     };
 
     const validateData = () => {
-        return validateTableName() && validateColumns() && validateDataTypes();
+        if (!data.length || !tableMeta) {
+            return false;
+        }
+        const tableNameValidation = validateTableName(tableMeta.name);
+        if (!tableNameValidation.result) {
+            console.error(
+                "Table name validation failed:",
+                tableNameValidation.message
+            );
+            return false;
+        }
+
+        const columnNames = columns.map((column) => column.name);
+        const columnValidation = validateColumnNames(columnNames);
+        if (!columnValidation.result) {
+            console.error(
+                "Column name validation failed:",
+                columnValidation.message
+            );
+            return false;
+        }
+
+        const dataTypes = columns.map((column) => column.dtype);
+        const dataTypeValidation = validateDataTypes(data, dataTypes);
+        if (!dataTypeValidation.result) {
+            console.error(
+                "Data type validation failed:",
+                dataTypeValidation.message
+            );
+            return false;
+        }
+
+        return true;
     };
 
-    const handleSave = () => {
+    // raw data API
+    const handleSave = async () => {
         if (!validateData()) {
             return;
         }
 
-        const saveData = {
-            data,
-            columns,
-            name: tableName,
-        };
+        try {
+            const uploadDataPostResponse = await axiosInstance.post(
+                `${process.env.NEXT_PUBLIC_API_URL}/table-meta/${workbookId}/${tableId}/extract/`,
+                {
+                    data: data,
+                    columns: columns,
+                    dataSource: "CSV",
+                    name: tableMeta?.name || "Unknown Table",
+                }
+            );
 
-        // Simulating save process (replace with API call)
-        console.log("Saving data:", saveData);
+            refreshTableMeta();
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Error saving data",
+                description: error.response.data.error ? error.response.data.error : "An error occurred while saving data",
+                action: (
+                    <ToastAction altText="Ok">
+                        Ok
+                    </ToastAction>
+                ),
+            });
+            return;
+        }
 
-        // toast({
-        //     title: "Success",
-        //     description: "Data saved successfully",
-        //     variant: "success",
-        // });
+        toast({
+            title: "Success",
+            description: "Data saved successfully",
+            action: (
+                <ToastAction altText="Ok">
+                    Ok
+                </ToastAction>
+            ),
+        });
+
         setIsOpen(false);
     };
+
+    const handleDelete = async () => {
+        try {
+            const deleteDataResponse = await axiosInstance.delete(
+                `${process.env.NEXT_PUBLIC_API_URL}/table-meta/${workbookId}/${tableId}/extract/`
+            );
+            
+            refreshTableMeta();
+
+        } catch (error: any) {
+            console.log(error)
+            toast({
+                variant: "destructive",
+                title: "Error deleting data",
+                description: "An error occurred while deleting data",
+                action: (
+                    <ToastAction altText="Ok">
+                        Ok
+                    </ToastAction>
+                ),
+            });
+            return;
+        }
+
+        toast({
+            title: "Success",
+            description: "Data deleted successfully",
+            action: (
+                <ToastAction altText="Ok">
+                    Ok
+                </ToastAction>
+            ),
+        });
+    }
+
+    // table meta
+    useEffect(() => {
+        if (!workbookId || !tableId) {
+            return;
+        }
+
+        const fetchTableMeta = async () => {
+            try {
+                const response = await axiosInstance.get(
+                    `${process.env.NEXT_PUBLIC_API_URL}/table-meta/${workbookId}/${tableId}/`
+                );
+                setTableMeta(response.data);
+            } catch (error) {
+                console.error("Error fetching table meta", error);
+            }
+        };
+
+        fetchTableMeta();
+    }, [workbookId, tableId]);
+
+    const refreshTableMeta = async () => {
+        try {
+            const response = await axiosInstance.get(
+                `${process.env.NEXT_PUBLIC_API_URL}/table-meta/${workbookId}/${tableId}/`
+            );
+            setTableMeta(response.data);
+        } catch (error) {
+            console.error("Error refreshing table meta", error);
+        }
+    };
+
+    if (!workbookId || !tableId) {
+        return <div>Loading...</div>;
+    }
+
     return (
         <div>
+            <Toaster />
+
             <div className="flex justify-between">
                 <div>
                     <h2 className="text-2xl font-bold mb-4">Import Data</h2>
@@ -168,7 +336,24 @@ export default function UploadCSV() {
                 <div>
                     <Button
                         variant="link"
-                        onClick={() => fileInputRef.current?.click()}
+                        onClick={() => {
+                            if (tableMeta?.dataSourceAdded) {
+                                console.log("Data source already added");
+                                toast({
+                                    variant: "destructive",
+                                    title: "Data source already added",
+                                    description:
+                                        "Please delete existing data source to upload new data",
+                                    action: (
+                                        <ToastAction altText="Ok">
+                                            Ok
+                                        </ToastAction>
+                                    ),
+                                });
+                            } else {
+                                fileInputRef.current?.click();
+                            }
+                        }}
                     >
                         + Upload CSV
                     </Button>
@@ -181,6 +366,39 @@ export default function UploadCSV() {
                 accept=".csv"
                 style={{ display: "none" }}
             />
+
+            <Card className="flex flex-col cursor-pointer hover:bg-accent">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                        {tableMeta?.name || "Unknown Table"}
+                    </CardTitle>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                <MoreVertical className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                                onClick={handleDelete}
+                            >
+                                Delete
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-xs text-muted-foreground">
+                        {tableMeta?.description || "No description"}
+                    </p>
+                </CardContent>
+                <CardFooter className="mt-auto">
+                    <p className="text-xs text-muted-foreground">
+                        {tableMeta?.extractionStatus}:{" "}
+                        {tableMeta?.extractionDetails}
+                    </p>
+                </CardFooter>
+            </Card>
 
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
                 <DialogContent className="max-w-4xl">
@@ -221,7 +439,6 @@ export default function UploadCSV() {
                         {columns.map((column) => (
                             <div key={column.name}>
                                 <Select
-                                    value={column.dtype}
                                     onValueChange={(
                                         value:
                                             | "string"
@@ -231,8 +448,7 @@ export default function UploadCSV() {
                                     ) =>
                                         handleColumnTypeChange(
                                             column.name,
-                                            value,
-                                            column.format
+                                            value
                                         )
                                     }
                                 >
@@ -256,10 +472,15 @@ export default function UploadCSV() {
                                 </Select>
                                 {column.dtype === "date" && (
                                     <Select
-                                        onValueChange={(value) =>
-                                            handleColumnTypeChange(
+                                        onValueChange={(
+                                            value:
+                                                | "MM/DD/YYYY"
+                                                | "DD/MM/YYYY"
+                                                | "MM-DD-YYYY"
+                                                | "DD-MM-YYYY"
+                                        ) =>
+                                            handleColumnFormatChange(
                                                 column.name,
-                                                "date",
                                                 value
                                             )
                                         }

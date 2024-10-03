@@ -142,15 +142,15 @@ class RawDataExtraction:
             return False, message
 
         # validate type
-        if etype not in db_hlp.DATA_EXTRACTION_TYPES:
+        if etype.lower() not in [_.lower() for _ in db_hlp.DATA_EXTRACTION_TYPES]:
             return False, 'Invalid extraction type'
         
         # validate path
         if not data:
             return False, 'Data not found'
         
-        print('data validated', data)
-        if etype == 'csv':
+        print('meta data validated', data)
+        if etype.lower() == 'csv':
             try:
                 # validate rows
                 if not data:
@@ -180,7 +180,7 @@ class RawDataExtraction:
                 return True, 'Data extracted successfully'
             except Exception as e:
                 print(f'Error on extraction: {e}')
-                return False, str(e)
+                return False, "Error extracting data"
         else:
             return False, 'Invalid extraction type'
         

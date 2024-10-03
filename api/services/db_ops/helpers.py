@@ -56,6 +56,8 @@ def validate_value(value, data_type, data_format=None):
             return False, str(e)
     
     elif data_type == 'date':
+        if not data_format:
+            return False, 'Date format not provided'
         return is_valid_date(value, data_format)
     else:
         return False, 'Invalid data type'
