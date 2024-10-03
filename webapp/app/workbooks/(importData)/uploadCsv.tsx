@@ -61,11 +61,8 @@ const dateFormats = [
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { Toaster } from "@/components/ui/toaster";
+import { UploadCSVProps } from "@/interfaces/props";
 
-interface UploadCSVProps {
-    workbookId: string;
-    tableId: string;
-}
 
 export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
     const { toast } = useToast();
@@ -233,12 +230,10 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
             toast({
                 variant: "destructive",
                 title: "Error saving data",
-                description: error.response.data.error ? error.response.data.error : "An error occurred while saving data",
-                action: (
-                    <ToastAction altText="Ok">
-                        Ok
-                    </ToastAction>
-                ),
+                description: error.response.data.error
+                    ? error.response.data.error
+                    : "An error occurred while saving data",
+                action: <ToastAction altText="Ok">Ok</ToastAction>,
             });
             return;
         }
@@ -246,11 +241,7 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
         toast({
             title: "Success",
             description: "Data saved successfully",
-            action: (
-                <ToastAction altText="Ok">
-                    Ok
-                </ToastAction>
-            ),
+            action: <ToastAction altText="Ok">Ok</ToastAction>,
         });
 
         setIsOpen(false);
@@ -261,20 +252,15 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
             const deleteDataResponse = await axiosInstance.delete(
                 `${process.env.NEXT_PUBLIC_API_URL}/table-meta/${workbookId}/${tableId}/extract/`
             );
-            
-            refreshTableMeta();
 
+            refreshTableMeta();
         } catch (error: any) {
-            console.log(error)
+            console.log(error);
             toast({
                 variant: "destructive",
                 title: "Error deleting data",
                 description: "An error occurred while deleting data",
-                action: (
-                    <ToastAction altText="Ok">
-                        Ok
-                    </ToastAction>
-                ),
+                action: <ToastAction altText="Ok">Ok</ToastAction>,
             });
             return;
         }
@@ -282,13 +268,9 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
         toast({
             title: "Success",
             description: "Data deleted successfully",
-            action: (
-                <ToastAction altText="Ok">
-                    Ok
-                </ToastAction>
-            ),
+            action: <ToastAction altText="Ok">Ok</ToastAction>,
         });
-    }
+    };
 
     // table meta
     useEffect(() => {
@@ -379,9 +361,7 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                                onClick={handleDelete}
-                            >
+                            <DropdownMenuItem onClick={handleDelete}>
                                 Delete
                             </DropdownMenuItem>
                         </DropdownMenuContent>

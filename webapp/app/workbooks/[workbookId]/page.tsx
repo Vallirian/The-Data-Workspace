@@ -13,7 +13,7 @@ import { Upload } from "lucide-react";
 import { useParams } from "next/navigation";
 import axiosInstance from "@/services/axios";
 import { WorkbookInterface } from "@/interfaces/main";
-
+import ArcDataTable from "../(table)/dataTable";
 
 export default function Page() {
     const { workbookId } = useParams();
@@ -35,9 +35,8 @@ export default function Page() {
         "Formula 3",
     ]);
 
-    const [activeLeftTab, setActiveLeftTab] = useState("import");
+    const [activeLeftTab, setActiveLeftTab] = useState("table");
     const [activeRightTab, setActiveRightTab] = useState("chat");
-    
 
     // --- Chat ---
     const handleSendMessage = () => {
@@ -47,13 +46,12 @@ export default function Page() {
         }
     };
 
-    if ((!workbook) || !workbookId || !workbook.dataTable) {
+    if (!workbook || !workbookId || !workbook.dataTable) {
         return <div>Loading...</div>;
     }
 
     return (
         <div className="flex flex-col h-screen bg-background">
-
             <nav className="px-4 py-2 flex justify-between items-center border-b">
                 <div className="flex flex-grow items-center justify-between">
                     <ArcBreadcrumb />
@@ -68,18 +66,7 @@ export default function Page() {
                             <TabsTrigger value="import">Import</TabsTrigger>
                         </TabsList>
                     </Tabs>
-                    <div>
-                        {/* <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="secondary">Import Data</Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-56">
-                                <DropdownMenuGroup>
-                                    <DropdownMenuItem>Upload CSV</DropdownMenuItem>
-                                </DropdownMenuGroup>
-                            </DropdownMenuContent>
-                        </DropdownMenu> */}
-                    </div>
+                    <div></div>
                 </div>
                 <div className="flex items-center justify-between pl-2 w-1/4">
                     <Tabs
@@ -112,22 +99,17 @@ export default function Page() {
                         </ScrollArea>
                     )}
                     {activeLeftTab === "table" && (
-                        <ScrollArea className="h-full p-4">
-                            <h2 className="text-2xl font-bold mb-4">
-                                Table Content
-                            </h2>
-                            <p>
-                                This is where the table content would go. It can
-                                scroll if it exceeds the available space.
-                            </p>
-                            {/* Add a table or more content here to test scrolling */}
-                        </ScrollArea>
+                        <ArcDataTable
+                            workbookId={workbookId as string}
+                            tableId={workbook.dataTable}
+                        />
                     )}
                     {activeLeftTab === "import" && (
                         <ScrollArea className="h-full p-4">
-
-                            <UploadCSV workbookId={workbookId as string} tableId={workbook.dataTable as string} />
-                            {/* Add a table or more content here to test scrolling */}
+                            <UploadCSV
+                                workbookId={workbookId as string}
+                                tableId={workbook.dataTable as string}
+                            />
                         </ScrollArea>
                     )}
                 </div>
