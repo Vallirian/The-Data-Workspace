@@ -1,9 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import {
-    Loader2,
-} from "lucide-react";
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MoreVertical, Plus, ChevronRight } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Loader2 } from "lucide-react";
 import axiosInstance from "@/services/axios";
 
 import { Button } from "@/components/ui/button";
@@ -14,7 +19,18 @@ import { auth } from "@/services/firebase";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import ArcFormatDate from "@/services/formatDate";
-import { AnalysisChatInterface, AnalysisChatMessageInterface } from "@/interfaces/main";
+import {
+    AnalysisChatInterface,
+    AnalysisChatMessageInterface,
+} from "@/interfaces/main";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
 
 export default function StandardChat({ workbookId, tableId }: chatProps) {
     const { toast } = useToast();
@@ -73,7 +89,9 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
 
                 text: inputMessage,
                 name: null,
-                description: null
+                description: null,
+
+                messageType: "text",
             };
 
             setMessages([...messages, _newMessage]);
@@ -109,6 +127,27 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
             }
         }
     };
+
+    const saveFormula = async (message: AnalysisChatMessageInterface) => {
+        try {
+            await axiosInstance.post(
+                `${process.env.NEXT_PUBLIC_API_URL}/formulas/workbook/${workbookId}/`,
+                {
+                    messageId: message.id
+                }
+            );
+            toast({
+                title: "Formula saved",
+                description: "Formula has been saved successfully",
+            });
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Error saving formula",
+                description: error.response.data.error || "Failed to save formula",
+            });
+        }
+    }
 
     // ----- Chat -----
     useEffect(() => {
@@ -202,13 +241,59 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
                             message.userType === "user" ? "You" : "Model";
                         return (
                             <div key={index} className="mb-4">
-                                <div className="p-2 bg-muted rounded-md">
-                                    <div className="text-sm text-muted-foreground mb-1">
-                                        {userType} &#8226;{" "}
-                                        {ArcFormatDate(messageDate)}
+                                {message.messageType === "text" && (
+                                    <div className="p-2 bg-muted rounded-md">
+                                        <div className="text-sm text-muted-foreground mb-1">
+                                            {userType} &#8226;{" "}
+                                            {ArcFormatDate(messageDate)}
+                                        </div>
+                                        {message.text}
                                     </div>
-                                    {message.text}
-                                </div>
+                                )}
+                                {message.messageType === "pql" && (
+                                    <Card className="flex flex-col cursor-pointer hover:bg-accent">
+                                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                            <CardTitle className="text-sm font-medium">
+                                                {message.name}
+                                            </CardTitle>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button
+                                                        variant="ghost"
+                                                        className="h-8 w-8 p-0"
+                                                    >
+                                                        <MoreVertical className="h-4 w-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuItem
+                                                        onClick={() => saveFormula(message)}
+                                                    >
+                                                        Save Formula
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                        }}
+                                                    >
+                                                        Add to Report
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <p className="mb-2">{message.text}</p>
+                                            <p className="text-xs text-muted-foreground">
+                                                {message.description}
+                                            </p>
+                                        </CardContent>
+                                        <CardFooter>
+                                            <p className="text-xs text-muted-foreground">
+                                                {ArcFormatDate(messageDate)}
+                                            </p>
+                                        </CardFooter>
+                                    </Card>
+                                )}
                             </div>
                         );
                     })

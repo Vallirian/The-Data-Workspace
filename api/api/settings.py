@@ -56,6 +56,8 @@ INSTALLED_APPS = [
     'workbook',
     'datatable',
     'chat',
+    'report',
+    'formula'
 ]
 
 MIDDLEWARE = [

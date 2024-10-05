@@ -48,22 +48,28 @@ class AnalysisChat(models.Model):
         return self.id
 
 class AnalysisChatMessage(models.Model):
-    MESSAGE_TYPES = (
+    USER_TYPES = (
         ('user', 'User'),
-        ('model', 'Model'),
+        ('model', 'Model')
+    )
+
+    MESSAGE_TYPES = (
+        ('text', 'Text'),
+        ('pql', 'PQL')
     )
 
     id = models.CharField(primary_key=True, default=uuid.uuid4, editable=False, unique=True, max_length=36)
     chat = models.ForeignKey(AnalysisChat, related_name='analysis_messages', on_delete=models.CASCADE)  
     user = models.ForeignKey(User, on_delete=models.CASCADE)  
-    userType = models.CharField(max_length=5, choices=MESSAGE_TYPES)  
+    userType = models.CharField(max_length=5, choices=USER_TYPES)  
     createdAt = models.DateTimeField(auto_now_add=True)  
     
     text = models.TextField(blank=True, null=True)  
     pql = models.JSONField(blank=True, null=True)
-    sql = models.TextField(blank=True, null=True)
     name = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
+
+    messageType = models.CharField(max_length=5, choices=MESSAGE_TYPES, default='text')
 
     def __str__(self):
         return f'{self.user.username}: {self.text[:50]}'

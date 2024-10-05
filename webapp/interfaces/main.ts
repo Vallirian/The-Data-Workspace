@@ -60,4 +60,16 @@ export interface AnalysisChatMessageInterface {
     text: string;
     name: string | null;
     description: string | null;
+
+    messageType: 'text' | 'pql';
+}
+
+export interface FormulaInterface {
+    id: string;
+    name: string;
+    description: string;
+    validatedSQL: string;
+    isActive: boolean;
+    isValidated: boolean;
+    createdAt: Date;
 }

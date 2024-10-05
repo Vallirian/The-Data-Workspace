@@ -1,22 +1,18 @@
 "use client";
 
-import ArcNavbar from "@/components/arcNavbar";
 import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import ArcBreadcrumb from "@/components/navigation/arcBreadcrumb";
 import ArcAvatar from "@/components/navigation/arcAvatar";
 import UploadCSV from "../(importData)/uploadCsv";
-import { Upload } from "lucide-react";
 import { useParams } from "next/navigation";
 import axiosInstance from "@/services/axios";
 import { WorkbookInterface } from "@/interfaces/main";
 import ArcDataTable from "../(table)/dataTable";
 import StandardChat from "../(chat)/standardChat";
-import Chat from "../(chat)/chat";
 import AnalysisChat from "../(chat)/pqlChat";
+import Formulas from "../(formula)/formulas";
 
 export default function Page() {
     const { workbookId } = useParams();
@@ -29,12 +25,6 @@ export default function Page() {
             });
         }
     }, [workbookId]);
-
-    const [savedFormulas, setSavedFormulas] = useState<string[]>([
-        "Formula 1",
-        "Formula 2",
-        "Formula 3",
-    ]);
 
     const [activeLeftTab, setActiveLeftTab] = useState("table");
     const [activeRightTab, setActiveRightTab] = useState("analysisChat");
@@ -114,16 +104,7 @@ export default function Page() {
                         <AnalysisChat workbookId={workbookId as string} tableId={workbook.dataTable} />
                     )}
                     {activeRightTab === "saved" && (
-                        <ScrollArea className="h-full p-4">
-                            {savedFormulas.map((formula, index) => (
-                                <div
-                                    key={index}
-                                    className="mb-2 p-2 bg-muted rounded-md"
-                                >
-                                    {formula}
-                                </div>
-                            ))}
-                        </ScrollArea>
+                        <Formulas workbookId={workbookId as string} />
                     )}
                 </div>
             </div>

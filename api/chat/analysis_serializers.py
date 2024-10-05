@@ -44,7 +44,7 @@ class AnalysisChatMessageSerializer(serializers.ModelSerializer):
 class AnalysisdChatMessageCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = AnalysisChatMessage
-        fields = ['id', 'text', 'name', 'description', 'userType', 'createdAt']
+        fields = ['id', 'text', 'name', 'description', 'userType', 'createdAt', 'messageType']
 
     def create(self, validated_data):
         user = self.context['request'].user
