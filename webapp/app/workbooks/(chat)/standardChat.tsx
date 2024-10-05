@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { Upload, Plus } from "lucide-react";
+import { Upload, Plus, Croissant, X, ChartLineIcon } from "lucide-react";
 import axiosInstance from "@/services/axios";
 import {
     StandardChatInterface,
@@ -29,6 +29,10 @@ import { ToastAction } from "@/components/ui/toast";
 import { Toaster } from "@/components/ui/toaster";
 import { set } from "date-fns";
 import ArcFormatDate from "@/services/formatDate";
+import { Toggle } from "@/components/ui/toggle";
+import { Cross1Icon, Cross2Icon, FontBoldIcon } from "@radix-ui/react-icons";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 
 export default function StandardChat({ workbookId, tableId }: chatProps) {
     const { toast } = useToast();
@@ -89,7 +93,11 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
                 console.log(newMessageResponseData);
                 if (newMessageResponseData) {
                     newMessageResponseData.userId = auth.currentUser?.uid || "";
-                    setMessages([...messages, _newMessage, newMessageResponseData]);
+                    setMessages([
+                        ...messages,
+                        _newMessage,
+                        newMessageResponseData,
+                    ]);
                 }
             } catch (error: any) {
                 toast({
@@ -162,8 +170,8 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
         }
     };
 
-    const selectChat = (chatId: string) => {
-        setActiveChatId(chatId);
+    const closeChat = async () => {
+        setActiveChatId(null);
     };
 
     if (!workbookId || !tableId) {
@@ -172,11 +180,32 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
     return (
         <div className="h-full flex flex-col">
             <div className="flex justify-between items-center px-4 py-1 border-b">
-                <div></div>
                 <div>
-                    <Button variant="link" onClick={startNewChat}>
-                        + New Chat
-                    </Button>
+                    {activeChatId ? (
+                        <Button
+                            variant="link"
+                            size="icon"
+                            onClick={closeChat}
+                        >
+                            x
+                        </Button>
+                    ) : (
+                        <div>
+                            <Button
+                                variant="link"
+                                onClick={startNewChat}
+                                className="px-1"
+                            >
+                                + Chat
+                            </Button>
+                        </div>
+                    )}
+                </div>
+                <div className="flex justify-between items-center">
+                    <div className="flex items-center space-x-2">
+                        <Switch id="airplane-mode" />
+                        <Label htmlFor="airplane-mode">Anlysis Mode</Label>
+                    </div>
                 </div>
             </div>
             <ScrollArea className="flex-grow p-4">
@@ -210,7 +239,9 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
                                         {chat.topic || "Untitled Chat"}
                                     </div>
                                     <div className="text-sm text-muted-foreground">
-                                        {ArcFormatDate(new Date(chat.updatedAt))}
+                                        {ArcFormatDate(
+                                            new Date(chat.updatedAt)
+                                        )}
                                     </div>
                                 </div>
                             ))
@@ -231,7 +262,14 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
                         className="flex-grow resize-none"
                         rows={Math.min(3, inputMessage.split("\n").length)}
                     />
-                    <Button onClick={handleSendMessage}>Send</Button>
+                    <div className="flex">
+                        <Button
+                            className="flex-grow"
+                            onClick={handleSendMessage}
+                        >
+                            Send
+                        </Button>
+                    </div>
                 </div>
             </div>
         </div>
