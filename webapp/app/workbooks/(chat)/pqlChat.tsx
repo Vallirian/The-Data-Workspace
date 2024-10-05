@@ -5,10 +5,6 @@ import {
     Loader2,
 } from "lucide-react";
 import axiosInstance from "@/services/axios";
-import {
-    StandardChatInterface,
-    StandardChatMessageInterface,
-} from "@/interfaces/main";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,14 +14,15 @@ import { auth } from "@/services/firebase";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import ArcFormatDate from "@/services/formatDate";
+import { AnalysisChatInterface, AnalysisChatMessageInterface } from "@/interfaces/main";
 
 export default function StandardChat({ workbookId, tableId }: chatProps) {
     const { toast } = useToast();
     const [waitingServerMessage, setWaitingServerMessage] =
         useState<boolean>(false);
 
-    const [chats, setChats] = useState<StandardChatInterface[]>([]);
-    const [messages, setMessages] = useState<StandardChatMessageInterface[]>(
+    const [chats, setChats] = useState<AnalysisChatInterface[]>([]);
+    const [messages, setMessages] = useState<AnalysisChatMessageInterface[]>(
         []
     );
     const [activeChatId, setActiveChatId] = useState<string | null>(null);
@@ -46,7 +43,7 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
                 const response = await axiosInstance.get(
                     `${process.env.NEXT_PUBLIC_API_URL}/chat/analysis/${activeChatId}/`
                 );
-                const fetchedMessages: StandardChatMessageInterface[] =
+                const fetchedMessages: AnalysisChatMessageInterface[] =
                     response.data || [];
                 console.log(fetchedMessages);
                 setMessages(fetchedMessages);
@@ -68,12 +65,16 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
 
     const handleSendMessage = async () => {
         if (inputMessage.trim() && activeChatId) {
-            const _newMessage: StandardChatMessageInterface = {
+            const _newMessage: AnalysisChatMessageInterface = {
                 id: Date.now().toString(), // temporary id, will be replaced by server
-                text: inputMessage,
                 userId: auth.currentUser?.uid || "",
                 userType: "user",
                 createdAt: new Date(),
+
+                text: inputMessage,
+                name: null,
+                description: null,
+                sql: null,
             };
 
             setMessages([...messages, _newMessage]);
@@ -85,7 +86,7 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
                     `${process.env.NEXT_PUBLIC_API_URL}/chat/analysis/${activeChatId}/`,
                     _newMessage
                 );
-                const newMessageResponseData: StandardChatMessageInterface =
+                const newMessageResponseData: AnalysisChatMessageInterface =
                     _newMessageResponse.data;
                 console.log(newMessageResponseData);
                 if (newMessageResponseData) {
@@ -117,7 +118,7 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
                 const response = await axiosInstance.get(
                     `${process.env.NEXT_PUBLIC_API_URL}/chat/analysis/workbook/${workbookId}/table/${tableId}/`
                 );
-                const fetchedChats: StandardChatInterface[] =
+                const fetchedChats: AnalysisChatInterface[] =
                     response.data || [];
                 console.log(fetchedChats);
                 setChats(fetchedChats);
@@ -142,7 +143,7 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
                 `${process.env.NEXT_PUBLIC_API_URL}/chat/analysis/workbook/${workbookId}/table/${tableId}/`
             );
 
-            const newChat: StandardChatInterface = {
+            const newChat: AnalysisChatInterface = {
                 id: response.data.id,
                 name: response.data.name,
                 updatedAt: new Date(),

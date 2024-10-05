@@ -14,33 +14,25 @@ class StandardUserMessage:
     def enhance_message(self):
         self.final_message = hlp.STANDARD_MESSAGE_ENHANCEMENT_TEXT + self.user_message
 
-# class UserMessage:
-#     def __init__(self, message_type: list['str'], user_message, model) -> None:
-#         self.user_id = None
-#         self.user_message = user_message
-#         self.final_message = ''
-#         self.role = 'user'
-#         self.model = model
+class AnalysisUserMessage:
+    def __init__(self, user_message, table_information, column_information) -> None:
+        self.user_message = user_message
+        self.final_message = ''
+        self.role = 'user'
+        self.table_information = table_information
+        self.column_information = column_information
 
-#         assert isinstance(user_message, str), "User message must be a string"
-#         assert len(user_message) > 0, "User message must not be empty"
-#         assert message_type in hlp.USER_MESSAGE_TYPES, f"Message type must be one of {hlp.USER_MESSAGE_TYPES}"
-#         assert model in hlp.VALID_MODELS, f"Model must be one of {hlp.VALID_MODELS}"
-        
+        assert isinstance(table_information, str), "Table information must be a string"
+        assert len(table_information.strip()) > 0, "Table information must not be empty"
+        assert isinstance(column_information, str), "Column information must be a string"
+        assert len(column_information.strip()) > 0, "Column information must not be empty"
+        assert isinstance(user_message, str), "User message must be a string"
+        assert len(user_message) > 0, "User message must not be empty"       
 
-#         self.message_type = message_type
+        self.enhance_message()
 
-#         self.enhance_message()
-
-#     def enhance_message(self):
-#         '''
-#         Enhances the user message based on the model
-#         returns: None
-#         '''
-#         provider, model = self.model.split('.')
-#         self.final_message = hlp.MODELS[provider][model]['enhancement_text'] + self.user_message
-
-
-
-
-    
+    def enhance_message(self):
+        self.final_message = hlp.ANALYSIS_MESSAGE_ENHANCEMENT_TEXT 
+        self.final_message += f"The following is the table information: {self.table_information}\n"
+        self.final_message += f"The following is the column information in the table: {self.column_information}\n"
+        self.final_message += self.user_message

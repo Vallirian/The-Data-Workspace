@@ -54,7 +54,7 @@ class AnalysisChatMessage(models.Model):
     )
 
     id = models.CharField(primary_key=True, default=uuid.uuid4, editable=False, unique=True, max_length=36)
-    chat = models.ForeignKey(StandardChat, related_name='analysis_messages', on_delete=models.CASCADE)  
+    chat = models.ForeignKey(AnalysisChat, related_name='analysis_messages', on_delete=models.CASCADE)  
     user = models.ForeignKey(User, on_delete=models.CASCADE)  
     userType = models.CharField(max_length=5, choices=MESSAGE_TYPES)  
     createdAt = models.DateTimeField(auto_now_add=True)  
