@@ -162,8 +162,8 @@ class SendAnalysisMessageToChatView(APIView):
                 text=list(_sql_exec_result[0].values())[0],
                 pql=_pql_from_model,
                 sql = _sql_translator.translated_pql,
-                name="",
-                description=""
+                name=_pql_from_model.get('NAME', 'No name'),
+                description=_pql_from_model.get('DESCRIPTION', 'No description')
             )
             _new_model_message.save()
 

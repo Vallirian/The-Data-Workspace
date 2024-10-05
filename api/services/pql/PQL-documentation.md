@@ -1,8 +1,10 @@
 # Processly Query Language (PQL)
+Version:
+- v0.1.0
 
 Change log:
 
-- v0.1.0
+- created documentation
 
 ## Overview and Philosophy of Processly Query Language (PQL)
 
@@ -53,22 +55,28 @@ PQL is written in JSON format and every PQL is a valid JSON.
 
 Each PQL has the following format
 
+- a required "VERSION" attribute that indicates the current version of the PQL being generated
 - a required “TABLE” attribute with the name of the table that the query run on
+- a required "NAME" attribute that represents the answer the PQL is providing
+- a required "DESCRIPTION" attribute that describes the business logic of the query
 - a required “BLOCKS” attribute with an ordered list of blocks to execute in sequence. In “BLOCKS” there are:
     - optional table blocks which can be “EXTENSION_BLOCK”, “GROUPING_BLOCK”, and “FILTER_BLOCK” to sequentially manipulate the table get a state which a scalar block can use to find the scalar value to answer the query
     - a required scalar block, which is “SCALAR_BLOCK”, to calculate a scalar value from the latest state of the table and return a scalar value to answer the query
 
 ```json
 {
-	"TABLE": 'name of the table that is used in the PQL',
+    "VERSION": "version of the pql - for this documentation the version is v0.1.0",
+    "NAME": "name of the answer the PQL is providing - can be considered name of a KPI",
+    "DESCRIPTION": "business logic description of the query",
+	"TABLE": "name of the table that is used in the PQL",
 	"BLOCKS": [
 		{
-			"__TABLE_BLOCK__": 'one or more optional blocks to manipulate the original table. 
+			"__TABLE_BLOCK__": "one or more optional blocks to manipulate the original table. 
 			The resulting manipulated table from each block is the only table that can be used 
-			in later blocks and operators.'
+			in later blocks and operators."
 		},
 		{
-			"__SCALAR_BLOCK__": 'a scalar block to get the final scalar value to answer the query.'
+			"__SCALAR_BLOCK__": "a scalar block to get the final scalar value to answer the query."
 		}
 	]
 }
@@ -99,7 +107,10 @@ Example: the following is a PQL extension block to create a new column called `o
 This PQL translates to SQL as
 SELECT *, MONTH(order_date) AS order_month FROM orders
 */
-{
+{   
+    "VERSION": "v0.1.0",
+    "NAME": "name of the final result",
+    "DESCRIPTION": "description of the final result",
 	"TABLE": "orders",
 	"BLOCKS": [
 		{
@@ -140,6 +151,9 @@ GROUP BY
 	city
 */
 {
+    "VERSION": "v0.1.0",
+    "NAME": "name of the final result",
+    "DESCRIPTION": "description of the final result",
 	"TABLE": "orders",
 	"BLOCKS": [
         {
@@ -174,6 +188,9 @@ GROUP BY
 
 */
 {
+    "VERSION": "v0.1.0",
+    "NAME": "name of the final result",
+    "DESCRIPTION": "description of the final result",
 	"TABLE": "orders",
 	"BLOCKS": [
 		{
@@ -221,6 +238,9 @@ FROM orders
 WHERE order_value > 5
 */
 {
+    "VERSION": "v0.1.0",
+    "NAME": "name of the final result",
+    "DESCRIPTION": "description of the final result",
 	"TABLE": "orders",
 	"BLOCKS": [
 		{
@@ -246,6 +266,9 @@ FROM orders
 WHERE (cost > 10) AND (price > 10)
 */
 {
+    "VERSION": "v0.1.0",
+    "NAME": "name of the final result",
+    "DESCRIPTION": "description of the final result",
 	"TABLE": "orders",
 	"BLOCKS": [
 		{
@@ -281,6 +304,9 @@ This PQL translates to SQL as
 SELECT SUM(order_value) AS total_order_value FROM orders
 */
 {
+    "VERSION": "v0.1.0",
+    "NAME": "Total Order Value",
+    "DESCRIPTION": "The total value of orders. Calculated by taking the sum of the order_value column",
 	"TABLE": "orders",
 	"BLOCKS": [
 		{
@@ -302,6 +328,9 @@ This PQL translate into SQL as
 SELECT COUNT(id) AS order_count FROM orders WHERE id IS NOT NULL
 */
 {
+    "VERSION": "v0.1.0",
+    "NAME": "Number of Orders",
+    "DESCRIPTION": "The total number of orders. Calculated by counting the id column",
 	"TABLE": "orders",
 	"BLOCKS": [
 		{
@@ -737,6 +766,9 @@ The “SCALAR_BLOCK” which is the next block is executed next. The “SCALAR_B
 
 ```json
 {
+    "VERSION": "v0.1.0",
+    "NAME": "Average Order Value Under 100",
+    "DESCRIPTION": "The average order value for orders with order_value under 100.",
 	"TABLE": "orders",
 	"BLOCKS": [
 		{
