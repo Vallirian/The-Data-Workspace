@@ -40,8 +40,6 @@ class AnalysisChatMessageSerializer(serializers.ModelSerializer):
         model = AnalysisChatMessage
         fields = ['id', 'text', 'userId', 'userType', 'createdAt']
 
-
-
 # Serializer for sending a message to an existing chat
 class AnalysisdChatMessageCreateSerializer(serializers.ModelSerializer):
     class Meta:
