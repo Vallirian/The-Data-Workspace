@@ -28,7 +28,7 @@ class FormulaListView(APIView):
             return Response({'error': 'This message can not be saved as formula'}, status=status.HTTP_400_BAD_REQUEST)
         
         # check if formula already exists
-        formula = Formula.objects.filter(analysisMessage=analysisMessage)
+        formula = Formula.objects.filter(analysisMessage=analysisMessage, isActive=True)
         if formula.exists():
             return Response({'error': 'This formula already exists'}, status=status.HTTP_400_BAD_REQUEST)
         

@@ -1,21 +1,33 @@
 "use client";
 
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/components/ui/accordion";
 import { useEffect, useRef, useState } from "react";
 import axiosInstance from "@/services/axios";
-import {
-    FormulaInterface,
-} from "@/interfaces/main";
+import { FormulaInterface } from "@/interfaces/main";
 
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
-export default function Formulas({ workbookId }: { workbookId: string }) {
+export default function Formulas({
+    workbookId,
+    isActive,
+}: {
+    workbookId: string;
+    isActive: boolean;
+}) {
     const [formulas, setFormulas] = useState<FormulaInterface[]>([]);
     const { toast } = useToast();
 
     useEffect(() => {
-        fetchFormulas();
-    }, []);
+        if (isActive) {
+            fetchFormulas();
+        }
+    }, [isActive]);
 
     const fetchFormulas = async () => {
         try {
@@ -37,7 +49,7 @@ export default function Formulas({ workbookId }: { workbookId: string }) {
     const deleteFormula = async (id: string) => {
         try {
             await axiosInstance.delete(
-                `${process.env.NEXT_PUBLIC_API_URL}/formulas/${id}/`
+                `${process.env.NEXT_PUBLIC_API_URL}/formulas/formula/${id}/`
             );
             setFormulas(formulas.filter((formula) => formula.id !== id));
         } catch (error: any) {
@@ -50,17 +62,42 @@ export default function Formulas({ workbookId }: { workbookId: string }) {
     };
 
     return (
-        <div>
-            <div>
+        <div className="flex-grow p-4 overflow-y-auto">
+            <Accordion type="single" collapsible>
                 {formulas.map((formula) => (
                     <div key={formula.id}>
-                        <h2>{formula.name}</h2>
-                        <Button onClick={() => deleteFormula(formula.id)}>
-                            Delete
-                        </Button>
+                        <AccordionItem value={formula.id} className="px-2">
+                            <AccordionTrigger>
+                                <p className="mb-2">{formula.name}</p>
+                            </AccordionTrigger>
+                            <AccordionContent>
+                                <p className="mb-2">{formula.description}</p>
+                                <div className="bg-muted rounded p-1 mb-2">
+                                    <p className="text-sm text-muted-foreground">
+                                        Executed SQL
+                                    </p>
+                                    <code className="relative px-[0.3rem] py-[0.2rem] font-mono text-sm whitespace-pre-wrap break-words">
+                                        {formula.validatedSQL}
+                                    </code>
+                                </div>
+                                <div className="border-t flex justify-between">
+                                    <Button variant={"link"} onClick={() => {}}>
+                                        + Add to Report
+                                    </Button>
+                                    <Button
+                                        variant={"link"}
+                                        onClick={() =>
+                                            deleteFormula(formula.id)
+                                        }
+                                    >
+                                        Delete
+                                    </Button>
+                                </div>
+                            </AccordionContent>
+                        </AccordionItem>
                     </div>
                 ))}
-            </div>
+            </Accordion>
         </div>
     );
 }

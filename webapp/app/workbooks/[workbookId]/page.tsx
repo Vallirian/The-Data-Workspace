@@ -26,8 +26,8 @@ export default function Page() {
         }
     }, [workbookId]);
 
-    const [activeLeftTab, setActiveLeftTab] = useState("table");
-    const [activeRightTab, setActiveRightTab] = useState("analysisChat");
+    const [activeLeftTab, setActiveLeftTab] = useState("report");
+    const [activeRightTab, setActiveRightTab] = useState("savedFormula");
 
     if (!workbook || !workbookId || !workbook.dataTable) {
         return <div>Loading...</div>;
@@ -60,7 +60,7 @@ export default function Page() {
                         <TabsList>
                             <TabsTrigger value="standardChat">Chat</TabsTrigger>
                             <TabsTrigger value="analysisChat">Analysis</TabsTrigger>
-                            <TabsTrigger value="saved">
+                            <TabsTrigger value="savedFormula">
                                 Saved Formula
                             </TabsTrigger>
                         </TabsList>
@@ -103,8 +103,9 @@ export default function Page() {
                     {activeRightTab === "analysisChat" && (
                         <AnalysisChat workbookId={workbookId as string} tableId={workbook.dataTable} />
                     )}
-                    {activeRightTab === "saved" && (
-                        <Formulas workbookId={workbookId as string} />
+                    {activeRightTab === "savedFormula" && (
+                        <Formulas workbookId={workbookId as string} isActive={activeRightTab === "savedFormula"}/>
+                        // trigger refresh when tab is active
                     )}
                 </div>
             </div>
