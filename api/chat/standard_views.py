@@ -5,7 +5,7 @@ from .models import StandardChat, StandardChatMessage
 from workbook.models import Workbook
 from datatable.models import DataTableMeta
 from django.shortcuts import get_object_or_404
-from .serializers import (
+from .standard_serializers import (
     StandardChatSerializer,
     StandardChatCreateSerializer,
     StandardChatMessageCreateSerializer
@@ -19,7 +19,7 @@ class StandardChatListCreateView(APIView):
     def get(self, request, workbook_id, table_id): 
         workbook = get_object_or_404(Workbook, id=workbook_id, user=request.user)
         data_table_meta = get_object_or_404(DataTableMeta, workbook=workbook, id=table_id)
-        chats = StandardChat.objects.filter(user=request.user, workbook=workbook, dataTable=data_table_meta)
+        chats = StandardChat.objects.filter(user=request.user, workbook=workbook, dataTable=data_table_meta).order_by('-updatedAt')
 
         serializer = StandardChatSerializer(chats, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -58,7 +58,7 @@ class SendMessageToChatView(APIView):
             chat = StandardChat.objects.get(id=chat_id, user=request.user)
             if chat.topic is None:
                 chat.topic = request.data.get('text')
-                chat.save()
+            chat.save()
         except Exception as e:
             return Response({'error': 'Chat not found'}, status=status.HTTP_404_NOT_FOUND)
         

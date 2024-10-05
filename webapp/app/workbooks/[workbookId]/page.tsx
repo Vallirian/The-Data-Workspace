@@ -15,6 +15,8 @@ import axiosInstance from "@/services/axios";
 import { WorkbookInterface } from "@/interfaces/main";
 import ArcDataTable from "../(table)/dataTable";
 import StandardChat from "../(chat)/standardChat";
+import Chat from "../(chat)/chat";
+import AnalysisChat from "../(chat)/pqlChat";
 
 export default function Page() {
     const { workbookId } = useParams();
@@ -35,7 +37,7 @@ export default function Page() {
     ]);
 
     const [activeLeftTab, setActiveLeftTab] = useState("table");
-    const [activeRightTab, setActiveRightTab] = useState("chat");
+    const [activeRightTab, setActiveRightTab] = useState("analysisChat");
 
     if (!workbook || !workbookId || !workbook.dataTable) {
         return <div>Loading...</div>;
@@ -66,7 +68,8 @@ export default function Page() {
                         className="w-auto"
                     >
                         <TabsList>
-                            <TabsTrigger value="chat">Chat</TabsTrigger>
+                            <TabsTrigger value="standardChat">Chat</TabsTrigger>
+                            <TabsTrigger value="analysisChat">Analysis</TabsTrigger>
                             <TabsTrigger value="saved">
                                 Saved Formula
                             </TabsTrigger>
@@ -104,8 +107,11 @@ export default function Page() {
                     )}
                 </div>
                 <div className="w-1/4 border-l">
-                    {activeRightTab === "chat" && (
+                    {activeRightTab === "standardChat" && (
                         <StandardChat workbookId={workbookId as string} tableId={workbook.dataTable} />
+                    )}
+                    {activeRightTab === "analysisChat" && (
+                        <AnalysisChat workbookId={workbookId as string} tableId={workbook.dataTable} />
                     )}
                     {activeRightTab === "saved" && (
                         <ScrollArea className="h-full p-4">

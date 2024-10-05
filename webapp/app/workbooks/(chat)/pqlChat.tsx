@@ -44,7 +44,7 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
         const fetchMessages = async () => {
             try {
                 const response = await axiosInstance.get(
-                    `${process.env.NEXT_PUBLIC_API_URL}/chat/standard/${activeChatId}/`
+                    `${process.env.NEXT_PUBLIC_API_URL}/chat/analysis/${activeChatId}/`
                 );
                 const fetchedMessages: StandardChatMessageInterface[] =
                     response.data || [];
@@ -82,7 +82,7 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
             try {
                 setWaitingServerMessage(true);
                 const _newMessageResponse = await axiosInstance.post(
-                    `${process.env.NEXT_PUBLIC_API_URL}/chat/standard/${activeChatId}/`,
+                    `${process.env.NEXT_PUBLIC_API_URL}/chat/analysis/${activeChatId}/`,
                     _newMessage
                 );
                 const newMessageResponseData: StandardChatMessageInterface =
@@ -115,7 +115,7 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
         const fetchChats = async () => {
             try {
                 const response = await axiosInstance.get(
-                    `${process.env.NEXT_PUBLIC_API_URL}/chat/standard/workbook/${workbookId}/table/${tableId}/`
+                    `${process.env.NEXT_PUBLIC_API_URL}/chat/analysis/workbook/${workbookId}/table/${tableId}/`
                 );
                 const fetchedChats: StandardChatInterface[] =
                     response.data || [];
@@ -139,7 +139,7 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
     const startNewChat = async () => {
         try {
             const response = await axiosInstance.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/chat/standard/workbook/${workbookId}/table/${tableId}/`
+                `${process.env.NEXT_PUBLIC_API_URL}/chat/analysis/workbook/${workbookId}/table/${tableId}/`
             );
 
             const newChat: StandardChatInterface = {

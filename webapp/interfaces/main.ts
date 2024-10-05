@@ -43,3 +43,22 @@ export interface StandardChatMessageInterface {
     userType: 'user' | 'model';
     createdAt: Date;
 }
+
+export interface AnalysisChatInterface {
+    id: string;
+    name: string;
+    updatedAt: Date;
+    topic: string;
+}
+
+export interface AnalysisChatMessageInterface {
+    id: string;
+    userId: string;
+    userType: 'user' | 'model';
+    createdAt: Date;
+
+    text: string;
+    name: string | null;
+    description: string | null;
+    sql: string | null;
+}

@@ -33,3 +33,37 @@ class StandardChatMessage(models.Model):
 
     def __str__(self):
         return f'{self.user.username}: {self.text[:50]}'
+    
+
+class AnalysisChat(models.Model):
+    id = models.CharField(primary_key=True, default=uuid.uuid4, editable=False, unique=True, max_length=36)
+    user = models.ForeignKey(User, related_name='analysis_chat', on_delete=models.CASCADE)
+    workbook = models.ForeignKey(Workbook, related_name='analysis_chat', on_delete=models.CASCADE)
+    dataTable = models.ForeignKey(DataTableMeta, on_delete=models.CASCADE, related_name='analysis_chat', null=True, blank=True)
+    threadId = models.CharField(max_length=64, null=True, blank=True)
+    updatedAt = models.DateTimeField(auto_now=True)
+    topic = models.CharField(max_length=255, null=True, blank=True)
+
+    def __str__(self):
+        return self.id
+
+class AnalysisChatMessage(models.Model):
+    MESSAGE_TYPES = (
+        ('user', 'User'),
+        ('model', 'Model'),
+    )
+
+    id = models.CharField(primary_key=True, default=uuid.uuid4, editable=False, unique=True, max_length=36)
+    chat = models.ForeignKey(StandardChat, related_name='analysis_messages', on_delete=models.CASCADE)  
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  
+    userType = models.CharField(max_length=5, choices=MESSAGE_TYPES)  
+    createdAt = models.DateTimeField(auto_now_add=True)  
+    
+    text = models.TextField(blank=True, null=True)  
+    pql = models.JSONField(blank=True, null=True)
+    sql = models.TextField(blank=True, null=True)
+    name = models.CharField(max_length=255, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f'{self.user.username}: {self.text[:50]}'
