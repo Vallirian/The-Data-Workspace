@@ -4,14 +4,6 @@ export interface UserInterface {
     displayName: string | null;
 }
 
-export interface NotificationInterface {
-    message: string;
-    type: 'success' | 'error' | 'info';
-    dismissed: boolean;
-    remainingTime: number;
-    intervalId?: any; // used internally
-}
-
 export interface WorkbookInterface {
     id: string;
     createdAt: Date;
@@ -35,4 +27,19 @@ export interface DataTableColumnMetaInterface {
     dtype: 'string' | 'integer' | 'float' | 'date';
     format: string;
     description: string;
+}
+
+export interface StandardChatInterface {
+    id: string;
+    name: string;
+    messages: StandardChatMessageInterface[];
+}
+
+export interface StandardChatMessageInterface {
+    id: string;
+    type: 'standard';
+    text: string;
+    userId: string;
+    userType: 'user' | 'model';
+    createdAt: Date;
 }

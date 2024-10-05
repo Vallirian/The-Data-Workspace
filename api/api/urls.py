@@ -6,4 +6,5 @@ urlpatterns = [
     path("api/user/", include("user.urls")),
     path("api/workbooks/", include("workbook.urls")),
     path("api/table-meta/", include("datatable.urls")),
+    path("api/chat/", include("chat.urls")),
 ]

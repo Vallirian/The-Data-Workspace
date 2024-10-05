@@ -4,6 +4,21 @@ from . message import UserMessage
 from . import helpers as hlp
 from pql import validation as pql_validation
 
+class OpenAIStandardAgent:
+    def __init__(self, agent_id: str) -> None:
+        self.thread = None
+        self.current_user_message = None
+        self.current_agent_response = None
+        
+        self.retries = 0
+        self.max_retries = 3
+
+        # openai
+        self.client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+        self.agent = self.client.beta.assistants.retrieve(agent_id)
+
+
+
 class OpenAIPQLAgent:
     def __init__(self, agent_id: str) -> None:
         self.thread = None

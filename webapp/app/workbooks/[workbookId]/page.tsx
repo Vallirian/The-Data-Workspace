@@ -14,6 +14,7 @@ import { useParams } from "next/navigation";
 import axiosInstance from "@/services/axios";
 import { WorkbookInterface } from "@/interfaces/main";
 import ArcDataTable from "../(table)/dataTable";
+import StandardChat from "../(chat)/standardChat";
 
 export default function Page() {
     const { workbookId } = useParams();
@@ -27,8 +28,6 @@ export default function Page() {
         }
     }, [workbookId]);
 
-    const [chatMessages, setChatMessages] = useState<string[]>([]);
-    const [inputMessage, setInputMessage] = useState("");
     const [savedFormulas, setSavedFormulas] = useState<string[]>([
         "Formula 1",
         "Formula 2",
@@ -37,14 +36,6 @@ export default function Page() {
 
     const [activeLeftTab, setActiveLeftTab] = useState("table");
     const [activeRightTab, setActiveRightTab] = useState("chat");
-
-    // --- Chat ---
-    const handleSendMessage = () => {
-        if (inputMessage.trim()) {
-            setChatMessages([...chatMessages, inputMessage]);
-            setInputMessage("");
-        }
-    };
 
     if (!workbook || !workbookId || !workbook.dataTable) {
         return <div>Loading...</div>;
@@ -95,7 +86,6 @@ export default function Page() {
                                 This is where the report content would go. It
                                 can scroll if it exceeds the available space.
                             </p>
-                            {/* Add more content here to test scrolling */}
                         </ScrollArea>
                     )}
                     {activeLeftTab === "table" && (
@@ -115,33 +105,7 @@ export default function Page() {
                 </div>
                 <div className="w-1/4 border-l">
                     {activeRightTab === "chat" && (
-                        <div className="h-full flex flex-col">
-                            <ScrollArea className="flex-grow p-4">
-                                {chatMessages.map((message, index) => (
-                                    <div
-                                        key={index}
-                                        className="mb-2 p-2 bg-muted rounded-md"
-                                    >
-                                        {message}
-                                    </div>
-                                ))}
-                            </ScrollArea>
-                            <div className="p-4 border-t">
-                                <div className="flex items-center space-x-2">
-                                    <Input
-                                        value={inputMessage}
-                                        onChange={(e) =>
-                                            setInputMessage(e.target.value)
-                                        }
-                                        placeholder="Type a message..."
-                                        className="flex-grow"
-                                    />
-                                    <Button onClick={handleSendMessage}>
-                                        Send
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
+                        <StandardChat workbookId={workbookId as string} tableId={workbook.dataTable} />
                     )}
                     {activeRightTab === "saved" && (
                         <ScrollArea className="h-full p-4">
