@@ -196,4 +196,16 @@ class RawDataExtraction:
             print(f'Error on table deletion: {e}')
             return False, str(e)
         
-        
+class TranslatedPQLExecution:
+    def __init__(self, translated_sql: str) -> None:
+        self.translated_sql = translated_sql
+
+    def execute(self):
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(self.translated_sql)
+                result = db_hlp.dictfetchall(cursor)
+                return True, result
+        except Exception as e:
+            print(f'Error on execution: {e}')
+            return False, str(e)       

@@ -60,5 +60,4 @@ export interface AnalysisChatMessageInterface {
     text: string;
     name: string | null;
     description: string | null;
-    sql: string | null;
 }

@@ -11,6 +11,8 @@ from .analysis_serializers import (
     AnalysisdChatMessageCreateSerializer
 )
 from services.ai_chat.agents import OpenAIAnalysisAgent
+from services.pql.translate import PQLTranslator
+from services.db_ops.db import TranslatedPQLExecution
 
 
 # List all chats or create a new chat using APIView
@@ -56,6 +58,17 @@ class SendAnalysisMessageToChatView(APIView):
         # get chat
         try:
             chat = AnalysisChat.objects.get(id=chat_id, user=request.user)
+
+            # assert data exists
+            data_table = get_object_or_404(DataTableMeta, workbook=chat.workbook, id=chat.dataTable.id)
+            if not data_table:
+                return Response({'error': 'Data not found for workbook, please complete data extraction before analysis'}, status=status.HTTP_404_NOT_FOUND)
+            if not data_table.dataSourceAdded:
+                return Response({'error': 'Data source not added, please complete data extraction before analysis'}, status=status.HTTP_400_BAD_REQUEST)
+            if not data_table.extractionStatus == 'success':
+                return Response({'error': 'Data extraction was not succesful, please complete data extraction before analysis'}, status=status.HTTP_400_BAD_REQUEST)
+            
+
             if chat.topic is None:
                 chat.topic = request.data.get('text')
             chat.save()
@@ -113,21 +126,48 @@ class SendAnalysisMessageToChatView(APIView):
             
         # Send the message to the AI chat agent
         response = agent.send_message(table_informaiton=_table_information, column_informaion=_column_information)
-        print('agent response', response)
         
-        print('response', response)
         if response.get('success'):
-            pass
-    #         # Save the message to the database
-    #         _new_model_message = StandardChatMessage(
-    #             chat=chat,
-    #             text=response.get('message'),
-    #             user=request.user,
-    #             userType='model'
-    #         )
-    #         _new_model_message.save()
+            _pql_from_model = response.get('message')
+            assert _pql_from_model, "PQL not found"
+            assert isinstance(_pql_from_model, dict), "PQL is not a dictionary"
 
-    #         return Response(StandardChatMessageCreateSerializer(_new_model_message).data, status=status.HTTP_201_CREATED)
-    #     else:
-        return Response({'error': response.get('message')}, status=status.HTTP_400_BAD_REQUEST)
+            # switch pql.table to the actual table name
+            _pql_from_model['TABLE'] = f'table___{data_table_meta.id}'
+
+            # Translate the PQL to SQL
+            _sql_translator = PQLTranslator(pql=_pql_from_model)
+            _sql_translator.translate()
+
+            if _sql_translator.errors:
+                return Response({'error': 'An error occured, please try again'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            print('sql', _sql_translator.translated_pql)
+            # Execute the SQL query
+            _sql_executor = TranslatedPQLExecution(translated_sql=_sql_translator.translated_pql)
+            _sql_exec_status, _sql_exec_result =_sql_executor.execute()
+            print('sql exec status', _sql_exec_status, _sql_exec_result)
+
+            assert _sql_exec_status, "SQL execution failed"
+            assert _sql_exec_result, "SQL execution result not found"
+            assert len(_sql_exec_result) == 1, f"Invalid SQL execution result, {_sql_exec_result}"
+            assert isinstance(_sql_exec_result, list), f"Invalid SQL execution result {_sql_exec_result}"
+            assert isinstance(_sql_exec_result[0], dict), f"Invalid SQL execution result {_sql_exec_result}"
+
+            # Save the message to the database
+            _new_model_message = AnalysisChatMessage(
+                chat=chat,
+                user=request.user,
+                userType='model',
+                text=list(_sql_exec_result[0].values())[0],
+                pql=_pql_from_model,
+                sql = _sql_translator.translated_pql,
+                name="",
+                description=""
+            )
+            _new_model_message.save()
+
+            return Response(AnalysisdChatMessageCreateSerializer(_new_model_message).data, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'error': response.get('message')}, status=status.HTTP_400_BAD_REQUEST)
 

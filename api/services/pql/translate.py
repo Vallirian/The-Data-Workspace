@@ -151,7 +151,7 @@ class ColumnConvertAbsolute(Operrator):
             
 
 class FilterBlock:
-    def __init__(self, pql_block: dict, input_latest_table: str, available_columns = []) -> None:
+    def __init__(self, pql_block: dict, input_latest_table: str) -> None:
         '''
         creates a Common Table Expression (CTE) for a filter block in SQL
         return:
@@ -189,7 +189,7 @@ class FilterBlock:
         return _query
     
 class ScalarBlock:
-    def __init__(self, pql_block: dict, input_latest_table: str, available_columns = []) -> None:
+    def __init__(self, pql_block: dict, input_latest_table: str) -> None:
         '''
         creates the final SQL query for a scalar block in SQL
         return:
@@ -224,10 +224,9 @@ class ScalarBlock:
         return _query
     
 class PQLTranslator:
-    def __init__(self, pql: dict, available_columns = []) -> None:
+    def __init__(self, pql: dict) -> None:
         self.pql = pql
         self.errors = []
-        self.available_columns = available_columns
         self.input_latest_table = hlp.create_latest_table_name()
         self.translated_pql = ''
     
@@ -254,7 +253,7 @@ class PQLTranslator:
         for block in _blocks:
             if list(block.keys())[0] != 'SCALAR_BLOCK':
                 if list(block.keys())[0] == 'FILTER_BLOCK':
-                    filter_block = FilterBlock(pql_block=block, input_latest_table=self.input_latest_table, available_columns=self.available_columns)
+                    filter_block = FilterBlock(pql_block=block, input_latest_table=self.input_latest_table)
                     self.input_latest_table = filter_block.output_latest_table
                     _ctes.append(filter_block.parse_to_sql())
 

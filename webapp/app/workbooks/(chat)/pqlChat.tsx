@@ -73,8 +73,7 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
 
                 text: inputMessage,
                 name: null,
-                description: null,
-                sql: null,
+                description: null
             };
 
             setMessages([...messages, _newMessage]);
