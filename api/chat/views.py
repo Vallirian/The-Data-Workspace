@@ -43,13 +43,26 @@ class StandardChatListCreateView(APIView):
 
 # Send a message to a chat using APIView
 class SendMessageToChatView(APIView):
+    # GET: list all messages in the specified chat
+    def get(self, request, chat_id):
+        chat = get_object_or_404(StandardChat, id=chat_id, user=request.user)
+        messages = StandardChatMessage.objects.filter(chat=chat).order_by('createdAt')
+        serializer = StandardChatMessageCreateSerializer(messages, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
     # POST: Send a message to the specified chat
     def post(self, request, chat_id):
-        print(chat_id, request.data)
+        # get chat
         try:
             chat = StandardChat.objects.get(id=chat_id, user=request.user)
+            if chat.topic is None:
+                chat.topic = request.data.get('text')
+                chat.save()
         except Exception as e:
             return Response({'error': 'Chat not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        assert chat, "Chat not found"
 
         # Deserialize and validate the message payload
         serializer = StandardChatMessageCreateSerializer(
@@ -57,28 +70,37 @@ class SendMessageToChatView(APIView):
             context={'request': request, 'chat': chat}
         )
 
-        print(serializer)
-
         if serializer.is_valid():
             serializer.save()
-            
-            # Send the message to the AI chat agent
-            agent = OpenAIStandardAgent(chat_id=chat_id, thread_id=chat.threadId)
-            response = agent.send_message()
-            print('agent response', response)
-            
-            if response.get('success'):
-                # Save the message to the database
-                _new_model_message = StandardChatMessage(
-                    chat=chat,
-                    text=response.get('message'),
-                    user=request.user,
-                    userType='model'
-                )
-                _new_model_message.save()
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-                return Response(response, status=status.HTTP_201_CREATED)
-            else:
-                return Response(response, status=status.HTTP_400_BAD_REQUEST)
+        user_message = serializer.data.get('text')
+        agent = OpenAIStandardAgent(user_message=user_message, chat_id=chat.id, thread_id=chat.threadId)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if chat.threadId is None:
+            agent.start_new_thread()
+            chat.threadId = agent.thread_id
+            chat.save()
+
+        assert agent.thread_id, "Chat thread ID not found"
+
+            
+        # Send the message to the AI chat agent
+        response = agent.send_message()
+        print('agent response', response)
+        
+        if response.get('success'):
+            # Save the message to the database
+            _new_model_message = StandardChatMessage(
+                chat=chat,
+                text=response.get('message'),
+                user=request.user,
+                userType='model'
+            )
+            _new_model_message.save()
+
+            return Response(StandardChatMessageCreateSerializer(_new_model_message).data, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'error': response.get('message')}, status=status.HTTP_400_BAD_REQUEST)
+

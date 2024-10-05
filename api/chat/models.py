@@ -12,6 +12,8 @@ class StandardChat(models.Model):
     workbook = models.ForeignKey(Workbook, related_name='standard_chat', on_delete=models.CASCADE)
     dataTable = models.ForeignKey(DataTableMeta, on_delete=models.CASCADE, related_name='standard_chat', null=True, blank=True)
     threadId = models.CharField(max_length=64, null=True, blank=True)
+    updatedAt = models.DateTimeField(auto_now=True)
+    topic = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
         return self.id

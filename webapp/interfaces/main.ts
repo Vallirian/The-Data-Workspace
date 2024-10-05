@@ -32,7 +32,8 @@ export interface DataTableColumnMetaInterface {
 export interface StandardChatInterface {
     id: string;
     name: string;
-    messages: StandardChatMessageInterface[];
+    updatedAt: Date;
+    topic: string;
 }
 
 export interface StandardChatMessageInterface {

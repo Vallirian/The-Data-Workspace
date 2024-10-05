@@ -4,11 +4,11 @@ from . message import StandardUserMessage
 # from pql import validation as pql_validation
 
 class OpenAIStandardAgent:
-    def __init__(self, chat_id: str=None, thread_id: str=None) -> None:
+    def __init__(self, user_message: str=None, chat_id: str=None, thread_id: str=None) -> None:
         self.thread = None
         self.chat_id = chat_id
         self.thread_id = thread_id
-        self.current_user_message = None
+        self.current_user_message = user_message
         self.current_agent_response = None
         
         self.retries = 0
@@ -22,25 +22,32 @@ class OpenAIStandardAgent:
 
         assert self.agent, "Agent not found"
 
-    def start_new_thread(self, user_message: str) -> None:
+    def start_new_thread(self) -> None:
         self.thread = self.client.beta.threads.create()
+        
+        assert self.thread, "Thread creation failed"
+        
         self.thread_id = self.thread.id
 
-        _temp_user_message = StandardUserMessage(user_message=user_message)
+    def send_message(self) -> str:
+        if self.current_user_message is None:
+            return {
+                'success': False,
+                'message': "User message not found",
+                'chat_id': self.chat_id,
+                'thread_id': self.thread_id
+            }
+        
+        if (self.thread is None) and (self.chat_id is not None):
+            self.thread = self.client.beta.threads.retrieve(thread_id=self.thread_id)
+
+        _temp_user_message = StandardUserMessage(user_message=self.current_user_message)
         self.current_user_message = self.client.beta.threads.messages.create(
             thread_id=self.thread.id,
             role=_temp_user_message.role,
             content=_temp_user_message.final_message
         )
 
-        return self.send_message()
-
-    def send_message(self) -> str:
-        if (self.chat_id is None) or (self.current_user_message is None):
-            return False, "Thread or user message not initialized"
-        
-        if (self.thread is None) and (self.chat_id is not None):
-            self.thread = self.client.beta.threads.retrieve(thread_id=self.chat_id)
 
         while self.retries <= self.max_retries:
             _temp_run = self.client.beta.threads.runs.create_and_poll(

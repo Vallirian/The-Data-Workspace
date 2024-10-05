@@ -12,7 +12,7 @@ class StandardChatSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StandardChat
-        fields = ['id', 'userId', 'workbookId', 'dataTableId']
+        fields = ['id', 'userId', 'workbookId', 'dataTableId', 'updatedAt', 'topic']
 
 # Serializer for creating a new chat (only requires a chat name)
 class StandardChatCreateSerializer(serializers.ModelSerializer):

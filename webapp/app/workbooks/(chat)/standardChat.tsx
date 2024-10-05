@@ -28,17 +28,46 @@ import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { Toaster } from "@/components/ui/toaster";
 import { set } from "date-fns";
+import ArcFormatDate from "@/services/formatDate";
 
 export default function StandardChat({ workbookId, tableId }: chatProps) {
     const { toast } = useToast();
 
     const [chats, setChats] = useState<StandardChatInterface[]>([]);
+    const [messages, setMessages] = useState<StandardChatMessageInterface[]>(
+        []
+    );
     const [activeChatId, setActiveChatId] = useState<string | null>(null);
     const [inputMessage, setInputMessage] = useState("");
 
     // ----- Message -----
+    useEffect(() => {
+        const fetchMessages = async () => {
+            try {
+                const response = await axiosInstance.get(
+                    `${process.env.NEXT_PUBLIC_API_URL}/chat/${activeChatId}/`
+                );
+                const fetchedMessages: StandardChatMessageInterface[] =
+                    response.data || [];
+                console.log(fetchedMessages);
+                setMessages(fetchedMessages);
+            } catch (error: any) {
+                toast({
+                    variant: "destructive",
+                    title: "Error fetching messages",
+                    description:
+                        error.response?.data?.error ||
+                        "Failed to load messages",
+                });
+            }
+        };
+
+        if (activeChatId) {
+            fetchMessages();
+        }
+    }, [activeChatId]);
+
     const handleSendMessage = async () => {
-        console.log(inputMessage);
         if (inputMessage.trim() && activeChatId) {
             const _newMessage: StandardChatMessageInterface = {
                 id: Date.now().toString(), // temporary id, will be replaced by server
@@ -48,9 +77,11 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
                 createdAt: new Date(),
             };
 
+            setMessages([...messages, _newMessage]);
+
             try {
                 const _newMessageResponse = await axiosInstance.post(
-                    `${process.env.NEXT_PUBLIC_API_URL}/chat/${activeChatId}/send/`,
+                    `${process.env.NEXT_PUBLIC_API_URL}/chat/${activeChatId}/`,
                     _newMessage
                 );
                 const newMessageResponseData: StandardChatMessageInterface =
@@ -58,19 +89,7 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
                 console.log(newMessageResponseData);
                 if (newMessageResponseData) {
                     newMessageResponseData.userId = auth.currentUser?.uid || "";
-                    setChats((prevChats) =>
-                        prevChats.map((chat) =>
-                            chat.id === activeChatId
-                                ? {
-                                      ...chat,
-                                      messages: [
-                                          ...(chat.messages as StandardChatMessageInterface[]),
-                                          newMessageResponseData,
-                                      ],
-                                  }
-                                : chat
-                        )
-                    );
+                    setMessages([...messages, _newMessage, newMessageResponseData]);
                 }
             } catch (error: any) {
                 toast({
@@ -93,14 +112,16 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
                 const response = await axiosInstance.get(
                     `${process.env.NEXT_PUBLIC_API_URL}/chat/workbook/${workbookId}/table/${tableId}/`
                 );
-                const fetchedChats: StandardChatInterface[] = response.data.chats || [];
+                const fetchedChats: StandardChatInterface[] =
+                    response.data || [];
                 console.log(fetchedChats);
                 setChats(fetchedChats);
             } catch (error: any) {
                 toast({
                     variant: "destructive",
                     title: "Error fetching chats",
-                    description: error.response?.data?.error || "Failed to load chats",
+                    description:
+                        error.response?.data?.error || "Failed to load chats",
                 });
             }
         };
@@ -108,7 +129,7 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
         if (workbookId && tableId) {
             fetchChats();
         }
-    }, [workbookId, tableId, toast]);
+    }, [workbookId, tableId]);
 
     const startNewChat = async () => {
         try {
@@ -119,7 +140,8 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
             const newChat: StandardChatInterface = {
                 id: response.data.id,
                 name: response.data.name,
-                messages: [],
+                updatedAt: new Date(),
+                topic: "",
             };
 
             setChats([...chats, newChat]);
@@ -149,45 +171,56 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
     }
     return (
         <div className="h-full flex flex-col">
-            <div className="p-4 border-b flex justify-between items-center">
-                <Select value={activeChatId || ""} onValueChange={selectChat}>
-                    <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Select a chat" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {chats.map((chat) => (
-                            <SelectItem key={chat.id} value={chat.id}>
-                                {chat.name}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-                <Button onClick={startNewChat} size="icon">
-                    <Plus className="h-4 w-4" />
-                </Button>
+            <div className="flex justify-between items-center px-4 py-1 border-b">
+                <div></div>
+                <div>
+                    <Button variant="link" onClick={startNewChat}>
+                        + New Chat
+                    </Button>
+                </div>
             </div>
             <ScrollArea className="flex-grow p-4">
-                {activeChatId &&
-                    chats
-                        .find((chat) => chat.id === activeChatId)
-                        ?.messages.map((message, index) => {
-                            const messageDate = new Date(message.createdAt); // Convert to Date object because it is a string when fetched from server
-                            const userType =
-                                message.userType === "user" ? "You" : "Model";
-                            return (
-                                <div key={index} className="mb-4">
-                                    <div className="flex justify-between text-sm text-muted-foreground mb-1">
-                                        <span>{userType}</span>
-                                        <span>
-                                            {messageDate.toLocaleDateString()}
-                                        </span>{" "}
+                {activeChatId ? (
+                    messages.map((message, index) => {
+                        const messageDate = new Date(message.createdAt); // Convert to Date object because it is a string when fetched from server
+                        const userType =
+                            message.userType === "user" ? "You" : "Model";
+                        return (
+                            <div key={index} className="mb-4">
+                                <div className="p-2 bg-muted rounded-md">
+                                    <div className="text-sm text-muted-foreground mb-1">
+                                        {userType} &#8226;{" "}
+                                        {ArcFormatDate(messageDate)}
                                     </div>
-                                    <div className="p-2 bg-muted rounded-md">
-                                        {message.text}
+                                    {message.text}
+                                </div>
+                            </div>
+                        );
+                    })
+                ) : (
+                    <div>
+                        {chats.length > 0 ? (
+                            chats.map((chat) => (
+                                <div
+                                    key={chat.id}
+                                    className="mb-4 p-3 bg-muted rounded-md cursor-pointer hover:bg-gray-300"
+                                    onClick={() => setActiveChatId(chat.id)} // Function to set active chat
+                                >
+                                    <div className="text-md font-medium">
+                                        {chat.topic || "Untitled Chat"}
+                                    </div>
+                                    <div className="text-sm text-muted-foreground">
+                                        {ArcFormatDate(new Date(chat.updatedAt))}
                                     </div>
                                 </div>
-                            );
-                        })}
+                            ))
+                        ) : (
+                            <div className="text-sm text-muted-foreground">
+                                No chats available.
+                            </div>
+                        )}
+                    </div>
+                )}
             </ScrollArea>
             <div className="p-4 border-t">
                 <div className="flex flex-col space-y-2">
