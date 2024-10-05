@@ -37,7 +37,6 @@ export interface StandardChatInterface {
 
 export interface StandardChatMessageInterface {
     id: string;
-    type: 'standard';
     text: string;
     userId: string;
     userType: 'user' | 'model';

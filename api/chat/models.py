@@ -1,15 +1,20 @@
 import uuid
 from django.db import models
 from django.contrib.auth import get_user_model
+from workbook.models import Workbook
+from datatable.models import DataTableMeta
 
 User = get_user_model()
 
 class StandardChat(models.Model):
     id = models.CharField(primary_key=True, default=uuid.uuid4, editable=False, unique=True, max_length=36)
-    name = models.CharField(max_length=255)  
+    user = models.ForeignKey(User, related_name='standard_chat', on_delete=models.CASCADE)
+    workbook = models.ForeignKey(Workbook, related_name='standard_chat', on_delete=models.CASCADE)
+    dataTable = models.ForeignKey(DataTableMeta, on_delete=models.CASCADE, related_name='standard_chat', null=True, blank=True)
+    threadId = models.CharField(max_length=64, null=True, blank=True)
 
     def __str__(self):
-        return self.name
+        return self.id
 
 class StandardChatMessage(models.Model):
     MESSAGE_TYPES = (
@@ -21,8 +26,8 @@ class StandardChatMessage(models.Model):
     chat = models.ForeignKey(StandardChat, related_name='standard_messages', on_delete=models.CASCADE)  
     text = models.TextField()  
     user = models.ForeignKey(User, on_delete=models.CASCADE)  
-    user_type = models.CharField(max_length=5, choices=MESSAGE_TYPES)  
-    created_at = models.DateTimeField(auto_now_add=True)  
+    userType = models.CharField(max_length=5, choices=MESSAGE_TYPES)  
+    createdAt = models.DateTimeField(auto_now_add=True)  
 
     def __str__(self):
         return f'{self.user.username}: {self.text[:50]}'
