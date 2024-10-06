@@ -73,3 +73,8 @@ export interface FormulaInterface {
     isValidated: boolean;
     createdAt: Date;
 }
+
+export interface ReportInterface {
+    id: string;
+    rows: string[][];
+}

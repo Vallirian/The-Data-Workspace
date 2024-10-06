@@ -13,6 +13,7 @@ import ArcDataTable from "../(table)/dataTable";
 import StandardChat from "../(chat)/standardChat";
 import AnalysisChat from "../(chat)/pqlChat";
 import Formulas from "../(formula)/formulas";
+import Report from "../(report)/report";
 
 export default function Page() {
     const { workbookId } = useParams();
@@ -71,15 +72,7 @@ export default function Page() {
             <div className="flex flex-1 overflow-hidden">
                 <div className="flex-grow">
                     {activeLeftTab === "report" && (
-                        <ScrollArea className="h-full p-4">
-                            <h2 className="text-2xl font-bold mb-4">
-                                Report Content
-                            </h2>
-                            <p>
-                                This is where the report content would go. It
-                                can scroll if it exceeds the available space.
-                            </p>
-                        </ScrollArea>
+                        <Report workbookId={workbookId as string} />
                     )}
                     {activeLeftTab === "table" && (
                         <ArcDataTable
