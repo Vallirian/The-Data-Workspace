@@ -19,8 +19,9 @@ class ReportDetailAPIView(APIView):
         return Response(serializer.data)
 
     def put(self, request, workbook_id):
+        print(request.data)
         workbook = Workbook.objects.get(id=workbook_id, user=request.user)
-        
+
         try:
             report = Report.objects.get(workbook=workbook)
         except Report.DoesNotExist:

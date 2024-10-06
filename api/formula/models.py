@@ -1,10 +1,11 @@
+import uuid
 from django.db import models
 from workbook.models import Workbook
 from services.pql.translate import PQLTranslator
 from chat.models import AnalysisChatMessage
 
 class Formula(models.Model):
-    id = models.AutoField(primary_key=True)
+    id = models.CharField(primary_key=True, default=uuid.uuid4, editable=False, unique=True, max_length=36)
     analysisMessage = models.ForeignKey(AnalysisChatMessage, on_delete=models.CASCADE, null=True, blank=True)
     workbook = models.ForeignKey(Workbook, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)

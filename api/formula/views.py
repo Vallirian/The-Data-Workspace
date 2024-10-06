@@ -7,6 +7,7 @@ from .serializers import FormulaSerializer, FormulaValidateSerializer
 from workbook.models import Workbook
 from chat.models import AnalysisChatMessage
 from django.shortcuts import get_object_or_404
+from services.db_ops.db import TranslatedPQLExecution
 
 class FormulaListView(APIView):
     def get(self, request, workbook_id):
@@ -86,3 +87,31 @@ class FormulaDetailView(APIView):
         formula.isActive = False
         formula.save()
         return Response({'message': 'Formula deactivated successfully'}, status=status.HTTP_204_NO_CONTENT)
+    
+class FormulaDetailValueView(APIView):
+    def get(self, request, formula_id):
+        # GET Detail (Retrieve a single formula by ID)  
+        try:
+            formula = Formula.objects.get(id=formula_id, isActive=True)
+            workbook = Workbook.objects.get(id=formula.workbook.id, user=request.user)  # Ensure user owns the workbook
+
+            _translated_sql = formula.translate_pql()
+            if not _translated_sql:
+                return Response({'error': 'Error validating SQL'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            _sql_executor = TranslatedPQLExecution(translated_sql=_translated_sql)
+            _sql_exec_status, _sql_exec_result =_sql_executor.execute()
+
+            assert _sql_exec_status, "SQL execution failed"
+            assert _sql_exec_result, "SQL execution result not found"
+            assert len(_sql_exec_result) == 1, f"Invalid SQL execution result, {_sql_exec_result}"
+            assert isinstance(_sql_exec_result, list), f"Invalid SQL execution result {_sql_exec_result}"
+            assert isinstance(_sql_exec_result[0], dict), f"Invalid SQL execution result {_sql_exec_result}"
+
+            return Response({'value': list(_sql_exec_result[0].values())[0]}, status=status.HTTP_200_OK)
+
+
+        except Formula.DoesNotExist:
+            return Response({'error': 'Formula not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Workbook.DoesNotExist:
+            return Response({'error': 'Workbook not found'}, status=status.HTTP_404_NOT_FOUND)
