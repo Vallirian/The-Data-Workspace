@@ -1,6 +1,17 @@
 "use client";
 
 import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
     Accordion,
     AccordionContent,
     AccordionItem,
@@ -80,18 +91,41 @@ export default function Formulas({
                                         {formula.validatedSQL}
                                     </code>
                                 </div>
-                                <div className="border-t flex justify-between">
-                                    <Button variant={"link"} onClick={() => {}}>
-                                        + Add to Report
-                                    </Button>
-                                    <Button
-                                        variant={"link"}
-                                        onClick={() =>
-                                            deleteFormula(formula.id)
-                                        }
-                                    >
-                                        Delete
-                                    </Button>
+                                <div className="flex justify-between">
+                                    <div></div>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger variant="link">
+                                            Delete
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>
+                                                    Are you absolutely sure?
+                                                </AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    This action cannot be
+                                                    undone. This will
+                                                    permanently delete the saved
+                                                    formula and remove it from
+                                                    report.
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>
+                                                    Cancel
+                                                </AlertDialogCancel>
+                                                <AlertDialogAction
+                                                    onClick={() =>
+                                                        deleteFormula(
+                                                            formula.id
+                                                        )
+                                                    }
+                                                >
+                                                    Continue
+                                                </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
                                 </div>
                             </AccordionContent>
                         </AccordionItem>

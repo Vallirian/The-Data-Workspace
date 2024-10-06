@@ -1,5 +1,7 @@
 "use client";
 
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
     ContextMenu,
     ContextMenuContent,
@@ -16,6 +18,7 @@ import { FormulaInterface, ReportInterface } from "@/interfaces/main";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { MoreVertical, Plus } from "lucide-react";
+import { ArcAutoFormat } from "@/services/autoFormat";
 
 export default function Report({ workbookId }: { workbookId: string }) {
     const { toast } = useToast();
@@ -24,6 +27,7 @@ export default function Report({ workbookId }: { workbookId: string }) {
     const [formulaValues, setFormulaValues] = useState<{
         [key: string]: string;
     }>({});
+    const [editMode, setEditMode] = useState(false);
 
     // Report
     useEffect(() => {
@@ -177,17 +181,57 @@ export default function Report({ workbookId }: { workbookId: string }) {
         });
     };
 
+    const clearEmptyCells = () => {
+        if (!report) return;
+        console.log(report);
+    
+        // Remove empty columns (columns that are "")
+        const cleanedRows = report.rows.map((row) =>
+            // Filter out empty columns including ones with already deleted formulas
+            row.filter((column) => column !== "" && formulaValues[column])
+        );
+    
+        // Remove empty rows (rows that are [])
+        const filteredRows = cleanedRows.filter((row) => row.length > 0);
+    
+        // Update the report state with cleaned rows
+        setReport({
+            ...report,
+            rows: filteredRows,
+        });
+    };
+    
+
     return (
         <div className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
-            <div className="p-4 flex justify-between">
-                <div>
-                    <h2 className="text-2xl font-bold mb-4">Report</h2>
+            <div className="flex justify-between items-center p-4">
+                <div className="flex items-center space-x-2">
+                    <Switch
+                        id="edit-mode"
+                        onCheckedChange={setEditMode}
+                        checked={editMode}
+                    />
+                    <Label htmlFor="edit-mode">Edit Mode</Label>
                 </div>
-                <div>
-                    <Button variant="link" onClick={saveReport}>
-                        Save
-                    </Button>
+                <div className="px-4 flex justify-between items-center">
+                    {editMode && (
+                        <div>
+                            <Button
+                                variant="link"
+                                className="px-3"
+                                onClick={saveReport}
+                            >
+                                Save
+                            </Button>
+                            <Button variant="link" className="px-3" onClick={clearEmptyCells}>
+                                Clear Empty Cells
+                            </Button>
+                        </div>
+                    )}
                 </div>
+            </div>
+            <div className="flex justify-between items-center px-4">
+                <h2 className="text-2xl items-center font-bold mb-4">Report</h2>
             </div>
             <div className="flex-grow overflow-y-auto p-4 space-y-4">
                 {report?.rows.map((row, rowIndex) => (
@@ -195,26 +239,112 @@ export default function Report({ workbookId }: { workbookId: string }) {
                         {row.map((column, columnIndex) => (
                             <div
                                 key={`${rowIndex}${columnIndex}`}
-                                className="w-1/4 h-36 border rounded-md"
+                                className={`${
+                                    editMode ? "w-1/4" : "w-full"
+                                } h-36 border rounded-md`}
                             >
-                                <ContextMenu>
-                                    <ContextMenuTrigger className="flex flex-col h-full w-full p-2 justify-center rounded-md border border-dashed text-sm">
-                                        <h4 className=" my-2 text-xl tracking-tight">
-                                            {formulaValues[column] ||
-                                                "Select Formula"}
-                                        </h4>
+                                {editMode ? (
+                                    <ContextMenu>
+                                        <ContextMenuTrigger className="flex flex-col h-full w-full p-2 justify-center rounded-md border border-dashed text-sm">
+                                            {formulas.find(
+                                                (f) => f.id === column
+                                            ) ? (
+                                                <>
+                                                    <h5 className="mb-2 font-semibold">
+                                                        {
+                                                            formulas.find(
+                                                                (f) =>
+                                                                    f.id ===
+                                                                    column
+                                                            )?.name
+                                                        }
+                                                    </h5>
+                                                    <p className="mb-2">
+                                                        {
+                                                            formulas.find(
+                                                                (f) =>
+                                                                    f.id ===
+                                                                    column
+                                                            )?.description
+                                                        }
+                                                    </p>
+                                                </>
+                                            ) : (
+                                                <p className="mb-2">
+                                                    No Formula Selected
+                                                </p>
+                                            )}
+                                            {formulaValues[column] ? (
+                                                <h3 className="scroll-m-20 text-xl font-semibold tracking-tight">
+                                                    {ArcAutoFormat(
+                                                        formulaValues[column]
+                                                    )}
+                                                </h3>
+                                            ) : (
+                                                "Right click to select a formula"
+                                            )}
+                                        </ContextMenuTrigger>
+
+                                        <ContextMenuContent className="w-64">
+                                            <ContextMenuItem
+                                                inset
+                                                onClick={() =>
+                                                    removeColumn(
+                                                        rowIndex,
+                                                        columnIndex
+                                                    )
+                                                }
+                                            >
+                                                Remove Column
+                                            </ContextMenuItem>
+                                            <ContextMenuItem
+                                                inset
+                                                onClick={() =>
+                                                    clearFormula(
+                                                        rowIndex,
+                                                        columnIndex
+                                                    )
+                                                }
+                                            >
+                                                Clear Formula
+                                            </ContextMenuItem>
+                                            <ContextMenuSub>
+                                                <ContextMenuSubTrigger inset>
+                                                    Change Formula
+                                                </ContextMenuSubTrigger>
+                                                <ContextMenuSubContent className="w-48">
+                                                    {formulas.map((formula) => (
+                                                        <ContextMenuItem
+                                                            key={formula.id}
+                                                            onClick={() =>
+                                                                setFormula(
+                                                                    rowIndex,
+                                                                    columnIndex,
+                                                                    formula.id
+                                                                )
+                                                            }
+                                                        >
+                                                            {formula.name}
+                                                        </ContextMenuItem>
+                                                    ))}
+                                                </ContextMenuSubContent>
+                                            </ContextMenuSub>
+                                        </ContextMenuContent>
+                                    </ContextMenu>
+                                ) : (
+                                    <div className="flex flex-col h-full w-full p-2 justify-center rounded-md text-sm">
                                         {formulas.find(
                                             (f) => f.id === column
                                         ) ? (
                                             <>
-                                                <p className="mb-2">
+                                                <h5 className="mb-2 font-semibold">
                                                     {
                                                         formulas.find(
                                                             (f) =>
                                                                 f.id === column
                                                         )?.name
                                                     }
-                                                </p>
+                                                </h5>
                                                 <p className="mb-2">
                                                     {
                                                         formulas.find(
@@ -229,57 +359,20 @@ export default function Report({ workbookId }: { workbookId: string }) {
                                                 No Formula Selected
                                             </p>
                                         )}
-                                    </ContextMenuTrigger>
-
-                                    <ContextMenuContent className="w-64">
-                                        <ContextMenuItem
-                                            inset
-                                            onClick={() =>
-                                                removeColumn(
-                                                    rowIndex,
-                                                    columnIndex
-                                                )
-                                            }
-                                        >
-                                            Remove Column
-                                        </ContextMenuItem>
-                                        <ContextMenuItem
-                                            inset
-                                            onClick={() =>
-                                                clearFormula(
-                                                    rowIndex,
-                                                    columnIndex
-                                                )
-                                            }
-                                        >
-                                            Clear Formula
-                                        </ContextMenuItem>
-                                        <ContextMenuSub>
-                                            <ContextMenuSubTrigger inset>
-                                                Change Formula
-                                            </ContextMenuSubTrigger>
-                                            <ContextMenuSubContent className="w-48">
-                                                {formulas.map((formula) => (
-                                                    <ContextMenuItem
-                                                        key={formula.id}
-                                                        onClick={() =>
-                                                            setFormula(
-                                                                rowIndex,
-                                                                columnIndex,
-                                                                formula.id
-                                                            )
-                                                        }
-                                                    >
-                                                        {formula.name}
-                                                    </ContextMenuItem>
-                                                ))}
-                                            </ContextMenuSubContent>
-                                        </ContextMenuSub>
-                                    </ContextMenuContent>
-                                </ContextMenu>
+                                        {formulaValues[column] ? (
+                                            <h3 className="scroll-m-20 text-xl font-semibold tracking-tight">
+                                                {ArcAutoFormat(
+                                                    formulaValues[column]
+                                                )}
+                                            </h3>
+                                        ) : (
+                                            "Please select a formula in edit mode"
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         ))}
-                        {row.length < 4 && (
+                        {editMode && row.length < 4 && (
                             <Button
                                 variant="outline"
                                 size="icon"
@@ -292,15 +385,17 @@ export default function Report({ workbookId }: { workbookId: string }) {
                         )}
                     </div>
                 ))}
-                <div className="p-4">
-                    <Button
-                        variant={"link"}
-                        className="w-full"
-                        onClick={addNewRow}
-                    >
-                        + Add New Row
-                    </Button>
-                </div>
+                {editMode && (
+                    <div className="p-4">
+                        <Button
+                            variant={"link"}
+                            className="w-full"
+                            onClick={addNewRow}
+                        >
+                            + Add New Row
+                        </Button>
+                    </div>
+                )}
             </div>
         </div>
     );
