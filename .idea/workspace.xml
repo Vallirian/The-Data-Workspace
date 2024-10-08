@@ -1,85 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="3fea0007-b78b-4502-abf4-b307cfdba7ae" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/api/API-documentation.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/Dockerfile" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/api/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/api/asgi.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/api/settings.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/api/urls.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/api/wsgi.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/chat/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/chat/admin.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/chat/analysis_serializers.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/chat/analysis_views.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/chat/apps.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/chat/models.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/chat/standard_serializers.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/chat/standard_views.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/chat/tests.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/chat/urls.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/datatable/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/datatable/admin.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/datatable/apps.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/datatable/models.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/datatable/serializers.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/datatable/tests.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/datatable/urls.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/datatable/views.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/formula/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/formula/admin.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/formula/apps.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/formula/models.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/formula/serializers.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/formula/tests.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/formula/urls.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/formula/views.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/manage.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/report/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/report/admin.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/report/apps.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/report/models.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/report/serializers.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/report/tests.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/report/urls.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/report/views.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/requirements.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/services/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/services/ai_chat/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/services/ai_chat/agents.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/services/ai_chat/helpers.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/services/ai_chat/message.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/services/db_ops/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/services/db_ops/db.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/services/db_ops/helpers.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/services/db_ops/query_factory.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/services/pql/PQL-documentation.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/services/pql/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/services/pql/helpers.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/services/pql/translate.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/services/pql/validation.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/user/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/user/admin.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/user/apps.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/user/firebase_middleware.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/user/models.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/user/tests.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/user/urls.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/user/views.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/workbook/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/workbook/admin.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/workbook/apps.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/workbook/models.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/workbook/serializers.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/workbook/tests.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/workbook/urls.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/workbook/views.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/webapp/app/account/(signup-or-login)/login/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/app/account/(signup-or-login)/login/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/webapp/app/workbooks/(chat)/standardChat.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/webapp/app/workbooks/(importData)/uploadCsv.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/app/workbooks/(importData)/uploadCsv.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/webapp/app/workbooks/(table)/dataTable.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/app/workbooks/(table)/dataTable.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/webapp/app/workbooks/[workbookId]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/app/workbooks/[workbookId]/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/api/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/api/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/arc/api/ApiApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/arc/api/ApiApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/docker/docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/services/docker/docker-compose.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/package-lock.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -89,9 +21,28 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 4
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "naolbasaye"
+  }
 }]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/Vallirian/arc.git",
+    "accountId": "e3466b72-0268-4831-ad6c-ab9fc721f096"
+  }
+}]]></component>
+  <component name="KubernetesApiPersistence"><![CDATA[{}]]></component>
+  <component name="KubernetesApiProvider"><![CDATA[{
+  "isMigrated": true
+}]]></component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4
+}</component>
   <component name="ProjectId" id="2nAbFuBsOS8JDrRbZ7qu3Dy7LrG" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -99,16 +50,54 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Docker.docker/docker-compose.yaml.api: Compose Deployment.executor": "Run",
+    "Docker.docker/docker-compose.yaml: Compose Deployment.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "arc-v01-prod",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/naol/Desktop/x2/engineering/arc",
     "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.lookFeel",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RunManager" selected="Docker.docker/docker-compose.yaml.api: Compose Deployment">
+    <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
+      <deployment type="docker-compose.yml" />
+      <method v="2" />
+    </configuration>
+    <configuration name="docker/docker-compose.yaml: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="sourceFilePath" value="services/docker/docker-compose.yaml" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration name="docker/docker-compose.yaml.api: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="services">
+            <list>
+              <option value="api" />
+            </list>
+          </option>
+          <option name="sourceFilePath" value="services/docker/docker-compose.yaml" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Docker.docker/docker-compose.yaml.api: Compose Deployment" />
+        <item itemvalue="Docker.docker/docker-compose.yaml: Compose Deployment" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -126,6 +115,7 @@
       <option name="presentableId" value="Default" />
       <updated>1728418726875</updated>
       <workItem from="1728418727926" duration="73000" />
+      <workItem from="1728424616851" duration="1780000" />
     </task>
     <servers />
   </component>

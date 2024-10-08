@@ -18,12 +18,16 @@ services:
     env_file:
       - .env
     ports:
-      - "8000:8000"
+      - "8080:8080"  # Expose Spring Boot on port 8080
     volumes:
-      - ../../api:/api
-    command: python manage.py runserver 0.0.0.0:8000
+      - ../../api/src:/app/src  # Mount the source code for live changes
+      - ../../api/target:/app/target  # Mount the target directory (optional)
+      - ../../api/pom.xml:/app/pom.xml
     depends_on:
       - db
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev  # Optional: activate development profile
+    command: "mvn spring-boot:run"
 
   webapp:
     build:

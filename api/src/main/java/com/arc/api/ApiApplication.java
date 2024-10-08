@@ -7,7 +7,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class ApiApplication {
 
     public static void main(String[] args) {
+
+        System.out.println("hi NYC!");
         SpringApplication.run(ApiApplication.class, args);
+
     }
 
 }
