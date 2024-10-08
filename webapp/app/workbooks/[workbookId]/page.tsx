@@ -10,7 +10,6 @@ import { useParams } from "next/navigation";
 import axiosInstance from "@/services/axios";
 import { WorkbookInterface } from "@/interfaces/main";
 import ArcDataTable from "../(table)/dataTable";
-import StandardChat from "../(chat)/standardChat";
 import AnalysisChat from "../(chat)/pqlChat";
 import Formulas from "../(formula)/formulas";
 import Report from "../(report)/report";
@@ -27,8 +26,8 @@ export default function Page() {
         }
     }, [workbookId]);
 
-    const [activeLeftTab, setActiveLeftTab] = useState("report");
-    const [activeRightTab, setActiveRightTab] = useState("savedFormula");
+    const [activeLeftTab, setActiveLeftTab] = useState("table");
+    const [activeRightTab, setActiveRightTab] = useState("analysisChat");
 
     if (!workbook || !workbookId || !workbook.dataTable) {
         return <div>Loading...</div>;
@@ -59,10 +58,9 @@ export default function Page() {
                         className="w-auto"
                     >
                         <TabsList>
-                            <TabsTrigger value="standardChat">Chat</TabsTrigger>
                             <TabsTrigger value="analysisChat">Analysis</TabsTrigger>
                             <TabsTrigger value="savedFormula">
-                                Saved Formula
+                                KPIs
                             </TabsTrigger>
                         </TabsList>
                     </Tabs>
@@ -90,9 +88,6 @@ export default function Page() {
                     )}
                 </div>
                 <div className="w-1/4 border-l">
-                    {activeRightTab === "standardChat" && (
-                        <StandardChat workbookId={workbookId as string} tableId={workbook.dataTable} />
-                    )}
                     {activeRightTab === "analysisChat" && (
                         <AnalysisChat workbookId={workbookId as string} tableId={workbook.dataTable} />
                     )}

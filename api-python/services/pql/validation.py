@@ -17,12 +17,12 @@ class PQLValidtor:
         # Validate keys
         for key in _keys:
             if key['key'] not in hlp.KEY_WORDS:
-                self.errors.append(f"Invalid key: {key['key']} at {key['path']}")
+                self.errors.append(f"Invalid key: {key['key']} at {key['path']}, valid keys are: {hlp.KEY_WORDS}")
 
         # Validate required keys
         for key in hlp.REQUIRED_KEYS:
             if key not in [k['key'] for k in _keys]:
-                self.errors.append(f"Missing key: {key}")
+                self.errors.append(f"Missing key: {key}, required keys are: {hlp.REQUIRED_KEYS}")
 
     def _validate_values(self) -> None:
         _keys = hlp.extract_full_keys(self.pql)
@@ -32,13 +32,13 @@ class PQLValidtor:
             if key['key'] == 'OPERATOR':
                 value = hlp.get_value_from_path(self.pql, key['path'])
                 if value not in hlp.OPERATORS:
-                    self.errors.append(f"Invalid value: {value} at {key['path']}")
+                    self.errors.append(f"Invalid value: {value} at {key['path']}, valid values are: {hlp.OPERATORS}")
 
             # Validate COMPARISON_OPERATOR values
             if key['key'] == 'COMPARISON_OPERATOR':
                 value = hlp.get_value_from_path(self.pql, key['path'])
                 if value not in hlp.COMPARISON_OPERATORS:
-                    self.errors.append(f"Invalid comparison operator: {value} for COMPARISON_OPERATOR at {key['path']}")
+                    self.errors.append(f"Invalid comparison operator: {value} for COMPARISON_OPERATOR at {key['path']}, valid values are: {hlp.COMPARISON_OPERATORS}")
 
             #  Validate COLUMN values
             if key['key'] == 'COLUMNS':
@@ -56,7 +56,7 @@ class PQLValidtor:
                 self.errors.append(f"Block should only have one key but found multiple keys: {block_identifier}")
 
             if block_identifier[0] not in hlp.BLOCK_KEYS:
-                self.errors.append(f"Invalid block key: {block_identifier[0]}")
+                self.errors.append(f"Invalid block key: {block_identifier[0]}\n Valid block keys are: {hlp.BLOCK_KEYS}")
 
 
 

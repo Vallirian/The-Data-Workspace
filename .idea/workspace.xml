@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="3fea0007-b78b-4502-abf4-b307cfdba7ae" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/api/API-documentation.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/api/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/api/asgi.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/api/settings.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/api/urls.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/api/wsgi.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/chat/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/chat/admin.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/chat/analysis_serializers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/chat/analysis_views.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/chat/apps.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/chat/models.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/chat/standard_serializers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/chat/standard_views.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/chat/tests.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/chat/urls.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/datatable/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/datatable/admin.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/datatable/apps.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/datatable/models.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/datatable/serializers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/datatable/tests.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/datatable/urls.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/datatable/views.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/formula/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/formula/admin.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/formula/apps.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/formula/models.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/formula/serializers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/formula/tests.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/formula/urls.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/formula/views.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/manage.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/report/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/report/admin.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/report/apps.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/report/models.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/report/serializers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/report/tests.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/report/urls.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/report/views.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/requirements.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/services/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/services/ai_chat/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/services/ai_chat/agents.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/services/ai_chat/helpers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/services/ai_chat/message.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/services/db_ops/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/services/db_ops/db.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/services/db_ops/helpers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/services/db_ops/query_factory.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/services/pql/PQL-documentation.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/services/pql/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/services/pql/helpers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/services/pql/translate.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/services/pql/validation.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/user/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/user/admin.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/user/apps.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/user/firebase_middleware.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/user/models.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/user/tests.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/user/urls.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/user/views.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/workbook/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/workbook/admin.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/workbook/apps.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/workbook/models.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/workbook/serializers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/workbook/tests.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/workbook/urls.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/workbook/views.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/app/account/(signup-or-login)/login/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/app/account/(signup-or-login)/login/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/app/workbooks/(chat)/standardChat.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/app/workbooks/(importData)/uploadCsv.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/app/workbooks/(importData)/uploadCsv.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/app/workbooks/(table)/dataTable.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/app/workbooks/(table)/dataTable.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/app/workbooks/[workbookId]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/app/workbooks/[workbookId]/page.tsx" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 4
+}]]></component>
+  <component name="ProjectId" id="2nAbFuBsOS8JDrRbZ7qu3Dy7LrG" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "arc-v01-prod",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/Users/naol/Desktop/x2/engineering/arc",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-b114ca120d71-intellij.indexing.shared.core-IU-242.21829.142" />
+        <option value="bundled-js-predefined-d6986cc7102b-7c0b70fcd90d-JavaScript-IU-242.21829.142" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="3fea0007-b78b-4502-abf4-b307cfdba7ae" name="Changes" comment="" />
+      <created>1728418726875</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1728418726875</updated>
+      <workItem from="1728418727926" duration="73000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

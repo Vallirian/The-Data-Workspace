@@ -99,18 +99,18 @@ class SendAnalysisMessageToChatView(APIView):
         except Exception as e:
             return Response({'error': 'Data table columns not found'}, status=status.HTTP_404_NOT_FOUND)
         
-        _table_information = f"""Table information:
-        Table name: {data_table_meta.name}
-        Table description: {data_table_meta.description}
-        Table datasource: {data_table_meta.dataSource}
-        Table extraction status: {data_table_meta.extractionStatus}
-        Table extraction details: {data_table_meta.extractionDetails}"""
+        _table_information = f"""Table information:\n
+        Table name: {data_table_meta.name}\n
+        Table description: {data_table_meta.description}\n
+        Table datasource: {data_table_meta.dataSource}\n
+        Table extraction status: {data_table_meta.extractionStatus}\n
+        Table extraction details: {data_table_meta.extractionDetails}\n"""
 
         _column_information = "Column information:\n"
         for column in data_table_column_meta:
-            _column_information += f"""Column name: {column.name}
-            Column description: {column.description}
-            Column data type: {column.dtype}"""
+            _column_information += f"""Column name: {column.name}\n
+            Column description: {column.description}\n
+            Column data type: {column.dtype}\n"""
 
         # Send the message to the AI chat agent
         user_message = serializer.data.get('text')

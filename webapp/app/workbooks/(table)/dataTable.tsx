@@ -352,7 +352,7 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
                     </div>
                 )}
             </div>
-            <div className="flex-grow overflow-hidden">
+            <div className="flex-grow overflow-auto">
                 <ScrollArea className="h-full">
                     <div className="p-4">
                         <Table>

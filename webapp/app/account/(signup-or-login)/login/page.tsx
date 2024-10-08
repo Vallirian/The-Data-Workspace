@@ -56,12 +56,10 @@ export default function Login() {
                         </div>
                     </div>
                     <div className="space-y-4">
-                        {/* <p className="text-2xl font-semibold">
-                            "This library has saved me countless hours of work
-                            and helped me deliver stunning designs to my clients
-                            faster than ever before."
+                        <p className="text-2xl font-semibold">
+                            Zero Data Exposure data analytics powered by AI
                         </p>
-                        <p className="text-xl">Sofia Davis</p> */}
+                        {/* <p className="text-xl">Sofia Davis</p> */}
                     </div>
                 </div>
             </div>

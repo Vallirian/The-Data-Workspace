@@ -223,7 +223,7 @@ The following is the definition of filer block
 ```json
 {
 	"COLUMNS": 'a list of columns to compare value agains using a comparison operator. This is the left side of the comparison',
-	"COMPARISON_OPERATOR": 'a comparison operator (allowed operators are =, ≠, >, <, >=, <=, IS NULL, IS NOT NULL)',
+	"COMPARISON_OPERATOR": 'a comparison operator (allowed operators are =, !=, >, <, >=, <=, IS NULL, IS NOT NULL)',
 	"VALUE": 'the value to compare to each column in COLUMNS. This is the right side of the comparison'
 }
 ```

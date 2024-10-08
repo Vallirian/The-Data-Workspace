@@ -9,11 +9,8 @@ class ReportDetailAPIView(APIView):
     def get(self, request, workbook_id):
         workbook = Workbook.objects.get(id=workbook_id, user=request.user)
 
-        try:
-            report = Report.objects.get(workbook=workbook)
-        except Report.DoesNotExist:
-            report = Report.objects.create(workbook=workbook)
-            report.save()
+        # Use get_or_create to avoid race conditions
+        report, created = Report.objects.get_or_create(workbook=workbook)
 
         serializer = ReportSerializer(report)
         return Response(serializer.data)
@@ -22,11 +19,8 @@ class ReportDetailAPIView(APIView):
         print(request.data)
         workbook = Workbook.objects.get(id=workbook_id, user=request.user)
 
-        try:
-            report = Report.objects.get(workbook=workbook)
-        except Report.DoesNotExist:
-            report = Report.objects.create(workbook=workbook)
-            report.save()
+        # Use get_or_create to avoid race conditions
+        report, created = Report.objects.get_or_create(workbook=workbook)
 
         serializer = ReportSerializer(report, data=request.data)
         if serializer.is_valid():

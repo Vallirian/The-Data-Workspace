@@ -1,19 +1,5 @@
 from . import helpers as hlp
 
-class StandardUserMessage:
-    def __init__(self, user_message) -> None:
-        self.user_message = user_message
-        self.final_message = ''
-        self.role = 'user'
-
-        assert isinstance(user_message, str), "User message must be a string"
-        assert len(user_message) > 0, "User message must not be empty"
-
-        self.enhance_message()
-
-    def enhance_message(self):
-        self.final_message = hlp.STANDARD_MESSAGE_ENHANCEMENT_TEXT + self.user_message
-
 class AnalysisUserMessage:
     def __init__(self, user_message, table_information, column_information) -> None:
         self.user_message = user_message

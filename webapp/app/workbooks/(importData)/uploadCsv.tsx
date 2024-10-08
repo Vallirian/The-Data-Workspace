@@ -63,7 +63,6 @@ import { ToastAction } from "@/components/ui/toast";
 import { Toaster } from "@/components/ui/toaster";
 import { UploadCSVProps } from "@/interfaces/props";
 
-
 export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
     const { toast } = useToast();
 
@@ -414,79 +413,84 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
                                 ))}
                             </TableBody>
                         </Table>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    {columns.map((column) => (
+                                        <TableHead key={column.name}>
+                                            <Select
+                                                onValueChange={(
+                                                    value:
+                                                        | "string"
+                                                        | "integer"
+                                                        | "float"
+                                                        | "date"
+                                                ) =>
+                                                    handleColumnTypeChange(
+                                                        column.name,
+                                                        value
+                                                    )
+                                                }
+                                            >
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select type" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="string">
+                                                        String
+                                                    </SelectItem>
+                                                    <SelectItem value="integer">
+                                                        Integer
+                                                    </SelectItem>
+                                                    <SelectItem value="float">
+                                                        Float
+                                                    </SelectItem>
+                                                    <SelectItem value="date">
+                                                        Date
+                                                    </SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            {column.dtype === "date" && (
+                                                <Select
+                                                    onValueChange={(
+                                                        value:
+                                                            | "MM/DD/YYYY"
+                                                            | "DD/MM/YYYY"
+                                                            | "MM-DD-YYYY"
+                                                            | "DD-MM-YYYY"
+                                                    ) =>
+                                                        handleColumnFormatChange(
+                                                            column.name,
+                                                            value
+                                                        )
+                                                    }
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select Date Format" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="MM/DD/YYYY">
+                                                            MM/DD/YYYY
+                                                        </SelectItem>
+                                                        <SelectItem value="DD/MM/YYYY">
+                                                            DD/MM/YYYY
+                                                        </SelectItem>
+                                                        <SelectItem value="MM-DD-YYYY">
+                                                            MM-DD-YYYY
+                                                        </SelectItem>
+                                                        <SelectItem value="DD-MM-YYYY">
+                                                            DD-MM-YYYY
+                                                        </SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            )}
+                                        </TableHead>
+                                    ))}
+                                </TableRow>
+                            </TableHeader>
+                        </Table>
                     </div>
-                    <div className="grid grid-cols-4 gap-4 mt-4">
-                        {columns.map((column) => (
-                            <div key={column.name}>
-                                <Select
-                                    onValueChange={(
-                                        value:
-                                            | "string"
-                                            | "integer"
-                                            | "float"
-                                            | "date"
-                                    ) =>
-                                        handleColumnTypeChange(
-                                            column.name,
-                                            value
-                                        )
-                                    }
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select type" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="string">
-                                            String
-                                        </SelectItem>
-                                        <SelectItem value="integer">
-                                            Integer
-                                        </SelectItem>
-                                        <SelectItem value="float">
-                                            Float
-                                        </SelectItem>
-                                        <SelectItem value="date">
-                                            Date
-                                        </SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                {column.dtype === "date" && (
-                                    <Select
-                                        onValueChange={(
-                                            value:
-                                                | "MM/DD/YYYY"
-                                                | "DD/MM/YYYY"
-                                                | "MM-DD-YYYY"
-                                                | "DD-MM-YYYY"
-                                        ) =>
-                                            handleColumnFormatChange(
-                                                column.name,
-                                                value
-                                            )
-                                        }
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select Date Format" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="MM/DD/YYYY">
-                                                MM/DD/YYYY
-                                            </SelectItem>
-                                            <SelectItem value="DD/MM/YYYY">
-                                                DD/MM/YYYY
-                                            </SelectItem>
-                                            <SelectItem value="MM-DD-YYYY">
-                                                MM-DD-YYYY
-                                            </SelectItem>
-                                            <SelectItem value="DD-MM-YYYY">
-                                                DD-MM-YYYY
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                )}
-                            </div>
-                        ))}
-                    </div>
+
                     <DialogFooter>
                         <Button
                             variant="outline"
