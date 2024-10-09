@@ -1,24 +1,27 @@
-# Use the official Maven image with Amazon Corretto 17 JDK
-# This provides a development environment for building Java applications with Maven and running them on the Amazon Corretto JDK.
-FROM maven:3.8.6-amazoncorretto-17 AS build
+# use full python image because mysqlclient requires compilation via gcc
+FROM python:3.10
+WORKDIR /api
 
-# Set the working directory inside the container to /app
-# This is where all your application files and source code will reside.
-WORKDIR /app
+# Python environment variables
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
 
-# Copy the pom.xml file to the working directory in the container
-# The pom.xml contains project dependencies, which are required to be downloaded for the build.
-COPY pom.xml .
+# Update system packages and install dependencies
+RUN apt-get update && apt-get install -y \
+    pkg-config \
+    libmariadb-dev-compat \
+    # Cleaning up package lists to reduce the image size
+    && rm -rf /var/lib/apt/lists/*
 
-# Install Maven project dependencies in offline mode
-# This command downloads and caches all the dependencies listed in the pom.xml.
-# Using '-B' enables batch mode to avoid interactive prompts, which is helpful in automated builds.
-RUN mvn dependency:go-offline -B 
+# Install mysqlclient using pip
+RUN pip install mysqlclient
 
-# Copy the entire source code from the local 'src' directory to the container
-# This will make your application’s source code available inside the container.
-COPY src ./src
 
-# Default command to run the Spring Boot application using Maven
-# The 'spring-boot:run' goal is used here for development purposes, allowing live reload if dependencies like DevTools are configured.
-CMD ["mvn", "spring-boot:run"]
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the source code
+COPY . .
+
+EXPOSE 8000
