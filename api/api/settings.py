@@ -54,10 +54,7 @@ INSTALLED_APPS = [
     'services',
     'user',
     'workbook',
-    'datatable',
     'chat',
-    'report',
-    'formula'
 ]
 
 MIDDLEWARE = [
@@ -128,6 +125,8 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+
+AUTH_USER_MODEL = 'user.ArcUser'  # Replace 'yourapp' with the actual app name
 
 
 # Internationalization

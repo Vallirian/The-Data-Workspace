@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import DataTableMeta, DataTableColumnMeta
+from workbook.models import DataTableMeta, DataTableColumnMeta
 
 class DataTableMetaSerializer(serializers.ModelSerializer):
     class Meta:

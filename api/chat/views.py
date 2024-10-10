@@ -3,22 +3,18 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import AnalysisChat, AnalysisChatMessage
 from workbook.models import Workbook
-from datatable.models import DataTableMeta, DataTableColumnMeta
+from workbook.models import DataTableMeta, DataTableColumnMeta
 from django.shortcuts import get_object_or_404
-from .analysis_serializers import (
+from .serializers import (
     AnalysisChatSerializer,
-    AnalysisChatCreateSerializer,
-    AnalysisdChatMessageCreateSerializer
+    AnalysisChatMessageSerializer
 )
 from services.ai_chat.agents import OpenAIAnalysisAgent
 from services.pql.translate import PQLTranslator
 from services.db_ops.db import TranslatedPQLExecution
 
-
-# List all chats or create a new chat using APIView
-class AnalysisChatListCreateView(APIView):
-    # GET: List all chats for the authenticated user, workbook, and data table
-    def get(self, request, workbook_id, table_id): 
+class AnalysisChatListAPIView(APIView):
+    def get(self, request, workbook_id, table_id, *args, **kwargs): 
         workbook = get_object_or_404(Workbook, id=workbook_id, user=request.user)
         data_table_meta = get_object_or_404(DataTableMeta, workbook=workbook, id=table_id)
         chats = AnalysisChat.objects.filter(user=request.user, workbook=workbook, dataTable=data_table_meta).order_by('-updatedAt')
@@ -26,12 +22,11 @@ class AnalysisChatListCreateView(APIView):
         serializer = AnalysisChatSerializer(chats, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    # POST: Create a new chat for a specific workbook and data table
-    def post(self, request, workbook_id, table_id):
+    def post(self, request, workbook_id, table_id, *args, **kwargs):
         workbook = get_object_or_404(Workbook, id=workbook_id, user=request.user)
         data_table_meta = get_object_or_404(DataTableMeta, workbook=workbook, id=table_id)
         
-        serializer = AnalysisChatCreateSerializer(data=request.data, context={
+        serializer = AnalysisChatSerializer(data=request.data, context={
             'request': request,
             'workbook': workbook,
             'dataTable': data_table_meta
@@ -40,74 +35,59 @@ class AnalysisChatListCreateView(APIView):
         if serializer.is_valid():
             chat = serializer.save()
             return Response(AnalysisChatSerializer(chat).data, status=status.HTTP_201_CREATED)
-        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-# Send a message to a chat using APIView
-class SendAnalysisMessageToChatView(APIView):
-    # GET: list all messages in the specified chat
-    def get(self, request, chat_id):
+
+class AnalysisChatDetailAPIView(APIView):
+    def get(self, request, chat_id, *args, **kwargs):
         chat = get_object_or_404(AnalysisChat, id=chat_id, user=request.user)
-        messages = AnalysisChatMessage.objects.filter(chat=chat).order_by('createdAt')
-        serializer = AnalysisdChatMessageCreateSerializer(messages, many=True)
+        messages = AnalysisChatMessage.objects.filter(chat=chat, user=request.user).order_by('createdAt')
+        serializer = AnalysisChatMessageSerializer(messages, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
 
     # POST: Send a message to the specified chat
-    def post(self, request, chat_id):
-        # get chat
+    def post(self, request, table_id, chat_id, *args, **kwargs):
         try:
-            chat = AnalysisChat.objects.get(id=chat_id, user=request.user)
+            datatable_meta = get_object_or_404(DataTableMeta, id=table_id, user=request.user)
+            datatable_column_meta = DataTableColumnMeta.objects.filter(dataTable=datatable_meta)
 
             # assert data exists
-            data_table = get_object_or_404(DataTableMeta, workbook=chat.workbook, id=chat.dataTable.id)
-            if not data_table:
+            if not datatable_meta:
                 return Response({'error': 'Data not found for workbook, please complete data extraction before analysis'}, status=status.HTTP_404_NOT_FOUND)
-            if not data_table.dataSourceAdded:
+            if not datatable_meta.dataSourceAdded:
                 return Response({'error': 'Data source not added, please complete data extraction before analysis'}, status=status.HTTP_400_BAD_REQUEST)
-            if not data_table.extractionStatus == 'success':
+            if not datatable_meta.extractionStatus == 'success':
                 return Response({'error': 'Data extraction was not succesful, please complete data extraction before analysis'}, status=status.HTTP_400_BAD_REQUEST)
+            if not datatable_column_meta:
+                return Response({'error': 'Data table columns not found'}, status=status.HTTP_404_NOT_FOUND)
             
-
+            chat = AnalysisChat.objects.get(id=chat_id, dataTable=datatable_meta, user=request.user)
             if chat.topic is None:
                 chat.topic = request.data.get('text')
-            chat.save()
+                chat.save()
+
         except Exception as e:
             return Response({'error': 'Chat not found'}, status=status.HTTP_404_NOT_FOUND)
-        
-        assert chat, "Chat not found"
 
         # Deserialize and validate the message payload
-        serializer = AnalysisdChatMessageCreateSerializer(
+        serializer = AnalysisChatMessageSerializer(
             data=request.data,
             context={'request': request, 'chat': chat}
         )
-
         if serializer.is_valid():
             serializer.save()
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-        # generate table and column information
-        try:
-            data_table_meta = get_object_or_404(DataTableMeta, workbook=chat.workbook, id=chat.dataTable.id)
-        except Exception as e:
-            return Response({'error': 'Data table not found'}, status=status.HTTP_404_NOT_FOUND)
-        
-        try:
-            data_table_column_meta = DataTableColumnMeta.objects.filter(dataTable=data_table_meta)
-        except Exception as e:
-            return Response({'error': 'Data table columns not found'}, status=status.HTTP_404_NOT_FOUND)
-        
+        # Get the table and column information
         _table_information = f"""Table information:\n
-        Table name: {data_table_meta.name}\n
-        Table description: {data_table_meta.description}\n
-        Table datasource: {data_table_meta.dataSource}\n
-        Table extraction status: {data_table_meta.extractionStatus}\n
-        Table extraction details: {data_table_meta.extractionDetails}\n"""
+        Table name: {datatable_meta.name}\n
+        Table description: {datatable_meta.description}\n
+        Table datasource: {datatable_meta.dataSource}\n
+        Table extraction status: {datatable_meta.extractionStatus}\n
+        Table extraction details: {datatable_meta.extractionDetails}\n"""
 
         _column_information = "Column information:\n"
-        for column in data_table_column_meta:
+        for column in datatable_column_meta:
             _column_information += f"""Column name: {column.name}\n
             Column description: {column.description}\n
             Column data type: {column.dtype}\n"""
@@ -120,11 +100,7 @@ class SendAnalysisMessageToChatView(APIView):
             agent.start_new_thread()
             chat.threadId = agent.thread_id
             chat.save()
-
-        assert agent.thread_id, "Chat thread ID not found"
-
             
-        # Send the message to the AI chat agent
         response = agent.send_message(table_informaiton=_table_information, column_informaion=_column_information)
         
         if response.get('success'):
@@ -133,7 +109,7 @@ class SendAnalysisMessageToChatView(APIView):
             assert isinstance(_pql_from_model, dict), "PQL is not a dictionary"
 
             # switch pql.table to the actual table name
-            _pql_from_model['TABLE'] = f'table___{data_table_meta.id}'
+            _pql_from_model['TABLE'] = f'table___{datatable_meta.id}'
 
             # Translate the PQL to SQL
             _sql_translator = PQLTranslator(pql=_pql_from_model)
@@ -142,11 +118,9 @@ class SendAnalysisMessageToChatView(APIView):
             if _sql_translator.errors:
                 return Response({'error': 'An error occured, please try again'}, status=status.HTTP_400_BAD_REQUEST)
             
-            print('sql', _sql_translator.translated_pql)
             # Execute the SQL query
             _sql_executor = TranslatedPQLExecution(translated_sql=_sql_translator.translated_pql)
             _sql_exec_status, _sql_exec_result =_sql_executor.execute()
-            print('sql exec status', _sql_exec_status, _sql_exec_result)
 
             assert _sql_exec_status, "SQL execution failed"
             assert _sql_exec_result, "SQL execution result not found"
@@ -167,7 +141,7 @@ class SendAnalysisMessageToChatView(APIView):
             )
             _new_model_message.save()
 
-            return Response(AnalysisdChatMessageCreateSerializer(_new_model_message).data, status=status.HTTP_201_CREATED)
+            return Response(AnalysisChatMessageSerializer(_new_model_message).data, status=status.HTTP_201_CREATED)
         else:
             return Response({'error': response.get('message')}, status=status.HTTP_400_BAD_REQUEST)
 

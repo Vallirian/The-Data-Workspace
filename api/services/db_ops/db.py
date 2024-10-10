@@ -85,9 +85,8 @@ class DataTableMeta:
         return self.table.name
 
 class RawDataExtraction:
-    def __init__(self, request: HttpRequest, workbook_id: str, table_id: str) -> None:
+    def __init__(self, request: HttpRequest, table_id: str) -> None:
         self.request = request
-        self.workbook_id = workbook_id
         self.table_id = table_id
         self.table = DataTableMeta(table_id)
         self._raw_data_table_name = f'table___{self.table_id}'

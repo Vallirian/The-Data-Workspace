@@ -1,6 +1,5 @@
 from rest_framework import serializers
-from .models import Report
-from workbook.models import Workbook
+from workbook.models import Report
 
 class ReportSerializer(serializers.ModelSerializer):
     workbookId = serializers.PrimaryKeyRelatedField(source='workbook.id', read_only=True)

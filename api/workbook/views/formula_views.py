@@ -1,9 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-from .models import Formula
-from .serializers import FormulaSerializer, FormulaValidateSerializer
+from workbook.models import Formula
+from workbook.serializers.formula_serializers import FormulaSerializer, FormulaValidateSerializer
 from workbook.models import Workbook
 from chat.models import AnalysisChatMessage
 from django.shortcuts import get_object_or_404
@@ -19,8 +18,8 @@ class FormulaListView(APIView):
     def post(self, request, workbook_id):
         if request.data is None:
             return Response({'error': 'Invalid request'}, status=status.HTTP_400_BAD_REQUEST)
-        if 'messageId' not in request.data:
-            return Response({'error': 'Message ID is required'}, status=status.HTTP_400_BAD_REQUEST)
+        if 'chatId' not in request.data:
+            return Response({'error': 'Chat ID is required'}, status=status.HTTP_400_BAD_REQUEST)
         
         # get message
         messageId = request.data['messageId']
@@ -49,53 +48,24 @@ class FormulaListView(APIView):
             return Response({'error': 'Error creating formula'}, status=status.HTTP_400_BAD_REQUEST)
 
 class FormulaDetailView(APIView):
-    def get(self, request, formula_id):
-        # GET Detail (Retrieve a single formula by ID)  
-        try:
-            formula = Formula.objects.get(id=formula_id, isActive=True)
-        except Formula.DoesNotExist:
-            return Response({'error': 'Formula not found'}, status=status.HTTP_404_NOT_FOUND)
-
+    def get(self, request, formula_id, *args, **kwargs):
+        formula = get_object_or_404(Formula, id=formula_id, isActive=True, user=request.user)
         serializer = FormulaSerializer(formula)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def patch(self, request, formula_id):
-        try:
-            formula = Formula.objects.get(pk=formula_id, isActive=True)
-        except Formula.DoesNotExist:
-            return Response({'error': 'Formula not found'}, status=status.HTTP_404_NOT_FOUND)
-
-        # Ensure that only 'isValidated' can be updated
-        serializer = FormulaValidateSerializer(formula, data=request.data, partial=True)
-        
-        if 'isValidated' not in request.data:
-            return Response({'error': 'Only the "isValidated" field can be updated.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, formula_id):
+    def delete(self, request, formula_id, *args, **kwargs):
         # DELETE (Soft delete - set isActive to False)  
-        try:
-            formula = Formula.objects.get(pk=formula_id)
-        except Formula.DoesNotExist:
-            return Response({'error': 'Formula not found'}, status=status.HTTP_404_NOT_FOUND)
-
+        formula = get_object_or_404(Formula, id=formula_id, isActive=True, user=request.user)
         formula.isActive = False
         formula.save()
-        return Response({'message': 'Formula deactivated successfully'}, status=status.HTTP_204_NO_CONTENT)
+        return Response({'message': 'Formula deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
     
 class FormulaDetailValueView(APIView):
-    def get(self, request, formula_id):
-        # GET Detail (Retrieve a single formula by ID)  
+    def get(self, request, formula_id, *args, **kwargs):
         try:
-            formula = Formula.objects.get(id=formula_id, isActive=True)
-            workbook = Workbook.objects.get(id=formula.workbook.id, user=request.user)  # Ensure user owns the workbook
-
+            formula = get_object_or_404(Formula, id=formula_id, isActive=True, user=request.user)
             _translated_sql = formula.translate_pql()
+
             if not _translated_sql:
                 return Response({'error': 'Error validating SQL'}, status=status.HTTP_400_BAD_REQUEST)
             
@@ -110,8 +80,5 @@ class FormulaDetailValueView(APIView):
 
             return Response({'value': list(_sql_exec_result[0].values())[0]}, status=status.HTTP_200_OK)
 
-
-        except Formula.DoesNotExist:
-            return Response({'error': 'Formula not found'}, status=status.HTTP_404_NOT_FOUND)
-        except Workbook.DoesNotExist:
-            return Response({'error': 'Workbook not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)

@@ -27,7 +27,7 @@ export default function Report({ workbookId }: { workbookId: string }) {
     const [formulaValues, setFormulaValues] = useState<{
         [key: string]: string;
     }>({});
-    const [editMode, setEditMode] = useState(false);
+    const [editMode, setEditMode] = useState(true);
 
     // Report
     useEffect(() => {

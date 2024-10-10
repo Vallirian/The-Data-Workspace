@@ -1,9 +1,11 @@
-# firebase_middleware.py
 from django.http import JsonResponse
 from firebase_admin import auth
 from django.utils.deprecation import MiddlewareMixin
 from django.urls import resolve
-from django.contrib.auth.models import User 
+
+from django.contrib.auth import get_user_model
+arcUser = get_user_model()
+
 
 class FirebaseTokenAuthMiddleware(MiddlewareMixin):
     def process_request(self, request):
@@ -15,14 +17,12 @@ class FirebaseTokenAuthMiddleware(MiddlewareMixin):
                 # Verify the token using Firebase Admin SDK
                 decoded_token = auth.verify_id_token(token)
                 firebase_uid = decoded_token['uid']  # Get the Firebase UID from the token
+                email = decoded_token.get('email', '')
 
-
-                # Fetch or create the user in Django based on the Firebase UID
-                # FIXME: replace the default incremental integer primary key with the Firebase UID
-                user, created = User.objects.get_or_create(
-                    username=firebase_uid, 
+                user, created = arcUser.objects.get_or_create(
+                    firebase_uid=firebase_uid,
                     defaults={
-                        'email': decoded_token.get('email', '')
+                        'email': email,
                     }
                 )
                 

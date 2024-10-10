@@ -1,16 +1,14 @@
 import uuid
 from django.db import models
 from django.contrib.auth import get_user_model
-from workbook.models import Workbook
-from datatable.models import DataTableMeta
 
 User = get_user_model()
 
 class AnalysisChat(models.Model):
     id = models.CharField(primary_key=True, default=uuid.uuid4, editable=False, unique=True, max_length=36)
     user = models.ForeignKey(User, related_name='analysis_chat', on_delete=models.CASCADE)
-    workbook = models.ForeignKey(Workbook, related_name='analysis_chat', on_delete=models.CASCADE)
-    dataTable = models.ForeignKey(DataTableMeta, on_delete=models.CASCADE, related_name='analysis_chat', null=True, blank=True)
+    workbook = models.ForeignKey('workbook.Workbook', on_delete=models.CASCADE, related_name='analysis_chat', null=True, blank=True)
+    dataTable = models.ForeignKey('workbook.DataTableMeta', on_delete=models.CASCADE, related_name='analysis_chat', null=True, blank=True)
     threadId = models.CharField(max_length=64, null=True, blank=True)
     updatedAt = models.DateTimeField(auto_now=True)
     topic = models.CharField(max_length=255, null=True, blank=True)
@@ -20,13 +18,13 @@ class AnalysisChat(models.Model):
 
 class AnalysisChatMessage(models.Model):
     USER_TYPES = (
-        ('user', 'User'),
-        ('model', 'Model')
+        ('user', 'user'),
+        ('model', 'model')
     )
 
     MESSAGE_TYPES = (
-        ('text', 'Text'),
-        ('pql', 'PQL')
+        ('text', 'text'),
+        ('pql', 'pql')
     )
 
     id = models.CharField(primary_key=True, default=uuid.uuid4, editable=False, unique=True, max_length=36)
@@ -41,6 +39,13 @@ class AnalysisChatMessage(models.Model):
     description = models.TextField(blank=True, null=True)
 
     messageType = models.CharField(max_length=5, choices=MESSAGE_TYPES, default='text')
+
+    retries = models.IntegerField(default=0)
+    full_conversation = models.TextField(blank=True, null=True) # to hold question and answer but with all retries
+    input_token = models.IntegerField(default=0)
+    output_token = models.IntegerField(default=0)
+
+    llmModel = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return f'{self.user.username}: {self.text[:50]}'
