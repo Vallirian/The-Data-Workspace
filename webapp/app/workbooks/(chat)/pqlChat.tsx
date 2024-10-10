@@ -91,7 +91,7 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
                 name: null,
                 description: null,
 
-                messageType: "text",
+                messageType: "text"
             };
 
             setMessages([...messages, _newMessage]);
@@ -178,7 +178,7 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
     const startNewChat = async () => {
         try {
             const response = await axiosInstance.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/chat/workbooks/${workbookId}/table/${tableId}/`
+                `${process.env.NEXT_PUBLIC_API_URL}/chat/workbooks/${workbookId}/table/${tableId}/analysis-chats/`,
             );
 
             const newChat: AnalysisChatInterface = {

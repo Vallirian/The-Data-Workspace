@@ -41,11 +41,9 @@ class AnalysisChatMessage(models.Model):
     messageType = models.CharField(max_length=5, choices=MESSAGE_TYPES, default='text')
 
     retries = models.IntegerField(default=0)
-    full_conversation = models.TextField(blank=True, null=True) # to hold question and answer but with all retries
-    input_token = models.IntegerField(default=0)
-    output_token = models.IntegerField(default=0)
-
-    llmModel = models.CharField(max_length=255, blank=True, null=True)
+    fullConversation = models.JSONField(default=list)
+    inputToken = models.IntegerField(default=0)
+    outputToken = models.IntegerField(default=0)
 
     def __str__(self):
         return f'{self.user.username}: {self.text[:50]}'

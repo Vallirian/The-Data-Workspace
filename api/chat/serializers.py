@@ -10,14 +10,14 @@ class AnalysisChatMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = AnalysisChatMessage
         fields = [
-            'id', 'chat', 'user', 'userType', 'createdAt', 'text', 'name', 
+            'id', 'user', 'userType', 'createdAt', 'text', 'name', 
             'description', 'messageType'
         ]
         read_only_fields = ['id', 'createdAt']  
 
     def create(self, validated_data):
         user = self.context['request'].user
-        chat = validated_data.get('chat')
+        chat = self.context['chat']
 
         message = AnalysisChatMessage.objects.create(
             user=user,
@@ -27,8 +27,9 @@ class AnalysisChatMessageSerializer(serializers.ModelSerializer):
             name=validated_data.get('name', None),
             description=validated_data.get('description', None),
             messageType=validated_data.get('messageType', 'text'),
-            input_token=validated_data.get('input_token', 0),
-            output_token=validated_data.get('output_token', 0)
+            inputToken=validated_data.get('input_token', 0),
+            outputToken=validated_data.get('output_token', 0),
+            fullConversation=validated_data.get('full_conversation', [])
         )
 
         return message
@@ -47,8 +48,10 @@ class AnalysisChatSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = self.context['request'].user
-        workbook = validated_data.get('workbook')
-        data_table = validated_data.get('dataTable')
+        workbook = self.context['workbook']
+        data_table = self.context['dataTable']
+
+        print(validated_data, user, workbook, data_table)
 
         analysis_chat = AnalysisChat.objects.create(
             user=user,

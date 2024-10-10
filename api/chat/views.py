@@ -23,8 +23,9 @@ class AnalysisChatListAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, workbook_id, table_id, *args, **kwargs):
-        workbook = get_object_or_404(Workbook, id=workbook_id, user=request.user)
-        data_table_meta = get_object_or_404(DataTableMeta, workbook=workbook, id=table_id)
+        print(request.data, workbook_id, table_id)
+        workbook = Workbook.objects.get(id=workbook_id, user=request.user)
+        data_table_meta = DataTableMeta.objects.get(id=table_id, workbook=workbook)
         
         serializer = AnalysisChatSerializer(data=request.data, context={
             'request': request,
@@ -66,6 +67,7 @@ class AnalysisChatDetailAPIView(APIView):
                 chat.save()
 
         except Exception as e:
+            print(e)
             return Response({'error': 'Chat not found'}, status=status.HTTP_404_NOT_FOUND)
 
         # Deserialize and validate the message payload
@@ -137,7 +139,11 @@ class AnalysisChatDetailAPIView(APIView):
                 pql=_pql_from_model,
                 name=_pql_from_model.get('NAME', 'No name'),
                 description=_pql_from_model.get('DESCRIPTION', 'No description'),
-                messageType='pql'
+                messageType='pql',
+                fullConversation=response.get('full_conversation', []),
+                inputToken=response.get('input_tokens', 0),
+                outputToken=response.get('output_tokens', 0),
+                retries=response.get('retries', 0)
             )
             _new_model_message.save()
 

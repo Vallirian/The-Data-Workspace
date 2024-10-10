@@ -9,9 +9,13 @@ class OpenAIAnalysisAgent:
         self.thread = None
         self.chat_id = chat_id
         self.thread_id = thread_id
+
         self.current_user_message = user_message
         self.current_agent_response = None
+        self.current_full_conversation = [self.current_user_message]
         
+        self.input_tokens = 0
+        self.output_tokens = 0
         self.retries = 0
         self.max_retries = 3
 
@@ -36,7 +40,11 @@ class OpenAIAnalysisAgent:
                 'success': False,
                 'message': "User message not found",
                 'chat_id': self.chat_id,
-                'thread_id': self.thread_id
+                'thread_id': self.thread_id,
+                'full_conversation': self.current_full_conversation,
+                'input_tokens': self.input_tokens,
+                'output_tokens': self.output_tokens,
+                'retries': self.retries
             }
         
         # continue the thread
@@ -51,12 +59,10 @@ class OpenAIAnalysisAgent:
         )
 
         while self.retries <= self.max_retries:
-            print('retries', self.retries)
-            print('current_user_message', self.current_user_message)
-
             _temp_run = self.client.beta.threads.runs.create_and_poll(
                 thread_id=self.thread.id,
                 assistant_id=self.agent.id,
+                model=os.getenv('OPEN_AI_MODEL'),
                 tool_choice=None
             )
             self.retries += 1
@@ -64,19 +70,18 @@ class OpenAIAnalysisAgent:
             if _temp_run.status == 'completed':
                 _temp_all_messages = self.client.beta.threads.messages.list(thread_id=self.thread.id)
                 self.current_agent_response = _temp_all_messages.data[0].content[0].text.value
-                print('current_agent_response', self.current_agent_response)
+                self.current_full_conversation.append(self.current_agent_response)
 
             # extract pql from the response
             _temp_json_extracted, _temp_pql_json = extract_json_from_md(self.current_agent_response)
-            print('json_extracted', _temp_json_extracted)
             if not _temp_json_extracted:
                 __temp_error_message = f"PQL JSON extraction failed\n error: {_temp_pql_json}"
+                self.current_full_conversation.append(__temp_error_message)
                 self.client.beta.threads.messages.create(
                     thread_id=self.thread.id,
                     role="user",
                     content=__temp_error_message
                 )
-                print('error_message', __temp_error_message)
                 continue
 
             # validate pql
@@ -86,27 +91,38 @@ class OpenAIAnalysisAgent:
             if pql_validator.errors:
                 _error_messages = '\n'.join(pql_validator.errors)
                 __temp_error_message = f"PQL validation failed\n errors: {_error_messages}"
+                self.current_full_conversation.append(__temp_error_message)
                 self.client.beta.threads.messages.create(
                     thread_id=self.thread.id,
                     role="user",
                     content=__temp_error_message
                 )
-                print('error_message from pql validaiton', __temp_error_message)
                 continue
 
             self.pql = _temp_pql_json
+
+            self.input_tokens += _temp_run.usage.prompt_tokens
+            self.output_tokens += _temp_run.usage.completion_tokens
 
             if self.pql:
                 return {
                     'success': True, 
                     'message': self.pql,
                     'chat_id': self.chat_id,
-                    'thread_id': self.thread_id
+                    'thread_id': self.thread_id,
+                    'full_conversation': self.current_full_conversation,
+                    'input_tokens': self.input_tokens,
+                    'output_tokens': self.output_tokens,
+                    'retries': self.retries
                 }
         
         return {
             'success': False,
             'message': f"Run failed to complete\n status: {_temp_run.status}\n details: {_temp_run.incomplete_details}",
             'chat_id': self.chat_id,
-            'thread_id': self.thread_id
+            'thread_id': self.thread_id,
+            'full_conversation': self.current_full_conversation,
+            'input_tokens': self.input_tokens,
+            'output_tokens': self.output_tokens,
+            'retries': self.retries
         }
