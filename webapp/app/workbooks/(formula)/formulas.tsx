@@ -43,7 +43,7 @@ export default function Formulas({
     const fetchFormulas = async () => {
         try {
             const response = await axiosInstance.get(
-                `${process.env.NEXT_PUBLIC_API_URL}/formulas/workbook/${workbookId}/`
+                `${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/formulas/`
             );
             const fetchedFormulas: FormulaInterface[] = response.data;
             setFormulas(fetchedFormulas);
@@ -60,7 +60,7 @@ export default function Formulas({
     const deleteFormula = async (id: string) => {
         try {
             await axiosInstance.delete(
-                `${process.env.NEXT_PUBLIC_API_URL}/formulas/formula/${id}/`
+                `${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/formulas/${id}`
             );
             setFormulas(formulas.filter((formula) => formula.id !== id));
         } catch (error: any) {

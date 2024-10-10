@@ -21,6 +21,9 @@ ALLOWED_DATE_FORMATS = [
 
 MAX_COLUMNS = 50
 
+DATATABLE_META_DB_TABLE_NAME = 'workbook_datatablemeta'
+DATATABLE_COLUMN_META_DB_TABLE_NAME = 'workbook_datatablecolumnmeta'
+
 def dictfetchall(cursor):
     "Return all rows from a cursor as a list of dicts"
 

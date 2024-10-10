@@ -22,8 +22,13 @@ import axiosInstance from "@/services/axios";
 import { DataTableMetaInterface, WorkbookInterface } from "@/interfaces/main";
 import { addDays, format } from "date-fns";
 import ArcNavbar from "@/components/arcNavbar";
+import { useToast } from "@/hooks/use-toast";
+
+
 
 export default function WorkbooksPage() {
+    const { toast } = useToast();
+
     const [workbooks, setWorkbooks] = useState<WorkbookInterface[]>([]);
     const [tableMetas, setTableMetas] = useState<DataTableMetaInterface[]>([]);
     const router = useRouter();
@@ -48,15 +53,20 @@ export default function WorkbooksPage() {
             );
             const tableMetasData = await Promise.all(tableMetaPromises);
             setTableMetas(tableMetasData);
-        } catch (error) {
-            console.error("Error fetching workbooks or metadata", error);
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Error getting workbooks",
+                description:
+                    error.response?.data?.error || "Failed to load workbooks",
+            });
         }
     };
 
     const fetchTableMeta = async (workbookId: string, tableId: string) => {
         try {
             const response = await axiosInstance.get(
-                `${process.env.NEXT_PUBLIC_API_URL}/table-meta/${workbookId}/${tableId}/`
+                `${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/datatable/${tableId}`
             );
             return response.data;
         } catch (error) {

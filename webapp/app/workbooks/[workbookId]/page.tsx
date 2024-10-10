@@ -13,24 +13,48 @@ import ArcDataTable from "../(table)/dataTable";
 import AnalysisChat from "../(chat)/pqlChat";
 import Formulas from "../(formula)/formulas";
 import Report from "../(report)/report";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Page() {
+    const { toast } = useToast();
+
     const { workbookId } = useParams();
     const [workbook, setWorkbook] = useState<WorkbookInterface | null>(null);
+
     // Fetch tableId when workbookId is available
     useEffect(() => {
         if (workbookId) {
-            axiosInstance.get(`/workbooks/${workbookId}/`).then((response) => {
-                setWorkbook(response.data);
-            });
+            fetchWorkbook();
         }
     }, [workbookId]);
+
+    const fetchWorkbook = async () => {
+        try {
+            // Fetch all workbooks
+            const workbooksResponse = await axiosInstance.get(
+                `${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/`
+            );
+            const workbooksData = await workbooksResponse.data;
+            setWorkbook(workbooksData);
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Error to get workbook",
+                description:
+                    error.response?.data?.error || "Failed to load workbook",
+            });
+        }
+    };
 
     const [activeLeftTab, setActiveLeftTab] = useState("table");
     const [activeRightTab, setActiveRightTab] = useState("analysisChat");
 
     if (!workbook || !workbookId || !workbook.dataTable) {
-        return <div>Loading...</div>;
+        return (
+            <div className="flex flex-col justify-between m-auto items-center h-screen bg-background">
+                <div>Loading...</div>;
+            </div>
+        );
     }
 
     return (
@@ -58,10 +82,10 @@ export default function Page() {
                         className="w-auto"
                     >
                         <TabsList>
-                            <TabsTrigger value="analysisChat">Analysis</TabsTrigger>
-                            <TabsTrigger value="savedFormula">
-                                KPIs
+                            <TabsTrigger value="analysisChat">
+                                Analysis
                             </TabsTrigger>
+                            <TabsTrigger value="savedFormula">KPIs</TabsTrigger>
                         </TabsList>
                     </Tabs>
                     <ArcAvatar />
@@ -89,10 +113,16 @@ export default function Page() {
                 </div>
                 <div className="w-1/4 border-l">
                     {activeRightTab === "analysisChat" && (
-                        <AnalysisChat workbookId={workbookId as string} tableId={workbook.dataTable} />
+                        <AnalysisChat
+                            workbookId={workbookId as string}
+                            tableId={workbook.dataTable}
+                        />
                     )}
                     {activeRightTab === "savedFormula" && (
-                        <Formulas workbookId={workbookId as string} isActive={activeRightTab === "savedFormula"}/>
+                        <Formulas
+                            workbookId={workbookId as string}
+                            isActive={activeRightTab === "savedFormula"}
+                        />
                         // trigger refresh when tab is active
                     )}
                 </div>

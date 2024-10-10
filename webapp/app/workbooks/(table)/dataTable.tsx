@@ -58,7 +58,7 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
     const getData = async () => {
         try {
             const response = await axiosInstance.get(
-                `${process.env.NEXT_PUBLIC_API_URL}/table-meta/${workbookId}/${tableId}/raw/`
+                `${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/datatable/${tableId}/raw/`
             );
 
             setData(response.data.items);
@@ -86,7 +86,7 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
     const getTableMeta = async () => {
         try {
             const response = await axiosInstance.get(
-                `${process.env.NEXT_PUBLIC_API_URL}/table-meta/${workbookId}/${tableId}/`
+                `${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/datatable/${tableId}/`
             );
 
             setTableMeta(response.data);
@@ -116,7 +116,7 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
     const getTableMetaColumns = async () => {
         try {
             const response = await axiosInstance.get(
-                `${process.env.NEXT_PUBLIC_API_URL}/table-meta/${workbookId}/${tableId}/columns/`
+                `${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/datatable/${tableId}/columns/`
             );
             setColumns(response.data);
         } catch (error) {
@@ -196,7 +196,7 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
     const putTableMeta = async (updatedMeta: DataTableMetaInterface) => {
         try {
             await axiosInstance.put(
-                `${process.env.NEXT_PUBLIC_API_URL}/table-meta/${workbookId}/${tableId}/`,
+                `${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/datatable/${tableId}/`,
                 updatedMeta // Send the updated tableMeta
             );
 
@@ -247,7 +247,7 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
     const putColumnMeta = async (column: DataTableColumnMetaInterface) => {
         try {
             await axiosInstance.put(
-                `${process.env.NEXT_PUBLIC_API_URL}/table-meta/${workbookId}/${tableId}/columns/${column.id}/`,
+                `${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/datatable/${tableId}/columns/${column.id}/`,
                 column // Send the updated column directly
             );
 

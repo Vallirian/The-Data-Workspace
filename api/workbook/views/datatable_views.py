@@ -106,6 +106,7 @@ class DataTableExtractionAPIView(APIView):
             _column.description = column['description']
             _column.dataTable = datatable_meta
             _column.order = idx + 1  # Set the order based on the index
+            _column.user = request.user
             _columns.append(_column)
         DataTableColumnMeta.objects.bulk_create(_columns)
 

@@ -81,7 +81,7 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
 
     useEffect(() => {
         if (data.length > 0) {
-            setTableName("imported_table"); // Set table name from file, or adjust dynamically
+            setTableName("Untitled Table"); // Set table name from file, or adjust dynamically
         }
     }, [data]);
 
@@ -215,7 +215,7 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
 
         try {
             const uploadDataPostResponse = await axiosInstance.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/table-meta/${workbookId}/${tableId}/extract/`,
+                `${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/datatable/${tableId}/extract/`,
                 {
                     data: data,
                     columns: columns,
@@ -234,6 +234,7 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
                     : "An error occurred while saving data",
                 action: <ToastAction altText="Ok">Ok</ToastAction>,
             });
+            setIsOpen(false);
             return;
         }
 
@@ -249,7 +250,7 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
     const handleDelete = async () => {
         try {
             const deleteDataResponse = await axiosInstance.delete(
-                `${process.env.NEXT_PUBLIC_API_URL}/table-meta/${workbookId}/${tableId}/extract/`
+                `${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/datatable/${tableId}/extract/`
             );
 
             refreshTableMeta();
@@ -280,7 +281,7 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
         const fetchTableMeta = async () => {
             try {
                 const response = await axiosInstance.get(
-                    `${process.env.NEXT_PUBLIC_API_URL}/table-meta/${workbookId}/${tableId}/`
+                    `${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/datatable/${tableId}/`
                 );
                 setTableMeta(response.data);
             } catch (error) {
@@ -294,16 +295,25 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
     const refreshTableMeta = async () => {
         try {
             const response = await axiosInstance.get(
-                `${process.env.NEXT_PUBLIC_API_URL}/table-meta/${workbookId}/${tableId}/`
+                `${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/datatable/${tableId}/`
             );
             setTableMeta(response.data);
         } catch (error) {
-            console.error("Error refreshing table meta", error);
+            toast({
+                variant: "destructive",
+                title: "Error refreshing table meta",
+                description: "An error occurred while refreshing table meta",
+                action: <ToastAction altText="Ok">Ok</ToastAction>,
+            });
         }
     };
 
     if (!workbookId || !tableId) {
-        return <div>Loading...</div>;
+        return (
+            <div className="flex flex-col justify-between m-auto items-center h-screen bg-background">
+                <div>Loading...</div>;
+            </div>
+        );
     }
 
     return (
@@ -318,7 +328,7 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
                     <Button
                         variant="link"
                         onClick={() => {
-                            if (tableMeta?.dataSourceAdded) {
+                            if ((tableMeta?.dataSourceAdded)) {
                                 console.log("Data source already added");
                                 toast({
                                     variant: "destructive",

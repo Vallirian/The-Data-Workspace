@@ -57,7 +57,7 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
         const fetchMessages = async () => {
             try {
                 const response = await axiosInstance.get(
-                    `${process.env.NEXT_PUBLIC_API_URL}/chat/analysis/${activeChatId}/`
+                    `${process.env.NEXT_PUBLIC_API_URL}/chat/workbooks/${workbookId}/table/${tableId}/analysis-chats/${activeChatId}/`
                 );
                 const fetchedMessages: AnalysisChatMessageInterface[] =
                     response.data || [];
@@ -100,7 +100,7 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
             try {
                 setWaitingServerMessage(true);
                 const _newMessageResponse = await axiosInstance.post(
-                    `${process.env.NEXT_PUBLIC_API_URL}/chat/analysis/${activeChatId}/`,
+                    `${process.env.NEXT_PUBLIC_API_URL}/chat/workbooks/${workbookId}/table/${tableId}/analysis-chats/${activeChatId}/`,
                     _newMessage
                 );
                 const newMessageResponseData: AnalysisChatMessageInterface =
@@ -131,7 +131,7 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
     const saveFormula = async (message: AnalysisChatMessageInterface) => {
         try {
             await axiosInstance.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/formulas/workbook/${workbookId}/`,
+                `${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/formulas/`,
                 {
                     messageId: message.id
                 }
@@ -154,7 +154,7 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
         const fetchChats = async () => {
             try {
                 const response = await axiosInstance.get(
-                    `${process.env.NEXT_PUBLIC_API_URL}/chat/analysis/workbook/${workbookId}/table/${tableId}/`
+                    `${process.env.NEXT_PUBLIC_API_URL}/chat/workbooks/${workbookId}/table/${tableId}/analysis-chats/`
                 );
                 const fetchedChats: AnalysisChatInterface[] =
                     response.data || [];
@@ -178,7 +178,7 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
     const startNewChat = async () => {
         try {
             const response = await axiosInstance.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/chat/analysis/workbook/${workbookId}/table/${tableId}/`
+                `${process.env.NEXT_PUBLIC_API_URL}/chat/workbooks/${workbookId}/table/${tableId}/`
             );
 
             const newChat: AnalysisChatInterface = {

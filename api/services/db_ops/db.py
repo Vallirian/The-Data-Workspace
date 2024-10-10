@@ -36,8 +36,8 @@ class DataTableMeta:
         self.columns = []
 
     def get_column_meta(self):
-        query = """
-            SELECT * FROM datatable_datatablecolumnmeta WHERE dataTable_id = %s
+        query = f"""
+            SELECT * FROM `{db_hlp.DATATABLE_COLUMN_META_DB_TABLE_NAME}` WHERE dataTable_id = %s
         """
 
         with connection.cursor() as cursor:
