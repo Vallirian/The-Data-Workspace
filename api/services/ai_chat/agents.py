@@ -12,7 +12,7 @@ class OpenAIAnalysisAgent:
 
         self.current_user_message = user_message
         self.current_agent_response = None
-        self.current_full_conversation = [self.current_user_message]
+        self.current_full_conversation = []
         
         self.input_tokens = 0
         self.output_tokens = 0
@@ -52,6 +52,7 @@ class OpenAIAnalysisAgent:
             self.thread = self.client.beta.threads.retrieve(thread_id=self.thread_id)
 
         _temp_user_message = AnalysisUserMessage(user_message=self.current_user_message, table_information=table_informaiton, column_information=column_informaion)
+        self.current_full_conversation.append(_temp_user_message.final_message)
         self.current_user_message = self.client.beta.threads.messages.create(
             thread_id=self.thread.id,
             role=_temp_user_message.role,
