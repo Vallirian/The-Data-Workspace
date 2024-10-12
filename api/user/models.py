@@ -26,8 +26,11 @@ class ArcUser(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
-    max_data_allowed_bytes = models.FloatField(default=0.0)
-    max_token_allowed = models.IntegerField(default=0)
+
+    TIER_CHOICES = [
+        ('free', 'free'),
+    ]
+    tier = models.CharField(max_length=10, choices=TIER_CHOICES, default='free')
 
     objects = ArcUserManager()
 

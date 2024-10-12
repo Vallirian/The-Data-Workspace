@@ -7,7 +7,6 @@ def generate_create_table_sql(table_name, columns):
     
     # Add each column name and its data type
     column_definitions = []
-    print('columns to create sql with', columns)
     for column_name, data_type in columns:
         column_definitions.append(f" `{column_name}` {data_type}")
     
@@ -52,15 +51,12 @@ def generate_insert_data_sql(table_name, rows, column_formats: dict):
         for col in raw_columns:
             value = row.get(col)
             column_format = column_formats.get(col) 
-            print('value', value, 'column_format', column_format)
             if column_format in db_hlp.ALLOWED_DATE_FORMATS:
                 formatted_date = validate_and_format_date(value, column_format)
                 row_values.append(formatted_date)
-                print('formatted_date', formatted_date)
             else:
                 # Handle generic values (treat all non-DATE fields as is)
                 row_values.append(value)
-            print('row_values', row_values)
             # Append a placeholder for each value
             formatted_values.append('%s')
 
@@ -87,6 +83,14 @@ def gen_get_raw_data_sql(table_name, page, page_size):
 
 def gen_get_raw_data_count_sql(table_name):
     return f"SELECT COUNT(*) as count FROM `{table_name}`;", []
+
+def gen_raw_data_sizes_mb_sql(table_names: list, returned_column_name: str):
+    return f"""
+        SELECT
+            ROUND((data_length + index_length) / 1024 / 1024, 2) AS {returned_column_name}
+        FROM information_schema.tables
+        WHERE table_name IN ({', '.join(['%s'] * len(table_names))});
+    """, table_names
 
 if __name__ == "__main__":
     pass

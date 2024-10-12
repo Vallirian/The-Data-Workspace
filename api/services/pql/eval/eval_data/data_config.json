@@ -1,0 +1,63 @@
+{
+    "Orders_oct_12_2024_20_00": {
+        "table_description": "Orders table",
+        "columns": {
+            "order_id": {
+                "dtype": "string",
+                "format": "",
+                "description": "Order ID"
+            },
+            "quantity": {
+                "dtype": "float",
+                "format": "",
+                "description": "Quantity of the order"
+            },
+            "date": {
+                "dtype": "date",
+                "format": "DD/MM/YYYY",
+                "description": "Order date"
+            },
+            "price": {
+                "dtype": "float",
+                "format": "",
+                "description": "Price of the order"
+            },
+            "material": {
+                "dtype": "string",
+                "format": "",
+                "description": "Material of the order"
+            },
+            "customer": {
+                "dtype": "string",
+                "format": "",
+                "description": "Customer name"
+            }
+        },
+        "user_questions": {
+            "simple_questions": [
+                {
+                    "question": "What is the total price?",
+                    "expected_value": 2841.770004272461
+                },
+                {
+                    "question": "What is the total price of orders with quantity greater than 10?",
+                    "expected_value": 2755.770004272461
+                },
+                {
+                    "question": "What is the total price of orders with quantity greater than 10 and price greater than 100?", 
+                    "expected_value": 2162.770004272461
+                }
+            ],
+            "medium_questions": [
+                {
+                    "question": "What is the total price of orders with quantity greater than 10 and price greater than 100 and order date greater than 2020-01-01?", 
+                    "expected_value": 1097.770004272461
+                },
+                {
+                    "question": "What is the total price of orders with quantity greater than 10 and price greater than 100 and order date greater than 2020-01-01 and order date less than 2021-01-01?",
+                    "expected_value": null
+                }
+            ]
+        }
+    }
+}

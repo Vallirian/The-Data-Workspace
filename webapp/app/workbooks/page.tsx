@@ -66,7 +66,7 @@ export default function WorkbooksPage() {
     const fetchTableMeta = async (workbookId: string, tableId: string) => {
         try {
             const response = await axiosInstance.get(
-                `${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/datatable/${tableId}`
+                `${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/datatable/${tableId}/`
             );
             return response.data;
         } catch (error) {

@@ -1,0 +1,10 @@
+{
+    "eval_oct_12_2024_20_00": {
+        "model": "OPEN_AI_MODEL",
+        "table_name_provided": true,
+        "table_descrition_provided": false,
+        "column_names_provided": true,
+        "column_descriptions_provided": false,
+        "column_dtypes_provided": true
+    }
+}

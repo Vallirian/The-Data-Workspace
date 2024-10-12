@@ -7,11 +7,15 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import axiosInstance from "@/services/axios";
+import { UserInfoInterface } from "@/interfaces/main";
 
 export default function ArcAvatar() {
     const [user, setUser] = useState<User | null>(null);
+    const [userInfo, setUserInfo] = useState<UserInfoInterface | null>(null);
 
     // Fetch the authenticated user's info
     useEffect(() => {
@@ -21,6 +25,41 @@ export default function ArcAvatar() {
 
         return () => unsubscribe(); // Cleanup the subscription
     }, []);
+
+    // get account info
+    useEffect(() => {
+        if (user) {
+            fetchUserInfo();
+        }
+    }, [user]);
+    const fetchUserInfo = async () => {
+        try{
+            const userInfo = await axiosInstance.get(
+                `${process.env.NEXT_PUBLIC_API_URL}/user/`
+            )
+            console.log(userInfo.data)
+            setUserInfo(userInfo.data)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const getAverageTokenUtilization = () => {
+        if (!userInfo) return "--";
+        const avgInputTokenUtilization = userInfo.inputTokenUtilization / userInfo.inputTokenLimit;
+        const avgOutputTokenUtilization = userInfo.outputTokenUtilization / userInfo.outputTokenLimit;
+        console.log(avgInputTokenUtilization, avgOutputTokenUtilization)
+        return (
+            ((avgInputTokenUtilization + avgOutputTokenUtilization) / 2) * 100
+        ).toFixed(2);
+    }
+
+    const getAverageDataUtilization = () => {
+        if (!userInfo) return "--";
+        return (
+            (userInfo.dataUtilizationMB / userInfo.dataLimitMB) * 100
+        ).toFixed(2);
+    }
 
     return (
         <DropdownMenu>
@@ -37,8 +76,8 @@ export default function ArcAvatar() {
                     {user?.displayName || "User"}
                 </DropdownMenuItem>
                 <DropdownMenuItem>Logout</DropdownMenuItem>
-                <DropdownMenuItem>Used Token: -- / --</DropdownMenuItem>
-                <DropdownMenuItem>Used Data: -- / --</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>Token: {getAverageTokenUtilization()}% | Data: {getAverageDataUtilization()}%</DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
     );

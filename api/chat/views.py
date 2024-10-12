@@ -23,7 +23,6 @@ class AnalysisChatListAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, workbook_id, table_id, *args, **kwargs):
-        print(request.data, workbook_id, table_id)
         workbook = Workbook.objects.get(id=workbook_id, user=request.user)
         data_table_meta = DataTableMeta.objects.get(id=table_id, workbook=workbook)
         

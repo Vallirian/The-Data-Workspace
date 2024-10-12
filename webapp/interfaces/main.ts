@@ -4,6 +4,16 @@ export interface UserInterface {
     displayName: string | null;
 }
 
+export interface UserInfoInterface {
+    inputTokenLimit: number;
+    outputTokenLimit: number;
+    inputTokenUtilization: number;
+    outputTokenUtilization: number;
+    tokenLimitExceeded: boolean;
+    dataLimitMB: number;
+    dataUtilizationMB: number;
+}
+
 export interface WorkbookInterface {
     id: string;
     createdAt: Date;

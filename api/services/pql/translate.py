@@ -179,15 +179,102 @@ class FilterBlock:
             conditional_query += f"""`{column}` {self.comparison_operator} {_parsed_value} AND """
            
         _query = f'''
-            , `{self.output_latest_table}` AS (
+            `{self.output_latest_table}` AS (
                 SELECT *
                 FROM `{self.input_latest_table}`
                 WHERE {conditional_query[:-5]}
             )
         '''
+        print(_query, conditional_query)
+
+        return _query
+
+class ExtensionBlock:
+    def __init__(self, pql_block: dict, input_latest_table: str) -> None:
+        '''
+        creates a Common Table Expression (CTE) for an extension block in SQL
+        return:
+            - CTE which can be appended to an SQL query as a string
+        '''
+        self.pql_block = pql_block
+        self.input_latest_table = input_latest_table
+        self.output_latest_table = hlp.create_latest_table_name()
+        
+        self.columns = []
+        self.extension_operator = None
+        self._as = None
+
+        self.extract_extension_block()
+    
+    def extract_extension_block(self) -> None:
+        self.columns = self.pql_block['EXTENSION_BLOCK']['COLUMNS']
+        self.extension_operator = self.pql_block['EXTENSION_BLOCK']['OPERATOR']
+        self._as = self.pql_block['EXTENSION_BLOCK']['AS']
+
+    def parse_to_sql(self) -> str:
+        _additional_columns = ''
+        for column in self.columns:
+            _operator_class = hlp.OPERATOR_CLASS_MAP[self.extension_operator]
+            _operator_instance = globals()[_operator_class](self.extension_operator, column, self._as)
+            assert _operator_instance.validate(), f'Validation error for operator {self.extension_operator}'
+            _additional_columns += _operator_instance.parse_to_sql() + ', '
+
+        _query = f'''
+            `{self.output_latest_table}` AS (
+                SELECT *, {_additional_columns[:-2]}
+                FROM `{self.input_latest_table}`
+            )
+        '''
+
+        return _query
+
+
+class GroupingBlock:
+
+    def __init__(self, pql_block: dict, input_latest_table: str) -> None:
+        '''
+        creates a Common Table Expression (CTE) for a grouping block in SQL
+        return:
+            - CTE which can be appended to an SQL query as a string
+        '''
+        self.pql_block = pql_block
+        self.input_latest_table = input_latest_table
+        self.output_latest_table = hlp.create_latest_table_name()
+        
+        self.columns = []
+        self.group_by_columns = []
+
+        self.extract_grouping_block()
+    
+    def extract_grouping_block(self) -> None:
+        self.columns = self.pql_block['GROUPING_BLOCK']['COLUMNS']
+        self.group_by_column = self.pql_block['GROUPING_BLOCK']['GROUP_BY']
+        self.grouping_operators = self.pql_block['GROUPING_BLOCK']['GROUPING_OPERATORS']
+
+    def parse_to_sql(self) -> str:
+        _columns = ''
+
+        # parse grouping operators
+        for grp_op in self.grouping_operators:
+            operator_class = hlp.OPERATOR_CLASS_MAP[grp_op['OPERATOR']]
+            operator_instance = globals()[operator_class](grp_op['OPERATOR'], grp_op['COLUMNS'], grp_op['AS'])
+            assert operator_instance.validate(), f'Validation error for operator {grp_op["OPERATOR"]}'
+
+            _columns += operator_instance.parse_to_sql() + ', '
+        _columns = _columns[:-2]
+
+        _query = f'''
+            `{self.output_latest_table}` AS 
+                (
+                    SELECT {self.group_by_column}, {_columns}
+                    FROM `{self.input_latest_table}`
+                    GROUP BY {self.group_by_column}
+                )
+        '''
 
         return _query
     
+
 class ScalarBlock:
     def __init__(self, pql_block: dict, input_latest_table: str) -> None:
         '''
@@ -212,17 +299,16 @@ class ScalarBlock:
     def parse_to_sql(self) -> str:
         operator_class = hlp.OPERATOR_CLASS_MAP[self.operator]
         operator_instance = globals()[operator_class](self.operator, self.columns, self.as_column)
-
         assert operator_instance.validate(), f'Validation error for operator {self.operator}'
         
         _query = f'''
             SELECT {operator_instance.parse_to_sql()}
             FROM `{self.input_latest_table}`;
-        '''
-            
+        ''' 
 
         return _query
     
+
 class PQLTranslator:
     def __init__(self, pql: dict) -> None:
         self.pql = pql
@@ -247,22 +333,40 @@ class PQLTranslator:
         _ctes = []
 
         # create the initial latest table
-        self.translated_pql = f"WITH `{self.input_latest_table}` AS (\nSELECT * FROM `{self.pql['TABLE']}`\n)"
+        self.translated_pql = f"WITH \n`{self.input_latest_table}` AS (\nSELECT * FROM `{self.pql['TABLE']}`\n)"
 
         # parse blocks
         for block in _blocks:
+            # work on grouping and filter blocks separately because they require a CTE
             if list(block.keys())[0] != 'SCALAR_BLOCK':
                 if list(block.keys())[0] == 'FILTER_BLOCK':
-                    filter_block = FilterBlock(pql_block=block, input_latest_table=self.input_latest_table)
-                    self.input_latest_table = filter_block.output_latest_table
-                    _ctes.append(filter_block.parse_to_sql())
+                        filter_block = FilterBlock(pql_block=block, input_latest_table=self.input_latest_table)
+                        _filter_block_parsed_sql = filter_block.parse_to_sql()
+                        self.input_latest_table = filter_block.output_latest_table
+                        _ctes.append(_filter_block_parsed_sql)
+                    
+                elif list(block.keys())[0] == 'GROUPING_BLOCK':
+                    grouping_block = GroupingBlock(pql_block=block, input_latest_table=self.input_latest_table)
+                    _grouping_block_parsed_sql = grouping_block.parse_to_sql()
+                    self.input_latest_table = grouping_block.output_latest_table
+                    _ctes.append(_grouping_block_parsed_sql)
 
-                self.translated_pql += ', '.join(_ctes)
+                elif list(block.keys())[0] == 'EXTENSION_BLOCK':
+                    extension_block = ExtensionBlock(pql_block=block, input_latest_table=self.input_latest_table)
+                    _extension_block_parsed_sql = extension_block.parse_to_sql()
+                    self.input_latest_table = extension_block.output_latest_table
+                    _ctes.append(_extension_block_parsed_sql)
 
-            else:
-                if list(block.keys())[0] == 'SCALAR_BLOCK':
+                else:
+                    raise ValueError(f'Invalid block type: {list(block.keys())[0]}')
+
+        if len(_ctes) > 1:
+            self.translated_pql += ',\n'+','.join(_ctes)
+        elif len(_ctes) == 1:
+            self.translated_pql += ',\n' + _ctes[0]
+                    
+        for block in _blocks:
+            if list(block.keys())[0] == 'SCALAR_BLOCK':
                     scalar_block = ScalarBlock(pql_block=block, input_latest_table=self.input_latest_table)
                     self.translated_pql += scalar_block.parse_to_sql()
-
-
-        
+                

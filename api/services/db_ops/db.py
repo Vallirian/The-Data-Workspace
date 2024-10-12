@@ -208,3 +208,20 @@ class TranslatedPQLExecution:
         except Exception as e:
             print(f'Error on execution: {e}')
             return False, str(e)       
+        
+class RawDataUtils:
+    def __init__(self) -> None:
+        pass
+
+    def get_raw_data_size_mb(self, table_ids: list):
+        _col_name = 'size_mb'
+        _table_names = [f'table___{table_id}' for table_id in table_ids]
+        _query, _inputs = qf.gen_raw_data_sizes_mb_sql(_table_names, _col_name)
+
+        with connection.cursor() as cursor:
+            cursor.execute(_query, _inputs)
+            result = db_hlp.dictfetchall(cursor)
+            if not result:
+                return False, 'No data found'
+            
+            return True, result[0][_col_name]
