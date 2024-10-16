@@ -6,5 +6,14 @@
         "column_names_provided": true,
         "column_descriptions_provided": false,
         "column_dtypes_provided": true
+    },
+    "eval_oct_16_2024_20_00": {
+        "model": "OPEN_AI_MODEL",
+        "table_name_provided": true,
+        "table_descrition_provided": false,
+        "column_names_provided": true,
+        "column_descriptions_provided": false,
+        "column_dtypes_provided": true,
+        "question_generation_prompt": "This is data for testing an app to generate SQL to answer user queries. Using these data and questions you generate, large language models will generate SQL and be evaluated on the result. The target audience for the app is data analysts. The scope is business data, so the target audience will be doing business analysis. Currently the app answers only single-value questions (questions that can be answered by single value like a KPI instead of multiple values like a chart). The app supports 5 data types: string, integer, float, date, and null. To evaluate the app, we need to generate questions that can be answered by SQL queries on this data. The questions should be in different complexities - from level_0 to level_5. Please generate three valid questions of each complexity level and three invalid questions of each complexity level. Please provide the the questions in JSON. For each, use {question: ---, expected_value: ---} format."
     }
 }

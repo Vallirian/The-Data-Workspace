@@ -44,13 +44,13 @@
                     "expected_value": 2755.770004272461
                 },
                 {
-                    "question": "What is the total price of orders with quantity greater than 10 and price greater than 100?", 
+                    "question": "What is the total price of orders with quantity greater than 10 and price greater than 100?",
                     "expected_value": 2162.770004272461
                 }
             ],
             "medium_questions": [
                 {
-                    "question": "What is the total price of orders with quantity greater than 10 and price greater than 100 and order date greater than 2020-01-01?", 
+                    "question": "What is the total price of orders with quantity greater than 10 and price greater than 100 and order date greater than 2020-01-01?",
                     "expected_value": 1097.770004272461
                 },
                 {
@@ -59,5 +59,191 @@
                 }
             ]
         }
+    },
+    "Orders_oct_16_2024_20_00": {
+        "table_description": "Orders table",
+        "columns": {
+            "order_id": {
+                "dtype": "string",
+                "format": "",
+                "description": "Order ID"
+            },
+            "quantity": {
+                "dtype": "float",
+                "format": "",
+                "description": "Quantity of the order"
+            },
+            "date": {
+                "dtype": "date",
+                "format": "DD/MM/YYYY",
+                "description": "Order date"
+            },
+            "price": {
+                "dtype": "float",
+                "format": "",
+                "description": "Price of the order"
+            },
+            "material": {
+                "dtype": "string",
+                "format": "",
+                "description": "Material of the order"
+            },
+            "customer": {
+                "dtype": "string",
+                "format": "",
+                "description": "Customer name"
+            }
+        }
+        // "user_questions": {
+        //     "valid_questions": {
+        //         "level_0": [
+        //             {
+        //                 "question": "What is the total number of orders?",
+        //                 "expected_value": 23
+        //             },
+        //             {
+        //                 "question": "What is the average price of an order?",
+        //                 "expected_value": 123.55521757706352
+        //             },
+        //             {
+        //                 "question": "What is the most recent order date?",
+        //                 "expected_value": "2024-03-03"
+        //             }
+        //         ],
+        //         "level_1": [
+        //             {
+        //                 "question": "How many orders were placed for the material 'Carbon Steel'?",
+        //                 "expected_value": 1
+        //             },
+        //             {
+        //                 "question": "What is the total quantity of orders placed by the customer 'Daniel Lewis'?",
+        //                 "expected_value": 11
+        //             },
+        //             {
+        //                 "question": "What is the highest price of any single order?",
+        //                 "expected_value": 521
+        //             }
+        //         ],
+        //         "level_2": [
+        //             {
+        //                 "question": "What is the average order quantity for orders placed after 01/01/2024?",
+        //                 "expected_value": 39.60000002384186
+        //             },
+        //             {
+        //                 "question": "How many unique customers placed orders with a price greater than $1000?",
+        //                 "expected_value": 0
+        //             },
+        //             {
+        //                 "question": "What is the total value of orders for the material 'Birch Veneer' in the month of March 2024?",
+        //                 "expected_value": 1924.6499633789062
+        //             }
+        //         ],
+        //         "level_3": [
+        //             {
+        //                 "question": "What is the average order value for the customer with the highest total order value?",
+        //                 "expected_value": 47932,
+        //                 "sql": "WITH CustomerTotals AS ( SELECT customer, SUM(quantity*price) AS total_order_value FROM Orders_oct_16_2024_20_00 GROUP BY customer), HighestCustomer AS ( SELECT customer FROM CustomerTotals ORDER BY total_order_value DESC LIMIT 1) SELECT AVG(quantity*price) AS average_order_value FROM Orders_oct_16_2024_20_00 WHERE customer = (SELECT customer FROM HighestCustomer);"
+        //             },
+        //             {
+        //                 "question": "What is the difference in total order value between the most expensive and least expensive materials?",
+        //                 "expected_value": 47680,
+        //                 "sql": "WITH MaterialTotals AS (    SELECT material,            SUM(quantity * price) AS total_order_value    FROM Orders_oct_16_2024_20_00    GROUP BY material),MostExpensive AS (    SELECT material    FROM Orders_oct_16_2024_20_00    ORDER BY price DESC    LIMIT 1),LeastExpensive AS (    SELECT material    FROM Orders_oct_16_2024_20_00    ORDER BY price ASC    LIMIT 1)SELECT     (SELECT total_order_value FROM MaterialTotals WHERE material = (SELECT material FROM MostExpensive)) -    (SELECT total_order_value FROM MaterialTotals WHERE material = (SELECT material FROM LeastExpensive))    AS difference_in_order_value;"
+        //             },
+        //             {
+        //                 "question": "What is the average order price for orders placed in the last quarter of 2023?",
+        //                 "expected_value": 61.119999694824216,
+        //                 "sql": "SELECT AVG(price) FROM Orders_oct_16_2024_20_00 WHERE date BETWEEN '2023-10-01' AND '2023-12-31';"
+        //             }
+        //         ],
+        //         "level_4": [],
+        //         "level_5": []
+        //     },
+        //     "invalid_questions": {
+        //         "level_0": [
+        //             {
+        //                 "question": "What is the color of the most expensive order?",
+        //                 "expected_value": "NA_INVALID_REQUEST_COLUMN_NOT_AVAILABLE"
+        //             },
+        //             {
+        //                 "question": "How many employees work for the company?",
+        //                 "expected_value": "NA_INVALID_REQUEST_COLUMN_NOT_AVAILABLE"
+        //             },
+        //             {
+        //                 "question": "What is the company's mission statement?",
+        //                 "expected_value": "NA_INVALID_REQUEST_COLUMN_NOT_AVAILABLE"
+        //             }
+        //         ],
+        //         "level_1": [
+        //             {
+        //                 "question": "What is the average shipping time for orders?",
+        //                 "expected_value": "NA_INVALID_REQUEST_COLUMN_NOT_AVAILABLE"
+        //             },
+        //             {
+        //                 "question": "How many orders were cancelled last month?",
+        //                 "expected_value": "NA_INVALID_REQUEST_COLUMN_NOT_AVAILABLE"
+        //             },
+        //             {
+        //                 "question": "What is the most popular product category?",
+        //                 "expected_value": "NA_INVALID_REQUEST_COLUMN_NOT_AVAILABLE"
+        //             }
+        //         ],
+        //         "level_2": [
+        //             {
+        //                 "question": "What is the average customer satisfaction rating for orders over $500?",
+        //                 "expected_value": "NA_INVALID_REQUEST_COLUMN_NOT_AVAILABLE"
+        //             },
+        //             {
+        //                 "question": "How many orders were placed by customers in California?",
+        //                 "expected_value": "NA_INVALID_REQUEST_COLUMN_NOT_AVAILABLE"
+        //             },
+        //             {
+        //                 "question": "What is the total revenue from repeat customers?",
+        //                 "expected_value": "NA_INVALID_REQUEST_COLUMN_NOT_AVAILABLE"
+        //             }
+        //         ],
+        //         "level_3": [
+        //             {
+        //                 "question": "What is the correlation between order value and customer age?",
+        //                 "expected_value": 
+        //             },
+        //             {
+        //                 "question": "What is the average profit margin for each product line?",
+        //                 "expected_value": 
+        //             },
+        //             {
+        //                 "question": "How has the market share changed for each material over the past year?",
+        //                 "expected_value": 
+        //             }
+        //         ],
+        //         "level_4": [
+        //             {
+        //                 "question": "What is the customer lifetime value for the top 5% of customers?",
+        //                 "expected_value": 
+        //             },
+        //             {
+        //                 "question": "What is the forecasted demand for each material in the next quarter based on historical trends?",
+        //                 "expected_value": 
+        //             },
+        //             {
+        //                 "question": "What is the optimal pricing strategy for each material to maximize revenue?",
+        //                 "expected_value": 
+        //             }
+        //         ],
+        //         "level_5": [
+        //             {
+        //                 "question": "What is the impact of marketing campaigns on order volume and customer acquisition cost?",
+        //                 "expected_value": 
+        //             },
+        //             {
+        //                 "question": "How does the supply chain efficiency affect order fulfillment times and customer satisfaction?",
+        //                 "expected_value": 
+        //             },
+        //             {
+        //                 "question": "What is the predicted customer churn rate based on order history and customer demographics?",
+        //                 "expected_value": 
+        //             }
+        //         ]
+        //     }
+        // }
     }
 }
