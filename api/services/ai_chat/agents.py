@@ -2,7 +2,6 @@ import os
 from openai import OpenAI
 from . message import AnalysisUserMessage
 from .helpers import extract_json_from_md
-from services.pql import validation as pql_validation
 from datetime import datetime
 
 class OpenAIAnalysisAgent:

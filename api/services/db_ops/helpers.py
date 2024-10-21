@@ -7,6 +7,7 @@ DATA_TYPE_MAP = {
     'float': 'FLOAT',
     'date': 'DATE',
 }
+
 INVALID_CHARACTERS_IN_TABLE_NAME = [
     ' ', '-', '.', ',', ';', ':', '__'
 ]

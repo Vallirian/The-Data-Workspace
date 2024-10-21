@@ -3,8 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from workbook.models import Formula
 from workbook.serializers.formula_serializers import FormulaSerializer, FormulaValidateSerializer
-from workbook.models import Workbook
-from chat.models import AnalysisChatMessage
+from workbook.models import Workbook, DataTableMeta
 from django.shortcuts import get_object_or_404
 from services.db_ops.db import TranslatedPQLExecution
 
@@ -16,36 +15,14 @@ class FormulaListView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     def post(self, request, workbook_id):
-        if request.data is None:
-            return Response({'error': 'Invalid request'}, status=status.HTTP_400_BAD_REQUEST)
-        if 'chatId' not in request.data:
-            return Response({'error': 'Chat ID is required'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        # get message
-        messageId = request.data['messageId']
-        analysisMessage = get_object_or_404(AnalysisChatMessage, id=messageId)
-        if (analysisMessage.messageType != 'pql') or (analysisMessage.pql is None):
-            return Response({'error': 'This message can not be saved as formula'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        # check if formula already exists
-        formula = Formula.objects.filter(analysisMessage=analysisMessage, isActive=True)
-        if formula.exists():
-            return Response({'error': 'This formula already exists'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        # create new formula      
-        try: 
-            workbook = get_object_or_404(Workbook, id=workbook_id, user=request.user)
-            formula = Formula.objects.create(
-                workbook=workbook,
-                analysisMessage=analysisMessage,
-                name=analysisMessage.pql.get('NAME', 'No name'),
-                description=analysisMessage.pql.get('DESCRIPTION', 'No description'),
-                pql=analysisMessage.pql,
-            )
-            formula.save()
-            return Response({'message': 'Formula created successfully'}, status=status.HTTP_201_CREATED)
-        except Exception as e:
-            return Response({'error': 'Error creating formula'}, status=status.HTTP_400_BAD_REQUEST)
+        workbook = get_object_or_404(Workbook, id=workbook_id, user=request.user)
+        dataTable = get_object_or_404(DataTableMeta, id=request.data.get('dataTable'), workbook=workbook, user=request.user)
+
+        serializer = FormulaSerializer(data=request.data, context={'request': request, 'workbook': workbook, 'dataTable': dataTable})
+        if serializer.is_valid():
+            formula = serializer.save()
+            return Response(FormulaSerializer(formula).data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class FormulaDetailView(APIView):
     def get(self, request, formula_id, *args, **kwargs):

@@ -13,30 +13,6 @@ from services.ai_chat.agents import OpenAIAnalysisAgent
 from services.pql.translate import PQLTranslator
 from services.db_ops.db import TranslatedPQLExecution
 
-class AnalysisChatListAPIView(APIView):
-    def get(self, request, workbook_id, table_id, *args, **kwargs): 
-        workbook = get_object_or_404(Workbook, id=workbook_id, user=request.user)
-        data_table_meta = get_object_or_404(DataTableMeta, workbook=workbook, id=table_id)
-        chats = AnalysisChat.objects.filter(user=request.user, workbook=workbook, dataTable=data_table_meta).order_by('-updatedAt')
-
-        serializer = AnalysisChatSerializer(chats, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def post(self, request, workbook_id, table_id, *args, **kwargs):
-        workbook = Workbook.objects.get(id=workbook_id, user=request.user)
-        data_table_meta = DataTableMeta.objects.get(id=table_id, workbook=workbook)
-        
-        serializer = AnalysisChatSerializer(data=request.data, context={
-            'request': request,
-            'workbook': workbook,
-            'dataTable': data_table_meta
-        })
-        
-        if serializer.is_valid():
-            chat = serializer.save()
-            return Response(AnalysisChatSerializer(chat).data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 class AnalysisChatDetailAPIView(APIView):
     def get(self, request, chat_id, *args, **kwargs):
         chat = get_object_or_404(AnalysisChat, id=chat_id, user=request.user)
