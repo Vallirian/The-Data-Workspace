@@ -175,6 +175,19 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
         if (!data.length || !tableMeta) {
             return false;
         }
+
+        // validate row and column count
+        if (data.length > (Number(process.env.DATASET_ROW_LIMIT) || 10)) {
+            console.log(process.env.DATASET_ROW_LIMIT)
+            console.error("Row limit exceeded, max rows allowed is 10");
+            return false;
+        }
+
+        if (columns.length > (Number(process.env.DATASET_COLUMN_LIMIT) || 10)) {
+            console.error("Column limit exceeded, max columns allowed is 10");
+            return false;
+        }
+
         const tableNameValidation = validateTableName(tableMeta.name);
         if (!tableNameValidation.result) {
             console.error(

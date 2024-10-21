@@ -1,3 +1,4 @@
+import os
 from django.http import HttpRequest
 from django.db import connection
 from . import helpers as db_hlp
@@ -134,10 +135,29 @@ class RawDataExtraction:
             column_names.append(column.name)
 
         return True, 'Success'
-
+    
+    def validate_data(self, data: dict):
+        if not data:
+            return False, 'Data not found'
+        
+        # validate row and column count
+        row_limit = int(os.environ.get('DATASET_ROW_LIMIT'))
+        if len(data) > int(row_limit):
+            return False, f'Maximum {row_limit} rows allowed, {len(data)} found'
+        
+        column_limit = int(os.environ.get('DATASET_COLUMN_LIMIT'))
+        if len(data[0]) > int(column_limit):
+            return False, f'Maximum {column_limit} columns allowed, {len(data[0])} found'
+        
+        return True, 'Success'
+    
     def extract_data(self, etype: str, data: dict):
         meta_valid, message = self.validate_meta()
         if not meta_valid:
+            return False, message
+        
+        data_valid, message = self.validate_data(data)
+        if not data_valid:
             return False, message
 
         # validate type
