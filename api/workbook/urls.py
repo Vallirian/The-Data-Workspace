@@ -2,7 +2,7 @@ from django.urls import path
 from workbook.views.workbook_views import WorkbookListAPIView, WorkbookDetailAPIView
 from workbook.views.report_views import ReportDetailAPIView
 from workbook.views.datatable_views import DataTableMetaDetailAPIView, DataTableExtractionAPIView, DataTableRawAPIView, DataTableColumnMetaListAPIView, DataTableColumnMetaDetailAPIView
-from workbook.views.formula_views import FormulaListView, FormulaDetailView, FormulaDetailValueView
+from workbook.views.formula_views import FormulaListView, FormulaDetailView, FormulaDetailValueView, FormulaMessageListView
 
 urlpatterns = [
     # workbook
@@ -16,6 +16,7 @@ urlpatterns = [
     path('<str:workbook_id>/fromulas/', FormulaListView.as_view(), name='formula-list'),
     path('<str:workbook_id>/formulas/<str:formula_id>/', FormulaDetailView.as_view(), name='formula-detail'),
     path('<str:workbook_id>/formulas/<str:formula_id>/value/', FormulaDetailValueView.as_view(), name='formula-detail-value'),
+    path('<str:workbook_id>/formulas/<str:formula_id>/messages/', FormulaMessageListView.as_view(), name='formula-message-list'),
 
     # datatable
     path('<str:workbook_id>/datatable/<str:table_id>/', DataTableMetaDetailAPIView.as_view(), name='datatablemeta-detail'),

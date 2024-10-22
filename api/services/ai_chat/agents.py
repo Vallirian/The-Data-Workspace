@@ -1,14 +1,17 @@
 import os
 from openai import OpenAI
-from . message import AnalysisUserMessage
+from . message import FormulaUserMessage
 from .helpers import extract_json_from_md
 from datetime import datetime
 
 class OpenAIAnalysisAgent:
-    def __init__(self, user_message: str=None, chat_id: str=None, thread_id: str=None) -> None:
+    def __init__(self, user_message: str=None, chat_id: str=None, thread_id: str=None, dt_meta_id: str=None, request=None) -> None:
         self.thread = None
         self.chat_id = chat_id
         self.thread_id = thread_id
+
+        self.dt_meta_id = dt_meta_id
+        self.request = request
 
         self.current_user_message = user_message
         self.current_agent_response = None
@@ -30,32 +33,17 @@ class OpenAIAnalysisAgent:
 
     def start_new_thread(self) -> None:
         self.thread = self.client.beta.threads.create()
-        
         assert self.thread, "Thread creation failed"
-        
         self.thread_id = self.thread.id
 
-    def send_message(self, table_informaiton: str, column_informaion: str) -> str:
-        if self.current_user_message is None:
-            return {
-                'success': False,
-                'message': "User message not found",
-                'chat_id': self.chat_id,
-                'thread_id': self.thread_id,
-                'full_conversation': self.current_full_conversation,
-                'input_tokens': self.input_tokens,
-                'output_tokens': self.output_tokens,
-                'retries': self.retries,
-                'start_time': _start,
-                'end_time': datetime.now(),
-                'run_details': None
-            }
+    def send_message(self) -> str:
+        assert self.current_user_message is not None, "User message not found"
         
         # continue the thread
         if (self.thread is None) and (self.chat_id is not None):
             self.thread = self.client.beta.threads.retrieve(thread_id=self.thread_id)
 
-        _temp_user_message = AnalysisUserMessage(user_message=self.current_user_message, table_information=table_informaiton, column_information=column_informaion)
+        _temp_user_message = FormulaUserMessage(user_message=self.current_user_message, datatable_meta_id=self.dt_meta_id, request=self.request)
         self.current_full_conversation.append({"enhanced_user_message":_temp_user_message.final_message})
         self.current_user_message = self.client.beta.threads.messages.create(
             thread_id=self.thread.id,

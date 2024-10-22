@@ -93,6 +93,9 @@ class FormulaMessage(models.Model):
     fullConversation = models.JSONField(default=list)
     inputToken = models.IntegerField(default=0)
     outputToken = models.IntegerField(default=0)
+    startTime = models.DateTimeField(blank=True, null=True)
+    endTime = models.DateTimeField(blank=True, null=True)
+    runDetails = models.JSONField(default=dict)
 
 
 class Workbook(models.Model):

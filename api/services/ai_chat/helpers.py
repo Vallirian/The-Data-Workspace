@@ -1,6 +1,3 @@
-ANALYSIS_MESSAGE_ENHANCEMENT_TEXT = """Please provide me with a PQL in JSON format that can answer this question, keep it in one JSON and do not add any other text:"""
-
-
 def extract_json_from_md(md: str) -> dict:
     import re
     import json
