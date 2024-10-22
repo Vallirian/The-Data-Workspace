@@ -10,8 +10,7 @@ class RawData:
         self.request = request
         self.table_id = table_id
         self.table: TypeDataTableMeta = RawDataUtils.get_data_table_meta(table_id)
-        self.create_table_if_not_exists()
-
+        
     def create_table_if_not_exists(self):
         query = f"CREATE TABLE IF NOT EXISTS `{self.table.name}` ("
         for column in self.table.columns:
@@ -42,6 +41,7 @@ class RawData:
         data_valid, message = self.validate_data(data)
         if not data_valid:
             return False, message
+        self.create_table_if_not_exists()
         
         try:
             # validate rows            
@@ -89,6 +89,14 @@ class RawData:
         if not _raw_exec_status:
             return False, _raw_exec_value
         return True, _raw_exec_value
+    
+    def get_data_count(self):
+        query = f"SELECT COUNT(*) as count FROM `{self.table.name}`;"
+        _raw_exec = RawSQLExecution(sql=query, inputs=[], request=self.request)
+        _raw_exec_status, _raw_exec_value = _raw_exec.execute()
+        if not _raw_exec_status:
+            return False, _raw_exec_value
+        return True, _raw_exec_value
         
 class RawSQLExecution:
     def __init__(self, sql: str, inputs: list, request) -> None:
@@ -121,20 +129,6 @@ class RawSQLExecution:
                 return False, str(e)
 
 class RawDataUtils:
-    def get_raw_data_size_mb(self, request):
-        user_schema = f"schema___{request.user}"
-        query = f"""SELECT 
-            schema_name,
-            ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS size_mb
-            FROM information_schema.tables
-            WHERE  table_schema = '{user_schema}'
-            GROUP BY schema_name;
-        """
-        
-        with connection.cursor() as cursor:
-            cursor.execute(query)
-            rows = dictfetchall(cursor)
-            return rows[0]['size_mb'] if rows else 0
         
     def get_data_table_meta(table_id: str) -> TypeDataTableMeta:
         query = f"""
@@ -175,3 +169,50 @@ class RawDataUtils:
                 )
             
             return None 
+        
+class DataSegregation:
+    def __init__(self, request: HttpRequest) -> None:
+        self.request = request
+
+    def create_user_schema(self):
+        user_schema = f"schema___{self.request.user}"
+        query = f"CREATE SCHEMA IF NOT EXISTS {user_schema};"
+        
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            return True, 'Success'
+        
+    def get_schema_data_size_mb(self, request):
+        user_schema = f"schema___{request.user}"
+        query = f"""SELECT 
+            schema_name,
+            ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS size_mb
+            FROM information_schema.tables
+            WHERE  table_schema = '{user_schema}'
+            GROUP BY schema_name;
+        """
+        
+        with connection.cursor() as cursor:
+            try:
+                cursor.execute(query)
+                rows = dictfetchall(cursor)
+                return True, rows[0]['size_mb'] if rows else 0
+            except Exception as e:
+                return False, str(e)
+        
+    def get_token_utilization(self):
+        query = f"SELECT runDetails FROM {svc_vals.DEFAULT_SCHEMA}.{svc_vals.FORMULA_MESSAGE} WHERE user_id = %s;"
+        with connection.cursor() as cursor:
+            try:
+                cursor.execute(query, [self.request.user])
+                messages_runDetail = dictfetchall(cursor)
+
+                input_token_utilization = 0
+                output_token_utilization = 0
+                for message in messages_runDetail:
+                    input_token_utilization += message['usage']['prompt_tokens']
+                    output_token_utilization += message['usage']['completion_tokens']
+
+                return True, (input_token_utilization, output_token_utilization), "Success"
+            except Exception as e:
+                return False, (0, 0), str(e)

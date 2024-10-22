@@ -6,6 +6,7 @@ SQL_DDL_KEYWORDS = ['DROP', 'TRUNCATE', 'DELETE', 'INSERT', 'UPDATE', 'CREATE', 
 DEFAULT_SCHEMA = 'app_common'
 DATA_TABLE_COLUMN_META = 'data_table_column_meta'
 DATA_TABLE_META = 'data_table_meta'
+FORMULA_MESSAGE = 'formula_message'
 
 DATA_TYPE_MAP = {
     'string': 'TEXT',

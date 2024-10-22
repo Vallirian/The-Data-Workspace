@@ -1,3 +1,4 @@
+import os
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -5,9 +6,7 @@ from django.shortcuts import get_object_or_404
 from workbook.models import DataTableMeta, DataTableColumnMeta
 from workbook.models import Workbook
 from workbook.serializers.datatable_serializers import DataTableMetaSerializer, DataTableColumnMetaSerializer
-from api.services.db import RawDataExtraction
-import services.db_ops.query_factory as qf
-import services.db_ops.helpers as db_hlp
+from api.services.db import RawData
 from django.db import connection
 
 class DataTableMetaDetailAPIView(APIView):
@@ -49,30 +48,23 @@ class DataTableRawAPIView(APIView):
     def get(self, request, table_id, *args, **kwargs):
         try:
             page = 1 if 'page' not in request.query_params else int(request.query_params['page'])
-            page_size = 25
+            page_size = int(os.getenv('PAGE_SIZE', 25))
 
-            datatable_meta = get_object_or_404(DataTableMeta, id=table_id, user=request.user)
+            raw_data_ops = RawData(request=request, table_id=table_id)
+            _data_status, _data_values = raw_data_ops.get_data(page_size=page_size, page_number=page)
+            if not _data_status:
+                return Response({"error": _data_values}, status=status.HTTP_400_BAD_REQUEST)
+            
+            _count_status, _count_result = raw_data_ops.get_data_count()
+            if not _count_status:
+                return Response({"error": _count_result}, status=status.HTTP_400_BAD_REQUEST)
 
-            _table_name = f'table___{datatable_meta.id}'
-            _items_query, _items_inputs = qf.gen_get_raw_data_sql(_table_name, page, page_size)
-            _count_query, _count_inputs = qf.gen_get_raw_data_count_sql(_table_name)
-
-            with connection.cursor() as cursor:
-                cursor.execute(_items_query, _items_inputs)
-                _items_result = db_hlp.dictfetchall(cursor)
-
-                cursor.execute(_count_query, _count_inputs)
-                _count_result = db_hlp.dictfetchall(cursor)
-                print('count', _count_result)
-
-            result = {
-                "items": _items_result,
-                "totalItemsCount": _count_result[0]['count'],
+            return Response({
+                "items": _data_values,
+                "totalItemsCount": _count_result,
                 "currentPage": page,
                 "pageSize": page_size
-            }
-            
-            return Response(result)
+            })
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -112,8 +104,8 @@ class DataTableExtractionAPIView(APIView):
 
         # TODO: run on a separate thread ---------- START ----------
         # extract data
-        raw_data_extractor = RawDataExtraction(request=request, table_id=table_id)
-        _extraction_status, _extraction_message = raw_data_extractor.extract_data(etype=request.data['dataSource'], data=request.data['data'])
+        raw_data_ops = RawData(request=request, table_id=table_id)
+        _extraction_status, _extraction_message = raw_data_ops.extract_data(request.data['data'])
         
         print('extraction status', _extraction_status, _extraction_message)
 
@@ -142,8 +134,8 @@ class DataTableExtractionAPIView(APIView):
         datatable_meta.extractionDetails = ""
 
         # delete raw data
-        raw_data_extractor = RawDataExtraction(request=request, table_id=table_id)
-        _delete_status, _delete_message = raw_data_extractor.delete_table()
+        raw_data_ops = RawData(request=request, table_id=table_id)
+        _delete_status, _delete_message = raw_data_ops.delete_data()
 
         if _delete_status:
             datatable_meta.save()

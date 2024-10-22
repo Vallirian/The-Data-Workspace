@@ -88,7 +88,7 @@ def construct_sql_query(arc_sql: ArcSQL) -> Union[str, None]:
     try:
         # Validate the ArcSQL instance status
         if not arc_sql.status.status:
-            return None
+            return False, f"ArcSQL instance is invalid"
 
         # Initialize the list to store SQL parts
         sql_parts = []
@@ -120,10 +120,10 @@ def construct_sql_query(arc_sql: ArcSQL) -> Union[str, None]:
         if not final_sql.strip().endswith(';'):
             final_sql += ';'
             
-        return final_sql
+        return True, final_sql
         
     except Exception as e:
-        assert False, f"Error constructing SQL query: {str(e)}"
+        return False, f"Error constructing SQL query: {str(e)}"
         
 
 if __name__ == "__main__":

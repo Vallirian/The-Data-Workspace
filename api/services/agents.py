@@ -4,6 +4,7 @@ from datetime import datetime
 from services.interface import AgentRunResponse, ArcSQL
 from services.utils import clean_pydantic_errors, construct_sql_query
 from api.services.db import RawSQLExecution
+from workbook.models import DataTableMeta, DataTableColumnMeta
 
 class OpenAIAnalysisAgent:
     def __init__(self, user_message: str=None, chat_id: str=None, thread_id: str=None, dt_meta_id: str=None, request=None) -> None:
@@ -33,10 +34,13 @@ class OpenAIAnalysisAgent:
             try:
                 self.thread = self.client.beta.threads.create()
                 self.thread_id = self.thread.id
-                break
+                self.run_response.retries = 0 # reset retries
+                return True, self.thread_id
             except Exception as e:
                 self.run_response.retries += 1
                 self.run_response.message = f"Failed to start new thread: {str(e)}"
+                continue
+        return False, self.run_response.message
         
     def send_message(self) -> str:
         assert self.current_user_message is not None, "User message not found"
@@ -93,10 +97,21 @@ class OpenAIAnalysisAgent:
                 )
                 continue
 
-
+            
+            # construct SQL
+            _sql_query_status, _sql_query_value = construct_sql_query(_temp_arc_sql)
+            if not _sql_query_status:
+                __temp_error_message = f"SQL construction failed\n error: {_sql_query_value}"
+                self.client.beta.threads.messages.create(
+                    thread_id=self.thread.id,
+                    role="user",
+                    content=__temp_error_message
+                )
+                continue
+            
             # exectue SQL
-            _temp_sql_query = construct_sql_query(_temp_arc_sql)
-            raw_sql_exec = RawSQLExecution(sql=_temp_sql_query, inputs=[], request=self.request)
+            self.run_response.translated_sql = _sql_query_value
+            raw_sql_exec = RawSQLExecution(sql=_sql_query_value, inputs=[], request=self.request)
             arc_sql_execution_pass, arc_sql_execution_result = raw_sql_exec.execute()
             if not arc_sql_execution_pass:
                 __temp_error_message = f"SQL execution failed\n error: {arc_sql_execution_result}"

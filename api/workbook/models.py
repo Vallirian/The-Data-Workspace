@@ -69,7 +69,9 @@ class Formula(models.Model):
 
     name = models.CharField(max_length=255)
     description = models.TextField()
-    arcSql = models.JSONField(blank=True, null=True)
+    arcSql = models.TextField(blank=True, null=True)
+    rawArcSql = models.JSONField(blank=True, null=True)
+    
     isActive = models.BooleanField(default=True)
     isValidated = models.BooleanField(default=False)
 
@@ -85,7 +87,8 @@ class FormulaMessage(models.Model):
 
     MESSAGE_TYPES = (
         ('text', 'text'),
-        ('sql', 'sql')
+        ('kpi', 'kpi'),
+        ('table', 'table')
     )
 
     id = models.CharField(primary_key=True, default=uuid.uuid4, editable=False, unique=True, max_length=36)
@@ -97,19 +100,13 @@ class FormulaMessage(models.Model):
     messageType = models.CharField(max_length=5, choices=MESSAGE_TYPES, default='text')
     name = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    arcSql = models.JSONField(blank=True, null=True)
     text = models.TextField(blank=True, null=True)
 
     retries = models.IntegerField(default=0)
-    fullConversation = models.JSONField(default=list)
-    inputToken = models.IntegerField(default=0)
-    outputToken = models.IntegerField(default=0)
-    startTime = models.DateTimeField(blank=True, null=True)
-    endTime = models.DateTimeField(blank=True, null=True)
     runDetails = models.JSONField(default=dict)
 
     class Meta:
-        db_table = f'{svc_vals.DEFAULT_SCHEMA}.formula_message'
+        db_table = f'{svc_vals.DEFAULT_SCHEMA}.{svc_vals.FORMULA_MESSAGE}'
 
 
 class Workbook(models.Model):

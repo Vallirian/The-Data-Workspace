@@ -23,8 +23,8 @@ class FormulaSerializer(serializers.ModelSerializer):
 class FormulaMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = FormulaMessage
-        fields = ['id', 'user', 'userType', 'messageType', 'name', 'description', 'arcSql', 'text', 'createdAt']
-        read_only_fields = ['id', 'createdAt', 'retries', 'fullConversation', 'inputToken', 'outputToken', 'startTime', 'endTime', 'runDetails']
+        fields = ['id', 'user', 'formula', 'createdAt', 'userType', 'messageType', 'name', 'description', 'arcSql', 'text']
+        read_only_fields = ['id', 'createdAt', 'rawArcSql', 'retries', 'runDetails']
 
     def create(self, validated_data):
         user = self.context['request'].user

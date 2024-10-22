@@ -5,8 +5,10 @@ from workbook.models import Formula
 from workbook.serializers.formula_serializers import FormulaSerializer, FormulaValidateSerializer, FormulaMessageSerializer
 from workbook.models import Workbook, DataTableMeta, FormulaMessage, DataTableColumnMeta
 from django.shortcuts import get_object_or_404
-from api.services.db import TranslatedPQLExecution
 from api.services.agents import OpenAIAnalysisAgent
+from services.interface import AgentRunResponse
+from services.utils import construct_sql_query
+from api.services.db import RawSQLExecution
 
 class FormulaListView(APIView):
     def get(self, request, workbook_id):
@@ -38,7 +40,7 @@ class FormulaDetailView(APIView):
         formula.isActive = False
         formula.save()
         return Response({'message': 'Formula deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
-    
+
 class FormulaMessageListView(APIView):
     def get(self, request, formula_id, *args, **kwargs):
         formula = get_object_or_404(Formula, id=formula_id, user=request.user)
@@ -63,59 +65,50 @@ class FormulaMessageListView(APIView):
         user_message = serializer.data.get('text')
         agent = OpenAIAnalysisAgent(user_message=user_message, chat_id=formula.id, thread_id=formula.threadId, dt_meta_id=datatable_meta.id, request=request)
         if formula.threadId is None:
-            agent.start_new_thread()
+            agent_status, agent_run = agent.start_new_thread()
+            if not agent_status:
+                return Response({'error': agent_run}, status=status.HTTP_400_BAD_REQUEST)
             formula.threadId = agent.thread_id
             formula.save()
 
-        model_response = agent.send_message()
-        if model_response.get('success'):
-            # means we have a validated + executed SQL
-            _text = None
+        agent.send_message()
+        model_run: AgentRunResponse = agent.run_response
+        if model_run.success:
             _new_model_message = FormulaMessage(
                 user=request.user,
                 formula=formula,
 
                 userType='model',
-                messageType='sql',
-                name=model_response.get("message").get('NAME', 'No name'),
-                description=model_response.get("message").get('DESCRIPTION', 'No description'),
-                arcSql=model_response.get("message"),
-                text=_text,
+                messageType=model_run.message_type,
+                name=model_run.arc_sql.name,
+                description=model_run.arc_sql.description,
+                text=model_run.message,
 
-                retries=model_response.get('retries', 0),
-                fullConversation=model_response.get('full_conversation', []),
-                inputToken=model_response.get('input_tokens', 0),
-                outputToken=model_response.get('output_tokens', 0),
-                startTime=model_response.get('start_time', None),
-                endTime=model_response.get('end_time', None),
-                runDetails=model_response.get('run_details', {})
+                retries=model_run.retries,
+                runDetails=model_run.run_details
             )
             _new_model_message.save()
 
-            return Response(FormulaMessageSerializer(_new_model_message).data, status=status.HTTP_201_CREATED)
-        else:
-            return Response({'error': model_response.get("message", "An error occured, please try again")}, status=status.HTTP_400_BAD_REQUEST)
+            formula.name=model_run.arc_sql.name,
+            formula.description=model_run.arc_sql.description,
+            formula.arcSql = model_run.translated_sql
+            formula.rawArcSql = model_run.arc_sql
+            formula.save()
 
+            return Response(FormulaMessageSerializer(_new_model_message).data, status=status.HTTP_201_CREATED)
+
+        else:
+            return Response({'error': model_run.message}, status=status.HTTP_400_BAD_REQUEST)
     
 class FormulaDetailValueView(APIView):
     def get(self, request, formula_id, *args, **kwargs):
         try:
             formula = get_object_or_404(Formula, id=formula_id, isActive=True, user=request.user)
-            _translated_sql = formula.translate_pql()
-
-            if not _translated_sql:
-                return Response({'error': 'Error validating SQL'}, status=status.HTTP_400_BAD_REQUEST)
-            
-            _sql_executor = TranslatedPQLExecution(translated_sql=_translated_sql)
-            _sql_exec_status, _sql_exec_result =_sql_executor.execute()
-
-            assert _sql_exec_status, "SQL execution failed"
-            assert _sql_exec_result, "SQL execution result not found"
-            assert len(_sql_exec_result) == 1, f"Invalid SQL execution result, {_sql_exec_result}"
-            assert isinstance(_sql_exec_result, list), f"Invalid SQL execution result {_sql_exec_result}"
-            assert isinstance(_sql_exec_result[0], dict), f"Invalid SQL execution result {_sql_exec_result}"
-
-            return Response({'value': list(_sql_exec_result[0].values())[0]}, status=status.HTTP_200_OK)
-
+            _translated_sql = construct_sql_query(formula.rawArcSql)
+            raw_sql_exec = RawSQLExecution(sql=_translated_sql, inputs=[], request=self.request)
+            arc_sql_execution_pass, arc_sql_execution_result = raw_sql_exec.execute()
+            if not arc_sql_execution_pass:
+                return Response({'error': arc_sql_execution_result}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(arc_sql_execution_result, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)

@@ -75,6 +75,7 @@ class ArcSQL(BaseModel):
 class AgentRunResponse(BaseModel):
     success: bool = False
     arc_sql: ArcSQL = None
+    translated_sql: str = ""
 
     message: str = ""
     message_type: str = "text"

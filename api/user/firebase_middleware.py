@@ -3,9 +3,9 @@ from django.http import JsonResponse
 from firebase_admin import auth
 from django.utils.deprecation import MiddlewareMixin
 from django.urls import resolve
-from chat.models import AnalysisChat, AnalysisChatMessage
+from services.db import DataSegregation
 from workbook.models import DataTableMeta
-from api.services.db import RawDataUtils
+from api.services.db import DataSegregation
 
 from django.contrib.auth import get_user_model
 arcUser = get_user_model()
@@ -13,14 +13,10 @@ arcUser = get_user_model()
 def get_user_token_utilization(request):
     input_token = 0
     output_token = 0
-    print(f'User email: {request.user.email}')
+    status, (input_token, output_token), message = DataSegregation(request=request).get_token_utilization()
 
-    user_messages = AnalysisChatMessage.objects.filter(user=request.user)
-
-    # TODO: Implement a better way to calculate token utilization
-    for message in user_messages:
-        input_token += message.inputToken
-        output_token += message.outputToken
+    if not status:
+        return True, (input_token, output_token), message
 
     tier = request.user.tier
     if tier == 'free':
@@ -38,18 +34,16 @@ def get_user_data_utilization(request):
     
     tier = request.user.tier
     if tier == 'free':
-        user_table_ids = DataTableMeta.objects.filter(user=request.user).values_list('id', flat=True)
-        raw_data_utils = RawDataUtils()
-        raw_data_sizes = raw_data_utils.get_raw_data_size_mb(user_table_ids)
-        
-        user_raw_data_size_mb = float(raw_data_sizes[1])
+        status, value = DataSegregation(request=request).get_schema_data_size_mb()
+        if not status:
+            return True, value, "Error getting data utilization"
+
         user_raw_data_limit_mb = float(os.getenv('TIER_FREE_DATA_LIMIT_MB', 100))
 
-        if user_raw_data_size_mb >= user_raw_data_limit_mb:
-            return True, user_raw_data_size_mb, "Data limit exceeded"
+        if value >= user_raw_data_limit_mb:
+            return True, value, "Data limit exceeded"
         else:
-            return False, user_raw_data_size_mb, "Data limit not exceeded"
-        
+            return False, value, "Data limit not exceeded"
     else:
         return True, used_data, "Tier not supported"
 

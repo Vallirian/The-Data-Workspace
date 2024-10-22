@@ -1,6 +1,7 @@
 # API Documentation
-## **Base URL:** `/api/v1`
+Version: 0.1.0
 
+## **Base URL:** `/api/v1`
 
 ## **Authentication (Firebase)**
 
