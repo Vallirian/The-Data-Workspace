@@ -5,8 +5,8 @@ from workbook.models import Formula
 from workbook.serializers.formula_serializers import FormulaSerializer, FormulaValidateSerializer, FormulaMessageSerializer
 from workbook.models import Workbook, DataTableMeta, FormulaMessage, DataTableColumnMeta
 from django.shortcuts import get_object_or_404
-from services.db_ops.db import TranslatedPQLExecution
-from services.ai_chat.agents import OpenAIAnalysisAgent
+from api.services.db import TranslatedPQLExecution
+from api.services.agents import OpenAIAnalysisAgent
 
 class FormulaListView(APIView):
     def get(self, request, workbook_id):

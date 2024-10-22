@@ -1,0 +1,177 @@
+import os
+from django.http import HttpRequest
+from django.db import connection
+import services.values as svc_vals
+from services.utils import dictfetchall, validate_and_cast_value
+from services.interface import TypeColumnMeta, TypeDataTableMeta
+
+class RawData:
+    def __init__(self, request: HttpRequest, table_id: str) -> None:
+        self.request = request
+        self.table_id = table_id
+        self.table: TypeDataTableMeta = RawDataUtils.get_data_table_meta(table_id)
+        self.create_table_if_not_exists()
+
+    def create_table_if_not_exists(self):
+        query = f"CREATE TABLE IF NOT EXISTS `{self.table.name}` ("
+        for column in self.table.columns:
+            query += f"`{column.name}` {svc_vals.DATA_TYPE_MAP[column.dtype]}, "
+        query = query[:-2] + ");"
+
+        _raw_exec = RawSQLExecution(sql=query, inputs=[], request=self.request)
+        _raw_exec_status, _raw_exec_value = _raw_exec.execute()
+        if not _raw_exec_status:
+            return False, _raw_exec_value
+    
+    def validate_data(self, data: dict):
+        if not data:
+            return False, 'Data not found'
+        
+        # validate row and column count
+        row_limit = int(os.environ.get('DATASET_ROW_LIMIT'))
+        if len(data) > int(row_limit):
+            return False, f'Maximum {row_limit} rows allowed, {len(data)} found'
+        
+        column_limit = int(os.environ.get('DATASET_COLUMN_LIMIT'))
+        if len(data[0]) > int(column_limit):
+            return False, f'Maximum {column_limit} columns allowed, {len(data[0])} found'
+        
+        return True, 'Success'
+    
+    def extract_data(self, data: dict):
+        data_valid, message = self.validate_data(data)
+        if not data_valid:
+            return False, message
+        
+        try:
+            # validate rows            
+            for i in range(len(data)):
+                row = data[i]
+
+                for col_name, col_val in row.items():
+                    expected_column = next((column for column in self.table.columns if column.name == col_name), None)
+                    assert expected_column, f'Column `{col_name}` not found in the table'
+
+                    _validation_status, _casted_value = validate_and_cast_value(value=col_val, data_type=expected_column.dtype, data_format=expected_column.format)
+                    assert _validation_status, f'Error validating column {col_name} at Row {i+1}: {_casted_value}'
+                    data[i][col_name] = _casted_value
+                    
+            # insert data
+            columns = data[0].keys()
+            placeholders = ', '.join(['%s'] * len(columns))
+            column_names = ', '.join([f'`{col}`' for col in columns])
+            
+            _query = f"INSERT INTO `{self.table.name}` ({column_names}) VALUES ({placeholders})"
+            _values = [[row.get(col) for col in columns] for row in data]
+
+            _raw_exec = RawSQLExecution(sql=_query, inputs=_values, request=self.request)
+            _raw_exec_status, _raw_exec_value = _raw_exec.execute(many=True)
+            if not _raw_exec_status:
+                return False, _raw_exec_value
+
+            return True, 'Data extracted successfully'
+        except Exception as e:
+            print(f'Error on extraction: {e}')
+            return False, "Error extracting data"
+        
+    def delete_table(self):
+        query = f"DROP TABLE IF EXISTS `{self.table.name}`;"
+        _raw_exec = RawSQLExecution(sql=query, inputs=[], request=self.request)
+        _raw_exec_status, _raw_exec_value = _raw_exec.execute()
+        if not _raw_exec_status:
+            return False, _raw_exec_value
+        return True, 'Table deleted successfully'
+    
+    def get_data(self, page_size: int, page_number: int):
+        query = f"SELECT * FROM `{self.table.name}` LIMIT {page_size} OFFSET {page_size * (page_number - 1)};"
+        _raw_exec = RawSQLExecution(sql=query, inputs=[], request=self.request)
+        _raw_exec_status, _raw_exec_value = _raw_exec.execute()
+        if not _raw_exec_status:
+            return False, _raw_exec_value
+        return True, _raw_exec_value
+        
+class RawSQLExecution:
+    def __init__(self, sql: str, inputs: list, request) -> None:
+        self.sql = sql
+        self.inputs = inputs
+        self.request = request
+
+    def execute(self, many=False):
+        user_schema = f"schema___{self.request.user}"
+    
+        # execute on user specific schema
+        with connection.cursor() as cursor:
+            cursor.execute(f"USE SCHEMA {user_schema}")
+
+            if many:
+                try:
+                    cursor.executemany(self.sql, self.inputs)
+                    cursor.execute(f"USE SCHEMA {svc_vals.DEFAULT_SCHEMA}")
+                    return True, 'Success'
+                except Exception as e:
+                    cursor.execute(f"USE SCHEMA {svc_vals.DEFAULT_SCHEMA}")
+                    return False, str(e)
+            try:
+                cursor.execute(self.sql, self.inputs)
+                result = dictfetchall(cursor)
+                cursor.execute(f"USE SCHEMA {svc_vals.DEFAULT_SCHEMA}")
+                return True, result
+            except Exception as e:
+                cursor.execute(f"USE SCHEMA {svc_vals.DEFAULT_SCHEMA}")
+                return False, str(e)
+
+class RawDataUtils:
+    def get_raw_data_size_mb(self, request):
+        user_schema = f"schema___{request.user}"
+        query = f"""SELECT 
+            schema_name,
+            ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS size_mb
+            FROM information_schema.tables
+            WHERE  table_schema = '{user_schema}'
+            GROUP BY schema_name;
+        """
+        
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            rows = dictfetchall(cursor)
+            return rows[0]['size_mb'] if rows else 0
+        
+    def get_data_table_meta(table_id: str) -> TypeDataTableMeta:
+        query = f"""
+            SELECT 
+                dt.id, dt.name, dt.description, dt.dataSourceAdded, dt.dataSource, dt.extractionStatus, dt.extractionDetails,
+                dtc.id as column_id, dtc.name as column_name, dtc.dtype, dtc.format, dtc.description as column_description, dtc.dataTable_id
+            FROM 
+                `{svc_vals.DEFAULT_SCHEMA}.{svc_vals.DATA_TABLE_META}` dt
+                LEFT JOIN `{svc_vals.DEFAULT_SCHEMA}.{svc_vals.DATA_TABLE_COLUMN_META}` dtc ON dt.id = dtc.dataTable_id
+            WHERE 
+                dt.id = %s
+        """
+        
+        with connection.cursor() as cursor:
+            cursor.execute(query, [table_id])
+            rows = dictfetchall(cursor)
+            
+            if rows:
+                return TypeDataTableMeta(
+                    id=rows[0]['id'],
+                    name=rows[0]['name'],
+                    description=rows[0]['description'],
+                    dataSourceAdded=rows[0]['dataSourceAdded'],
+                    dataSource=rows[0]['dataSource'],
+                    extractionStatus=rows[0]['extractionStatus'],
+                    extractionDetails=rows[0]['extractionDetails'],
+                    columns=[
+                        TypeColumnMeta(
+                            id=row['column_id'],
+                            name=row['column_name'],
+                            dtype=row['dtype'],
+                            format=row['format'],
+                            description=row['column_description'],
+                            dataTable=row['dataTable_id']
+                        )
+                        for row in rows if row['column_id'] is not None
+                    ]
+                )
+            
+            return None 

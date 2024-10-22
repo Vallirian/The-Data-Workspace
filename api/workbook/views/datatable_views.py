@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from workbook.models import DataTableMeta, DataTableColumnMeta
 from workbook.models import Workbook
 from workbook.serializers.datatable_serializers import DataTableMetaSerializer, DataTableColumnMetaSerializer
-from services.db_ops.db import RawDataExtraction
+from api.services.db import RawDataExtraction
 import services.db_ops.query_factory as qf
 import services.db_ops.helpers as db_hlp
 from django.db import connection

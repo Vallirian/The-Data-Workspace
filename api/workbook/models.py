@@ -1,6 +1,7 @@
 import uuid
 from django.db import models
 from user.models import ArcUser
+import services.values as svc_vals
 
 class DataTableMeta(models.Model):
     id = models.CharField(primary_key=True, default=uuid.uuid4, editable=False, unique=True, max_length=36)
@@ -24,6 +25,9 @@ class DataTableMeta(models.Model):
 
     extractionDetails = models.TextField()
 
+    class Meta:
+        db_table = f'{svc_vals.DEFAULT_SCHEMA}.{svc_vals.DATA_TABLE_META}'
+
 
 class DataTableColumnMeta(models.Model):
     DTYPE_CHOICES = [
@@ -42,12 +46,16 @@ class DataTableColumnMeta(models.Model):
     description = models.TextField()
     dataTable = models.ForeignKey(DataTableMeta, on_delete=models.CASCADE, related_name='columns')
 
+    class Meta:
+        db_table = f'{svc_vals.DEFAULT_SCHEMA}.{svc_vals.DATA_TABLE_COLUMN_META}'
 
 class Report(models.Model):
     id = models.CharField(primary_key=True, default=uuid.uuid4, editable=False, unique=True, max_length=36)
     user = models.ForeignKey(ArcUser, on_delete=models.CASCADE)
     rows = models.JSONField(default=list) # [[col1, col2, col3], [col1, col2, col3]]
 
+    class Meta:
+        db_table = f'{svc_vals.DEFAULT_SCHEMA}.report'
     
 class Formula(models.Model):
     id = models.CharField(primary_key=True, default=uuid.uuid4, editable=False, unique=True, max_length=36)
@@ -64,6 +72,9 @@ class Formula(models.Model):
     arcSql = models.JSONField(blank=True, null=True)
     isActive = models.BooleanField(default=True)
     isValidated = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = f'{svc_vals.DEFAULT_SCHEMA}.formula'
 
     
 class FormulaMessage(models.Model):
@@ -97,6 +108,9 @@ class FormulaMessage(models.Model):
     endTime = models.DateTimeField(blank=True, null=True)
     runDetails = models.JSONField(default=dict)
 
+    class Meta:
+        db_table = f'{svc_vals.DEFAULT_SCHEMA}.formula_message'
+
 
 class Workbook(models.Model):
     id = models.CharField(primary_key=True, default=uuid.uuid4, editable=False, unique=True, max_length=36)
@@ -104,4 +118,7 @@ class Workbook(models.Model):
     createdAt = models.DateTimeField(auto_now_add=True)
     dataTable = models.OneToOneField(DataTableMeta, on_delete=models.CASCADE, related_name='workbook', null=True, blank=True)
     report = models.OneToOneField(Report, on_delete=models.CASCADE, related_name='workbook', null=True, blank=True)
+
+    class Meta:
+        db_table = f'{svc_vals.DEFAULT_SCHEMA}.workbook'
 

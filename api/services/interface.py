@@ -1,6 +1,9 @@
 import re
 from pydantic import BaseModel, Field, field_validator
-from typing import List
+from typing import List, Dict, Optional
+from datetime import datetime
+import services.values as svc_vals
+
 
 # Arc SQL
 class ResponseStatus(BaseModel):
@@ -22,14 +25,14 @@ class CTETable(BaseModel):
     @field_validator('name')
     def validate_name(cls, v):
         # Validate name against SQL reserved words
-        if v.upper() in SQL_RESERVED_KEYWORDS:
+        if v.upper() in svc_vals.SQL_RESERVED_KEYWORDS:
             raise ValueError(f"CTE name cannot be a SQL reserved word: {v}")
         return v
 
     @field_validator('sql_as_string')
     def validate_sql_as_string(cls, v):
         # Validate against SQL injection
-        if any(keyword in v.upper() for keyword in SQL_DDL_KEYWORDS):
+        if any(keyword in v.upper() for keyword in svc_vals.SQL_DDL_KEYWORDS):
             raise ValueError(f"SQL injection detected in CTE sql_as_string: {v}")
         
         # Validate against 'WITH' and 'AS' clauses
@@ -63,8 +66,70 @@ class ArcSQL(BaseModel):
             raise ValueError(f"final_select_sql_as_string cannot contain 'WITH': detected {v}")
 
         # Restrict SQL injection patterns
-        if any(keyword in v.upper() for keyword in SQL_DDL_KEYWORDS):
+        if any(keyword in v.upper() for keyword in svc_vals.SQL_DDL_KEYWORDS):
             raise ValueError(f"SQL injection detected in final_select_sql_as_string: found disallowed pattern in {v}")
         
         return v
 
+# Services.Agent
+class AgentRunResponse(BaseModel):
+    success: bool = False
+    arc_sql: ArcSQL = None
+
+    message: str = ""
+    message_type: str = "text"
+
+    retries: int = 0
+    run_details: Dict = {}
+
+    class Config:
+        extra = "forbid"
+        
+    # Optional: If you want to ensure the output is compatible with JSON
+    def model_dump_json(self, **kwargs) -> str:
+        return self.model_dump(mode='json', **kwargs)
+    
+# Services.DB
+class TypeColumnMeta(BaseModel):
+    id: Optional[int] = None
+    name: Optional[str] = None
+    dtype: Optional[str] = None
+    format: Optional[str] = None
+    description: Optional[str] = None
+    dataTable: Optional[int] = None
+
+class TypeDataTableMeta(BaseModel):
+    id: Optional[int] = None
+    name: Optional[str] = None
+    description: Optional[str] = None
+    dataSourceAdded: Optional[str] = None
+    dataSource: Optional[str] = None
+    extractionStatus: Optional[str] = None
+    extractionDetails: Optional[str] = None
+    columns: List[TypeColumnMeta] = []
+
+    @field_validator('name')
+    def validate_table_name(cls, v):
+        if v in svc_vals.INVALID_CHARACTERS_IN_NAME:
+            raise ValueError('Invalid table name')
+        return v
+    
+    @field_validator('columns')
+    def validate_columns(cls, v):       
+        if len(v) > svc_vals.MAX_COLUMNS:
+            raise ValueError(f'Maximum {svc_vals.MAX_COLUMNS} columns allowed, {len(v)} found')
+
+        column_names = []
+        for column in v:
+            if column.dtype not in list(svc_vals.DATA_TYPE_MAP.keys()):
+                raise ValueError('Invalid data type')
+            
+            if column.name in svc_vals.INVALID_CHARACTERS_IN_NAME:
+                raise ValueError('Invalid column name')
+            
+            if column.name in column_names:
+                raise ValueError('Duplicate column name found')
+            
+            column_names.append(column.name)
+        
+        return v

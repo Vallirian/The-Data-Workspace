@@ -5,7 +5,7 @@ from django.utils.deprecation import MiddlewareMixin
 from django.urls import resolve
 from chat.models import AnalysisChat, AnalysisChatMessage
 from workbook.models import DataTableMeta
-from services.db_ops.db import RawDataUtils
+from api.services.db import RawDataUtils
 
 from django.contrib.auth import get_user_model
 arcUser = get_user_model()
