@@ -4,10 +4,9 @@ from firebase_admin import auth
 from django.utils.deprecation import MiddlewareMixin
 from django.urls import resolve
 from services.db import DataSegregation
-from workbook.models import DataTableMeta
-from api.services.db import DataSegregation
-
+from services.db import DataSegregation
 from django.contrib.auth import get_user_model
+
 arcUser = get_user_model()
 
 def get_user_token_utilization(request):
@@ -68,8 +67,14 @@ class FirebaseTokenAuthMiddleware(MiddlewareMixin):
                     }
                 )
                 
-                # Attach the Django User to request.user
+                # Attach the Django User to request.user. Needs to happen before
+                # the DataSegregation is called because it uses the request.user
                 request.user = user
+                
+                data_segregation = DataSegregation(request=request)
+                if created or not data_segregation.schema_exists():
+                    DataSegregation(request=request).create_user_schema()
+                
 
                 if resolve(request.path_info).route.startswith('api/'): 
                     # If the request is for the API, mark it as CSRF exempt 
@@ -89,7 +94,7 @@ class FirebaseTokenAuthMiddleware(MiddlewareMixin):
                 return None  # Continue processing the request
 
             except Exception as e:
-                # print(f'Error processing the authentication token: {e}')
+                print(f'Error processing the authentication token: {e}')
                 return JsonResponse({'error': 'Invalid or expired token'}, status=401)
         
         # If no token provided, deny access

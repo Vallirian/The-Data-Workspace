@@ -3,7 +3,7 @@ from openai import OpenAI
 from datetime import datetime
 from services.interface import AgentRunResponse, ArcSQL
 from services.utils import clean_pydantic_errors, construct_sql_query
-from api.services.db import RawSQLExecution
+from services.db import RawSQLExecution
 from workbook.models import DataTableMeta, DataTableColumnMeta
 
 class OpenAIAnalysisAgent:

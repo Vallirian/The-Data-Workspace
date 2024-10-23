@@ -99,34 +99,39 @@ class RawData:
         return True, _raw_exec_value
         
 class RawSQLExecution:
-    def __init__(self, sql: str, inputs: list, request) -> None:
+    def __init__(self, sql: str, inputs: list, request: HttpRequest) -> None:
         self.sql = sql
         self.inputs = inputs
         self.request = request
 
     def execute(self, many=False):
-        user_schema = f"schema___{self.request.user}"
-    
-        # execute on user specific schema
-        with connection.cursor() as cursor:
-            cursor.execute(f"USE SCHEMA {user_schema}")
-
-            if many:
-                try:
-                    cursor.executemany(self.sql, self.inputs)
-                    cursor.execute(f"USE SCHEMA {svc_vals.DEFAULT_SCHEMA}")
-                    return True, 'Success'
-                except Exception as e:
-                    cursor.execute(f"USE SCHEMA {svc_vals.DEFAULT_SCHEMA}")
-                    return False, str(e)
-            try:
-                cursor.execute(self.sql, self.inputs)
-                result = dictfetchall(cursor)
-                cursor.execute(f"USE SCHEMA {svc_vals.DEFAULT_SCHEMA}")
-                return True, result
-            except Exception as e:
-                cursor.execute(f"USE SCHEMA {svc_vals.DEFAULT_SCHEMA}")
-                return False, str(e)
+        user_schema = f"`schema___{self.request.user.id}`"
+        # schema name inc;udes dashes, so we need to use backticks only when using without ''
+        
+        # Ensuring to switch back safely
+        try:
+            with connection.cursor() as cursor:
+                # Use the user-specific database
+                cursor.execute(f"USE {user_schema}")
+            
+                # Execute SQL on user's schema
+                if many:
+                    try:
+                        cursor.executemany(self.sql, self.inputs)
+                        return True, 'Success'
+                    except Exception as e:
+                        return False, str(e)
+                else:
+                    try:
+                        cursor.execute(self.sql, self.inputs)
+                        result = dictfetchall(cursor)
+                        return True, result
+                    except Exception as e:
+                        return False, str(e)
+        finally:
+            # Always switch back to the default schema even if an error occurs
+            with connection.cursor() as cursor:
+                cursor.execute(f"USE `{svc_vals.DEFAULT_SCHEMA}`")
 
 class RawDataUtils:
         
@@ -136,8 +141,8 @@ class RawDataUtils:
                 dt.id, dt.name, dt.description, dt.dataSourceAdded, dt.dataSource, dt.extractionStatus, dt.extractionDetails,
                 dtc.id as column_id, dtc.name as column_name, dtc.dtype, dtc.format, dtc.description as column_description, dtc.dataTable_id
             FROM 
-                `{svc_vals.DEFAULT_SCHEMA}.{svc_vals.DATA_TABLE_META}` dt
-                LEFT JOIN `{svc_vals.DEFAULT_SCHEMA}.{svc_vals.DATA_TABLE_COLUMN_META}` dtc ON dt.id = dtc.dataTable_id
+                `{svc_vals.DATA_TABLE_META}` dt
+                LEFT JOIN `{svc_vals.DATA_TABLE_COLUMN_META}` dtc ON dt.id = dtc.dataTable_id
             WHERE 
                 dt.id = %s
         """
@@ -174,23 +179,38 @@ class DataSegregation:
     def __init__(self, request: HttpRequest) -> None:
         self.request = request
 
+    def schema_exists(self):
+        user_schema = f"schema___{self.request.user.id}"
+        query = f"SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = %s;"
+        print(user_schema, query)
+        
+        with connection.cursor() as cursor:
+            cursor.execute(query, [user_schema])
+            rows = dictfetchall(cursor)
+            print("here")
+            return True if rows else False
+
     def create_user_schema(self):
-        user_schema = f"schema___{self.request.user}"
+        user_schema = f"`schema___{self.request.user.id}`"
         query = f"CREATE SCHEMA IF NOT EXISTS {user_schema};"
+        print(user_schema, query)
         
         with connection.cursor() as cursor:
             cursor.execute(query)
             return True, 'Success'
         
-    def get_schema_data_size_mb(self, request):
-        user_schema = f"schema___{request.user}"
+    def get_schema_data_size_mb(self):
+        user_schema = f"schema___{self.request.user.id}"
         query = f"""SELECT 
-            schema_name,
-            ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS size_mb
-            FROM information_schema.tables
-            WHERE  table_schema = '{user_schema}'
-            GROUP BY schema_name;
-        """
+                    table_schema AS "Database", 
+                    ROUND(SUM(data_length + index_length) / (1024 * 1024), 2) AS "size_mb"
+                FROM 
+                    information_schema.TABLES 
+                WHERE 
+                    table_schema = '{user_schema}'
+                GROUP BY 
+                    table_schema;
+                """
         
         with connection.cursor() as cursor:
             try:
@@ -201,7 +221,7 @@ class DataSegregation:
                 return False, str(e)
         
     def get_token_utilization(self):
-        query = f"SELECT runDetails FROM {svc_vals.DEFAULT_SCHEMA}.{svc_vals.FORMULA_MESSAGE} WHERE user_id = %s;"
+        query = f"SELECT runDetails FROM {svc_vals.FORMULA_MESSAGE} WHERE user_id = %s;"
         with connection.cursor() as cursor:
             try:
                 cursor.execute(query, [self.request.user])

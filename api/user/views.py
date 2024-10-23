@@ -1,9 +1,7 @@
 import os
 from django.http import JsonResponse
-from firebase_admin import auth
 from django.contrib.auth import get_user_model
 from user.firebase_middleware import get_user_token_utilization, get_user_data_utilization
-from services.db import DataSegregation
 arcUser = get_user_model()
 
 def account(request):
@@ -27,34 +25,6 @@ def account(request):
             'dataLimitMB': raw_data_limit,
             'dataUtilizationMB': data_utilization
         }, status=200)
-        
-
-    elif request.method == 'POST':
-        # register or authenticate user
-        auth_header = request.headers.get('Authorization')
-        if auth_header and auth_header.startswith('Bearer '):
-            token = auth_header.split(' ')[1]
-
-            # Verify the Firebase ID token
-            try:
-                decoded_token = auth.verify_id_token(token)
-                firebase_uid = decoded_token['uid']
-                email = decoded_token.get('email')
-
-                # Register or authenticate user in your Django backend
-                user, created = arcUser.objects.get_or_create(
-                    firebase_uid=firebase_uid,
-                    defaults={'email': email}
-                )
-
-                if created:
-                    DataSegregation(request=request).create_user_schema()
-                    return JsonResponse({'message': 'User registered successfully'}, status=201)
-                else:
-                    return JsonResponse({'message': 'User already exists'}, status=200)
-
-            
-            except Exception as e:
-                return JsonResponse({'error': str(e)}, status=400)
+    
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)

@@ -1,5 +1,5 @@
 import re
-from interface import ArcSQL
+from services.interface import ArcSQL
 from typing import Union
 from datetime import datetime
 import services.values as svc_vals

@@ -5,10 +5,10 @@ from workbook.models import Formula
 from workbook.serializers.formula_serializers import FormulaSerializer, FormulaValidateSerializer, FormulaMessageSerializer
 from workbook.models import Workbook, DataTableMeta, FormulaMessage, DataTableColumnMeta
 from django.shortcuts import get_object_or_404
-from api.services.agents import OpenAIAnalysisAgent
+from services.agents import OpenAIAnalysisAgent
 from services.interface import AgentRunResponse
 from services.utils import construct_sql_query
-from api.services.db import RawSQLExecution
+from services.db import RawSQLExecution
 
 class FormulaListView(APIView):
     def get(self, request, workbook_id):

@@ -92,18 +92,18 @@ class AgentRunResponse(BaseModel):
     
 # Services.DB
 class TypeColumnMeta(BaseModel):
-    id: Optional[int] = None
+    id: str
     name: Optional[str] = None
     dtype: Optional[str] = None
     format: Optional[str] = None
     description: Optional[str] = None
-    dataTable: Optional[int] = None
+    dataTable: Optional[str] = None
 
 class TypeDataTableMeta(BaseModel):
-    id: Optional[int] = None
+    id: str
     name: Optional[str] = None
     description: Optional[str] = None
-    dataSourceAdded: Optional[str] = None
+    dataSourceAdded: bool = False
     dataSource: Optional[str] = None
     extractionStatus: Optional[str] = None
     extractionDetails: Optional[str] = None

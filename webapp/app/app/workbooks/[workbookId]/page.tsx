@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import ArcBreadcrumb from "@/components/navigation/arcBreadcrumb";
-import ArcAvatar from "@/components/navigation/arcAvatar";
+import ArcBreadcrumb from "../../sub-components/navigation/arcBreadcrumb";
+import ArcAvatar from "../../sub-components/navigation/arcAvatar";
 import UploadCSV from "../(importData)/uploadCsv";
 import { useParams } from "next/navigation";
 import axiosInstance from "@/services/axios";

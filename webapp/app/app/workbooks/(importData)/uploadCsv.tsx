@@ -117,9 +117,18 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
                         }))
                     );
                     setIsOpen(true);
-                    console.log("headers", columns);
+                    toast({
+                        title: "Success",
+                        description: "CSV file uploaded successfully",
+                        action: <ToastAction altText="Ok">Ok</ToastAction>,
+                    });
                 } catch (error) {
-                    console.error("Failed to parse CSV", error);
+                    toast({
+                        variant: "destructive",
+                        title: "Error parsing CSV",
+                        description: "An error occurred while parsing CSV",
+                        action: <ToastAction altText="Ok">Ok</ToastAction>,
+                    });
                 }
             };
             reader.readAsText(file);
@@ -177,43 +186,60 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
         }
 
         // validate row and column count
-        if (data.length > (Number(process.env.DATASET_ROW_LIMIT) || 10)) {
-            console.log(process.env.DATASET_ROW_LIMIT)
-            console.error("Row limit exceeded, max rows allowed is 10");
+        if (data.length > (parseInt(process.env.NEXT_PUBLIC_DATASET_ROW_LIMIT || "10") || 10)) {
+            toast({
+                variant: "destructive",
+                title: "Row limit exceeded",
+                description: `Max rows allowed is ${parseInt(
+                    process.env.NEXT_PUBLIC_DATASET_ROW_LIMIT || "10"
+                )}`,
+                action: <ToastAction altText="Ok">Ok</ToastAction>,
+            });
             return false;
         }
 
-        if (columns.length > (Number(process.env.DATASET_COLUMN_LIMIT) || 10)) {
-            console.error("Column limit exceeded, max columns allowed is 10");
+        if (columns.length > (parseInt(process.env.NEXT_PUBLIC_DATASET_COLUMN_LIMIT || "10") || 10)) {
+            toast({
+                variant: "destructive",
+                title: "Column limit exceeded",
+                description: `Max columns allowed is ${parseInt(process.env.NEXT_PUBLIC_DATASET_ROW_LIMIT || "10")}`,
+                action: <ToastAction altText="Ok">Ok</ToastAction>,
+            });
             return false;
         }
 
         const tableNameValidation = validateTableName(tableMeta.name);
         if (!tableNameValidation.result) {
-            console.error(
-                "Table name validation failed:",
-                tableNameValidation.message
-            );
+            toast({
+                variant: "destructive",
+                title: "Table name validation failed",
+                description: tableNameValidation.message,
+                action: <ToastAction altText="Ok">Ok</ToastAction>,
+            });
             return false;
         }
 
         const columnNames = columns.map((column) => column.name);
         const columnValidation = validateColumnNames(columnNames);
         if (!columnValidation.result) {
-            console.error(
-                "Column name validation failed:",
-                columnValidation.message
-            );
+            toast({
+                variant: "destructive",
+                title: "Column name validation failed",
+                description: columnValidation.message,
+                action: <ToastAction altText="Ok">Ok</ToastAction>,
+            });
             return false;
         }
 
         const dataTypes = columns.map((column) => column.dtype);
         const dataTypeValidation = validateDataTypes(data, dataTypes);
         if (!dataTypeValidation.result) {
-            console.error(
-                "Data type validation failed:",
-                dataTypeValidation.message
-            );
+            toast({
+                variant: "destructive",
+                title: "Data type validation failed",
+                description: dataTypeValidation.message,
+                action: <ToastAction altText="Ok">Ok</ToastAction>,
+            });
             return false;
         }
 
@@ -268,7 +294,6 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
 
             refreshTableMeta();
         } catch (error: any) {
-            console.log(error);
             toast({
                 variant: "destructive",
                 title: "Error deleting data",
@@ -298,7 +323,12 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
                 );
                 setTableMeta(response.data);
             } catch (error) {
-                console.error("Error fetching table meta", error);
+                toast({
+                    variant: "destructive",
+                    title: "Error fetching table meta",
+                    description: "An error occurred while fetching table meta",
+                    action: <ToastAction altText="Ok">Ok</ToastAction>,
+                });
             }
         };
 
@@ -342,7 +372,6 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
                         variant="link"
                         onClick={() => {
                             if ((tableMeta?.dataSourceAdded)) {
-                                console.log("Data source already added");
                                 toast({
                                     variant: "destructive",
                                     title: "Data source already added",

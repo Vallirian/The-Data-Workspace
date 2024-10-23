@@ -12,10 +12,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import axiosInstance from "@/services/axios";
 import { UserInfoInterface } from "@/interfaces/main";
+import { useRouter } from "next/navigation";
 
 export default function ArcAvatar() {
     const [user, setUser] = useState<User | null>(null);
     const [userInfo, setUserInfo] = useState<UserInfoInterface | null>(null);
+    const router = useRouter(); 
 
     // Fetch the authenticated user's info
     useEffect(() => {
@@ -41,6 +43,15 @@ export default function ArcAvatar() {
             setUserInfo(userInfo.data)
         } catch (error) {
             console.log(error)
+        }
+    }
+
+    const handleLogout = async () => {
+        try {
+            await auth.signOut();
+            router.push("/app/account/login");
+        } catch (error) {
+            
         }
     }
 
@@ -75,7 +86,7 @@ export default function ArcAvatar() {
                 <DropdownMenuItem>
                     {user?.displayName || "User"}
                 </DropdownMenuItem>
-                <DropdownMenuItem>Logout</DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>Token: {getAverageTokenUtilization()}% | Data: {getAverageDataUtilization()}%</DropdownMenuItem>
             </DropdownMenuContent>

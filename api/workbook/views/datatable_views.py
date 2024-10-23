@@ -4,10 +4,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from workbook.models import DataTableMeta, DataTableColumnMeta
-from workbook.models import Workbook
 from workbook.serializers.datatable_serializers import DataTableMetaSerializer, DataTableColumnMetaSerializer
-from api.services.db import RawData
-from django.db import connection
+from services.db import RawData
+
 
 class DataTableMetaDetailAPIView(APIView):
     def get(self, request, table_id, *args, **kwargs):
@@ -135,7 +134,7 @@ class DataTableExtractionAPIView(APIView):
 
         # delete raw data
         raw_data_ops = RawData(request=request, table_id=table_id)
-        _delete_status, _delete_message = raw_data_ops.delete_data()
+        _delete_status, _delete_message = raw_data_ops.delete_table()
 
         if _delete_status:
             datatable_meta.save()

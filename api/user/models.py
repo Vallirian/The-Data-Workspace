@@ -37,5 +37,6 @@ class ArcUser(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'firebase_uid'
     REQUIRED_FIELDS = ['email']
 
-    def __str__(self):
-        return self.email
+    class Meta:
+        db_table = f'arc_user'
+        

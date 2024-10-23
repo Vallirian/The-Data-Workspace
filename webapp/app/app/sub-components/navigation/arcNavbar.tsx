@@ -1,12 +1,10 @@
 "use client";
 
 import { usePathname } from "next/navigation"; // Import usePathname
-import ArcAvatar from "@/components/navigation/arcAvatar";
-import ArcBreadcrumb from "./navigation/arcBreadcrumb";
-
+import ArcAvatar from "./arcAvatar";
+import ArcBreadcrumb from "./arcBreadcrumb";
 
 export default function ArcNavbar() {
-
     const pathname = usePathname(); // Get the current path
     const pathSegments = pathname.split("/").filter((segment) => segment);
 

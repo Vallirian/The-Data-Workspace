@@ -21,10 +21,8 @@ import { MoreVertical, Plus, ChevronRight } from "lucide-react";
 import axiosInstance from "@/services/axios";
 import { DataTableMetaInterface, WorkbookInterface } from "@/interfaces/main";
 import { addDays, format } from "date-fns";
-import ArcNavbar from "@/components/arcNavbar";
+import ArcNavbar from "../sub-components/navigation/arcNavbar";
 import { useToast } from "@/hooks/use-toast";
-
-
 
 export default function WorkbooksPage() {
     const { toast } = useToast();
@@ -48,8 +46,9 @@ export default function WorkbooksPage() {
             setWorkbooks(workbooksData);
 
             // Fetch metadata for each workbook's table
-            const tableMetaPromises = workbooksData.map((workbook: WorkbookInterface) =>
-                fetchTableMeta(workbook.id, workbook.dataTable)
+            const tableMetaPromises = workbooksData.map(
+                (workbook: WorkbookInterface) =>
+                    fetchTableMeta(workbook.id, workbook.dataTable)
             );
             const tableMetasData = await Promise.all(tableMetaPromises);
             setTableMetas(tableMetasData);
@@ -107,12 +106,14 @@ export default function WorkbooksPage() {
                             workbook={workbook}
                             tableName={
                                 tableMetas.find(
-                                    (tableMeta) => tableMeta?.id === workbook.dataTable
+                                    (tableMeta) =>
+                                        tableMeta?.id === workbook.dataTable
                                 )?.name || "Unknown Table"
                             }
                             tableDescription={
                                 tableMetas.find(
-                                    (tableMeta) => tableMeta?.id === workbook.dataTable
+                                    (tableMeta) =>
+                                        tableMeta?.id === workbook.dataTable
                                 )?.description || "No description"
                             }
                         />
@@ -149,7 +150,7 @@ function WorkbookCard({
 }) {
     const router = useRouter();
     const handleCardClick = () => {
-        router.push(`/workbooks/${workbook.id}`); // Navigate to workbooks/:id
+        router.push(`/app/workbooks/${workbook.id}`); // Navigate to workbooks/:id
     };
 
     return (

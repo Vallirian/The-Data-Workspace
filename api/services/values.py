@@ -1,9 +1,11 @@
+import os
+
 # Arc SQL
 SQL_RESERVED_KEYWORDS = ['SELECT', 'FROM', 'WHERE', 'GROUP BY', 'HAVING', 'ORDER BY', 'LIMIT', 'JOIN', 'ON', 'IN', 'EXISTS', 'LIKE', 'BETWEEN', 'UNION', 'INTERSECT', 'EXCEPT']
 SQL_DDL_KEYWORDS = ['DROP', 'TRUNCATE', 'DELETE', 'INSERT', 'UPDATE', 'CREATE', 'ALTER', 'GRANT', 'REVOKE']
 
 # SQL execution
-DEFAULT_SCHEMA = 'app_common'
+DEFAULT_SCHEMA = os.getenv('MYSQL_DATABASE', 'arc')
 DATA_TABLE_COLUMN_META = 'data_table_column_meta'
 DATA_TABLE_META = 'data_table_meta'
 FORMULA_MESSAGE = 'formula_message'

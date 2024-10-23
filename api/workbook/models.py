@@ -26,7 +26,7 @@ class DataTableMeta(models.Model):
     extractionDetails = models.TextField()
 
     class Meta:
-        db_table = f'{svc_vals.DEFAULT_SCHEMA}.{svc_vals.DATA_TABLE_META}'
+        db_table = f'{svc_vals.DATA_TABLE_META}'
 
 
 class DataTableColumnMeta(models.Model):
@@ -47,7 +47,7 @@ class DataTableColumnMeta(models.Model):
     dataTable = models.ForeignKey(DataTableMeta, on_delete=models.CASCADE, related_name='columns')
 
     class Meta:
-        db_table = f'{svc_vals.DEFAULT_SCHEMA}.{svc_vals.DATA_TABLE_COLUMN_META}'
+        db_table = f'{svc_vals.DATA_TABLE_COLUMN_META}'
 
 class Report(models.Model):
     id = models.CharField(primary_key=True, default=uuid.uuid4, editable=False, unique=True, max_length=36)
@@ -55,7 +55,7 @@ class Report(models.Model):
     rows = models.JSONField(default=list) # [[col1, col2, col3], [col1, col2, col3]]
 
     class Meta:
-        db_table = f'{svc_vals.DEFAULT_SCHEMA}.report'
+        db_table = f'report'
     
 class Formula(models.Model):
     id = models.CharField(primary_key=True, default=uuid.uuid4, editable=False, unique=True, max_length=36)
@@ -76,7 +76,7 @@ class Formula(models.Model):
     isValidated = models.BooleanField(default=False)
 
     class Meta:
-        db_table = f'{svc_vals.DEFAULT_SCHEMA}.formula'
+        db_table = f'formula'
 
     
 class FormulaMessage(models.Model):
@@ -106,7 +106,7 @@ class FormulaMessage(models.Model):
     runDetails = models.JSONField(default=dict)
 
     class Meta:
-        db_table = f'{svc_vals.DEFAULT_SCHEMA}.{svc_vals.FORMULA_MESSAGE}'
+        db_table = f'{svc_vals.FORMULA_MESSAGE}'
 
 
 class Workbook(models.Model):
@@ -117,5 +117,5 @@ class Workbook(models.Model):
     report = models.OneToOneField(Report, on_delete=models.CASCADE, related_name='workbook', null=True, blank=True)
 
     class Meta:
-        db_table = f'{svc_vals.DEFAULT_SCHEMA}.workbook'
+        db_table = f'workbook'
 

@@ -3,8 +3,6 @@
 import { auth, googleProvider } from "@/services/firebase";
 import { Button } from "@/components/ui/button";
 import { EnvelopeOpenIcon } from "@radix-ui/react-icons";
-import { Input } from "@/components/ui/input";
-import { GithubIcon } from "lucide-react";
 import { GoogleAuthProvider, signInWithPopup, User } from "firebase/auth";
 import Link from "next/link";
 import { useState } from "react";
@@ -25,7 +23,7 @@ export default function Signup() {
                 const user = result.user;
                 setUser(user);
 
-                router.push('/workbooks'); 
+                router.push('/app/workbooks'); 
             })
             .catch((error) => {
                 const errorCode = error.code;
