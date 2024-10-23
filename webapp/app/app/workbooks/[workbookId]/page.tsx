@@ -75,19 +75,8 @@ export default function Page() {
                     </Tabs>
                     <div></div>
                 </div>
-                <div className="flex items-center justify-between pl-2 w-1/4">
-                    <Tabs
-                        value={activeRightTab}
-                        onValueChange={setActiveRightTab}
-                        className="w-auto"
-                    >
-                        <TabsList>
-                            <TabsTrigger value="analysisChat">
-                                Analysis
-                            </TabsTrigger>
-                            <TabsTrigger value="savedFormula">KPIs</TabsTrigger>
-                        </TabsList>
-                    </Tabs>
+                <div className="flex items-center justify-between pl-2 w-1/4 ">
+                <div></div>
                     <ArcAvatar />
                 </div>
             </nav>
@@ -112,19 +101,11 @@ export default function Page() {
                     )}
                 </div>
                 <div className="w-1/4 border-l">
-                    {activeRightTab === "analysisChat" && (
-                        <AnalysisChat
-                            workbookId={workbookId as string}
-                            tableId={workbook.dataTable}
-                        />
-                    )}
-                    {activeRightTab === "savedFormula" && (
-                        <Formulas
-                            workbookId={workbookId as string}
-                            isActive={activeRightTab === "savedFormula"}
-                        />
+                    <Formulas
+                        workbookId={workbookId as string}
+                        tableId={workbook.dataTable as string}
                         // trigger refresh when tab is active
-                    )}
+                    />
                 </div>
             </div>
         </div>

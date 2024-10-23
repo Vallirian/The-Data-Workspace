@@ -186,7 +186,10 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
         }
 
         // validate row and column count
-        if (data.length > (parseInt(process.env.NEXT_PUBLIC_DATASET_ROW_LIMIT || "10") || 10)) {
+        if (
+            data.length >
+            (parseInt(process.env.NEXT_PUBLIC_DATASET_ROW_LIMIT || "10") || 10)
+        ) {
             toast({
                 variant: "destructive",
                 title: "Row limit exceeded",
@@ -198,11 +201,17 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
             return false;
         }
 
-        if (columns.length > (parseInt(process.env.NEXT_PUBLIC_DATASET_COLUMN_LIMIT || "10") || 10)) {
+        if (
+            columns.length >
+            (parseInt(process.env.NEXT_PUBLIC_DATASET_COLUMN_LIMIT || "10") ||
+                10)
+        ) {
             toast({
                 variant: "destructive",
                 title: "Column limit exceeded",
-                description: `Max columns allowed is ${parseInt(process.env.NEXT_PUBLIC_DATASET_ROW_LIMIT || "10")}`,
+                description: `Max columns allowed is ${parseInt(
+                    process.env.NEXT_PUBLIC_DATASET_ROW_LIMIT || "10"
+                )}`,
                 action: <ToastAction altText="Ok">Ok</ToastAction>,
             });
             return false;
@@ -371,7 +380,7 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
                     <Button
                         variant="link"
                         onClick={() => {
-                            if ((tableMeta?.dataSourceAdded)) {
+                            if (tableMeta?.dataSourceAdded) {
                                 toast({
                                     variant: "destructive",
                                     title: "Data source already added",
@@ -442,19 +451,89 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
                                 <TableRow>
                                     {columns.map((column) => (
                                         <TableHead key={column.name}>
-                                            {column.name}
-                                            <Badge
-                                                variant="secondary"
-                                                className="ml-2"
-                                            >
-                                                {column.dtype}
-                                            </Badge>
+                                            <div>
+                                                {column.name}
+                                                <Badge
+                                                    variant="secondary"
+                                                    className="ml-2"
+                                                >
+                                                    {column.dtype}
+                                                </Badge>
+                                            </div>
+                                            <div className="my-3">
+                                                <Select
+                                                    onValueChange={(
+                                                        value:
+                                                            | "string"
+                                                            | "integer"
+                                                            | "float"
+                                                            | "date"
+                                                    ) =>
+                                                        handleColumnTypeChange(
+                                                            column.name,
+                                                            value
+                                                        )
+                                                    }
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select type" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="string">
+                                                            String
+                                                        </SelectItem>
+                                                        <SelectItem value="integer">
+                                                            Integer
+                                                        </SelectItem>
+                                                        <SelectItem value="float">
+                                                            Float
+                                                        </SelectItem>
+                                                        <SelectItem value="date">
+                                                            Date
+                                                        </SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                {column.dtype === "date" && (
+                                                    <Select
+                                                        onValueChange={(
+                                                            value:
+                                                                | "MM/DD/YYYY"
+                                                                | "DD/MM/YYYY"
+                                                                | "MM-DD-YYYY"
+                                                                | "DD-MM-YYYY"
+                                                        ) =>
+                                                            handleColumnFormatChange(
+                                                                column.name,
+                                                                value
+                                                            )
+                                                        }
+                                                    >
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select Date Format" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="MM/DD/YYYY">
+                                                                MM/DD/YYYY
+                                                            </SelectItem>
+                                                            <SelectItem value="DD/MM/YYYY">
+                                                                DD/MM/YYYY
+                                                            </SelectItem>
+                                                            <SelectItem value="MM-DD-YYYY">
+                                                                MM-DD-YYYY
+                                                            </SelectItem>
+                                                            <SelectItem value="DD-MM-YYYY">
+                                                                DD-MM-YYYY
+                                                            </SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                )}
+                                            </div>
                                         </TableHead>
                                     ))}
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {data.slice(0, 5).map((row, index) => (
+                                {data.slice(0, 15).map((row, index) => (
                                     <TableRow key={index}>
                                         {columns.map((column) => (
                                             <TableCell key={column.name}>
@@ -464,82 +543,6 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
                                     </TableRow>
                                 ))}
                             </TableBody>
-                        </Table>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    {columns.map((column) => (
-                                        <TableHead key={column.name}>
-                                            <Select
-                                                onValueChange={(
-                                                    value:
-                                                        | "string"
-                                                        | "integer"
-                                                        | "float"
-                                                        | "date"
-                                                ) =>
-                                                    handleColumnTypeChange(
-                                                        column.name,
-                                                        value
-                                                    )
-                                                }
-                                            >
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select type" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="string">
-                                                        String
-                                                    </SelectItem>
-                                                    <SelectItem value="integer">
-                                                        Integer
-                                                    </SelectItem>
-                                                    <SelectItem value="float">
-                                                        Float
-                                                    </SelectItem>
-                                                    <SelectItem value="date">
-                                                        Date
-                                                    </SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            {column.dtype === "date" && (
-                                                <Select
-                                                    onValueChange={(
-                                                        value:
-                                                            | "MM/DD/YYYY"
-                                                            | "DD/MM/YYYY"
-                                                            | "MM-DD-YYYY"
-                                                            | "DD-MM-YYYY"
-                                                    ) =>
-                                                        handleColumnFormatChange(
-                                                            column.name,
-                                                            value
-                                                        )
-                                                    }
-                                                >
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Select Date Format" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="MM/DD/YYYY">
-                                                            MM/DD/YYYY
-                                                        </SelectItem>
-                                                        <SelectItem value="DD/MM/YYYY">
-                                                            DD/MM/YYYY
-                                                        </SelectItem>
-                                                        <SelectItem value="MM-DD-YYYY">
-                                                            MM-DD-YYYY
-                                                        </SelectItem>
-                                                        <SelectItem value="DD-MM-YYYY">
-                                                            DD-MM-YYYY
-                                                        </SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            )}
-                                        </TableHead>
-                                    ))}
-                                </TableRow>
-                            </TableHeader>
                         </Table>
                     </div>
 

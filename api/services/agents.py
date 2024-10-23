@@ -8,7 +8,7 @@ from workbook.models import DataTableMeta, DataTableColumnMeta
 
 class OpenAIAnalysisAgent:
     def __init__(self, user_message: str=None, chat_id: str=None, thread_id: str=None, dt_meta_id: str=None, request=None) -> None:
-        self.run_response = AgentRunResponse(chat_id=chat_id, full_conversation=[{"initial_user_message": user_message}])
+        self.run_response = AgentRunResponse()
         self.thread = None
         self.chat_id = chat_id
         self.thread_id = thread_id

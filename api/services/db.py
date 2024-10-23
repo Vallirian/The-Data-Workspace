@@ -72,12 +72,12 @@ class RawData:
             return True, 'Data extracted successfully'
         except Exception as e:
             print(f'Error on extraction: {e}')
-            return False, "Error extracting data"
+            return False, str(e)
         
     def delete_table(self):
         query = f"DROP TABLE IF EXISTS `{self.table.name}`;"
         _raw_exec = RawSQLExecution(sql=query, inputs=[], request=self.request)
-        _raw_exec_status, _raw_exec_value = _raw_exec.execute()
+        _raw_exec_status, _raw_exec_value = _raw_exec.execute(fetch_results=False)
         if not _raw_exec_status:
             return False, _raw_exec_value
         return True, 'Table deleted successfully'
@@ -85,7 +85,7 @@ class RawData:
     def get_data(self, page_size: int, page_number: int):
         query = f"SELECT * FROM `{self.table.name}` LIMIT {page_size} OFFSET {page_size * (page_number - 1)};"
         _raw_exec = RawSQLExecution(sql=query, inputs=[], request=self.request)
-        _raw_exec_status, _raw_exec_value = _raw_exec.execute()
+        _raw_exec_status, _raw_exec_value = _raw_exec.execute(fetch_results=True)
         if not _raw_exec_status:
             return False, _raw_exec_value
         return True, _raw_exec_value
@@ -93,7 +93,7 @@ class RawData:
     def get_data_count(self):
         query = f"SELECT COUNT(*) as count FROM `{self.table.name}`;"
         _raw_exec = RawSQLExecution(sql=query, inputs=[], request=self.request)
-        _raw_exec_status, _raw_exec_value = _raw_exec.execute()
+        _raw_exec_status, _raw_exec_value = _raw_exec.execute(fetch_results=True)
         if not _raw_exec_status:
             return False, _raw_exec_value
         return True, _raw_exec_value
@@ -104,16 +104,16 @@ class RawSQLExecution:
         self.inputs = inputs
         self.request = request
 
-    def execute(self, many=False):
+    def execute(self, many=False, fetch_results=False):
         user_schema = f"`schema___{self.request.user.id}`"
-        # schema name inc;udes dashes, so we need to use backticks only when using without ''
+        # schema name includes dashes, so we need to use backticks only when using without ''
         
         # Ensuring to switch back safely
         try:
             with connection.cursor() as cursor:
                 # Use the user-specific database
                 cursor.execute(f"USE {user_schema}")
-            
+
                 # Execute SQL on user's schema
                 if many:
                     try:
@@ -124,8 +124,13 @@ class RawSQLExecution:
                 else:
                     try:
                         cursor.execute(self.sql, self.inputs)
-                        result = dictfetchall(cursor)
-                        return True, result
+                        
+                        if fetch_results:
+                            result = dictfetchall(cursor)
+                            return True, result
+                        else:
+                            return True, 'Success'
+                            
                     except Exception as e:
                         return False, str(e)
         finally:
@@ -182,12 +187,10 @@ class DataSegregation:
     def schema_exists(self):
         user_schema = f"schema___{self.request.user.id}"
         query = f"SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = %s;"
-        print(user_schema, query)
         
         with connection.cursor() as cursor:
             cursor.execute(query, [user_schema])
             rows = dictfetchall(cursor)
-            print("here")
             return True if rows else False
 
     def create_user_schema(self):

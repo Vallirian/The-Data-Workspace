@@ -15,8 +15,12 @@ def dictfetchall(cursor):
     ]
 
 def validate_and_cast_value(value, data_type, data_format=None):
-    if (value is None) or (value == ''):
-        return True, ''
+    if value is None or str(value).strip() == '':
+        if data_type == 'date':
+            # Return a consistent representation of an empty or null date
+            return True, None  
+        else:
+            return True, value
     try:
         if data_type == 'string':
             return True, str(value)
@@ -29,10 +33,12 @@ def validate_and_cast_value(value, data_type, data_format=None):
         else:
             return False, 'Invalid data type'
     except ValueError as e:
+        print(f'Error casting value: {value} to {data_type}')
         return False, str(e)
 
 def is_valid_date(date_str, date_format: str):
     if date_format not in svc_vals.ALLOWED_DATE_FORMATS:
+        print(f'Invalid date format: {date_format} for date {date_str}')
         return False, f'Invalid date format: {date_format} for date {date_str}'
     
     try:

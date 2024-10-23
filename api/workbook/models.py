@@ -67,8 +67,8 @@ class Formula(models.Model):
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
 
-    name = models.CharField(max_length=255)
-    description = models.TextField()
+    name = models.CharField(max_length=255, default='Untitled Formula', blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
     arcSql = models.TextField(blank=True, null=True)
     rawArcSql = models.JSONField(blank=True, null=True)
     
@@ -100,6 +100,7 @@ class FormulaMessage(models.Model):
     messageType = models.CharField(max_length=5, choices=MESSAGE_TYPES, default='text')
     name = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
+    rawArcSql = models.JSONField(blank=True, null=True)
     text = models.TextField(blank=True, null=True)
 
     retries = models.IntegerField(default=0)

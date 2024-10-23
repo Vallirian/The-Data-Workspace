@@ -1,12 +1,5 @@
 "use client";
 
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreVertical, Plus, ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import axiosInstance from "@/services/axios";
@@ -17,31 +10,29 @@ import { Textarea } from "@/components/ui/textarea";
 import { chatProps } from "@/interfaces/props";
 import { auth } from "@/services/firebase";
 import { useToast } from "@/hooks/use-toast";
-import { ToastAction } from "@/components/ui/toast";
 import ArcFormatDate from "@/services/formatDate";
 import {
-    AnalysisChatInterface,
     AnalysisChatMessageInterface,
 } from "@/interfaces/main";
 import {
     Card,
     CardContent,
-    CardDescription,
     CardFooter,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
 
-export default function StandardChat({ workbookId, tableId }: chatProps) {
+export default function AnalysisChat({
+    workbookId,
+    tableId,
+    formulaId,
+}: chatProps) {
     const { toast } = useToast();
     const [waitingServerMessage, setWaitingServerMessage] =
         useState<boolean>(false);
-
-    const [chats, setChats] = useState<AnalysisChatInterface[]>([]);
     const [messages, setMessages] = useState<AnalysisChatMessageInterface[]>(
         []
     );
-    const [activeChatId, setActiveChatId] = useState<string | null>(null);
     const [inputMessage, setInputMessage] = useState("");
 
     // ----- Message -----
@@ -54,44 +45,43 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
     }, [messages]);
 
     useEffect(() => {
-        const fetchMessages = async () => {
-            try {
-                const response = await axiosInstance.get(
-                    `${process.env.NEXT_PUBLIC_API_URL}/chat/workbooks/${workbookId}/table/${tableId}/analysis-chats/${activeChatId}/`
-                );
-                const fetchedMessages: AnalysisChatMessageInterface[] =
-                    response.data || [];
-                console.log(fetchedMessages);
-                setMessages(fetchedMessages);
-            } catch (error: any) {
-                toast({
-                    variant: "destructive",
-                    title: "Error fetching messages",
-                    description:
-                        error.response?.data?.error ||
-                        "Failed to load messages",
-                });
-            }
-        };
+        fetchMessages();        
+    }, [formulaId]);
 
-        if (activeChatId) {
-            fetchMessages();
+    const fetchMessages = async () => {
+        try {
+            const response = await axiosInstance.get(
+                `${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/formulas/${formulaId}/messages/`
+            );
+            const fetchedMessages: AnalysisChatMessageInterface[] =
+                response.data || [];
+            console.log(fetchedMessages);
+            setMessages(fetchedMessages);
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Error fetching messages",
+                description:
+                    error.response?.data?.error ||
+                    "Failed to load messages",
+            });
         }
-    }, [activeChatId]);
+    };
 
     const handleSendMessage = async () => {
-        if (inputMessage.trim() && activeChatId) {
+        if (inputMessage.trim() && !waitingServerMessage && formulaId) {
             const _newMessage: AnalysisChatMessageInterface = {
                 id: Date.now().toString(), // temporary id, will be replaced by server
                 userId: auth.currentUser?.uid || "",
                 userType: "user",
                 createdAt: new Date(),
+                formula: formulaId,
 
                 text: inputMessage,
                 name: null,
                 description: null,
 
-                messageType: "text"
+                messageType: "text",
             };
 
             setMessages([...messages, _newMessage]);
@@ -100,7 +90,7 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
             try {
                 setWaitingServerMessage(true);
                 const _newMessageResponse = await axiosInstance.post(
-                    `${process.env.NEXT_PUBLIC_API_URL}/chat/workbooks/${workbookId}/table/${tableId}/analysis-chats/${activeChatId}/`,
+                    `${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/formulas/${formulaId}/messages/`,
                     _newMessage
                 );
                 const newMessageResponseData: AnalysisChatMessageInterface =
@@ -128,201 +118,51 @@ export default function StandardChat({ workbookId, tableId }: chatProps) {
         }
     };
 
-    const saveFormula = async (message: AnalysisChatMessageInterface) => {
-        try {
-            await axiosInstance.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/formulas/`,
-                {
-                    messageId: message.id
-                }
-            );
-            toast({
-                title: "Formula saved",
-                description: "Formula has been saved successfully",
-            });
-        } catch (error: any) {
-            toast({
-                variant: "destructive",
-                title: "Error saving formula",
-                description: error.response.data.error || "Failed to save formula",
-            });
-        }
-    }
-
-    // ----- Chat -----
-    useEffect(() => {
-        const fetchChats = async () => {
-            try {
-                const response = await axiosInstance.get(
-                    `${process.env.NEXT_PUBLIC_API_URL}/chat/workbooks/${workbookId}/table/${tableId}/analysis-chats/`
-                );
-                const fetchedChats: AnalysisChatInterface[] =
-                    response.data || [];
-                console.log(fetchedChats);
-                setChats(fetchedChats);
-            } catch (error: any) {
-                toast({
-                    variant: "destructive",
-                    title: "Error fetching chats",
-                    description:
-                        error.response?.data?.error || "Failed to load chats",
-                });
-            }
-        };
-
-        if (workbookId && tableId) {
-            fetchChats();
-        }
-    }, [workbookId, tableId]);
-
-    const startNewChat = async () => {
-        try {
-            const response = await axiosInstance.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/chat/workbooks/${workbookId}/table/${tableId}/analysis-chats/`,
-            );
-
-            const newChat: AnalysisChatInterface = {
-                id: response.data.id,
-                name: response.data.name,
-                updatedAt: new Date(),
-                topic: "",
-            };
-
-            setChats([...chats, newChat]);
-            setActiveChatId(newChat.id);
-        } catch (error: any) {
-            toast({
-                variant: "destructive",
-                title: "Error getting data",
-                description: error.response.data.error
-                    ? error.response.data.error
-                    : "Failed to fetch data",
-                action: (
-                    <ToastAction altText="Ok" onClick={startNewChat}>
-                        Try again
-                    </ToastAction>
-                ),
-            });
-        }
-    };
-
-    const closeChat = async () => {
-        setActiveChatId(null);
-    };
-
-    if (!workbookId || !tableId) {
+    if (!workbookId || !tableId || !formulaId) {
         return <div>Loading...</div>;
     }
     return (
         <div className="h-full flex flex-col">
-            <div className="flex justify-between items-center px-4 py-1 border-b">
-                {activeChatId ? (
-                    <Button variant="link" size="icon" onClick={closeChat}>
-                        x
-                    </Button>
-                ) : (
-                    <div className="flex flex-grow justify-between">
-                        <div></div>
-                        <Button
-                            variant="link"
-                            onClick={startNewChat}
-                            className="px-1"
-                        >
-                            + New Chat
-                        </Button>
-                    </div>
-                )}
-            </div>
             <div className="flex-grow p-4 overflow-y-auto" ref={scrollRef}>
-                {activeChatId ? (
-                    messages.map((message, index) => {
-                        const messageDate = new Date(message.createdAt);
-                        const userType =
-                            message.userType === "user" ? "You" : "Model";
-                        return (
-                            <div key={index} className="mb-4">
-                                {message.messageType === "text" && (
-                                    <div className="p-2 bg-muted rounded-md">
-                                        <div className="text-sm text-muted-foreground mb-1">
-                                            {userType} &#8226;{" "}
-                                            {ArcFormatDate(messageDate)}
-                                        </div>
-                                        {message.text}
+                {messages.map((message, index) => {
+                    const messageDate = new Date(message.createdAt);
+                    const userType =
+                        message.userType === "user" ? "You" : "Model";
+                    return (
+                        <div key={index} className="mb-4">
+                            {message.messageType === "text" && (
+                                <div className="p-2 bg-muted rounded-md">
+                                    <div className="text-sm text-muted-foreground mb-1">
+                                        {userType} &#8226;{" "}
+                                        {ArcFormatDate(messageDate)}
                                     </div>
-                                )}
-                                {message.messageType === "pql" && (
-                                    <Card className="flex flex-col cursor-pointer hover:bg-accent">
-                                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                            <CardTitle className="text-sm font-medium">
-                                                {message.name}
-                                            </CardTitle>
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button
-                                                        variant="ghost"
-                                                        className="h-8 w-8 p-0"
-                                                    >
-                                                        <MoreVertical className="h-4 w-4" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuItem
-                                                        onClick={() => saveFormula(message)}
-                                                    >
-                                                        Save Formula
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                        }}
-                                                    >
-                                                        Add to Report
-                                                    </DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <p className="mb-2">{message.text}</p>
-                                            <p className="text-xs text-muted-foreground">
-                                                {message.description}
-                                            </p>
-                                        </CardContent>
-                                        <CardFooter>
-                                            <p className="text-xs text-muted-foreground">
-                                                {ArcFormatDate(messageDate)}
-                                            </p>
-                                        </CardFooter>
-                                    </Card>
-                                )}
-                            </div>
-                        );
-                    })
-                ) : (
-                    <div>
-                        {chats.length > 0 ? (
-                            chats.map((chat) => (
-                                <div
-                                    key={chat.id}
-                                    className="mb-4 p-3 bg-muted rounded-md cursor-pointer hover:bg-gray-300"
-                                    onClick={() => setActiveChatId(chat.id)}
-                                >
-                                    <div className="text-md font-medium">
-                                        {chat.topic || "Untitled Chat"}
-                                    </div>
-                                    <div className="text-sm text-muted-foreground">
-                                        {ArcFormatDate(
-                                            new Date(chat.updatedAt)
-                                        )}
-                                    </div>
+                                    {message.text}
                                 </div>
-                            ))
-                        ) : (
-                            <div className="text-sm text-muted-foreground">
-                                No chats available.
-                            </div>
-                        )}
-                    </div>
-                )}
+                            )}
+                            {(message.messageType === "kpi" ||
+                                message.messageType === "table") && (
+                                <Card className="flex flex-col cursor-pointer hover:bg-accent">
+                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                        <CardTitle className="text-sm font-medium">
+                                            {message.name}
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <p className="mb-2">{message.text}</p>
+                                        <p className="text-xs text-muted-foreground">
+                                            {message.description}
+                                        </p>
+                                    </CardContent>
+                                    <CardFooter>
+                                        <p className="text-xs text-muted-foreground">
+                                            {ArcFormatDate(messageDate)}
+                                        </p>
+                                    </CardFooter>
+                                </Card>
+                            )}
+                        </div>
+                    );
+                })}
             </div>
             <div className="p-4 border-t">
                 <div className="flex flex-col space-y-2">

@@ -17,28 +17,37 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion";
-import { useEffect, useRef, useState } from "react";
+import {
+    Card,
+    CardContent,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
+import { useEffect, useState } from "react";
 import axiosInstance from "@/services/axios";
 import { FormulaInterface } from "@/interfaces/main";
 
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import AnalysisChat from "../(chat)/pqlChat";
 
 export default function Formulas({
     workbookId,
-    isActive,
+    tableId,
 }: {
     workbookId: string;
-    isActive: boolean;
+    tableId: string;
 }) {
     const [formulas, setFormulas] = useState<FormulaInterface[]>([]);
+    const [activeFormula, setActiveFormula] = useState<FormulaInterface | null>(
+        null
+    );
     const { toast } = useToast();
 
     useEffect(() => {
-        if (isActive) {
-            fetchFormulas();
-        }
-    }, [isActive]);
+        fetchFormulas();
+    }, [workbookId]);
 
     const fetchFormulas = async () => {
         try {
@@ -72,30 +81,79 @@ export default function Formulas({
         }
     };
 
+    // edit formula
+    const handleCreateFormula = async () => {
+        try {
+            const response = await axiosInstance.post(
+                `${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/formulas/`,
+                { dataTable: tableId }
+            );
+            const newFormula: FormulaInterface = response.data;
+            setFormulas([...formulas, newFormula]);
+            setActiveFormula(newFormula);
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Error creating formula",
+                description: error.response.data.error,
+            });
+        }
+    };
+
+
     return (
         <div className="flex-grow p-4 overflow-y-auto">
-            <Accordion type="single" collapsible>
-                {formulas.map((formula) => (
-                    <div key={formula.id}>
-                        <AccordionItem value={formula.id} className="px-2">
-                            <AccordionTrigger>
-                                <p className="mb-2">{formula.name}</p>
-                            </AccordionTrigger>
-                            <AccordionContent>
-                                <p className="mb-2">{formula.description}</p>
-                                <div className="bg-muted rounded p-1 mb-2">
-                                    <p className="text-sm text-muted-foreground">
-                                        Executed SQL
+            {activeFormula ? (
+                <>
+                    <div className="flex justify-between">
+                        <div></div>
+                        <div>
+                            <Button variant="link" onClick={() => setActiveFormula(null)}>
+                                Close
+                            </Button>
+                        </div>
+                    </div>
+                    <AnalysisChat
+                        workbookId={workbookId}
+                        tableId={tableId}
+                        formulaId={activeFormula.id}
+                    />
+                </>
+            ) : (
+                <>
+                    <div className="flex justify-between">
+                        <div></div>
+                        <div>
+                            <Button variant="link" onClick={handleCreateFormula}>
+                                + New Metric
+                            </Button>
+                        </div>
+                    </div>
+                    {formulas.map((formula) => (
+                        <div
+                            key={formula.id}
+                            onClick={() => setActiveFormula(formula)}
+                        >
+                            <Card className="flex flex-col">
+                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                    <CardTitle className="text-sm font-medium">
+                                        {formula.name}
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    {/* <p className="mb-2">{fromula.}</p> */}
+                                    <p className="text-xs text-muted-foreground">
+                                        {formula.description ||
+                                            "No description"}
                                     </p>
-                                    <code className="relative px-[0.3rem] py-[0.2rem] font-mono text-sm whitespace-pre-wrap break-words">
-                                        {formula.validatedSQL}
-                                    </code>
-                                </div>
-                                <div className="flex justify-between">
+                                </CardContent>
+                                <CardFooter className="flex justify-between">
                                     <div></div>
                                     <AlertDialog>
-                                        <AlertDialogTrigger variant="link">
-                                            Delete
+                                        <AlertDialogTrigger>
+                                            <Button variant="link">
+                                                Delete
+                                            </Button>
                                         </AlertDialogTrigger>
                                         <AlertDialogContent>
                                             <AlertDialogHeader>
@@ -115,23 +173,19 @@ export default function Formulas({
                                                     Cancel
                                                 </AlertDialogCancel>
                                                 <AlertDialogAction
-                                                    onClick={() =>
-                                                        deleteFormula(
-                                                            formula.id
-                                                        )
-                                                    }
+                                                    onClick={() => {}}
                                                 >
                                                     Continue
                                                 </AlertDialogAction>
                                             </AlertDialogFooter>
                                         </AlertDialogContent>
                                     </AlertDialog>
-                                </div>
-                            </AccordionContent>
-                        </AccordionItem>
-                    </div>
-                ))}
-            </Accordion>
+                                </CardFooter>
+                            </Card>
+                        </div>
+                    ))}
+                </>
+            )}
         </div>
     );
 }

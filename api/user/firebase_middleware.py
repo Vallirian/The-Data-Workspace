@@ -76,7 +76,7 @@ class FirebaseTokenAuthMiddleware(MiddlewareMixin):
                     DataSegregation(request=request).create_user_schema()
                 
 
-                if resolve(request.path_info).route.startswith('api/'): 
+                if resolve(request.path_info).route.startswith('api/v1/app/'): 
                     # If the request is for the API, mark it as CSRF exempt 
                     # because we are using Google Firebase for authentication which is stateless
                     request.csrf_processing_done = True

@@ -39,21 +39,6 @@ export interface DataTableColumnMetaInterface {
     description: string;
 }
 
-export interface StandardChatInterface {
-    id: string;
-    name: string;
-    updatedAt: Date;
-    topic: string;
-}
-
-export interface StandardChatMessageInterface {
-    id: string;
-    text: string;
-    userId: string;
-    userType: 'user' | 'model';
-    createdAt: Date;
-}
-
 export interface AnalysisChatInterface {
     id: string;
     name: string;
@@ -63,6 +48,7 @@ export interface AnalysisChatInterface {
 
 export interface AnalysisChatMessageInterface {
     id: string;
+    formula: string;
     userId: string;
     userType: 'user' | 'model';
     createdAt: Date;
@@ -71,7 +57,7 @@ export interface AnalysisChatMessageInterface {
     name: string | null;
     description: string | null;
 
-    messageType: 'text' | 'pql';
+    messageType: 'text' | 'kpi' | 'table';
 }
 
 export interface FormulaInterface {

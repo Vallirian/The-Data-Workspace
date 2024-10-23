@@ -106,8 +106,6 @@ class DataTableExtractionAPIView(APIView):
         raw_data_ops = RawData(request=request, table_id=table_id)
         _extraction_status, _extraction_message = raw_data_ops.extract_data(request.data['data'])
         
-        print('extraction status', _extraction_status, _extraction_message)
-
         if _extraction_status:
             datatable_meta.extractionStatus = 'success'
             datatable_meta.extractionDetails = _extraction_message
@@ -123,7 +121,17 @@ class DataTableExtractionAPIView(APIView):
     
     def delete(self, request, table_id, *args, **kwargs):
         datatable_meta = get_object_or_404(DataTableMeta, id=table_id, user=request.user)
-        DataTableColumnMeta.objects.filter(dataTable=datatable_meta).delete()
+
+        # delete raw data
+        # delete before columns because of foreign key constraint
+        print('deleting raw data')
+        raw_data_ops = RawData(request=request, table_id=table_id)
+        _delete_status, _delete_message = raw_data_ops.delete_table()
+        print('delete status', _delete_status, _delete_message)
+
+        # delete columns
+        print('deleting columns')
+        DataTableColumnMeta.objects.filter(dataTable=datatable_meta, user=request.user).delete()
 
         # Reset fields related to data source
         datatable_meta.dataSourceAdded = False
@@ -132,9 +140,6 @@ class DataTableExtractionAPIView(APIView):
         datatable_meta.extractionStatus = 'pending'
         datatable_meta.extractionDetails = ""
 
-        # delete raw data
-        raw_data_ops = RawData(request=request, table_id=table_id)
-        _delete_status, _delete_message = raw_data_ops.delete_table()
 
         if _delete_status:
             datatable_meta.save()
