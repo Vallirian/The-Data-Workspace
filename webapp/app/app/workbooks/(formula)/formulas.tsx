@@ -39,7 +39,7 @@ import { Label } from "@/components/ui/label";
 import { format } from "sql-formatter";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { base16AteliersulphurpoolLight, gruvboxLight } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { base16AteliersulphurpoolLight, gruvboxLight, materialLight, oneLight, duotoneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 export default function Formulas({
     workbookId,
@@ -160,19 +160,19 @@ export default function Formulas({
                     </div>
                     {formulas.map((formula) => (
                         <div key={formula.id}>
-                            <Card className="flex flex-col">
+                            <Card className="flex flex-col mb-4">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                     <CardTitle className="text-sm font-medium">
                                         {formula.name}
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent>
+                                <CardContent className="py-2">
                                     <p className="text-xs text-muted-foreground">
                                         {formula.description ||
                                             "No description"}
                                     </p>
                                 </CardContent>
-                                <CardFooter className="flex ">
+                                <CardFooter className="flex py-1">
                                     <Button
                                         variant="link"
                                         size="icon"
@@ -180,7 +180,7 @@ export default function Formulas({
                                             setActiveFormula(formula)
                                         }
                                     >
-                                        <Pencil size={16} />
+                                        <Pencil size={14} />
                                     </Button>
                                     <Dialog>
                                         <DialogTrigger asChild>
@@ -205,7 +205,7 @@ export default function Formulas({
                                                     <div className="p-4">
                                                         <SyntaxHighlighter
                                                             language="sql"
-                                                            style={gruvboxLight}
+                                                            style={oneLight}
                                                             customStyle={{
                                                                 margin: 0,
                                                                 padding: 0,
@@ -233,7 +233,7 @@ export default function Formulas({
                                     <AlertDialog>
                                         <AlertDialogTrigger>
                                             <Button variant="link" size="icon">
-                                                <Trash2 size={16} />
+                                                <Trash2 size={14} />
                                             </Button>
                                         </AlertDialogTrigger>
                                         <AlertDialogContent>
