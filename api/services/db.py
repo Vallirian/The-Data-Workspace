@@ -123,7 +123,9 @@ class RawSQLExecution:
                         return False, str(e)
                 else:
                     try:
+                        print('cursor execution started', )
                         cursor.execute(self.sql, self.inputs)
+                        print('cursor execution passed', )
                         
                         if fetch_results:
                             result = dictfetchall(cursor)

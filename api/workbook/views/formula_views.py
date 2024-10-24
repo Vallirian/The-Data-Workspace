@@ -7,7 +7,7 @@ from workbook.models import Workbook, DataTableMeta, FormulaMessage, DataTableCo
 from django.shortcuts import get_object_or_404
 from services.agents import OpenAIAnalysisAgent
 from services.interface import AgentRunResponse
-from services.utils import construct_sql_query
+from services.utils import ArcSQLUtils
 from services.db import RawSQLExecution
 
 class FormulaListView(APIView):
@@ -90,17 +90,17 @@ class FormulaMessageListView(APIView):
                 name=model_run.arc_sql.name,
                 description=model_run.arc_sql.description,
                 text=model_run.message,
-                rawArcSql=model_run.arc_sql,
+                rawArcSql=model_run.arc_sql.model_dump() if model_run.arc_sql else None,
 
                 retries=model_run.retries,
                 runDetails=model_run.run_details
             )
             _new_model_message.save()
 
-            formula.name=model_run.arc_sql.name,
-            formula.description=model_run.arc_sql.description,
+            formula.name=model_run.arc_sql.name
+            formula.description=model_run.arc_sql.description
             formula.arcSql = model_run.translated_sql
-            formula.rawArcSql = model_run.arc_sql
+            formula.rawArcSql = model_run.arc_sql.model_dump() if model_run.arc_sql else None
             formula.save()
 
             return Response(FormulaMessageSerializer(_new_model_message).data, status=status.HTTP_201_CREATED)
@@ -112,7 +112,7 @@ class FormulaDetailValueView(APIView):
     def get(self, request, formula_id, *args, **kwargs):
         try:
             formula = get_object_or_404(Formula, id=formula_id, isActive=True, user=request.user)
-            _translated_sql = construct_sql_query(formula.rawArcSql)
+            _translated_sql = ArcSQLUtils(formula.arcSql).get_sql_query()
             raw_sql_exec = RawSQLExecution(sql=_translated_sql, inputs=[], request=self.request)
             arc_sql_execution_pass, arc_sql_execution_result = raw_sql_exec.execute()
             if not arc_sql_execution_pass:

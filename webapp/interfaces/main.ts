@@ -64,7 +64,7 @@ export interface FormulaInterface {
     id: string;
     name: string;
     description: string;
-    validatedSQL: string;
+    arcSql: string;
     isActive: boolean;
     isValidated: boolean;
     createdAt: Date;

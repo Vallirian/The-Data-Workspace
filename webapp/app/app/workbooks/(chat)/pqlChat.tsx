@@ -21,6 +21,8 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
+import { ScrollArea } from "@radix-ui/react-scroll-area";
+import { ArcAutoFormat } from "@/services/autoFormat";
 
 export default function AnalysisChat({
     workbookId,
@@ -123,7 +125,8 @@ export default function AnalysisChat({
     }
     return (
         <div className="h-full flex flex-col">
-            <div className="flex-grow p-4 overflow-y-auto" ref={scrollRef}>
+
+            <div className="flex-grow overflow-y-auto" ref={scrollRef}>
                 {messages.map((message, index) => {
                     const messageDate = new Date(message.createdAt);
                     const userType =
@@ -148,7 +151,7 @@ export default function AnalysisChat({
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent>
-                                        <p className="mb-2">{message.text}</p>
+                                        <p className="mb-2">{ArcAutoFormat(message.text)}</p>
                                         <p className="text-xs text-muted-foreground">
                                             {message.description}
                                         </p>
@@ -164,7 +167,7 @@ export default function AnalysisChat({
                     );
                 })}
             </div>
-            <div className="p-4 border-t">
+            <div className="p-4">
                 <div className="flex flex-col space-y-2">
                     <Textarea
                         value={inputMessage}

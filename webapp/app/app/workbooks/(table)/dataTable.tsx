@@ -340,15 +340,12 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
                     </div>
                 ) : (
                     <div className="flex items-center">
-                        <span>{tableDescription}</span>
-                        <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => setEditingTableDescription(true)}
+                        <span
                             className="ml-2"
+                            onClick={() => setEditingTableDescription(true)}
                         >
-                            <Edit2 className="h-4 w-4" />
-                        </Button>
+                            {tableDescription || "Add table description"}
+                        </span>
                     </div>
                 )}
             </div>
@@ -402,13 +399,7 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
                                                     </div>
                                                 ) : (
                                                     <div className="flex items-center">
-                                                        <span>
-                                                            {column.description ||
-                                                                "Add column description"}
-                                                        </span>
-                                                        <Button
-                                                            size="sm"
-                                                            variant="ghost"
+                                                        <span
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 setEditingColumnDescription(
@@ -417,13 +408,14 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
                                                             }}
                                                             className="ml-1"
                                                         >
-                                                            <Edit2 className="h-3 w-3" />
-                                                        </Button>
+                                                            {column.description ||
+                                                                "Add column description"}
+                                                        </span>
                                                     </div>
                                                 )}
                                             </div>
                                             {sortColumn === column.id && (
-                                                <span className="ml-1">
+                                                <span className="ml-1 text-sm font-medium leading-none">
                                                     {sortDirection === "asc"
                                                         ? "↑"
                                                         : "↓"}

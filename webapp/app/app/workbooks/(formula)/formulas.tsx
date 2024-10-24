@@ -12,12 +12,6 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
-} from "@/components/ui/accordion";
-import {
     Card,
     CardContent,
     CardFooter,
@@ -31,6 +25,21 @@ import { FormulaInterface } from "@/interfaces/main";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import AnalysisChat from "../(chat)/pqlChat";
+import { Code, Code2, Pencil, Trash2 } from "lucide-react";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { format } from "sql-formatter";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { base16AteliersulphurpoolLight, gruvboxLight } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 export default function Formulas({
     workbookId,
@@ -100,40 +109,57 @@ export default function Formulas({
         }
     };
 
+    const handleCloseFormulaEditor = () => {
+        fetchFormulas();
+        setActiveFormula(null);
+    };
 
     return (
-        <div className="flex-grow p-4 overflow-y-auto">
+        <div className="h-full px-4 overflow-y-auto">
             {activeFormula ? (
-                <>
-                    <div className="flex justify-between">
-                        <div></div>
+                <div className="h-full flex flex-col">
+                    <div className="flex justify-between items-center px-4 py-2">
                         <div>
-                            <Button variant="link" onClick={() => setActiveFormula(null)}>
+                            <small className="text-sm font-semibold leading-none">
+                                {activeFormula.name || "Untitled Formula"}
+                            </small>
+                        </div>
+                        <div>
+                            <Button
+                                variant="link"
+                                onClick={handleCloseFormulaEditor}
+                            >
                                 Close
                             </Button>
                         </div>
                     </div>
-                    <AnalysisChat
-                        workbookId={workbookId}
-                        tableId={tableId}
-                        formulaId={activeFormula.id}
-                    />
-                </>
+                    <div className="flex-grow overflow-y-auto">
+                        <AnalysisChat
+                            workbookId={workbookId}
+                            tableId={tableId}
+                            formulaId={activeFormula.id}
+                        />
+                    </div>
+                </div>
             ) : (
                 <>
-                    <div className="flex justify-between">
-                        <div></div>
+                    <div className="flex justify-between items-center px-4 py-2">
                         <div>
-                            <Button variant="link" onClick={handleCreateFormula}>
+                            <small className="text-sm font-semibold leading-none">
+                                Select to Edit or Create New
+                            </small>
+                        </div>
+                        <div>
+                            <Button
+                                variant="link"
+                                onClick={handleCreateFormula}
+                            >
                                 + New Metric
                             </Button>
                         </div>
                     </div>
                     {formulas.map((formula) => (
-                        <div
-                            key={formula.id}
-                            onClick={() => setActiveFormula(formula)}
-                        >
+                        <div key={formula.id}>
                             <Card className="flex flex-col">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                     <CardTitle className="text-sm font-medium">
@@ -141,18 +167,73 @@ export default function Formulas({
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    {/* <p className="mb-2">{fromula.}</p> */}
                                     <p className="text-xs text-muted-foreground">
                                         {formula.description ||
                                             "No description"}
                                     </p>
                                 </CardContent>
-                                <CardFooter className="flex justify-between">
-                                    <div></div>
+                                <CardFooter className="flex ">
+                                    <Button
+                                        variant="link"
+                                        size="icon"
+                                        onClick={() =>
+                                            setActiveFormula(formula)
+                                        }
+                                    >
+                                        <Pencil size={16} />
+                                    </Button>
+                                    <Dialog>
+                                        <DialogTrigger asChild>
+                                            <Button
+                                                variant="link"
+                                                size="icon"
+                                            >
+                                                <Code2 className="h-4 w-4" />
+                                                <span className="sr-only">
+                                                    View SQL
+                                                </span>
+                                            </Button>
+                                        </DialogTrigger>
+                                        <DialogContent className="sm:max-w-[425px] md:max-w-[600px] lg:max-w-[700px] w-[90vw]">
+                                            <DialogHeader>
+                                                <DialogTitle>
+                                                    SQL for {formula.name}
+                                                </DialogTitle>
+                                            </DialogHeader>
+                                            <DialogDescription className="max-h-[60vh] overflow-hidden flex flex-col">
+                                                <ScrollArea className="w-full rounded-md border flex-grow">
+                                                    <div className="p-4">
+                                                        <SyntaxHighlighter
+                                                            language="sql"
+                                                            style={gruvboxLight}
+                                                            customStyle={{
+                                                                margin: 0,
+                                                                padding: 0,
+                                                                background:
+                                                                    "transparent",
+                                                            }}
+                                                            wrapLines={true}
+                                                            wrapLongLines={true}
+                                                        >
+                                                            {format(
+                                                                formula.arcSql ||
+                                                                    "No SQL"
+                                                            )}
+                                                        </SyntaxHighlighter>
+                                                    </div>
+                                                    <ScrollBar orientation="horizontal" />
+                                                </ScrollArea>
+                                                <p className="text-sm text-muted-foreground py-2 mt-2">
+                                                    {formula.description}
+                                                </p>
+                                            </DialogDescription>
+                                        </DialogContent>
+                                    </Dialog>
+
                                     <AlertDialog>
                                         <AlertDialogTrigger>
-                                            <Button variant="link">
-                                                Delete
+                                            <Button variant="link" size="icon">
+                                                <Trash2 size={16} />
                                             </Button>
                                         </AlertDialogTrigger>
                                         <AlertDialogContent>

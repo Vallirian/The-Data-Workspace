@@ -15,7 +15,7 @@ export default function Home() {
     }, []);
 
     useEffect(() => {
-        router.push("/workbooks"); 
+        router.push("/app/workbooks"); 
     }, []);
 
     return <Progress value={progress} className="w-[60%]" />;

@@ -24,3 +24,10 @@ ALLOWED_DATE_FORMATS = [
 ]
 
 MAX_COLUMNS = 50
+
+# AI Agent
+ANALYSIS_AGENT_INSTRUCTION = """Write a structured and effective SQL query to derive meaningful insights from the company's data, using one table at a time. Your query will address business questions and be used in the backend to execute and generate final results.
+# Important Notes: The result from your query will be executed in Python so: 
+- Ensure the syntax is correct, including escaping characters like percent (%) sign.
+- always put column names and table names in backticks (`) to avoid SQL errors. Example: `column_name`, `table_name`.
+"""

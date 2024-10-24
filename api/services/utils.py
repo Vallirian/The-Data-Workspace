@@ -80,56 +80,77 @@ def clean_pydantic_errors(error_message: str):
 
     return cleaned_text
 
-def construct_sql_query(arc_sql: ArcSQL) -> Union[str, None]:
-    """
-    Constructs a complete SQL query from an ArcSQL model instance.
-    
-    Args:
-        arc_sql (ArcSQL): An instance of the ArcSQL model containing CTEs and final SELECT query
-        
-    Returns:
-        str: The complete SQL query with CTEs and final SELECT statement
-        None: If the ArcSQL instance is invalid or contains errors
-    """
-    try:
-        # Validate the ArcSQL instance status
-        if not arc_sql.status.status:
-            return False, f"ArcSQL instance is invalid"
+class ArcSQLUtils:
+    def __init__(self, arc_sql: ArcSQL):
+        self.arc_sql = arc_sql
+        self.sql_query = None
 
-        # Initialize the list to store SQL parts
-        sql_parts = []
+    def construct_sql_query(self) -> Union[str, None]:
+        """
+        Constructs a complete SQL query from an ArcSQL model instance.
         
-        # Process CTEs if they exist
-        if arc_sql.cte_tables_in_order:
-            # Start WITH clause for the first CTE
-            first_cte = arc_sql.cte_tables_in_order[0]
-            sql_parts.append(f"WITH {first_cte.name} AS (\n    {first_cte.sql_as_string}\n)")
+        Args:
+            arc_sql (ArcSQL): An instance of the ArcSQL model containing CTEs and final SELECT query
             
-            # Add remaining CTEs
-            for cte in arc_sql.cte_tables_in_order[1:]:
-                sql_parts.append(f",\n{cte.name} AS (\n    {cte.sql_as_string}\n)")
-        
-        # Add the final SELECT statement
-        # Remove any leading/trailing whitespace and ensure proper spacing
-        final_select = arc_sql.final_select_sql_as_string.strip()
-        
-        # If we have CTEs, add a newline before the final SELECT
-        if sql_parts:
-            sql_parts.append("\n")
-        
-        sql_parts.append(final_select)
-        
-        # Combine all parts
-        final_sql = "".join(sql_parts)
-        
-        # Add semicolon at the end if not present
-        if not final_sql.strip().endswith(';'):
-            final_sql += ';'
+        Returns:
+            str: The complete SQL query with CTEs and final SELECT statement
+            None: If the ArcSQL instance is invalid or contains errors
+        """
+        try:
+            # Validate the ArcSQL instance status
+            if not self.arc_sql.status.status:
+                return False, f"ArcSQL instance is invalid"
+
+            # Initialize the list to store SQL parts
+            sql_parts = []
             
-        return True, final_sql
-        
-    except Exception as e:
-        return False, f"Error constructing SQL query: {str(e)}"
+            # Process CTEs if they exist
+            if self.arc_sql.cte_tables_in_order:
+                # Start WITH clause for the first CTE
+                first_cte = self.arc_sql.cte_tables_in_order[0]
+                sql_parts.append(f"WITH {first_cte.name} AS (\n    {first_cte.sql_as_string}\n)")
+                
+                # Add remaining CTEs
+                for cte in self.arc_sql.cte_tables_in_order[1:]:
+                    sql_parts.append(f",\n{cte.name} AS (\n    {cte.sql_as_string}\n)")
+            
+            # Add the final SELECT statement
+            # Remove any leading/trailing whitespace and ensure proper spacing
+            final_select = self.arc_sql.final_select_sql_as_string.strip()
+            
+            # If we have CTEs, add a newline before the final SELECT
+            if sql_parts:
+                sql_parts.append("\n")
+            
+            sql_parts.append(final_select)
+            
+            # Combine all parts
+            final_sql = "".join(sql_parts)
+            
+            # Add semicolon at the end if not present
+            if not final_sql.strip().endswith(';'):
+                final_sql += ';'
+            
+            self.sql_query = final_sql
+            return True, final_sql
+            
+        except Exception as e:
+            return False, f"Error constructing SQL query: {str(e)}"
+    
+    def escape_percent_signs(self):
+        # Use regex to match single % character not part of a group of consecutive % characters
+        # '(?<!%)%(?!%)' - Match single % not preceded or followed by %
+        self.sql_query = re.sub(r'(?<!%)%(?!%)', '%%', self.sql_query)
+    
+    def get_sql_query(self):
+        try:
+            sql_query_status, sql_query_value = self.construct_sql_query()
+            if not sql_query_status:
+                return False, sql_query_value
+            self.escape_percent_signs()
+            return True, self.sql_query
+        except Exception as e:
+            return False, str(e)
         
 
 if __name__ == "__main__":

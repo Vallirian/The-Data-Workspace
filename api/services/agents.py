@@ -2,9 +2,10 @@ import os
 from openai import OpenAI
 from datetime import datetime
 from services.interface import AgentRunResponse, ArcSQL
-from services.utils import clean_pydantic_errors, construct_sql_query
+from services.utils import ArcSQLUtils, clean_pydantic_errors
 from services.db import RawSQLExecution
 from workbook.models import DataTableMeta, DataTableColumnMeta
+import services.values as svc_vals
 
 class OpenAIAnalysisAgent:
     def __init__(self, user_message: str=None, chat_id: str=None, thread_id: str=None, dt_meta_id: str=None, request=None) -> None:
@@ -12,6 +13,7 @@ class OpenAIAnalysisAgent:
         self.thread = None
         self.chat_id = chat_id
         self.thread_id = thread_id
+        self.last_error = None
 
         self.dt_meta_id = dt_meta_id
         self.request = request
@@ -57,10 +59,12 @@ class OpenAIAnalysisAgent:
         )
 
         while self.run_response.retries <= self.max_retries:
+            print(os.getenv('OPEN_AI_MODEL'))
             _temp_run = self.client.beta.threads.runs.create_and_poll(
+                model=os.getenv('OPEN_AI_MODEL'), # 'gpt-4o-2024-08-06',
                 thread_id=self.thread.id,
                 assistant_id=self.agent.id,
-                model=os.getenv('OPEN_AI_MODEL'), # 'gpt-4o-2024-08-06',
+                instructions=svc_vals.ANALYSIS_AGENT_INSTRUCTION,
                 response_format={
                         "type": "json_schema",
                         "json_schema": {
@@ -80,6 +84,7 @@ class OpenAIAnalysisAgent:
                 continue
 
             self.current_agent_response = self.client.beta.threads.messages.list(thread_id=self.thread.id).data[0].content[0].text.value
+            print(self.current_agent_response)
 
             # validate ArcSQL
             arc_sql_validation_error = None
@@ -88,7 +93,10 @@ class OpenAIAnalysisAgent:
                 self.run_response.arc_sql = _temp_arc_sql
             except Exception as e:
                 arc_sql_validation_error = clean_pydantic_errors(str(e))
+                pass
+            print('arc_sql_validation_error', arc_sql_validation_error)
             if arc_sql_validation_error:
+                self.last_error = str(arc_sql_validation_error)
                 __temp_error_message = f"ArcSQL validation failed\n error: {arc_sql_validation_error}"
                 self.client.beta.threads.messages.create(
                     thread_id=self.thread.id,
@@ -97,10 +105,22 @@ class OpenAIAnalysisAgent:
                 )
                 continue
 
+            # handle cases where the status is false
+            if not _temp_arc_sql.status.status:
+                self.last_error = _temp_arc_sql.status.status_description
+                print('status false', _temp_arc_sql.status.status_description)
+                self.run_response.success = False
+                self.run_response.message = _temp_arc_sql.status.status_description
+                self.run_response.run_details = _temp_run.to_dict()
+                return self.run_response
+
             
             # construct SQL
-            _sql_query_status, _sql_query_value = construct_sql_query(_temp_arc_sql)
+            _arc_sql_util = ArcSQLUtils(arc_sql=_temp_arc_sql)
+            _sql_query_status, _sql_query_value = _arc_sql_util.get_sql_query()
+            print('_sql_query_status', _sql_query_status, '_sql_query_value', _sql_query_value)
             if not _sql_query_status:
+                self.last_error = str(_sql_query_value)
                 __temp_error_message = f"SQL construction failed\n error: {_sql_query_value}"
                 self.client.beta.threads.messages.create(
                     thread_id=self.thread.id,
@@ -110,10 +130,12 @@ class OpenAIAnalysisAgent:
                 continue
             
             # exectue SQL
-            self.run_response.translated_sql = _sql_query_value
+            self.run_response.translated_sql = _arc_sql_util.construct_sql_query() # get it without cleaning for python execution
             raw_sql_exec = RawSQLExecution(sql=_sql_query_value, inputs=[], request=self.request)
-            arc_sql_execution_pass, arc_sql_execution_result = raw_sql_exec.execute()
+            arc_sql_execution_pass, arc_sql_execution_result = raw_sql_exec.execute(fetch_results=True)
+            print(arc_sql_execution_pass, 'arc_sql_execution_result', arc_sql_execution_result)
             if not arc_sql_execution_pass:
+                self.last_error = str(arc_sql_execution_result)
                 __temp_error_message = f"SQL execution failed\n error: {arc_sql_execution_result}"
                 self.client.beta.threads.messages.create(
                     thread_id=self.thread.id,
@@ -126,7 +148,7 @@ class OpenAIAnalysisAgent:
             if arc_sql_execution_result:
                 if len(arc_sql_execution_result) == 1:
                     self.run_response.message_type = "kpi"
-                    self.run_response.message = arc_sql_execution_result[0].values()[0]
+                    self.run_response.message = list(arc_sql_execution_result[0].values())[0]
                 elif len(arc_sql_execution_result) > 1:
                     self.run_response.message_type = "table"
                     self.run_response.message = f"Table with {len(arc_sql_execution_result)} rows"
@@ -135,7 +157,7 @@ class OpenAIAnalysisAgent:
                 self.run_response.run_details = _temp_run.to_dict()
                 return self.run_response 
                    
-        self.run_response.message = "Agent failed to respond"
+        self.run_response.message = f"Failed to process query: {self.last_error}"
         self.run_response.run_details = _temp_run.to_dict()
         return self.run_response
     
@@ -172,10 +194,7 @@ class FormulaUserMessage:
         # Get the table and column information
         _table_information = f"""Table information:\n
         Table name: {datatable_meta.name}\n
-        Table description: {datatable_meta.description}\n
-        Table datasource: {datatable_meta.dataSource}\n
-        Table extraction status: {datatable_meta.extractionStatus}\n
-        Table extraction details: {datatable_meta.extractionDetails}\n"""
+        Table description: {datatable_meta.description}\n"""
         self.table_information = _table_information
 
         datatable_column_meta = DataTableColumnMeta.objects.filter(dataTable=datatable_meta, user=self.request.user)
@@ -187,4 +206,4 @@ class FormulaUserMessage:
             _column_information += f"""Column name: {column.name}\n
             Column description: {column.description}\n
             Column data type: {column.dtype}\n"""
-        self.column_information = _column_information
+        self.column_information = _column_information 
