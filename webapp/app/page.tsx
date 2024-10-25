@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import * as React from "react";
 import { Progress } from "@/components/ui/progress";
+import LandingPage from "./(landing)/page";
 
 export default function Home() {
     const [progress, setProgress] = React.useState(13);
@@ -14,9 +15,9 @@ export default function Home() {
         return () => clearTimeout(timer);
     }, []);
 
-    useEffect(() => {
-        router.push("/app/workbooks"); 
-    }, []);
+    // useEffect(() => {
+    //     router.push("/app/workbooks"); 
+    // }, []);
 
-    return <Progress value={progress} className="w-[60%]" />;
+    return <LandingPage />;
 }
