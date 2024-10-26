@@ -69,6 +69,7 @@ export interface FormulaInterface {
     isActive: boolean;
     isValidated: boolean;
     createdAt: Date;
+    fromulaType: 'kpi' | 'table' | 'text';
 }
 
 export interface ReportInterface {

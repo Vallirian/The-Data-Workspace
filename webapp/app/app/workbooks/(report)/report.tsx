@@ -19,7 +19,6 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { MoreVertical, Plus } from "lucide-react";
 import { ArcAutoFormat } from "@/services/autoFormat";
-import ArcStackedBarChart from "../../sub-components/navigation/charts/arcStackedBarChart";
 
 export default function Report({
     workbookId,
@@ -78,6 +77,7 @@ export default function Report({
                 `${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/formulas/`
             );
             const fetchedFormulas: FormulaInterface[] = response.data;
+            console.log(fetchedFormulas);
             setFormulas(fetchedFormulas);
         } catch (error: any) {
             toast({
@@ -122,14 +122,14 @@ export default function Report({
             columns: row.columns.map((col, index) =>
                 index === columnIndex ? formulaId : col
             ),
-        }
+        };
         const updatedRows = [...report.rows];
         updatedRows[rowIndex] = updatedRow;
         setReport({
             ...report,
             rows: updatedRows,
         });
-        
+
         // Fetch the formula value only when it's set
         fetchFormulaValue(formulaId);
     };
@@ -193,17 +193,17 @@ export default function Report({
 
     const addNewColumn = (rowIndex: number) => {
         if (!report) return;
-    
+
         const row = report.rows[rowIndex];
-        const maxSlots = row.rowType === 'kpi' ? 4 : 2;
-    
+        const maxSlots = row.rowType === "kpi" ? 4 : 2;
+
         // Ensure values is an array
         if (!Array.isArray(row.columns)) {
             row.columns = []; // Reset to empty array if not
         }
-    
+
         if (row.columns.length >= maxSlots) return;
-    
+
         const updatedRows = [...report.rows];
         updatedRows[rowIndex] = {
             ...row,
@@ -245,7 +245,7 @@ export default function Report({
         { month: "April", desktop: 73, mobile: 190 },
         { month: "May", desktop: 209, mobile: 130 },
         { month: "June", desktop: 214, mobile: 140 },
-      ]
+    ];
 
     return (
         <div className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
@@ -285,24 +285,21 @@ export default function Report({
             </div>
             <div className="flex-grow overflow-y-auto p-4 space-y-4">
                 {report?.rows.map((row, rowIndex) => (
-                    <div
-                        key={rowIndex}
-                        className={`flex space-x-4 ${row.rowType}`}
-                    >
+                    <div key={rowIndex} className="flex space-x-4">
                         {row.columns.map((column, columnIndex) => (
                             <div
                                 key={`${rowIndex}${columnIndex}`}
                                 className={`${
                                     editMode
                                         ? row.rowType === "kpi"
-                                            ? "w-1/4"
-                                            : "w-1/2"
+                                            ? "w-1/4 h-36"
+                                            : "w-1/2 h-84"
                                         : "w-full"
-                                } h-36 border rounded-md`}
+                                } border rounded-md bg-blue-400`}
                             >
-                                {editMode ? (
+                                {row.rowType === "kpi" && (
                                     <ContextMenu>
-                                        <ContextMenuTrigger className="flex flex-col h-full w-full p-2 justify-center rounded-md border border-dashed text-sm">
+                                        <ContextMenuTrigger className="flex bg-blue-600 flex-col h-full w-full p-2 justify-center rounded-md border border-dashed text-sm">
                                             {formulas.find(
                                                 (f) => f.id === column
                                             ) ? (
@@ -370,61 +367,83 @@ export default function Report({
                                                     Change Formula
                                                 </ContextMenuSubTrigger>
                                                 <ContextMenuSubContent className="w-48">
-                                                    {formulas.map((formula) => (
-                                                        <ContextMenuItem
-                                                            key={formula.id}
-                                                            onClick={() =>
-                                                                setFormula(
-                                                                    rowIndex,
-                                                                    columnIndex,
-                                                                    formula.id
-                                                                )
-                                                            }
-                                                        >
-                                                            {formula.name}
-                                                        </ContextMenuItem>
-                                                    ))}
+                                                    {formulas
+                                                        .filter(
+                                                            (formula) =>
+                                                                formula.fromulaType ===
+                                                                "kpi"
+                                                        )
+                                                        .map((formula) => (
+                                                            <ContextMenuItem
+                                                                key={formula.id}
+                                                                onClick={() =>
+                                                                    setFormula(
+                                                                        rowIndex,
+                                                                        columnIndex,
+                                                                        formula.id
+                                                                    )
+                                                                }
+                                                            >
+                                                                {formula.name}
+                                                            </ContextMenuItem>
+                                                        ))}
                                                 </ContextMenuSubContent>
                                             </ContextMenuSub>
                                         </ContextMenuContent>
                                     </ContextMenu>
-                                ) : (
-                                    <div className="flex flex-col h-full w-full p-2 justify-center rounded-md text-sm">
-                                        {formulas.find(
-                                            (f) => f.id === column
-                                        ) ? (
-                                            <>
-                                                <h5 className="mb-2 font-semibold">
-                                                    {
-                                                        formulas.find(
-                                                            (f) =>
-                                                                f.id === column
-                                                        )?.name
-                                                    }
-                                                </h5>
-                                                <p className="mb-2">
-                                                    {
-                                                        formulas.find(
-                                                            (f) =>
-                                                                f.id === column
-                                                        )?.description
-                                                    }
-                                                </p>
-                                            </>
-                                        ) : (
-                                            <p className="mb-2">
-                                                No Formula Selected
-                                            </p>
-                                        )}
-                                        {formulaValues[column] ? (
-                                            <h3 className="scroll-m-20 text-xl font-semibold tracking-tight">
-                                                {ArcAutoFormat(
-                                                    formulaValues[column]
+                                )}
+                                {row.rowType === "table" && (
+                                    <div className="flex bg-blue-500 flex-col h-full w-full p-2 justify-center rounded-md border border-dashed text-sm">
+                                        <div>hi NY!</div>
+                                        <ContextMenu>
+                                            <ContextMenuTrigger className="flex bg-blue-600 flex-col h-full w-full p-2 justify-center rounded-md border border-dashed text-sm">
+                                                {formulas.find(
+                                                    (f) => f.id === column
+                                                ) ? (
+                                                    <>hi NY!</>
+                                                ) : (
+                                                    <p className="mb-2">
+                                                        No Formula Selected
+                                                    </p>
                                                 )}
-                                            </h3>
-                                        ) : (
-                                            "Please select a formula in edit mode"
-                                        )}
+                                                {formulaValues[column] ? (
+                                                    <h3 className="scroll-m-20 text-xl font-semibold tracking-tight">
+                                                        {ArcAutoFormat(
+                                                            formulaValues[
+                                                                column
+                                                            ]
+                                                        )}
+                                                    </h3>
+                                                ) : (
+                                                    "Select a Formula and Chart Type"
+                                                )}
+                                            </ContextMenuTrigger>
+
+                                            <ContextMenuContent className="w-64">
+                                                <ContextMenuItem
+                                                    inset
+                                                    onClick={() =>
+                                                        removeColumn(
+                                                            rowIndex,
+                                                            columnIndex
+                                                        )
+                                                    }
+                                                >
+                                                    Remove Column
+                                                </ContextMenuItem>
+                                                <ContextMenuItem
+                                                    inset
+                                                    onClick={() =>
+                                                        clearFormula(
+                                                            rowIndex,
+                                                            columnIndex
+                                                        )
+                                                    }
+                                                >
+                                                    Clear Formula
+                                                </ContextMenuItem>
+                                            </ContextMenuContent>
+                                        </ContextMenu>
                                     </div>
                                 )}
                             </div>
