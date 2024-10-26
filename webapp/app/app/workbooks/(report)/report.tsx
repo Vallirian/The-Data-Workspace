@@ -11,6 +11,15 @@ import {
     ContextMenuSubTrigger,
     ContextMenuTrigger,
 } from "@/components/ui/context-menu";
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { useEffect, useState } from "react";
 import axiosInstance from "@/services/axios";
 import { FormulaInterface, ReportInterface } from "@/interfaces/main";
@@ -130,8 +139,35 @@ export default function Report({
             rows: updatedRows,
         });
 
-        // Fetch the formula value only when it's set
         fetchFormulaValue(formulaId);
+    };
+
+    const updateRowConfig = (
+        rowIndex: number,
+        config: {
+            chartType:
+                | "bar-chart"
+                | "line-chart"
+                | "pie-chart"
+                | "table"
+                | null;
+            x: string | null;
+        }
+    ) => {
+        if (!report) return;
+
+        const updatedRows = [...report.rows];
+        updatedRows[rowIndex] = {
+            ...updatedRows[rowIndex],
+            config: {
+                ...updatedRows[rowIndex].config,
+                ...config,
+            },
+        };
+        setReport({
+            ...report,
+            rows: updatedRows,
+        });
     };
 
     const removeColumn = (rowIndex: number, columnIndex: number) => {
@@ -184,6 +220,7 @@ export default function Report({
             rowType: type,
             columns:
                 type === "kpi" ? new Array(1).fill("") : new Array(1).fill(""), // Four slots for KPIs, two for tables
+            config: { chartType: null, x: null },
         };
         setReport({
             ...report,
@@ -215,28 +252,28 @@ export default function Report({
         });
     };
 
-    const clearEmptyCells = () => {
-        if (!report) return;
-        console.log(report);
+    // const clearEmptyCells = () => {
+    //     if (!report) return;
+    //     console.log(report);
 
-        // Remove empty columns (columns that are "")
-        const cleanedRows = report.rows.map((row) =>
-            // Filter out empty columns including ones with already deleted formulas
-            row.columns.filter((col) => col !== "")
-        );
+    //     // Remove empty columns (columns that are "")
+    //     const cleanedRows = report.rows.map((row) =>
+    //         // Filter out empty columns including ones with already deleted formulas
+    //         row.columns.filter((col) => col !== "")
+    //     );
 
-        // Remove empty rows (rows that are [])
-        const filteredRows = cleanedRows.filter((row) => row.length > 0);
+    //     // Remove empty rows (rows that have columns with length 0)
+    //     const filteredRows = cleanedRows.filter((row) => row.length > 0);
 
-        // Update the report state with cleaned rows
-        setReport({
-            ...report,
-            rows: filteredRows.map((row) => ({
-                rowType: row.length === 4 ? "kpi" : "table",
-                columns: row,
-            })),
-        });
-    };
+    //     setReport({
+    //         ...report,
+    //         rows: filteredRows.map((row) => ({
+    //             ...row,
+    //             columns: row,
+
+    //         })),
+    //     });
+    // };
 
     const chartData = [
         { month: "January", desktop: 186, mobile: 80 },
@@ -272,7 +309,7 @@ export default function Report({
                             <Button
                                 variant="link"
                                 className="px-3"
-                                onClick={clearEmptyCells}
+                                // onClick={clearEmptyCells}
                             >
                                 Clear Empty Cells
                             </Button>
@@ -295,11 +332,11 @@ export default function Report({
                                             ? "w-1/4 h-36"
                                             : "w-1/2 h-84"
                                         : "w-full"
-                                } border rounded-md bg-blue-400`}
+                                } border rounded-md`}
                             >
                                 {row.rowType === "kpi" && (
                                     <ContextMenu>
-                                        <ContextMenuTrigger className="flex bg-blue-600 flex-col h-full w-full p-2 justify-center rounded-md border border-dashed text-sm">
+                                        <ContextMenuTrigger className="flex flex-col h-full w-full p-2 justify-center rounded-md border border-dashed text-sm">
                                             {formulas.find(
                                                 (f) => f.id === column
                                             ) ? (
@@ -392,59 +429,173 @@ export default function Report({
                                         </ContextMenuContent>
                                     </ContextMenu>
                                 )}
-                                {row.rowType === "table" && (
-                                    <div className="flex bg-blue-500 flex-col h-full w-full p-2 justify-center rounded-md border border-dashed text-sm">
-                                        <div>hi NY!</div>
-                                        <ContextMenu>
-                                            <ContextMenuTrigger className="flex bg-blue-600 flex-col h-full w-full p-2 justify-center rounded-md border border-dashed text-sm">
-                                                {formulas.find(
-                                                    (f) => f.id === column
-                                                ) ? (
-                                                    <>hi NY!</>
-                                                ) : (
-                                                    <p className="mb-2">
-                                                        No Formula Selected
-                                                    </p>
-                                                )}
-                                                {formulaValues[column] ? (
-                                                    <h3 className="scroll-m-20 text-xl font-semibold tracking-tight">
-                                                        {ArcAutoFormat(
-                                                            formulaValues[
-                                                                column
-                                                            ]
-                                                        )}
-                                                    </h3>
-                                                ) : (
-                                                    "Select a Formula and Chart Type"
-                                                )}
-                                            </ContextMenuTrigger>
 
-                                            <ContextMenuContent className="w-64">
-                                                <ContextMenuItem
-                                                    inset
-                                                    onClick={() =>
-                                                        removeColumn(
-                                                            rowIndex,
-                                                            columnIndex
-                                                        )
-                                                    }
-                                                >
-                                                    Remove Column
-                                                </ContextMenuItem>
-                                                <ContextMenuItem
-                                                    inset
-                                                    onClick={() =>
-                                                        clearFormula(
-                                                            rowIndex,
-                                                            columnIndex
-                                                        )
-                                                    }
-                                                >
-                                                    Clear Formula
-                                                </ContextMenuItem>
-                                            </ContextMenuContent>
-                                        </ContextMenu>
-                                    </div>
+                                {row.rowType === "table" && (
+                                    <ContextMenu>
+                                        <ContextMenuTrigger className="flex flex-col h-full w-full p-2 justify-center rounded-md border border-dashed text-sm">
+                                            <div className="mb-1">
+                                                Chart Type:{" "}
+                                                {row.config.chartType ||
+                                                    "Not selected"}
+                                            </div>
+                                            <div className="mb-1">
+                                                X-Axis:{" "}
+                                                {row.config.x || "Not selected"}
+                                            </div>
+                                            {formulas.find(
+                                                (f) => f.id === column
+                                            ) ? (
+                                                <>
+                                                    <h5 className="mb-2 font-semibold">
+                                                        {
+                                                            formulas.find(
+                                                                (f) =>
+                                                                    f.id ===
+                                                                    column
+                                                            )?.name
+                                                        }
+                                                    </h5>
+                                                    <p className="mb-2 line-clamp-2">
+                                                        {
+                                                            formulas.find(
+                                                                (f) =>
+                                                                    f.id ===
+                                                                    column
+                                                            )?.description
+                                                        }
+                                                    </p>
+                                                </>
+                                            ) : (
+                                                <p className="mb-2">
+                                                    No Formula Selected
+                                                </p>
+                                            )}
+                                            {formulaValues[column] ? (
+                                                <h3 className="scroll-m-20 text-xl font-semibold tracking-tight">
+                                                    {ArcAutoFormat(
+                                                        formulaValues[column]
+                                                    )}
+                                                </h3>
+                                            ) : (
+                                                "Right click to configure"
+                                            )}
+                                        </ContextMenuTrigger>
+
+                                        <ContextMenuContent className="w-64">
+                                            <ContextMenuSub>
+                                                <ContextMenuSubTrigger inset>
+                                                    Select Chart Type
+                                                </ContextMenuSubTrigger>
+                                                <ContextMenuSubContent className="w-48">
+                                                    {[
+                                                        "bar-chart",
+                                                        "line-chart",
+                                                        "pie-chart",
+                                                        "table",
+                                                    ].map((chartType) => (
+                                                        <ContextMenuItem
+                                                            key={chartType}
+                                                            onClick={() =>
+                                                                updateRowConfig(
+                                                                    rowIndex,
+                                                                    {
+                                                                        ...row.config,
+                                                                        chartType:
+                                                                            chartType as any,
+                                                                    }
+                                                                )
+                                                            }
+                                                        >
+                                                            {chartType}
+                                                        </ContextMenuItem>
+                                                    ))}
+                                                </ContextMenuSubContent>
+                                            </ContextMenuSub>
+                                            {row.config.chartType && (
+                                                <ContextMenuSub>
+                                                    <ContextMenuSubTrigger
+                                                        inset
+                                                    >
+                                                        Select Formula
+                                                    </ContextMenuSubTrigger>
+                                                    <ContextMenuSubContent className="w-48">
+                                                        {formulas
+                                                            .filter(
+                                                                (formula) =>
+                                                                    formula.fromulaType ===
+                                                                    "table"
+                                                            )
+                                                            .map((formula) => (
+                                                                <ContextMenuItem
+                                                                    key={
+                                                                        formula.id
+                                                                    }
+                                                                    onClick={() =>
+                                                                        updateRowConfig(
+                                                                            rowIndex,
+                                                                            {
+                                                                                ...row.config,
+                                                                                x: ""
+                                                                            }
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    {
+                                                                        formula.name
+                                                                    }
+                                                                </ContextMenuItem>
+                                                            ))}
+                                                    </ContextMenuSubContent>
+                                                </ContextMenuSub>
+                                            )}
+                                            {row.config.chartType && (
+                                            <ContextMenuSub>
+                                                <ContextMenuSubTrigger inset>
+                                                    Select X-Axis
+                                                </ContextMenuSubTrigger>
+                                                <ContextMenuSubContent className="w-48">
+                                                    {formulas.map((formula) => (
+                                                        <ContextMenuItem
+                                                            key={formula.id}
+                                                            onClick={() =>
+                                                                updateRowConfig(
+                                                                    rowIndex,
+                                                                    {
+                                                                        ...row.config,
+                                                                        x: formula.id,
+                                                                    }
+                                                                )
+                                                            }
+                                                        >
+                                                            {formula.name}
+                                                        </ContextMenuItem>
+                                                    ))}
+                                                </ContextMenuSubContent>
+                                            </ContextMenuSub>
+                                            <ContextMenuItem
+                                                inset
+                                                onClick={() =>
+                                                    removeColumn(
+                                                        rowIndex,
+                                                        columnIndex
+                                                    )
+                                                }
+                                            >
+                                                Remove Column
+                                            </ContextMenuItem>
+                                            <ContextMenuItem
+                                                inset
+                                                onClick={() =>
+                                                    clearFormula(
+                                                        rowIndex,
+                                                        columnIndex
+                                                    )
+                                                }
+                                            >
+                                                Clear Formula
+                                            </ContextMenuItem>
+                                        </ContextMenuContent>
+                                    </ContextMenu>
                                 )}
                             </div>
                         ))}

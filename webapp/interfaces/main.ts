@@ -76,6 +76,12 @@ export interface ReportInterface {
     id: string;
     rows: {
         rowType: 'kpi' | 'table';
-        columns: string[];
+        columns: {
+            config: {
+                chartType: 'bar-chart' | 'line-chart' | 'pie-chart' | 'table' | null;
+                x: string | null;
+            };
+            formula: string;
+        }[];
     }[];
 }
