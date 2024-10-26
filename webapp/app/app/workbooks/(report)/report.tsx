@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { MoreVertical, Plus } from "lucide-react";
 import { ArcAutoFormat } from "@/services/autoFormat";
+import ArcStackedBarChart from "../../sub-components/navigation/charts/arcStackedBarChart";
 
 export default function Report({
     workbookId,
@@ -237,8 +238,18 @@ export default function Report({
         });
     };
 
+    const chartData = [
+        { month: "January", desktop: 186, mobile: 80 },
+        { month: "February", desktop: 305, mobile: 200 },
+        { month: "March", desktop: 237, mobile: 120 },
+        { month: "April", desktop: 73, mobile: 190 },
+        { month: "May", desktop: 209, mobile: 130 },
+        { month: "June", desktop: 214, mobile: 140 },
+      ]
+
     return (
         <div className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
+            {/* <ArcStackedBarChart data={chartData} x="month" name="name" description="descr"/> */}
             <div className="flex justify-between items-center p-4">
                 <div className="flex items-center space-x-2">
                     <Switch
