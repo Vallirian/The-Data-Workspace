@@ -10,7 +10,7 @@ urlpatterns = [
     path('<str:workbook_id>/', WorkbookDetailAPIView.as_view(), name='workbook-detail'),  
 
     # report
-    path('<str:workbook_id>/report/<str:report_id>/', ReportDetailAPIView.as_view(), name='report-detail'),
+    path('<str:workbook_id>/reports/<str:report_id>/', ReportDetailAPIView.as_view(), name='report-detail'),
 
     # formula
     path('<str:workbook_id>/formulas/', FormulaListView.as_view(), name='formula-list'),

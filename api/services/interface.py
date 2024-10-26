@@ -83,6 +83,9 @@ class AgentRunResponse(BaseModel):
     retries: int = 0
     run_details: Dict = {}
 
+    input_tokens_consumed: int = 0
+    output_tokens_consumed: int = 0
+
     class Config:
         extra = "forbid"
         

@@ -198,7 +198,6 @@ class DataSegregation:
     def create_user_schema(self):
         user_schema = f"`schema___{self.request.user.id}`"
         query = f"CREATE SCHEMA IF NOT EXISTS {user_schema};"
-        print(user_schema, query)
         
         with connection.cursor() as cursor:
             cursor.execute(query)
@@ -225,19 +224,44 @@ class DataSegregation:
             except Exception as e:
                 return False, str(e)
         
-    def get_token_utilization(self):
-        query = f"SELECT runDetails FROM {svc_vals.FORMULA_MESSAGE} WHERE user_id = %s;"
+    def get_token_utilization(self, formula_id: str=None, add_from_backed_up_in_user_model: bool=False):
+        if formula_id is None:
+            query = f"SELECT inputTokensConsumed, outputTokensConsumed FROM {svc_vals.FORMULA_MESSAGE} WHERE user_id = %s;"
+            inputs = [str(self.request.user.id).replace('-', '')]
+        else:
+            query = f"SELECT inputTokensConsumed, outputTokensConsumed FROM {svc_vals.FORMULA_MESSAGE} WHERE user_id = %s AND formula_id = %s;"
+            inputs = [str(self.request.user.id).replace('-', ''), formula_id] # because formula_id is a CharField
+
+        total_input_tokens_consumed = 0
+        total_output_tokens_consumed = 0
         with connection.cursor() as cursor:
             try:
-                cursor.execute(query, [self.request.user])
-                messages_runDetail = dictfetchall(cursor)
+                cursor.execute(query, inputs)
+                tokens_consumed = dictfetchall(cursor)
+                # print(tokens_consumed)
 
                 input_token_utilization = 0
                 output_token_utilization = 0
-                for message in messages_runDetail:
-                    input_token_utilization += message['usage']['prompt_tokens']
-                    output_token_utilization += message['usage']['completion_tokens']
+                for t in tokens_consumed:
+                    input_token_utilization += t['inputTokensConsumed']
+                    output_token_utilization += t['outputTokensConsumed']
+                
+                total_input_tokens_consumed += input_token_utilization
+                total_output_tokens_consumed += output_token_utilization
 
-                return True, (input_token_utilization, output_token_utilization), "Success"
+                if add_from_backed_up_in_user_model:
+                    # get tokens stored in user model when a workbook is deleted
+                    query = f"SELECT inputTokensConsumedChatDeleted, outputTokensConsumedChatDeleted FROM {svc_vals.ARC_USER} WHERE id = %s;"
+                    inputs = [str(self.request.user.id).replace('-', '')]
+                    cursor.execute(query, inputs)
+                    tokens_consumed = dictfetchall(cursor)
+                    print(tokens_consumed)
+
+                    for t in tokens_consumed:
+                        total_input_tokens_consumed += t['inputTokensConsumedChatDeleted']
+                        total_output_tokens_consumed += t['outputTokensConsumedChatDeleted']
+                        
+                return True, (total_input_tokens_consumed, total_output_tokens_consumed), "Success"
             except Exception as e:
                 return False, (0, 0), str(e)
+            

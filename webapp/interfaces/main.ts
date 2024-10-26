@@ -18,6 +18,7 @@ export interface WorkbookInterface {
     id: string;
     createdAt: Date;
     dataTable: string;
+    report: string;
 }
 
 export interface DataTableMetaInterface {
@@ -72,5 +73,8 @@ export interface FormulaInterface {
 
 export interface ReportInterface {
     id: string;
-    rows: string[][];
+    rows: {
+        rowType: 'kpi' | 'table';
+        columns: string[];
+    }[];
 }

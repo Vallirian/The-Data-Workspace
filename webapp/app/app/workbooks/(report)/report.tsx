@@ -20,7 +20,13 @@ import { useToast } from "@/hooks/use-toast";
 import { MoreVertical, Plus } from "lucide-react";
 import { ArcAutoFormat } from "@/services/autoFormat";
 
-export default function Report({ workbookId }: { workbookId: string }) {
+export default function Report({
+    workbookId,
+    reportId,
+}: {
+    workbookId: string;
+    reportId: string;
+}) {
     const { toast } = useToast();
     const [report, setReport] = useState<ReportInterface | null>(null);
     const [formulas, setFormulas] = useState<FormulaInterface[]>([]);
@@ -33,12 +39,12 @@ export default function Report({ workbookId }: { workbookId: string }) {
     useEffect(() => {
         fetchReport();
         fetchFormulas();
-    }, []);
+    }, [reportId]);
 
     const fetchReport = async () => {
         try {
             const response = await axiosInstance.get(
-                `${process.env.NEXT_PUBLIC_API_URL}/report/workbook/${workbookId}/`
+                `${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/reports/${reportId}/`
             );
             const fetchedReport: ReportInterface = response.data;
             setReport(fetchedReport);
@@ -46,8 +52,8 @@ export default function Report({ workbookId }: { workbookId: string }) {
             // Check for any pre-selected formulas and fetch their values
             const formulaIds: string[] = [];
             fetchedReport.rows.forEach((row) => {
-                row.forEach((col) => {
-                    if (col) {
+                row.columns.forEach((col) => {
+                    if (col && !formulaIds.includes(col) && col !== "") {
                         formulaIds.push(col); // Assuming `col` contains the formula ID
                     }
                 });
@@ -68,7 +74,7 @@ export default function Report({ workbookId }: { workbookId: string }) {
     const fetchFormulas = async () => {
         try {
             const response = await axiosInstance.get(
-                `${process.env.NEXT_PUBLIC_API_URL}/formulas/workbook/${workbookId}/`
+                `${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/formulas/`
             );
             const fetchedFormulas: FormulaInterface[] = response.data;
             setFormulas(fetchedFormulas);
@@ -85,7 +91,7 @@ export default function Report({ workbookId }: { workbookId: string }) {
     const saveReport = async () => {
         try {
             await axiosInstance.put(
-                `${process.env.NEXT_PUBLIC_API_URL}/report/workbook/${workbookId}/`,
+                `${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/reports/${reportId}/`,
                 report
             );
             toast({
@@ -109,13 +115,20 @@ export default function Report({ workbookId }: { workbookId: string }) {
     ) => {
         if (!report) return;
 
+        const row = report.rows[rowIndex];
+        const updatedRow = {
+            ...row,
+            columns: row.columns.map((col, index) =>
+                index === columnIndex ? formulaId : col
+            ),
+        }
         const updatedRows = [...report.rows];
-        updatedRows[rowIndex][columnIndex] = formulaId;
+        updatedRows[rowIndex] = updatedRow;
         setReport({
             ...report,
             rows: updatedRows,
         });
-
+        
         // Fetch the formula value only when it's set
         fetchFormulaValue(formulaId);
     };
@@ -124,7 +137,7 @@ export default function Report({ workbookId }: { workbookId: string }) {
         if (!report) return;
 
         const updatedRows = [...report.rows];
-        updatedRows[rowIndex].splice(columnIndex, 1);
+        updatedRows[rowIndex].columns.splice(columnIndex, 1);
         setReport({
             ...report,
             rows: updatedRows,
@@ -135,7 +148,7 @@ export default function Report({ workbookId }: { workbookId: string }) {
         if (!report) return;
 
         const updatedRows = [...report.rows];
-        updatedRows[rowIndex][columnIndex] = "";
+        updatedRows[rowIndex].columns[columnIndex] = "";
         setReport({
             ...report,
             rows: updatedRows,
@@ -145,12 +158,15 @@ export default function Report({ workbookId }: { workbookId: string }) {
     const fetchFormulaValue = async (formulaId: string) => {
         try {
             const response = await axiosInstance.get(
-                `${process.env.NEXT_PUBLIC_API_URL}/formulas/formula/${formulaId}/value/`
+                `${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/formulas/${formulaId}/value/`
             );
+            console.log(response.data);
             setFormulaValues((prev) => ({
                 ...prev,
-                [formulaId]: response.data.value,
+                [formulaId]: response.data,
             }));
+            console.log(formulaValues);
+            console.log(report?.rows);
         } catch (error: any) {
             toast({
                 variant: "destructive",
@@ -161,9 +177,13 @@ export default function Report({ workbookId }: { workbookId: string }) {
     };
 
     // Layout
-    const addNewRow = () => {
+    const addNewRow = (type: "kpi" | "table") => {
         if (!report) return;
-        const newRow: string[] = [];
+        const newRow = {
+            rowType: type,
+            columns:
+                type === "kpi" ? new Array(4).fill("") : new Array(2).fill(""), // Four slots for KPIs, two for tables
+        };
         setReport({
             ...report,
             rows: [...report.rows, newRow],
@@ -171,10 +191,23 @@ export default function Report({ workbookId }: { workbookId: string }) {
     };
 
     const addNewColumn = (rowIndex: number) => {
-        if (!report || report.rows[rowIndex].length >= 4) return;
-
+        if (!report) return;
+    
+        const row = report.rows[rowIndex];
+        const maxSlots = row.rowType === 'kpi' ? 4 : 2;
+    
+        // Ensure values is an array
+        if (!Array.isArray(row.columns)) {
+            row.columns = []; // Reset to empty array if not
+        }
+    
+        if (row.columns.length >= maxSlots) return;
+    
         const updatedRows = [...report.rows];
-        updatedRows[rowIndex] = [...updatedRows[rowIndex], ""];
+        updatedRows[rowIndex] = {
+            ...row,
+            columns: [...row.columns, ""],
+        };
         setReport({
             ...report,
             rows: updatedRows,
@@ -184,23 +217,25 @@ export default function Report({ workbookId }: { workbookId: string }) {
     const clearEmptyCells = () => {
         if (!report) return;
         console.log(report);
-    
+
         // Remove empty columns (columns that are "")
         const cleanedRows = report.rows.map((row) =>
             // Filter out empty columns including ones with already deleted formulas
-            row.filter((column) => column !== "" && formulaValues[column])
+            row.columns.filter((col) => col !== "")
         );
-    
+
         // Remove empty rows (rows that are [])
         const filteredRows = cleanedRows.filter((row) => row.length > 0);
-    
+
         // Update the report state with cleaned rows
         setReport({
             ...report,
-            rows: filteredRows,
+            rows: filteredRows.map((row) => ({
+                rowType: row.length === 4 ? "kpi" : "table",
+                columns: row,
+            })),
         });
     };
-    
 
     return (
         <div className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
@@ -223,7 +258,11 @@ export default function Report({ workbookId }: { workbookId: string }) {
                             >
                                 Save
                             </Button>
-                            <Button variant="link" className="px-3" onClick={clearEmptyCells}>
+                            <Button
+                                variant="link"
+                                className="px-3"
+                                onClick={clearEmptyCells}
+                            >
                                 Clear Empty Cells
                             </Button>
                         </div>
@@ -235,12 +274,19 @@ export default function Report({ workbookId }: { workbookId: string }) {
             </div>
             <div className="flex-grow overflow-y-auto p-4 space-y-4">
                 {report?.rows.map((row, rowIndex) => (
-                    <div key={rowIndex} className="flex space-x-4">
-                        {row.map((column, columnIndex) => (
+                    <div
+                        key={rowIndex}
+                        className={`flex space-x-4 ${row.rowType}`}
+                    >
+                        {row.columns.map((column, columnIndex) => (
                             <div
                                 key={`${rowIndex}${columnIndex}`}
                                 className={`${
-                                    editMode ? "w-1/4" : "w-full"
+                                    editMode
+                                        ? row.rowType === "kpi"
+                                            ? "w-1/4"
+                                            : "w-1/2"
+                                        : "w-full"
                                 } h-36 border rounded-md`}
                             >
                                 {editMode ? (
@@ -259,7 +305,7 @@ export default function Report({ workbookId }: { workbookId: string }) {
                                                             )?.name
                                                         }
                                                     </h5>
-                                                    <p className="mb-2">
+                                                    <p className="mb-2 line-clamp-2">
                                                         {
                                                             formulas.find(
                                                                 (f) =>
@@ -372,11 +418,13 @@ export default function Report({ workbookId }: { workbookId: string }) {
                                 )}
                             </div>
                         ))}
-                        {editMode && row.length < 4 && (
+                        {editMode && (
                             <Button
                                 variant="outline"
                                 size="icon"
-                                className="w-8 h-36"
+                                className={`w-8 ${
+                                    row.rowType === "kpi" ? "h-36" : "h-72"
+                                }`} // Adjust height for kpi or table
                                 onClick={() => addNewColumn(rowIndex)}
                             >
                                 <Plus className="h-4 w-4" />
@@ -390,9 +438,16 @@ export default function Report({ workbookId }: { workbookId: string }) {
                         <Button
                             variant={"link"}
                             className="w-full"
-                            onClick={addNewRow}
+                            onClick={() => addNewRow("kpi")}
                         >
-                            + Add New Row
+                            + Add KPI
+                        </Button>
+                        <Button
+                            variant={"link"}
+                            className="w-full"
+                            onClick={() => addNewRow("table")}
+                        >
+                            + Add Table/Chart
                         </Button>
                     </div>
                 )}

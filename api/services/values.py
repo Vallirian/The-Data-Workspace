@@ -9,6 +9,7 @@ DEFAULT_SCHEMA = os.getenv('MYSQL_DATABASE', 'arc')
 DATA_TABLE_COLUMN_META = 'data_table_column_meta'
 DATA_TABLE_META = 'data_table_meta'
 FORMULA_MESSAGE = 'formula_message'
+ARC_USER = 'arc_user'
 
 DATA_TYPE_MAP = {
     'string': 'TEXT',

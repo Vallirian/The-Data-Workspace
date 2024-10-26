@@ -28,7 +28,6 @@ class DataTableMeta(models.Model):
     class Meta:
         db_table = f'{svc_vals.DATA_TABLE_META}'
 
-
 class DataTableColumnMeta(models.Model):
     DTYPE_CHOICES = [
         ('string', 'string'),
@@ -52,16 +51,23 @@ class DataTableColumnMeta(models.Model):
 class Report(models.Model):
     id = models.CharField(primary_key=True, default=uuid.uuid4, editable=False, unique=True, max_length=36)
     user = models.ForeignKey(ArcUser, on_delete=models.CASCADE)
-    rows = models.JSONField(default=list) # [[col1, col2, col3], [col1, col2, col3]]
+    rows = models.JSONField(default=list)
 
     class Meta:
         db_table = f'report'
     
 class Formula(models.Model):
+    FROMULA_TYPES = [
+        ('text', 'text'),
+        ('kpi', 'kpi'),
+        ('table', 'table')
+    ]
+
     id = models.CharField(primary_key=True, default=uuid.uuid4, editable=False, unique=True, max_length=36)
     user = models.ForeignKey(ArcUser, on_delete=models.CASCADE)
-    workbook = models.ForeignKey('Workbook', on_delete=models.CASCADE)
+    workbook = models.ForeignKey('Workbook', on_delete=models.CASCADE, related_name='formula')
     dataTable = models.ForeignKey(DataTableMeta, on_delete=models.CASCADE, related_name='formula', null=True, blank=True)
+    fromulaType = models.CharField(max_length=5, choices=FROMULA_TYPES, default='kpi')
     
     threadId = models.CharField(max_length=64, null=True, blank=True)
     createdAt = models.DateTimeField(auto_now_add=True)
@@ -69,7 +75,7 @@ class Formula(models.Model):
 
     name = models.CharField(max_length=255, default='Untitled Formula', blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    arcSql = models.TextField(blank=True, null=True)
+    arcSql = models.TextField(blank=True, null=True) # is just SQL, we just store it under arcSql to avoid confusion with Django ORM
     rawArcSql = models.JSONField(blank=True, null=True)
     
     isActive = models.BooleanField(default=True)
@@ -105,6 +111,9 @@ class FormulaMessage(models.Model):
 
     retries = models.IntegerField(default=0)
     runDetails = models.JSONField(default=dict)
+
+    inputTokensConsumed = models.IntegerField(default=0)
+    outputTokensConsumed = models.IntegerField(default=0)
 
     class Meta:
         db_table = f'{svc_vals.FORMULA_MESSAGE}'

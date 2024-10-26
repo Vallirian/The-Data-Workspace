@@ -39,7 +39,13 @@ import { Label } from "@/components/ui/label";
 import { format } from "sql-formatter";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { base16AteliersulphurpoolLight, gruvboxLight, materialLight, oneLight, duotoneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
+import {
+    base16AteliersulphurpoolLight,
+    gruvboxLight,
+    materialLight,
+    oneLight,
+    duotoneLight,
+} from "react-syntax-highlighter/dist/esm/styles/prism";
 
 export default function Formulas({
     workbookId,
@@ -184,10 +190,7 @@ export default function Formulas({
                                     </Button>
                                     <Dialog>
                                         <DialogTrigger asChild>
-                                            <Button
-                                                variant="link"
-                                                size="icon"
-                                            >
+                                            <Button variant="link" size="icon">
                                                 <Code2 className="h-4 w-4" />
                                                 <span className="sr-only">
                                                     View SQL
@@ -232,9 +235,7 @@ export default function Formulas({
 
                                     <AlertDialog>
                                         <AlertDialogTrigger>
-                                            <Button variant="link" size="icon">
-                                                <Trash2 size={14} />
-                                            </Button>
+                                            <Trash2 size={14} />
                                         </AlertDialogTrigger>
                                         <AlertDialogContent>
                                             <AlertDialogHeader>

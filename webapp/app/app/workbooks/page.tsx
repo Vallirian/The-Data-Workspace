@@ -64,7 +64,7 @@ export default function WorkbooksPage() {
 
     const fetchTableMeta = async (workbookId: string, tableId: string) => {
         try {
-            const response = await axiosInstance.get(
+            const response = await axiosInstance.get( 
                 `${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/datatable/${tableId}/`
             );
             return response.data;
@@ -127,13 +127,12 @@ export default function WorkbooksPage() {
 function NewWorkbookCard({ onCreate }: { onCreate: () => void }) {
     return (
         <Card
-            className="flex items-center justify-center cursor-pointer hover:bg-accent"
+            className="flex flex-col items-center justify-center cursor-pointer hover:bg-accent"
             onClick={onCreate}
         >
-            <CardContent>
-                <Button variant="ghost" size="icon">
-                    <Plus className="h-6 w-6" />
-                </Button>
+            <CardContent className="flex flex-col justify-center items-center">
+                <Plus className="h-6 w-6 mb-2" />
+                <p className="text-sm font-medium"> Add Workbook</p>
             </CardContent>
         </Card>
     );
@@ -162,22 +161,6 @@ function WorkbookCard({
                 <CardTitle className="text-sm font-medium">
                     {tableName}
                 </CardTitle>
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreVertical className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                            onClick={(e) => {
-                                e.stopPropagation();
-                            }}
-                        >
-                            Delete
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
             </CardHeader>
             <CardContent>
                 <p className="text-xs text-muted-foreground">

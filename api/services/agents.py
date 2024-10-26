@@ -76,6 +76,9 @@ class OpenAIAnalysisAgent:
                 }
             )
 
+            self.run_response.input_tokens_consumed = _temp_run.usage.prompt_tokens
+            self.run_response.output_tokens_consumed = _temp_run.usage.completion_tokens
+
             # increment retries here because we `continue` in the loops
             self.run_response.retries += 1
             
@@ -129,8 +132,19 @@ class OpenAIAnalysisAgent:
                 )
                 continue
             
-            # exectue SQL
-            self.run_response.translated_sql = _arc_sql_util.construct_sql_query() # get it without cleaning for python execution
+            # parse SQL
+            _translation_status, self.run_response.translated_sql = _arc_sql_util.construct_sql_query() # get it without cleaning for python execution
+            if not _translation_status:
+                self.last_error = str
+                __temp_error_message = f"SQL translation failed\n error: {_translation_status}"
+                self.client.beta.threads.messages.create(
+                    thread_id=self.thread.id,
+                    role="user",
+                    content=__temp_error_message
+                )
+                continue
+
+            # execute SQL
             raw_sql_exec = RawSQLExecution(sql=_sql_query_value, inputs=[], request=self.request)
             arc_sql_execution_pass, arc_sql_execution_result = raw_sql_exec.execute(fetch_results=True)
             print(arc_sql_execution_pass, 'arc_sql_execution_result', arc_sql_execution_result)

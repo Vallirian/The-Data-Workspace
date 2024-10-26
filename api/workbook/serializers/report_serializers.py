@@ -2,11 +2,9 @@ from rest_framework import serializers
 from workbook.models import Report
 
 class ReportSerializer(serializers.ModelSerializer):
-    workbookId = serializers.PrimaryKeyRelatedField(source='workbook.id', read_only=True)
-
     class Meta:
         model = Report
-        fields = ['id', 'rows', 'workbookId']  
+        fields = ['id', 'rows']  
 
     def validate_rows(self, value):
         if not isinstance(value, list):

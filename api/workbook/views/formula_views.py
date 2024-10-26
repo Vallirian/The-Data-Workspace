@@ -6,7 +6,7 @@ from workbook.serializers.formula_serializers import FormulaSerializer, FormulaV
 from workbook.models import Workbook, DataTableMeta, FormulaMessage, DataTableColumnMeta
 from django.shortcuts import get_object_or_404
 from services.agents import OpenAIAnalysisAgent
-from services.interface import AgentRunResponse
+from services.interface import AgentRunResponse, ArcSQL
 from services.utils import ArcSQLUtils
 from services.db import RawSQLExecution
 
@@ -93,13 +93,17 @@ class FormulaMessageListView(APIView):
                 rawArcSql=model_run.arc_sql.model_dump() if model_run.arc_sql else None,
 
                 retries=model_run.retries,
-                runDetails=model_run.run_details
+                runDetails=model_run.run_details,
+
+                inputTokensConsumed = model_run.input_tokens_consumed,
+                outputTokensConsumed = model_run.output_tokens_consumed
             )
             _new_model_message.save()
 
             formula.name=model_run.arc_sql.name
             formula.description=model_run.arc_sql.description
             formula.arcSql = model_run.translated_sql
+            formula.fromulaType = model_run.message_type
             formula.rawArcSql = model_run.arc_sql.model_dump() if model_run.arc_sql else None
             formula.save()
 
@@ -112,11 +116,23 @@ class FormulaDetailValueView(APIView):
     def get(self, request, formula_id, *args, **kwargs):
         try:
             formula = get_object_or_404(Formula, id=formula_id, isActive=True, user=request.user)
-            _translated_sql = ArcSQLUtils(formula.arcSql).get_sql_query()
+            # print(formula.rawArcSql)
+            _status, _translated_sql = ArcSQLUtils(ArcSQL(**formula.rawArcSql)).get_sql_query()
+            print(_translated_sql)
             raw_sql_exec = RawSQLExecution(sql=_translated_sql, inputs=[], request=self.request)
-            arc_sql_execution_pass, arc_sql_execution_result = raw_sql_exec.execute()
+            arc_sql_execution_pass, arc_sql_execution_result = raw_sql_exec.execute(fetch_results=True)
+            print(arc_sql_execution_pass, arc_sql_execution_result)
             if not arc_sql_execution_pass:
                 return Response({'error': arc_sql_execution_result}, status=status.HTTP_400_BAD_REQUEST)
-            return Response(arc_sql_execution_result, status=status.HTTP_200_OK)
+            
+            _response = None
+
+            if len(arc_sql_execution_result) == 1:
+                _response = list(arc_sql_execution_result[0].values())[0]
+            elif len(arc_sql_execution_result) > 1:
+                _response = arc_sql_execution_result
+            else:
+                assert False, "No data returned"
+            return Response(_response, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)

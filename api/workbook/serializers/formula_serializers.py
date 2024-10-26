@@ -4,8 +4,8 @@ from workbook.models import Formula, FormulaMessage
 class FormulaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Formula
-        fields = ['id', 'name', 'description', 'arcSql', 'isActive', 'isValidated', 'createdAt']
-        read_only_fields = ['id', 'createdAt', 'arcSql']
+        fields = ['id', 'name', 'description', 'arcSql', 'isActive', 'isValidated', 'createdAt', 'fromulaType']
+        read_only_fields = ['id', 'createdAt', 'arcSql', 'fromulaType']
 
     def create(self, validated_data):
         user = self.context['request'].user
@@ -25,7 +25,7 @@ class FormulaMessageSerializer(serializers.ModelSerializer):
         model = FormulaMessage
         fields = ['id', 'formula', 'createdAt', 'userType', 
                   'messageType', 'name', 'description', 'text']
-        read_only_fields = ['id', 'user', 'createdAt', 'rawArcSql', 'retries', 'runDetails']
+        read_only_fields = ['id', 'user', 'createdAt', 'rawArcSql', 'retries', 'runDetails', 'inputTokensConsumed', 'outputTokensConsumed']
 
     def create(self, validated_data):
         user = self.context['request'].user

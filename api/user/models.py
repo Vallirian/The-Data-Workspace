@@ -2,6 +2,7 @@ import uuid
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
 from django.contrib.auth.models import PermissionsMixin
+import services.values as svc_vals
 
 class ArcUserManager(BaseUserManager):
     def create_user(self, firebase_uid, email=None, password=None, **extra_fields):
@@ -27,6 +28,10 @@ class ArcUser(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
 
+    inputTokensConsumedChatDeleted = models.IntegerField(default=0) # when chat is deleted, the input tokens consumed are backed up here
+    outputTokensConsumedChatDeleted = models.IntegerField(default=0) # when chat is deleted, the output tokens consumed are backed up here
+
+
     TIER_CHOICES = [
         ('free', 'free'),
     ]
@@ -38,5 +43,5 @@ class ArcUser(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ['email']
 
     class Meta:
-        db_table = f'arc_user'
+        db_table = svc_vals.ARC_USER
         
