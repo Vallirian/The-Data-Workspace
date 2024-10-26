@@ -5,7 +5,6 @@ import { useEffect } from "react";
 import * as React from "react";
 import { Progress } from "@/components/ui/progress";
 import LandingPage from "./(landing)/page";
-import './globals.css'
 
 export default function Home() {
     const [progress, setProgress] = React.useState(13);
