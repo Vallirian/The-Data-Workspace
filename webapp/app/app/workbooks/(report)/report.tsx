@@ -219,70 +219,79 @@ export default function Report({
                             >
                                 <ContextMenu>
                                     <ContextMenuTrigger className="flex flex-col h-full w-full p-2 justify-center rounded-md border border-dashed text-sm">
-                                        {row.rowType === "table" && (
+                                        {row.rowType === "kpi" && (
                                             <>
-                                                <div className="mb-1">
-                                                    Chart Type:{" "}
-                                                    {column.config.chartType ||
-                                                        "Not selected"}
-                                                </div>
-                                                <div className="mb-1">
-                                                    X-Axis:{" "}
-                                                    {column.config.x ||
-                                                        "Not selected"}
-                                                </div>
+                                                {!column.formula ? (
+                                                    <p>No Formula Selected</p>
+                                                ) : !formulaValues[
+                                                      column.formula
+                                                  ] ? (
+                                                    <p>
+                                                        Right click to select a
+                                                        formula
+                                                    </p>
+                                                ) : (
+                                                    <>
+                                                        {/* Display formula details if a formula is selected and has values */}
+                                                        <>
+                                                            <h5 className="mb-2 font-semibold">
+                                                                {
+                                                                    formulas.find(
+                                                                        (f) =>
+                                                                            f.id ===
+                                                                            column.formula
+                                                                    )?.name
+                                                                }
+                                                            </h5>
+                                                            <p className="mb-2 line-clamp-2">
+                                                                {
+                                                                    formulas.find(
+                                                                        (f) =>
+                                                                            f.id ===
+                                                                            column.formula
+                                                                    )
+                                                                        ?.description
+                                                                }
+                                                            </p>
+                                                            <h3 className="scroll-m-20 text-xl font-semibold tracking-tight">
+                                                                {ArcAutoFormat(
+                                                                    formulaValues[
+                                                                        column
+                                                                            .formula
+                                                                    ]
+                                                                )}
+                                                            </h3>
+                                                        </>
+                                                    </>
+                                                )}
                                             </>
                                         )}
-                                        {!column.formula && (
-                                            <p className="mb-2">
-                                                No Formula Selected
-                                            </p>
+                                        {row.rowType === "table" && (
+                                            <>
+                                                {/* Handle the case where no formula or formula values are present */}
+                                                {!column.formula ||
+                                                !formulaValues[
+                                                    column.formula
+                                                ] ? (
+                                                    <>
+                                                        <div className="mb-1">
+                                                            Chart Type:{" "}
+                                                            {column.config
+                                                                .chartType ||
+                                                                "Not selected"}
+                                                        </div>
+                                                        <div className="mb-1">
+                                                            X-Axis:{" "}
+                                                            {column.config.x ||
+                                                                "Not selected"}
+                                                        </div>
+                                                    </>
+                                                ) : (
+                                                    // Placeholder for future chart implementation
+                                                    <div>Add chart here</div>
+                                                )}
+                                            </>
                                         )}
-
-                                        {!formulaValues[column.formula] &&
-                                            "Right click to select a formula"}
-
-                                        {row.rowType === "kpi" &&
-                                            column.formula && (
-                                                // only show formula name and description for KPIs directly, for tables, another component will be rendered
-                                                <>
-                                                    <h5 className="mb-2 font-semibold">
-                                                        {
-                                                            formulas.find(
-                                                                (f) =>
-                                                                    f.id ===
-                                                                    column.formula
-                                                            )?.name
-                                                        }
-                                                    </h5>
-                                                    <p className="mb-2 line-clamp-2">
-                                                        {
-                                                            formulas.find(
-                                                                (f) =>
-                                                                    f.id ===
-                                                                    column.formula
-                                                            )?.description
-                                                        }
-                                                    </p>
-                                                </>
-                                            )}
-                                        {row.rowType === "kpi" &&
-                                            column.formula &&
-                                            formulaValues[column.formula] && (
-                                                <h3 className="scroll-m-20 text-xl font-semibold tracking-tight">
-                                                    {ArcAutoFormat(
-                                                        formulaValues[
-                                                            column.formula
-                                                        ]
-                                                    )}
-                                                </h3>
-                                            )}
-                                        {row.rowType === "table" &&
-                                            column.formula &&
-                                            formulaValues[column.formula] &&
-                                            // chart component will be rendered here
-                                            {""}
-                                            }
                                     </ContextMenuTrigger>
 
                                     <ContextMenuContent className="w-64">
@@ -320,6 +329,7 @@ export default function Report({
                                                 </ContextMenuSubContent>
                                             </ContextMenuSub>
                                         )}
+
                                         <ContextMenuSub>
                                             <ContextMenuSubTrigger inset>
                                                 Select Formula
@@ -356,9 +366,11 @@ export default function Report({
                                                     ))}
                                             </ContextMenuSubContent>
                                         </ContextMenuSub>
-
                                         {row.rowType === "table" &&
-                                            column.formula && (
+                                            row.columns[columnIndex].formula &&
+                                            Object.keys(formulaValues).includes(
+                                                row.columns[columnIndex].formula
+                                            ) && ( // because the formula might not have been fetched yet and this will cause an error
                                                 <ContextMenuSub>
                                                     <ContextMenuSubTrigger
                                                         inset
@@ -368,7 +380,9 @@ export default function Report({
                                                     <ContextMenuSubContent className="w-48">
                                                         {Object.keys(
                                                             formulaValues[
-                                                                column.formula
+                                                                row.columns[
+                                                                    columnIndex
+                                                                ].formula
                                                             ][0] || {}
                                                         ).map((key) => (
                                                             <ContextMenuItem
