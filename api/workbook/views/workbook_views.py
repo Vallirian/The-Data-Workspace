@@ -57,8 +57,7 @@ class WorkbookDetailAPIView(APIView):
         if not _raw_data_delete_status:
             return Response({'message': _raw_data_delete_message}, status=status.HTTP_400_BAD_REQUEST)
         
-        # delete workbook
-            # deletes by connection data table meta | data table column meta | delete formula | delete formula messages | delete report
+        # delete workbook: deletes by connection data table meta | data table column meta | delete formula | delete formula messages | delete report
         try:
             workbook.delete()
         except Exception as e:

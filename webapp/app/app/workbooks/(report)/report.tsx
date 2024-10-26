@@ -182,7 +182,7 @@ export default function Report({
         const newRow = {
             rowType: type,
             columns:
-                type === "kpi" ? new Array(4).fill("") : new Array(2).fill(""), // Four slots for KPIs, two for tables
+                type === "kpi" ? new Array(1).fill("") : new Array(1).fill(""), // Four slots for KPIs, two for tables
         };
         setReport({
             ...report,

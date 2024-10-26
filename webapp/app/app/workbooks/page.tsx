@@ -23,6 +23,10 @@ import { DataTableMetaInterface, WorkbookInterface } from "@/interfaces/main";
 import { addDays, format } from "date-fns";
 import ArcNavbar from "../sub-components/navigation/arcNavbar";
 import { useToast } from "@/hooks/use-toast";
+import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+import { ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+
+import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 
 export default function WorkbooksPage() {
     const { toast } = useToast();
@@ -64,7 +68,7 @@ export default function WorkbooksPage() {
 
     const fetchTableMeta = async (workbookId: string, tableId: string) => {
         try {
-            const response = await axiosInstance.get( 
+            const response = await axiosInstance.get(
                 `${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/datatable/${tableId}/`
             );
             return response.data;
@@ -86,6 +90,24 @@ export default function WorkbooksPage() {
             console.error("Error creating workbook", error);
         }
     };
+    const chartData = [
+        { month: "January", desktop: 186, mobile: 80 },
+        { month: "February", desktop: 305, mobile: 200 },
+        { month: "March", desktop: 237, mobile: 120 },
+        { month: "April", desktop: 73, mobile: 190 },
+        { month: "May", desktop: 209, mobile: 130 },
+        { month: "June", desktop: 214, mobile: 140 },
+    ];
+    const chartConfig = {
+        desktop: {
+            label: "Desktop",
+            color: "#2563eb",
+        },
+        mobile: {
+            label: "Mobile",
+            color: "#60a5fa",
+        },
+    } satisfies ChartConfig;
 
     // const deleteWorkbook = async (id: string) => {
     //     // Simulating API call to delete a workbook
@@ -95,6 +117,33 @@ export default function WorkbooksPage() {
 
     return (
         <div className="min-h-screen bg-background flex flex-col">
+            <ChartContainer
+                config={chartConfig}
+                className="min-h-[200px] w-full"
+            >
+                <BarChart accessibilityLayer data={chartData}>
+                    <XAxis
+                        dataKey="month"
+                        tickLine={false}
+                        tickMargin={10}
+                        axisLine={false}
+                        tickFormatter={(value) => value.slice(0, 3)}
+                    />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+
+                    <CartesianGrid vertical={false} />
+                    <Bar
+                        dataKey="desktop"
+                        fill="var(--color-desktop)"
+                        radius={4}
+                    />
+                    <Bar
+                        dataKey="mobile"
+                        fill="var(--color-mobile)"
+                        radius={4}
+                    />
+                </BarChart>
+            </ChartContainer>
             <ArcNavbar />
 
             <main className="flex-grow p-6 overflow-auto">
