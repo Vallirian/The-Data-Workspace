@@ -6,7 +6,7 @@ export const buildInitialConfig = (categories: string[]): ChartConfig => {
     categories.forEach((category, index) => {
         config[category] = {
             label: category.charAt(0).toUpperCase() + category.slice(1),
-            color: `hsl(var(--chart-${(index + 1) % 5}))`,
+            color: `hsl(var(--chart-${(index + 2) % 5}))`,
         };
     });
 
