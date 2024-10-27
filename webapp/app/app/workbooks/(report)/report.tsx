@@ -6,7 +6,7 @@ import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSub, Conte
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axiosInstance from "@/services/axios";
 import { FormulaInterface, ReportInterface } from "@/interfaces/main";
 import { ArcAutoFormat } from "@/services/autoFormat";
@@ -22,6 +22,15 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 		[key: string]: any;
 	}>({});
 	const [editMode, setEditMode] = useState(true);
+
+	const visibleColumns = useMemo(() => {
+		if (!report || editMode) return report?.rows;
+
+		return report.rows.map((row) => ({
+			...row,
+			columns: row.columns.filter((column) => column.formula && column.formula.trim() !== ""),
+		}));
+	}, [report, editMode]);
 
 	useEffect(() => {
 		fetchReport();
@@ -192,16 +201,16 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 				<h2 className="text-2xl font-bold mb-4">Report</h2>
 			</div>
 			<div className="flex-grow overflow-y-auto p-4 space-y-4">
-				{report?.rows.map((row, rowIndex) => (
+				{visibleColumns?.map((row, rowIndex) => (
 					<div key={rowIndex} className={`flex ${row.rowType !== "kpi" && !editMode ? "flex-col sm:flex-row" : ""} space-x-4`}>
 						{row.columns.map((column, columnIndex) => (
 							<div
 								key={`${rowIndex}-${columnIndex}`}
 								className={`
-                ${editMode ? (row.rowType === "kpi" ? "w-1/4 h-36" : "w-1/2 h-84") : row.rowType === "kpi" ? "w-1/4 h-36" : row.columns.length === 1 ? "w-full" : "w-full sm:w-1/2"}
-                ${!editMode && row.rowType !== "kpi" ? "mb-4 sm:mb-0" : ""}
-                border rounded-md
-              `}
+                  ${editMode ? (row.rowType === "kpi" ? "w-1/4 h-36" : "w-1/2 h-84") : row.rowType === "kpi" ? `w-1/${row.columns.length} h-36` : `w-full ${row.columns.length > 1 ? "sm:w-1/2" : ""} h-84`}
+                  ${!editMode && row.rowType !== "kpi" ? "mb-4 sm:mb-0" : ""}
+                  border rounded-md
+                `}
 							>
 								<ContextMenu>
 									<ContextMenuTrigger className="flex flex-col h-full w-full p-2 justify-center rounded-md border border-dashed text-sm">
@@ -216,19 +225,15 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 													<p>Right click to select a formula</p>
 												) : (
 													<>
-														{/* Display formula details if a formula is selected and has values */}
-														<>
-															<h5 className="mb-2 font-semibold">{formulas.find((f) => f.id === column.formula)?.name}</h5>
-															<p className="mb-2 line-clamp-2">{formulas.find((f) => f.id === column.formula)?.description}</p>
-															<h3 className="scroll-m-20 text-xl font-semibold tracking-tight">{ArcAutoFormat(formulaValues[column.formula])}</h3>
-														</>
+														<h5 className="mb-2 font-semibold">{formulas.find((f) => f.id === column.formula)?.name}</h5>
+														<p className="mb-2 line-clamp-2">{formulas.find((f) => f.id === column.formula)?.description}</p>
+														<h3 className="scroll-m-20 text-xl font-semibold tracking-tight">{ArcAutoFormat(formulaValues[column.formula])}</h3>
 													</>
 												)}
 											</>
 										)}
 										{row.rowType === "table" && (
 											<>
-												{/* Handle the case where no formula or formula values are present */}
 												{!column.formula || !formulaValues[column.formula] || !column.config.x || column.config.x === "" ? (
 													<>
 														<div className="mb-1">Chart Type: {column.config.chartType || "Not selected"}</div>
