@@ -14,10 +14,6 @@ export default function Home() {
         const timer = setTimeout(() => setProgress(66), 100);
         return () => clearTimeout(timer);
     }, []);
-
-    // useEffect(() => {
-    //     router.push("/app/workbooks"); 
-    // }, []);
-
+    
     return <LandingPage />;
 }

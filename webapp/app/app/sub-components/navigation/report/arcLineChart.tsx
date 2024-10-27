@@ -4,6 +4,8 @@ import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
 import {
     ChartConfig,
     ChartContainer,
+    ChartLegend,
+    ChartLegendContent,
     ChartTooltip,
     ChartTooltipContent,
 } from "@/components/ui/chart";
@@ -54,6 +56,7 @@ export function ArcLineChart({
                         cursor={false}
                         content={<ChartTooltipContent hideLabel />}
                     />
+                    <ChartLegend content={<ChartLegendContent />} />
                     {categories.map((category) => (
                         <Line
                             key={category}

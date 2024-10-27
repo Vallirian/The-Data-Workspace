@@ -78,7 +78,7 @@ export interface ReportInterface {
         rowType: 'kpi' | 'table';
         columns: {
             config: {
-                chartType: 'bar-chart' | 'line-chart' | 'pie-chart' | 'table' | null;
+                chartType: 'bar-chart' | 'line-chart' | 'table' | null;
                 x: string | null;
             };
             formula: string;

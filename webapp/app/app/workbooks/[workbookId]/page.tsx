@@ -135,7 +135,7 @@ export default function Page() {
                 </div>
             </nav>
             <div className="flex flex-1 overflow-hidden">
-                <div className="flex-grow">
+                <div className="w-3/4 flex-grow">
                     {activeLeftTab === "report" && (
                         <Report
                             workbookId={workbookId as string}

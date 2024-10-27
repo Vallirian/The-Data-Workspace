@@ -31,7 +31,7 @@ export default function ArcStackedBarChart({
     const chartConfig = buildInitialConfig(categories);
 
     return (
-        <div className="">
+        <div className="w-full">
             <h5 className="mb-2 font-semibold">{name}</h5>
             <p className="mb-2 line-clamp-2">{description}</p>
             <ChartContainer config={chartConfig}>
