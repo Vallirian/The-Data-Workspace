@@ -1,16 +1,15 @@
 "use client";
 
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
 import {
+    ChartConfig,
     ChartContainer,
-    ChartLegend,
-    ChartLegendContent,
     ChartTooltip,
     ChartTooltipContent,
 } from "@/components/ui/chart";
 import { buildInitialConfig, formatXAxisTick } from "@/services/chartServices";
 
-export default function ArcStackedBarChart({
+export function ArcLineChart({
     data,
     x,
     name,
@@ -35,7 +34,7 @@ export default function ArcStackedBarChart({
             <h5 className="mb-2 font-semibold">{name}</h5>
             <p className="mb-2 line-clamp-2">{description}</p>
             <ChartContainer config={chartConfig}>
-                <BarChart
+                <LineChart
                     accessibilityLayer
                     data={data}
                     margin={{
@@ -47,21 +46,25 @@ export default function ArcStackedBarChart({
                     <XAxis
                         dataKey={x}
                         tickLine={false}
-                        tickMargin={10}
                         axisLine={false}
+                        tickMargin={8}
                         tickFormatter={formatXAxisTick}
                     />
-                    <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-                    <ChartLegend content={<ChartLegendContent />} />
+                    <ChartTooltip
+                        cursor={false}
+                        content={<ChartTooltipContent hideLabel />}
+                    />
                     {categories.map((category) => (
-                        <Bar
+                        <Line
                             key={category}
                             dataKey={category}
-                            fill={`var(--color-${category})`}
-                            radius={4}
+                            type="linear"
+                            stroke={`var(--color-${category})`}
+                            strokeWidth={2}
+                            dot={false}
                         />
                     ))}
-                </BarChart>
+                </LineChart>
             </ChartContainer>
         </div>
     );

@@ -19,6 +19,7 @@ import axiosInstance from "@/services/axios";
 import { FormulaInterface, ReportInterface } from "@/interfaces/main";
 import { ArcAutoFormat } from "@/services/autoFormat";
 import ArcStackedBarChart from "../../sub-components/navigation/report/arcStackedBarChart";
+import { ArcLineChart } from "../../sub-components/navigation/report/arcLineChart";
 
 export default function Report({
     workbookId,
@@ -189,16 +190,21 @@ export default function Report({
 
     const clearEmtyCells = () => {
         if (!report) return;
-    
-        const cleanRows = report.rows.map(row => ({
-          ...row,
-          columns: row.columns.filter(column => column.formula != null && column.formula.trim() !== ''),
+
+        const cleanRows = report.rows.map((row) => ({
+            ...row,
+            columns: row.columns.filter(
+                (column) =>
+                    column.formula != null && column.formula.trim() !== ""
+            ),
         }));
-      
-        const filteredRows = cleanRows.filter(row => row.columns.length > 0);
-      
-        setReport(prevReport => (prevReport ? { ...prevReport, rows: filteredRows } : prevReport));
-      };
+
+        const filteredRows = cleanRows.filter((row) => row.columns.length > 0);
+
+        setReport((prevReport) =>
+            prevReport ? { ...prevReport, rows: filteredRows } : prevReport
+        );
+    };
 
     return (
         <div className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
@@ -213,13 +219,12 @@ export default function Report({
                 </div>
                 {editMode && (
                     <div>
-
-                    <Button variant="link" onClick={saveReport}>
-                        Save
-                    </Button>
-                    <Button variant="link" onClick={clearEmtyCells}>
-                    Clear Empty Cells
-                </Button>
+                        <Button variant="link" onClick={saveReport}>
+                            Save
+                        </Button>
+                        <Button variant="link" onClick={clearEmtyCells}>
+                            Clear Empty Cells
+                        </Button>
                     </div>
                 )}
             </div>
@@ -306,6 +311,16 @@ export default function Report({
                                                                 "Not selected"}
                                                         </div>
                                                         <div className="mb-1">
+                                                            Formula:{" "}
+                                                            {column.formula
+                                                                ? formulas.find(
+                                                                      (f) =>
+                                                                          f.id ===
+                                                                          column.formula
+                                                                  )?.name
+                                                                : "Not selected"}
+                                                        </div>
+                                                        <div className="mb-1">
                                                             X-Axis:{" "}
                                                             {column.config.x ||
                                                                 "Not selected"}
@@ -317,6 +332,40 @@ export default function Report({
                                                             .chartType ===
                                                             "bar-chart" && (
                                                             <ArcStackedBarChart
+                                                                data={
+                                                                    formulaValues[
+                                                                        column
+                                                                            .formula
+                                                                    ]
+                                                                }
+                                                                x={
+                                                                    column
+                                                                        .config
+                                                                        .x
+                                                                }
+                                                                name={
+                                                                    formulas.find(
+                                                                        (f) =>
+                                                                            f.id ===
+                                                                            column.formula
+                                                                    )?.name ||
+                                                                    ""
+                                                                }
+                                                                description={
+                                                                    formulas.find(
+                                                                        (f) =>
+                                                                            f.id ===
+                                                                            column.formula
+                                                                    )
+                                                                        ?.description ||
+                                                                    ""
+                                                                }
+                                                            />
+                                                        )}
+                                                        {column.config
+                                                            .chartType ===
+                                                            "line-chart" && (
+                                                            <ArcLineChart
                                                                 data={
                                                                     formulaValues[
                                                                         column
@@ -497,11 +546,11 @@ export default function Report({
                                 variant="outline"
                                 size="icon"
                                 className={`w-8 ${
-                                    row.rowType === "kpi" ? "h-36" : "h-72"
+                                    row.rowType === "kpi" ? "h-36" : "h-84"
                                 }`}
                                 onClick={() => addNewColumn(rowIndex)}
                             >
-                                <Plus className="h-4 w-4" />
+                                <Plus className="h-6 w-4" />
                                 <span className="sr-only">Add Column</span>
                             </Button>
                         )}
@@ -509,10 +558,7 @@ export default function Report({
                 ))}
                 {editMode && (
                     <div className="py-4 flex justify-center mb-2">
-                        <Button
-                            variant="link"
-                            onClick={() => addNewRow("kpi")}
-                        >
+                        <Button variant="link" onClick={() => addNewRow("kpi")}>
                             + Add KPI
                         </Button>
                         <Button
