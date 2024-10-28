@@ -18,3 +18,13 @@ class ReportDetailAPIView(APIView):
             return Response(serializer.data)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def patch(self, request, workbook_id, report_id, *args, **kwargs):
+        report = Report.objects.get(id=report_id, user=request.user)
+        serializer = ReportSerializer(report, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        
+        return Response({'error': str(list(serializer.errors.values()))}, status=status.HTTP_400_BAD_REQUEST)

@@ -4,17 +4,16 @@ import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useMemo, useState } from "react";
 import axiosInstance from "@/services/axios";
-import { FormulaInterface, ReportInterface } from "@/interfaces/main";
-import KpiColumn from "../../workbooks/(report)/kpiColumn";
-import TableColumn from "../../workbooks/(report)/tableColumn";
+import { SharedReportInterface } from "@/interfaces/main";
+import KpiColumn from "../../../workbooks/(report)/kpiColumn";
+import TableColumn from "../../../workbooks/(report)/tableColumn";
+import { useParams } from "next/navigation";
+import { Toaster } from "@/components/ui/toaster";
 
-export default function Report({ workbookId, reportId }: { workbookId: string; reportId: string }) {
+export default function SharedReport() {
 	const { toast } = useToast();
-	const [report, setReport] = useState<ReportInterface | null>(null);
-	const [formulaValues, setFormulaValues] = useState<{
-		[key: string]: any;
-	}>({});
-	const [formulas, setFormulas] = useState<FormulaInterface[]>([]);
+	const {reportId} = useParams();
+	const [report, setReport] = useState<SharedReportInterface | null>(null);
 
 	const visibleColumns = useMemo(() => {
 		if (!report) return [];
@@ -27,19 +26,17 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 
 	useEffect(() => {
 		fetchReport();
-		fetchFormulas();
 	}, [reportId]);
 
 	const fetchReport = async () => {
 		try {
-			const response = await axiosInstance.get(`${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/reports/${reportId}/`);
-			const fetchedReport: ReportInterface = response.data;
+			const response = await axiosInstance.get(`${process.env.NEXT_PUBLIC_API_URL}/shared/reports/${reportId}/`);
+			console.log(response.data);
+			const fetchedReport: SharedReportInterface = response.data;
 			setReport(fetchedReport);
 
 			// Fetch values for all formulas in the report
 			const formulaIds = fetchedReport.rows.flatMap((row) => row.columns.map((col) => col.formula)).filter((id, index, self) => id && self.indexOf(id) === index);
-
-			await Promise.all(formulaIds.map((id) => fetchFormulaValue(id)));
 		} catch (error: any) {
 			toast({
 				variant: "destructive",
@@ -49,38 +46,9 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 		}
 	};
 
-	const fetchFormulas = async () => {
-		try {
-			const response = await axiosInstance.get(`${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/formulas/`);
-			setFormulas(response.data);
-		} catch (error: any) {
-			toast({
-				variant: "destructive",
-				title: "Error fetching formulas",
-				description: error.response?.data?.error || "Failed to load formulas",
-			});
-		}
-	};
-
-	const fetchFormulaValue = async (formulaId: string) => {
-		try {
-			const response = await axiosInstance.get(`${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/formulas/${formulaId}/value/`);
-			setFormulaValues((prev) => ({
-				...prev,
-				[formulaId]: response.data,
-			}));
-			console.log(response.data);
-		} catch (error: any) {
-			toast({
-				variant: "destructive",
-				title: "Error fetching formula value",
-				description: error.response.data.error,
-			});
-		}
-	};
-
 	return (
 		<div className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
+			<Toaster />
 			<div className="flex justify-between items-center p-4"></div>
 			<div className="flex justify-between items-center px-4">
 				<h2 className="text-2xl font-bold mb-4">Report</h2>
@@ -99,8 +67,8 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 							>
 								<ContextMenu>
 									<ContextMenuTrigger className="flex flex-col h-full w-full p-2 justify-center rounded-md border border-dashed text-sm">
-										{row.rowType === "kpi" && <KpiColumn column={column} formulaValues={formulaValues} formulas={formulas} />}
-										{row.rowType === "table" && <TableColumn column={column} formulaValues={formulaValues} formulas={formulas} />}
+										{row.rowType === "kpi" && <KpiColumn column={column} formulaValues={report?.formulaValues || []} formulas={report?.formulas || []} />}
+										{row.rowType === "table" && <TableColumn column={column} formulaValues={report?.formulaValues || []} formulas={report?.formulas || []} />}
 									</ContextMenuTrigger>
 								</ContextMenu>
 							</div>

@@ -52,6 +52,7 @@ class Report(models.Model):
     id = models.CharField(primary_key=True, default=uuid.uuid4, editable=False, unique=True, max_length=36)
     user = models.ForeignKey(ArcUser, on_delete=models.CASCADE)
     rows = models.JSONField(default=list)
+    sharedWith = models.JSONField(default=list)
 
     class Meta:
         db_table = f'report'

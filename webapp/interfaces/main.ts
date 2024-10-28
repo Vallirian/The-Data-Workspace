@@ -75,6 +75,7 @@ export interface FormulaInterface {
 export interface ReportInterface {
 	id: string;
 	rows: ReportRowInterface[];
+    sharedWith: string[];
 }
 
 export interface ReportRowInterface {
@@ -88,4 +89,11 @@ export interface ReportColumnInterface {
 		x: string | null;
 	};
 	formula: string;
+}
+
+export interface SharedReportInterface extends ReportInterface {
+    formulas: FormulaInterface[];
+    formulaValues: {
+        [key: string]: any;
+    };
 }

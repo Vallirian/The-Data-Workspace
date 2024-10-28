@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'services',
     'user',
     'workbook',
+    'shared'
 ]
 
 MIDDLEWARE = [

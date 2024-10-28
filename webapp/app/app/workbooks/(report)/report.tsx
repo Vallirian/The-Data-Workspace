@@ -5,12 +5,17 @@ import { Switch } from "@/components/ui/switch";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSub, ContextMenuSubContent, ContextMenuSubTrigger, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Plus } from "lucide-react";
+import { Plus, Share } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import axiosInstance from "@/services/axios";
 import { FormulaInterface, ReportInterface } from "@/interfaces/main";
 import KpiColumn from "./kpiColumn";
 import TableColumn from "./tableColumn";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Toast } from "@radix-ui/react-toast";
+import { Toaster } from "@/components/ui/toaster";
 
 export default function Report({ workbookId, reportId }: { workbookId: string; reportId: string }) {
 	const { toast } = useToast();
@@ -177,24 +182,90 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 		setReport((prevReport) => (prevReport ? { ...prevReport, rows: filteredRows } : prevReport));
 	};
 
+	const addSharedViewer = () => {
+		const prevSharedWith = report?.sharedWith || [];
+		setReport(report ? { ...report, sharedWith: [...prevSharedWith, ""] } : report);
+	};
+
+	const updateSharedViewer = (index: number, email: string) => {
+		if (!report) return;
+
+		const updatedSharedWith = [...report.sharedWith];
+		updatedSharedWith[index] = email;
+		setReport({ ...report, sharedWith: updatedSharedWith });
+	};
+
+	const patchReport = async (patchedData: Partial<ReportInterface>) => {
+		try {
+			await axiosInstance.patch(`${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/reports/${reportId}/`, patchedData);
+			toast({
+				title: "Report shared",
+				description: "Your report has been shared successfully",
+			});
+
+		} catch (error: any) {
+			toast({
+				variant: "destructive",
+				title: "Error sharing report",
+				description: error.response?.data?.error || "Failed to share report",
+			});
+		}
+	};
 
 	return (
 		<div className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
+			<Toaster/>
 			<div className="flex justify-between items-center p-4">
 				<div className="flex items-center space-x-2">
 					<Switch id="edit-mode" onCheckedChange={setEditMode} checked={editMode} />
 					<Label htmlFor="edit-mode">Edit Mode</Label>
 				</div>
-				{editMode && (
-					<div>
-						<Button variant="link" onClick={saveReport}>
-							Save
-						</Button>
-						<Button variant="link" onClick={clearEmtyCells}>
-							Clear Empty Cells
-						</Button>
-					</div>
-				)}
+				<div className="flex items-center ">
+					{editMode && (
+						<>
+							<Button variant="link" onClick={saveReport}>
+								Save
+							</Button>
+							<Button variant="link" onClick={clearEmtyCells}>
+								Clear Empty Cells
+							</Button>
+						</>
+					)}
+
+					<Dialog>
+						<DialogTrigger asChild>
+							<Button variant="link" onClick={clearEmtyCells}>
+								Share
+							</Button>
+						</DialogTrigger>
+						<DialogContent className="sm:max-w-[425px]">
+							<DialogHeader>
+								<DialogTitle>Share Report</DialogTitle>
+								<DialogDescription>
+									<p>Add or remove emails for users to view this report</p>
+									<p className="mt-3">Report URL:{<a href={`${window.location.origin}/app/shared/reports/${reportId}`}>{`${window.location.origin}/app/shared/reports/${reportId}`}</a>}</p>
+								</DialogDescription>
+							</DialogHeader>
+							<ScrollArea className="h-72">
+								<div className="grid gap-4 py-4">
+									{report?.sharedWith.map((email, index) => (
+										<div key={email} className="grid grid-cols-3 items-center gap-4">
+											<Input id={`email-${index}`} placeholder="alan@turing.com" className="col-span-3" onBlur={(e) => updateSharedViewer(index, e.target.value)} defaultValue={email} />
+										</div>
+									))}
+								</div>
+							</ScrollArea>
+							<Button variant="link" onClick={addSharedViewer}>
+								+ Add Person
+							</Button>
+							<DialogFooter>
+								<Button type="submit" onClick={() => patchReport({ sharedWith: report?.sharedWith })}>
+									Save changes
+								</Button>
+							</DialogFooter>
+						</DialogContent>
+					</Dialog>
+				</div>
 			</div>
 			<div className="flex justify-between items-center px-4">
 				<h2 className="text-2xl font-bold mb-4">Report</h2>
@@ -213,12 +284,8 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 							>
 								<ContextMenu>
 									<ContextMenuTrigger className="flex flex-col h-full w-full p-2 justify-center rounded-md border border-dashed text-sm">
-										{row.rowType === "kpi" && (
-											<KpiColumn column={column} formulaValues={formulaValues} formulas={formulas} />
-										)}
-										{row.rowType === "table" && (
-											<TableColumn column={column} formulaValues={formulaValues} formulas={formulas} />
-										)}
+										{row.rowType === "kpi" && <KpiColumn column={column} formulaValues={formulaValues} formulas={formulas} />}
+										{row.rowType === "table" && <TableColumn column={column} formulaValues={formulaValues} formulas={formulas} />}
 									</ContextMenuTrigger>
 									{editMode && (
 										<ContextMenuContent className="w-64">

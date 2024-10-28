@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from workbook.models import Report
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 
 class ColumnSerializer(serializers.Serializer):
     config = serializers.DictField(child=serializers.CharField(allow_null=True))
@@ -29,10 +31,22 @@ class ReportSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Report
-        fields = ['id', 'rows']
+        fields = ['id', 'rows', 'sharedWith']
 
-    def validate_rows(self, value):
-        # Now using RowSerializer ensures that data structure for each row is validated
-        # further logic could be added here, if needed, for additional validation checks
-        
-        return value
+    def validate_sharedWith(self, value):
+        # Remove any empty elements and ensure uniqueness
+        valid_emails = set(filter(None, value))
+
+        # Validate each email address
+        for email in valid_emails:
+            try:
+                validate_email(email)
+            except ValidationError:
+                raise serializers.ValidationError(f"'{email}' is not a valid email address.")
+
+        return list(valid_emails)
+
+    def validate(self, data):
+        # Call the 'validate_sharedWith' method to clean and validate the emails
+        data['sharedWith'] = self.validate_sharedWith(data.get('sharedWith', []))
+        return data
