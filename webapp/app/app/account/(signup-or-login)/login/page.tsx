@@ -6,12 +6,13 @@ import { EnvelopeOpenIcon } from "@radix-ui/react-icons";
 import { GoogleAuthProvider, signInWithPopup, User } from "firebase/auth";
 import Link from "next/link";
 import { useState } from "react";
-import { useRouter } from "next/navigation"; 
+import { useRouter, useSearchParams } from "next/navigation"; 
 
 
 export default function Login() {
     const [user, setUser] = useState<User | null>(null);
     const router = useRouter(); 
+    const searchParams = useSearchParams();
 
     const handleLogin = () => {
         signInWithPopup(auth, googleProvider)
@@ -24,7 +25,9 @@ export default function Login() {
                 const user = result.user;
                 setUser(user);
 
-                router.push('/app/workbooks'); 
+                // Check if there's a redirect path
+                const redirectPath = searchParams.get("redirect") || "/app/workbooks";
+                router.push(redirectPath);
             })
             .catch((error) => {
                 const errorCode = error.code;

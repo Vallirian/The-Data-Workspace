@@ -16,6 +16,7 @@ import { DataTableMetaInterface, WorkbookInterface } from "@/interfaces/main";
 import { addDays, format } from "date-fns";
 import ArcNavbar from "../sub-components/navigation/arcNavbar";
 import { useToast } from "@/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster";
 
 export default function WorkbooksPage() {
     const { toast } = useToast();
@@ -80,15 +81,10 @@ export default function WorkbooksPage() {
         }
     };
 
-    // const deleteWorkbook = async (id: string) => {
-    //     // Simulating API call to delete a workbook
-    //     await fetch(`/api/workbooks/${id}`, { method: "DELETE" });
-    //     setWorkbooks(workbooks.filter((workbook) => workbook.id !== id));
-    // };
-
     return (
         <div className="min-h-screen bg-background flex flex-col">
             <ArcNavbar />
+            <Toaster />
 
             <main className="flex-grow p-6 overflow-auto">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">

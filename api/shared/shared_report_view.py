@@ -24,7 +24,6 @@ class SharedReportDetailAPIView(APIView):
         share_report_data = share_report.data
         share_report_data['formulas'] = []
         share_report_data['formulaValues'] = {}
-        print(share_report_data)
 
         # get all formulas for this report
         for row in share_report_data['rows']:
@@ -39,7 +38,11 @@ class SharedReportDetailAPIView(APIView):
             formula = get_object_or_404(Formula, id=report_formula['id'], isActive=True)
 
             _status, _translated_sql = ArcSQLUtils(ArcSQL(**formula.rawArcSql)).get_sql_query()
-            raw_sql_exec = RawSQLExecution(sql=_translated_sql, inputs=[], request=self.request)
+            # create a temporary request object using the user from report
+            _temp_request = request
+            _temp_request.user = formula.user
+
+            raw_sql_exec = RawSQLExecution(sql=_translated_sql, inputs=[], request=_temp_request)
             arc_sql_execution_pass, arc_sql_execution_result = raw_sql_exec.execute(fetch_results=True)
             if not arc_sql_execution_pass:
                 return Response({'error': arc_sql_execution_result}, status=status.HTTP_400_BAD_REQUEST)
