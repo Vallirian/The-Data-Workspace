@@ -9,10 +9,8 @@ import { Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import axiosInstance from "@/services/axios";
 import { FormulaInterface, ReportInterface } from "@/interfaces/main";
-import { ArcAutoFormat } from "@/services/autoFormat";
-import ArcStackedBarChart from "../../sub-components/navigation/report/arcStackedBarChart";
-import { ArcLineChart } from "../../sub-components/navigation/report/arcLineChart";
-import ArcTable from "../../sub-components/navigation/report/arcTable";
+import KpiColumn from "./kpiColumn";
+import TableColumn from "./tableColumn";
 
 export default function Report({ workbookId, reportId }: { workbookId: string; reportId: string }) {
 	const { toast } = useToast();
@@ -179,6 +177,7 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 		setReport((prevReport) => (prevReport ? { ...prevReport, rows: filteredRows } : prevReport));
 	};
 
+
 	return (
 		<div className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
 			<div className="flex justify-between items-center p-4">
@@ -215,39 +214,10 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 								<ContextMenu>
 									<ContextMenuTrigger className="flex flex-col h-full w-full p-2 justify-center rounded-md border border-dashed text-sm">
 										{row.rowType === "kpi" && (
-											<>
-												{!column.formula ? (
-													<div>
-														<p>No Formula Selected</p>
-														<p>Right click to select a formula</p>
-													</div>
-												) : !formulaValues[column.formula] ? (
-													<p>Right click to select a formula</p>
-												) : (
-													<>
-														<h5 className="mb-2 font-semibold">{formulas.find((f) => f.id === column.formula)?.name}</h5>
-														<p className="mb-2 line-clamp-2">{formulas.find((f) => f.id === column.formula)?.description}</p>
-														<h3 className="scroll-m-20 text-xl font-semibold tracking-tight">{ArcAutoFormat(formulaValues[column.formula])}</h3>
-													</>
-												)}
-											</>
+											<KpiColumn column={column} formulaValues={formulaValues} formulas={formulas} />
 										)}
 										{row.rowType === "table" && (
-											<>
-												{!column.formula || !formulaValues[column.formula] || !column.config.x || column.config.x === "" ? (
-													<>
-														<div className="mb-1">Chart Type: {column.config.chartType || "Not selected"}</div>
-														<div className="mb-1">Formula: {column.formula ? formulas.find((f) => f.id === column.formula)?.name : "Not selected"}</div>
-														<div className="mb-1">X-Axis: {column.config.x || "Not selected"}</div>
-													</>
-												) : (
-													<>
-														{column.config.chartType === "bar-chart" && <ArcStackedBarChart data={formulaValues[column.formula]} x={column.config.x} name={formulas.find((f) => f.id === column.formula)?.name || ""} description={formulas.find((f) => f.id === column.formula)?.description || ""} />}
-														{column.config.chartType === "line-chart" && <ArcLineChart data={formulaValues[column.formula]} x={column.config.x} name={formulas.find((f) => f.id === column.formula)?.name || ""} description={formulas.find((f) => f.id === column.formula)?.description || ""} />}
-														{column.config.chartType === "table" && <ArcTable data={formulaValues[column.formula]} x={column.config.x} name={formulas.find((f) => f.id === column.formula)?.name || ""} description={formulas.find((f) => f.id === column.formula)?.description || ""} />}
-													</>
-												)}
-											</>
+											<TableColumn column={column} formulaValues={formulaValues} formulas={formulas} />
 										)}
 									</ContextMenuTrigger>
 									{editMode && (
