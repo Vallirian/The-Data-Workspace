@@ -202,7 +202,6 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 				title: "Report shared",
 				description: "Your report has been shared successfully",
 			});
-
 		} catch (error: any) {
 			toast({
 				variant: "destructive",
@@ -214,13 +213,16 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 
 	return (
 		<div className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
-			<Toaster/>
+			<Toaster />
 			<div className="flex justify-between items-center p-4">
-				<div className="flex items-center space-x-2">
-					<Switch id="edit-mode" onCheckedChange={setEditMode} checked={editMode} />
-					<Label htmlFor="edit-mode">Edit Mode</Label>
+				<div className="flex justify-between items-center px-4">
+					<h2 className="text-2xl font-bold mb-4">Report</h2>
 				</div>
 				<div className="flex items-center ">
+					<div className="flex items-center space-x-2">
+						<Switch id="edit-mode" onCheckedChange={setEditMode} checked={editMode} />
+						<Label htmlFor="edit-mode">Edit Mode</Label>
+					</div>
 					{editMode && (
 						<>
 							<Button variant="link" onClick={saveReport}>
@@ -238,12 +240,11 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 								Share
 							</Button>
 						</DialogTrigger>
-						<DialogContent className="sm:max-w-[425px]">
+						<DialogContent className="md:max-w-[500px]">
 							<DialogHeader>
 								<DialogTitle>Share Report</DialogTitle>
 								<DialogDescription>
 									<p>Add or remove emails for users to view this report</p>
-									<p className="mt-3">Report URL:{<a href={`${window.location.origin}/app/shared/reports/${reportId}`}>{`${window.location.origin}/app/shared/reports/${reportId}`}</a>}</p>
 								</DialogDescription>
 							</DialogHeader>
 							<ScrollArea className="h-72">
@@ -259,17 +260,21 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 								+ Add Person
 							</Button>
 							<DialogFooter>
-								<Button type="submit" onClick={() => patchReport({ sharedWith: report?.sharedWith })}>
-									Save changes
-								</Button>
+								<div className="flex flex-col">
+									<Button type="submit" onClick={() => patchReport({ sharedWith: report?.sharedWith })}>
+										Save changes
+									</Button>
+									<div className="text-center">
+										<p className="my-3 text-muted-foreground">Report URL</p>
+										<p className="text-foreground">{<a href={`${window.location.origin}/app/shared/reports/${reportId}`}>{`${window.location.origin}/app/shared/reports/${reportId}`}</a>}</p>
+									</div>
+								</div>
 							</DialogFooter>
 						</DialogContent>
 					</Dialog>
 				</div>
 			</div>
-			<div className="flex justify-between items-center px-4">
-				<h2 className="text-2xl font-bold mb-4">Report</h2>
-			</div>
+
 			<div className="flex-grow overflow-y-auto p-4 space-y-4">
 				{visibleColumns?.map((row, rowIndex) => (
 					<div key={rowIndex} className={`flex ${row.rowType !== "kpi" && !editMode ? "flex-col sm:flex-row" : ""} space-x-4`}>
