@@ -79,11 +79,11 @@ class OpenAIAnalysisAgent:
             self.run_response.input_tokens_consumed = _temp_run.usage.prompt_tokens
             self.run_response.output_tokens_consumed = _temp_run.usage.completion_tokens
 
-            # increment retries here because we `continue` in the loops
+            # increment retries here because we continue in the loops
             self.run_response.retries += 1
             
             if _temp_run.status != 'completed':
-                # we check failed and retry to keep unfailed runs directly under the while loop so that our `continue` statements work
+                # we check failed and retry to keep unfailed runs directly under the while loop so that our continue statements work
                 continue
 
             self.current_agent_response = self.client.beta.threads.messages.list(thread_id=self.thread.id).data[0].content[0].text.value

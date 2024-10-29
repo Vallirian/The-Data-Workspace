@@ -108,7 +108,7 @@ class ArcSQLUtils:
             if self.arc_sql.cte_tables_in_order:
                 # Start WITH clause for the first CTE
                 first_cte = self.arc_sql.cte_tables_in_order[0]
-                sql_parts.append(f"WITH {first_cte.name} AS (\n    {first_cte.sql_as_string}\n)")
+                sql_parts.append(f"WITH \"{first_cte.name}\" AS (\n{first_cte.sql_as_string}\n)")
                 
                 # Add remaining CTEs
                 for cte in self.arc_sql.cte_tables_in_order[1:]:
