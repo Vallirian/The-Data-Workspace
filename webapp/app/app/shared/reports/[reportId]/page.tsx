@@ -96,7 +96,7 @@ export default function SharedReport() {
 								<div
 									key={`${rowIndex}-${columnIndex}`}
 									className={`
-                  ${row.rowType === "kpi" ? `w-1/${row.columns.length} h-36` : `w-full ${row.columns.length > 1 ? "sm:w-1/2" : ""} h-84`}
+                  ${row.rowType === "kpi" ? (row.columns.length > 1 ? `w-1/${row.columns.length}` : "w-full h-36") : `w-full ${row.columns.length > 1 ? "sm:w-1/2" : ""} h-84`}
                   ${row.rowType !== "kpi" ? "mb-4 sm:mb-0" : ""}
                   border rounded-md
                 `}
