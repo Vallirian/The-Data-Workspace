@@ -13,9 +13,6 @@ RUN apt-get update && apt-get install -y \
     # Cleaning up package lists to reduce the image size
     && rm -rf /var/lib/apt/lists/*
 
-# Install mysqlclient using pip
-RUN pip install mysqlclient
-
 
 # Install dependencies
 COPY requirements.txt .
