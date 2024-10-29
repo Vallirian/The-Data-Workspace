@@ -2,15 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { MoreVertical, Plus, ChevronRight } from "lucide-react";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Plus } from "lucide-react";
 import axiosInstance from "@/services/axios";
-import { DataTableMetaInterface, WorkbookInterface } from "@/interfaces/main";
-import { addDays, format } from "date-fns";
+import { DataTableMetaInterface, ErrorInterface, WorkbookInterface } from "@/interfaces/main";
+import { format } from "date-fns";
 import ArcNavbar from "../sub-components/navigation/arcNavbar";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
-import { DotFilledIcon } from "@radix-ui/react-icons";
 
 export default function WorkbooksPage() {
 	const { toast } = useToast();
@@ -35,29 +34,27 @@ export default function WorkbooksPage() {
 			const tableMetaPromises = workbooksData.map((workbook: WorkbookInterface) => fetchTableMeta(workbook.id, workbook.dataTable));
 			const tableMetasData = await Promise.all(tableMetaPromises);
 			setTableMetas(tableMetasData);
-		} catch (error: any) {
+		} catch (error: unknown) {
+            const err = error as ErrorInterface;
 			toast({
 				variant: "destructive",
 				title: "Error getting workbooks",
-				description: error.response?.data?.error || "Failed to load workbooks",
+				description: err.response?.data?.error || "Failed to load workbooks",
 			});
 		}
 	};
-	function generatePastelColor(str: string) {
-		let hash = 0;
-		for (let i = 0; i < str.length; i++) {
-			hash = str.charCodeAt(i) + ((hash << 5) - hash);
-		}
-		const hue = hash % 360;
-		return `hsl(${hue}, 70%, 80%)`;
-	}
 
 	const fetchTableMeta = async (workbookId: string, tableId: string) => {
 		try {
 			const response = await axiosInstance.get(`${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/datatable/${tableId}/`);
 			return response.data;
-		} catch (error) {
-			return null;
+		} catch (error: unknown) {
+            const err = error as ErrorInterface;
+			toast({
+                variant: "destructive",
+                title: "Error getting table metadata",
+                description: err.response?.data?.error || "Failed to load table metadata",
+            });
 		}
 	};
 
@@ -66,7 +63,14 @@ export default function WorkbooksPage() {
 			const response = await axiosInstance.post(`${process.env.NEXT_PUBLIC_API_URL}/workbooks/`, {});
 			const newWorkbook = await response.data;
 			setWorkbooks([...workbooks, newWorkbook]);
-		} catch (error) {}
+		} catch (error: unknown) {
+            const err = error as ErrorInterface;
+            toast({
+                variant: "destructive",
+                title: "Error creating workbook",
+                description: err.response?.data?.error || "Failed to create workbook",
+            });
+        }
 	};
 
 	return (
@@ -90,6 +94,7 @@ export default function WorkbooksPage() {
 					</Card>
 					{workbooks.map((workbook) => (
 						<Card
+                            key={workbook.id}
 							className="flex flex-col cursor-pointer hover:bg-accent"
 							onClick={() => {
 								router.push(`/app/workbooks/${workbook.id}`);

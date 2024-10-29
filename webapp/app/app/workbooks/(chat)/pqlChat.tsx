@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import ArcFormatDate from "@/services/formatDate";
 import {
     AnalysisChatMessageInterface,
+    ErrorInterface,
 } from "@/interfaces/main";
 import {
     Card,
@@ -21,7 +22,6 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { ArcAutoFormat } from "@/services/autoFormat";
 
 export default function AnalysisChat({
@@ -58,12 +58,13 @@ export default function AnalysisChat({
             const fetchedMessages: AnalysisChatMessageInterface[] =
                 response.data || [];
             setMessages(fetchedMessages);
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const err = error as ErrorInterface;
             toast({
                 variant: "destructive",
                 title: "Error fetching messages",
                 description:
-                    error.response?.data?.error ||
+                    err.response?.data?.error ||
                     "Failed to load messages",
             });
         }
@@ -105,12 +106,13 @@ export default function AnalysisChat({
                     ]);
                     setWaitingServerMessage(false);
                 }
-            } catch (error: any) {
+            } catch (error: unknown) {
+                const err = error as ErrorInterface;
                 toast({
                     variant: "destructive",
                     title: "Error sending message",
-                    description: error.response.data.error
-                        ? error.response.data.error
+                    description: err.response.data.error
+                        ? err.response.data.error
                         : "Failed to send message",
                 });
                 setWaitingServerMessage(false);

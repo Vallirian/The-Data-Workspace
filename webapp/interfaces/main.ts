@@ -97,3 +97,12 @@ export interface SharedReportInterface extends ReportInterface {
         [key: string]: any;
     };
 }
+
+export interface ErrorInterface {
+	response: {
+		status: number;
+		data: {
+			error: string;
+		};
+	};
+}

@@ -16,7 +16,7 @@ export default function ArcStackedBarChart({
     name,
     description,
 }: {
-    data: any[];
+    data: {[key: string]: any}[];
     x: string;
     name: string;
     description: string;

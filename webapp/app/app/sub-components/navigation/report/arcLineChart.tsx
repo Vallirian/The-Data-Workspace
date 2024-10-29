@@ -2,7 +2,6 @@
 
 import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
 import {
-    ChartConfig,
     ChartContainer,
     ChartLegend,
     ChartLegendContent,
@@ -17,7 +16,7 @@ export function ArcLineChart({
     name,
     description,
 }: {
-    data: any[];
+    data: {[key: string]: any}[];
     x: string;
     name: string;
     description: string;
