@@ -16,7 +16,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
 					<CardContent>
 						<div className="grid gap-4">
 							<p>For now you can redirect to the home page, we'll be looking into this one</p>
-							<div className="flex justify-center">
+							<div className="flex justify-center gap-4">
 								<Link href="/app/workbooks" className="mt-3 inline-block text-sm underline">
 									Workbooks
 								</Link>
