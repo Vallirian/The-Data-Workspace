@@ -59,13 +59,14 @@ class FirebaseTokenAuthMiddleware(MiddlewareMixin):
                 firebase_uid = decoded_token['uid']  # Get the Firebase UID from the token
                 email = decoded_token.get('email', '')
 
-
+                print('got email', email)
                 user, created = arcUser.objects.get_or_create(
                     firebase_uid=firebase_uid,
                     defaults={
                         'email': email,
                     }
                 )
+                print('got user', user, 'created', created)
                 
                 # Attach the Django User to request.user. Needs to happen before
                 # the DataSegregation is called because it uses the request.user
