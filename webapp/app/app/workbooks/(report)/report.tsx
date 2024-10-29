@@ -280,8 +280,8 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 							<div
 								key={`${rowIndex}-${columnIndex}`}
 								className={`
-                  ${editMode ? (row.rowType === "kpi" ? "w-1/4 h-36" : "w-1/2 h-84") : row.rowType === "kpi" ? `w-1/${row.columns.length} h-36` : `w-full ${row.columns.length > 1 ? "sm:w-1/2" : ""} h-84`}
-                  ${!editMode && row.rowType !== "kpi" ? "mb-4 sm:mb-0" : ""}
+					${row.rowType === "kpi" ? (row.columns.length > 1 ? `w-1/${row.columns.length}` : "w-full h-36") : `w-full ${row.columns.length > 1 ? "sm:w-1/2" : ""} h-84`}   
+					${!editMode && row.rowType !== "kpi" ? "mb-4 sm:mb-0" : ""}
                   border rounded-md
                 `}
 							>
