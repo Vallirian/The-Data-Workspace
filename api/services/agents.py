@@ -86,7 +86,7 @@ class OpenAIAnalysisAgent:
                 continue
 
             self.current_agent_response = self.client.beta.threads.messages.list(thread_id=self.thread.id).data[0].content[0].text.value
-
+            print(f"Agent response: {self.current_agent_response}")
             # validate ArcSQL
             arc_sql_validation_error = None
             try:
@@ -129,6 +129,7 @@ class OpenAIAnalysisAgent:
             
             # parse SQL
             _translation_status, self.run_response.translated_sql = _arc_sql_util.construct_sql_query() # get it without cleaning for python execution
+            print(f"Translated SQL: {self.run_response.translated_sql}")
             if not _translation_status:
                 self.last_error = str
                 __temp_error_message = f"SQL translation failed\n error: {_translation_status}"
@@ -142,6 +143,7 @@ class OpenAIAnalysisAgent:
             # execute SQL
             raw_sql_exec = RawSQLExecution(sql=_sql_query_value, inputs=[], request=self.request)
             arc_sql_execution_pass, arc_sql_execution_result = raw_sql_exec.execute(fetch_results=True)
+            print(f"SQL execution result: {arc_sql_execution_result}")
             if not arc_sql_execution_pass:
                 self.last_error = str(arc_sql_execution_result)
                 __temp_error_message = f"SQL execution failed\n error: {arc_sql_execution_result}"
