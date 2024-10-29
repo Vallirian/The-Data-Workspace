@@ -55,7 +55,6 @@ export default function SharedReport() {
 	return (
 		<div className="min-h-screen bg-background flex flex-col">
 			<ArcNavbar />
-			
 			{askToSignin && (
 				<AlertDialog defaultOpen={askToSignin}>
 					<AlertDialogContent>
