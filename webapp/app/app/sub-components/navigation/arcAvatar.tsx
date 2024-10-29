@@ -39,10 +39,8 @@ export default function ArcAvatar() {
             const userInfo = await axiosInstance.get(
                 `${process.env.NEXT_PUBLIC_API_URL}/user/`
             )
-            console.log(userInfo.data)
             setUserInfo(userInfo.data)
         } catch (error) {
-            console.log(error)
         }
     }
 
@@ -59,7 +57,6 @@ export default function ArcAvatar() {
         if (!userInfo) return "--";
         const avgInputTokenUtilization = userInfo.inputTokenUtilization / userInfo.inputTokenLimit;
         const avgOutputTokenUtilization = userInfo.outputTokenUtilization / userInfo.outputTokenLimit;
-        console.log(avgInputTokenUtilization, avgOutputTokenUtilization)
         return (
             ((avgInputTokenUtilization + avgOutputTokenUtilization) / 2) * 100
         ).toFixed(2);

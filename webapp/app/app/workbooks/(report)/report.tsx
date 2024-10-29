@@ -99,7 +99,6 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 			...updatedRows[rowIndex].columns[columnIndex],
 			...updates,
 		};
-		console.log(updatedRows);
 		setReport({ ...report, rows: updatedRows });
 
 		if (updates.formula) {
@@ -131,7 +130,6 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 				...prev,
 				[formulaId]: response.data,
 			}));
-			console.log(response.data);
 		} catch (error: any) {
 			toast({
 				variant: "destructive",

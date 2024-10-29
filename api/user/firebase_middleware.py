@@ -81,16 +81,7 @@ class FirebaseTokenAuthMiddleware(MiddlewareMixin):
                     # because we are using Google Firebase for authentication which is stateless
                     request.csrf_processing_done = True
 
-                # Check if the user has exceeded the token limit
-                token_limit_exceeded, token_utilization, message = get_user_token_utilization(request)
-                if token_limit_exceeded:
-                    return JsonResponse({'error': message, 'token_utilization': token_utilization}, status=403)
                 
-                # Check if the user has exceeded the data limit
-                data_limit_exceeded, data_utilization, data_message = get_user_data_utilization(request)
-                if data_limit_exceeded:
-                    return JsonResponse({'error': data_message, 'data_utilization': data_utilization}, status=403)
-
                 return None  # Continue processing the request
 
             except Exception as e:

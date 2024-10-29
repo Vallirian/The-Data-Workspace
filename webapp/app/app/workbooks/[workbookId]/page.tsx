@@ -48,7 +48,6 @@ export default function Page() {
                 `${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/`
             );
             const workbooksData = await workbooksResponse.data;
-            console.log(workbooksData);
             setWorkbook(workbooksData);
         } catch (error: any) {
             toast({

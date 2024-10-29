@@ -57,7 +57,6 @@ export default function AnalysisChat({
             );
             const fetchedMessages: AnalysisChatMessageInterface[] =
                 response.data || [];
-            console.log(fetchedMessages);
             setMessages(fetchedMessages);
         } catch (error: any) {
             toast({
@@ -97,7 +96,6 @@ export default function AnalysisChat({
                 );
                 const newMessageResponseData: AnalysisChatMessageInterface =
                     _newMessageResponse.data;
-                console.log(newMessageResponseData);
                 if (newMessageResponseData) {
                     newMessageResponseData.userId = auth.currentUser?.uid || "";
                     setMessages([

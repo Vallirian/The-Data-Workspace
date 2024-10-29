@@ -60,7 +60,6 @@ const ImportDataService = () => {
    * @returns Object with result (boolean) and message (string).
    */
   const validateDataTypes = (data: any[], selectedDataTypes: string[], sampleSize: number = 500): { result: boolean; message: string } => {
-    console.log('validateDataTypes');
     const limitedData = data.slice(0, sampleSize);
 
     for (const row of limitedData) {

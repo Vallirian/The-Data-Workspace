@@ -6,6 +6,8 @@ from django.shortcuts import get_object_or_404
 from workbook.models import DataTableMeta, DataTableColumnMeta
 from workbook.serializers.datatable_serializers import DataTableMetaSerializer, DataTableColumnMetaSerializer
 from services.db import RawData
+from user.firebase_middleware import get_user_data_utilization
+from django.http import JsonResponse
 
 
 class DataTableMetaDetailAPIView(APIView):
@@ -79,7 +81,11 @@ class DataTableExtractionAPIView(APIView):
         assert 'data' in request.data, "No data provided"
         assert 'columns' in request.data, "No columns provided"
 
-        
+        # Check if the user has exceeded the data limit
+        data_limit_exceeded, data_utilization, data_message = get_user_data_utilization(request)
+        if data_limit_exceeded:
+            return JsonResponse({'error': data_message, 'data_utilization': data_utilization}, status=403)
+
         # update datatable meta
         datatable_meta.dataSourceAdded = True
         datatable_meta.name = request.data['name']

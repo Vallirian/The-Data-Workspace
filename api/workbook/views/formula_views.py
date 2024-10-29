@@ -9,6 +9,9 @@ from services.agents import OpenAIAnalysisAgent
 from services.interface import AgentRunResponse, ArcSQL
 from services.utils import ArcSQLUtils
 from services.db import RawSQLExecution
+from user.firebase_middleware import get_user_token_utilization
+from django.http import JsonResponse
+
 
 class FormulaListView(APIView):
     def get(self, request, workbook_id):
@@ -56,14 +59,17 @@ class FormulaMessageListView(APIView):
 
         assert datatable_meta.dataSourceAdded and datatable_meta.extractionStatus == 'success', "Data extraction not successful"
 
-        print(request.data)
         serializer = FormulaMessageSerializer(data=request.data, context={'request': request, 'formula': formula})
-        print(serializer)
         if serializer.is_valid():
             user_message = serializer.save()
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        print('User message saved')
+        
+        # Check if the user has exceeded the token limit
+        token_limit_exceeded, token_utilization, message = get_user_token_utilization(request)
+        if token_limit_exceeded:
+            return JsonResponse({'error': message, 'token_utilization': token_utilization}, status=403)
+
         # Send the message to the AI chat agent
         user_message = serializer.data.get('text')
         agent = OpenAIAnalysisAgent(user_message=user_message, chat_id=formula.id, thread_id=formula.threadId, dt_meta_id=datatable_meta.id, request=request)
@@ -73,9 +79,6 @@ class FormulaMessageListView(APIView):
                 return Response({'error': agent_run}, status=status.HTTP_400_BAD_REQUEST)
             formula.threadId = agent.thread_id
             formula.save()
-            print('New thread started')
-
-        print('Sending message to agent')
 
         agent.send_message()
         model_run: AgentRunResponse = agent.run_response

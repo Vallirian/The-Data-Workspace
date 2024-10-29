@@ -36,7 +36,6 @@ export default function SharedReport() {
 	const fetchReport = async () => {
 		try {
 			const response = await axiosInstance.get(`${process.env.NEXT_PUBLIC_API_URL}/shared/reports/${reportId}/`);
-			console.log(response.data);
 			const fetchedReport: SharedReportInterface = response.data;
 			setReport(fetchedReport);
 

@@ -23,7 +23,6 @@ export function ArcLineChart({
     description: string;
 }) {
     if (!data || data.length === 0) {
-        console.log("No data");
         return <div>No data</div>;
     }
 

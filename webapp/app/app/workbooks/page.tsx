@@ -63,7 +63,6 @@ export default function WorkbooksPage() {
             );
             return response.data;
         } catch (error) {
-            console.error("Error fetching table meta", error);
             return null;
         }
     };
@@ -77,7 +76,6 @@ export default function WorkbooksPage() {
             const newWorkbook = await response.data;
             setWorkbooks([...workbooks, newWorkbook]);
         } catch (error) {
-            console.error("Error creating workbook", error);
         }
     };
 
