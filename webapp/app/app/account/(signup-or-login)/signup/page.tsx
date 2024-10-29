@@ -38,7 +38,6 @@ export default function Login() {
 			<div className="hidden w-1/2 bg-black text-white lg:block">
 				<div className="flex h-full flex-col justify-between p-8">
 					<div className="flex items-center space-x-2">
-						{/* <div className="h-8 w-8 bg-white" /> */}
 						<div className="flex items-center space-x-2">
 							<Image src="/images/logo-1-white-png.png" alt="Logo" width={24} height={24} /> <span className="text-xl font-semibold">Processly</span>
 						</div>
