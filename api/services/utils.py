@@ -109,7 +109,7 @@ class ArcSQLUtils:
                 
                 # Add remaining CTEs
                 for cte in self.arc_sql.cte_tables_in_order[1:]:
-                    sql_parts.append(f",\n{cte.name} AS (\n    {cte.sql_as_string}\n)")
+                    sql_parts.append(f",\n\"{cte.name}\" AS (\n    {cte.sql_as_string}\n)")
             
             # Add the final SELECT statement
             # Remove any leading/trailing whitespace and ensure proper spacing

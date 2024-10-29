@@ -16,16 +16,16 @@ export default function Error({ reset }: { error: Error & { digest?: string }; r
 					<CardContent>
 						<div className="grid gap-4">
 							<p>For now you can redirect to the home page, we will be looking into this one</p>
-							<div className="flex justify-center gap-4">
-								<Link href="/app/workbooks" className="mt-3 inline-block text-sm underline">
-									Workbooks
-								</Link>
+							<div className="flex justify-between">
+								<Button onClick={() => window.location.replace("/")} className="mt-3 inline-block text-sm">
+									Go to Home
+								</Button>
 								<Button
 									onClick={
 										// Attempt to recover by trying to re-render the segment
 										() => reset()
 									}
-									className="mt-3 inline-block text-sm underline"
+									className="mt-3 inline-block text-sm"
 								>
 									Try again
 								</Button>
