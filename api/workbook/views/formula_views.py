@@ -22,7 +22,6 @@ class FormulaListView(APIView):
     
     def post(self, request, workbook_id):
         # POST: Create a new formula (by creating a new chat)
-        print(request.data)
         workbook = get_object_or_404(Workbook, id=workbook_id, user=request.user)
         dataTable = get_object_or_404(DataTableMeta, id=request.data.get('dataTable'), workbook=workbook, user=request.user)
 
@@ -83,7 +82,6 @@ class FormulaMessageListView(APIView):
         agent.send_message()
         model_run: AgentRunResponse = agent.run_response
         if model_run.success:
-            print('Model run successful')
             _new_model_message = FormulaMessage(
                 user=request.user,
                 formula=formula,
@@ -119,12 +117,9 @@ class FormulaDetailValueView(APIView):
     def get(self, request, formula_id, *args, **kwargs):
         try:
             formula = get_object_or_404(Formula, id=formula_id, isActive=True, user=request.user)
-            # print(formula.rawArcSql)
             _status, _translated_sql = ArcSQLUtils(ArcSQL(**formula.rawArcSql)).get_sql_query()
-            print(_translated_sql)
             raw_sql_exec = RawSQLExecution(sql=_translated_sql, inputs=[], request=self.request)
             arc_sql_execution_pass, arc_sql_execution_result = raw_sql_exec.execute(fetch_results=True)
-            print(arc_sql_execution_pass, arc_sql_execution_result)
             if not arc_sql_execution_pass:
                 return Response({'error': arc_sql_execution_result}, status=status.HTTP_400_BAD_REQUEST)
             

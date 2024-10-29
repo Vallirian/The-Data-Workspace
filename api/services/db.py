@@ -71,7 +71,6 @@ class RawData:
 
             return True, 'Data extracted successfully'
         except Exception as e:
-            print(f'Error on extraction: {e}')
             return False, str(e)
         
     def delete_table(self):
@@ -121,9 +120,7 @@ class RawSQLExecution:
                         return False, str(e)
                 else:
                     try:
-                        print('cursor execution started')
                         cursor.execute(self.sql, self.inputs)
-                        print('cursor execution passed')
 
                         if fetch_results:
                             result = dictfetchall(cursor)
@@ -241,7 +238,6 @@ class DataSegregation:
             try:
                 cursor.execute(query, inputs)
                 tokens_consumed = dictfetchall(cursor)
-                # print(tokens_consumed)
 
                 input_token_utilization = 0
                 output_token_utilization = 0
@@ -258,7 +254,6 @@ class DataSegregation:
                     inputs = [str(self.request.user.id).replace('-', '')]
                     cursor.execute(query, inputs)
                     tokens_consumed = dictfetchall(cursor)
-                    print(tokens_consumed)
 
                     for t in tokens_consumed:
                         total_input_tokens_consumed += t['inputTokensConsumedChatDeleted']

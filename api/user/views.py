@@ -12,7 +12,6 @@ def account(request):
         input_token_limit = int(os.getenv('TIER_FREE_INPUT_TOKEN_LIMIT', 1_000_000))
         output_token_limit = int(os.getenv('TIER_FREE_OUTPUT_TOKEN_LIMIT', 500_000))
         _token_util_statut, (input_token_utilization, output_token_utilization), _token_uitl_message = _data_segregation.get_token_utilization(add_from_backed_up_in_user_model=True)
-        print(input_token_utilization, output_token_utilization)
 
         # data utilization
         raw_data_limit = int(os.getenv('TIER_FREE_DATA_LIMIT_MB', 50))

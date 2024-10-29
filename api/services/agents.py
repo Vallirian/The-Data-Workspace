@@ -59,7 +59,6 @@ class OpenAIAnalysisAgent:
         )
 
         while self.run_response.retries <= self.max_retries:
-            print(os.getenv('OPEN_AI_MODEL'))
             _temp_run = self.client.beta.threads.runs.create_and_poll(
                 model=os.getenv('OPEN_AI_MODEL'), # 'gpt-4o-2024-08-06',
                 thread_id=self.thread.id,
@@ -87,7 +86,6 @@ class OpenAIAnalysisAgent:
                 continue
 
             self.current_agent_response = self.client.beta.threads.messages.list(thread_id=self.thread.id).data[0].content[0].text.value
-            print(self.current_agent_response)
 
             # validate ArcSQL
             arc_sql_validation_error = None
@@ -97,7 +95,6 @@ class OpenAIAnalysisAgent:
             except Exception as e:
                 arc_sql_validation_error = clean_pydantic_errors(str(e))
                 pass
-            print('arc_sql_validation_error', arc_sql_validation_error)
             if arc_sql_validation_error:
                 self.last_error = str(arc_sql_validation_error)
                 __temp_error_message = f"ArcSQL validation failed\n error: {arc_sql_validation_error}"
@@ -111,7 +108,6 @@ class OpenAIAnalysisAgent:
             # handle cases where the status is false
             if not _temp_arc_sql.status.status:
                 self.last_error = _temp_arc_sql.status.status_description
-                print('status false', _temp_arc_sql.status.status_description)
                 self.run_response.success = False
                 self.run_response.message = _temp_arc_sql.status.status_description
                 self.run_response.run_details = _temp_run.to_dict()
@@ -121,7 +117,6 @@ class OpenAIAnalysisAgent:
             # construct SQL
             _arc_sql_util = ArcSQLUtils(arc_sql=_temp_arc_sql)
             _sql_query_status, _sql_query_value = _arc_sql_util.get_sql_query()
-            print('_sql_query_status', _sql_query_status, '_sql_query_value', _sql_query_value)
             if not _sql_query_status:
                 self.last_error = str(_sql_query_value)
                 __temp_error_message = f"SQL construction failed\n error: {_sql_query_value}"
@@ -147,7 +142,6 @@ class OpenAIAnalysisAgent:
             # execute SQL
             raw_sql_exec = RawSQLExecution(sql=_sql_query_value, inputs=[], request=self.request)
             arc_sql_execution_pass, arc_sql_execution_result = raw_sql_exec.execute(fetch_results=True)
-            print(arc_sql_execution_pass, 'arc_sql_execution_result', arc_sql_execution_result)
             if not arc_sql_execution_pass:
                 self.last_error = str(arc_sql_execution_result)
                 __temp_error_message = f"SQL execution failed\n error: {arc_sql_execution_result}"

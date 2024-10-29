@@ -130,13 +130,10 @@ class DataTableExtractionAPIView(APIView):
 
         # delete raw data
         # delete before columns because of foreign key constraint
-        print('deleting raw data')
         raw_data_ops = RawData(request=request, table_id=table_id)
         _delete_status, _delete_message = raw_data_ops.delete_table()
-        print('delete status', _delete_status, _delete_message)
 
         # delete columns
-        print('deleting columns')
         DataTableColumnMeta.objects.filter(dataTable=datatable_meta, user=request.user).delete()
 
         # Reset fields related to data source

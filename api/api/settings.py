@@ -14,20 +14,27 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-dh$)o+mnd#&&9&b7u5^tknof(7)4j_ard-=*!k&@77rx$c&y*8"
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False 
 
-ALLOWED_HOSTS = ['127.0.0.1', 'http://localhost:8000', 'localhost', ".vercel.app"]
+ALLOWED_HOSTS = ['127.0.0.1', 'http://localhost:8000', 'localhost', ".vercel.app", ".processly.ai"]
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = False  # Disable allowing all origins
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https?://.*\.processly\.ai$",  # Allow any subdomain of x.abc over http or https
+]
+
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:3000',
-    'http://127.0.0.1:3000'
+    'http://127.0.0.1:3000',
+    
+    
+    'https://*.processly.ai',
 ]
 
 
