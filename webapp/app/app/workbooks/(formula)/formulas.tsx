@@ -20,31 +20,25 @@ import {
 } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import axiosInstance from "@/services/axios";
-import { FormulaInterface } from "@/interfaces/main";
+import { ErrorInterface, FormulaInterface } from "@/interfaces/main";
 
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import AnalysisChat from "../(chat)/pqlChat";
-import { Code, Code2, Pencil, Trash2 } from "lucide-react";
+import { Code2, Pencil, Trash2 } from "lucide-react";
 import {
     Dialog,
     DialogContent,
     DialogDescription,
-    DialogFooter,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { format } from "sql-formatter";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import {
-    base16AteliersulphurpoolLight,
-    gruvboxLight,
-    materialLight,
     oneLight,
-    duotoneLight,
 } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 export default function Formulas({
@@ -71,12 +65,13 @@ export default function Formulas({
             );
             const fetchedFormulas: FormulaInterface[] = response.data;
             setFormulas(fetchedFormulas);
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const err = error as ErrorInterface;
             toast({
                 variant: "destructive",
                 title: "Error fetching formulas",
                 description:
-                    error.response?.data?.error || "Failed to load formulas",
+                    err.response?.data?.error || "Failed to load formulas",
             });
         }
     };
@@ -87,11 +82,12 @@ export default function Formulas({
                 `${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/formulas/${id}`
             );
             setFormulas(formulas.filter((formula) => formula.id !== id));
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const err = error as ErrorInterface;
             toast({
                 variant: "destructive",
                 title: "Error deleting formula",
-                description: error.response.data.error,
+                description: err.response.data.error,
             });
         }
     };
@@ -106,11 +102,12 @@ export default function Formulas({
             const newFormula: FormulaInterface = response.data;
             setFormulas([...formulas, newFormula]);
             setActiveFormula(newFormula);
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const err = error as ErrorInterface;
             toast({
                 variant: "destructive",
                 title: "Error creating formula",
-                description: error.response.data.error,
+                description: err.response.data.error,
             });
         }
     };
@@ -255,7 +252,7 @@ export default function Formulas({
                                                     Cancel
                                                 </AlertDialogCancel>
                                                 <AlertDialogAction
-                                                    onClick={() => {}}
+                                                    onClick={() => {deleteFormula(formula.id)}}
                                                 >
                                                     Continue
                                                 </AlertDialogAction>

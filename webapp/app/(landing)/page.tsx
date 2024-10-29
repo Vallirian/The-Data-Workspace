@@ -10,10 +10,11 @@ export default function LandingPage() {
                     <div className="container mx-auto flex justify-between items-center">
                         <a href="#" className="hover:text-gray-300">
                             <div className="flex items-center space-x-2">
-                                <img
+                                <Image
                                     src="/images/logo-1-orange.png"
                                     alt="Processly logo"
-                                    className="h-6 w-6"
+                                    width={24}
+                                    height={24}
                                 />
                                 {/* <span className="font-bold text-xl">Processly</span> */}
                             </div>

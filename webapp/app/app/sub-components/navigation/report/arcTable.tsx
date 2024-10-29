@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from "lucide-react";
 
-export default function ArcTable({ data, x, name, description }: { data: any[]; x: string; name: string; description: string }) {
+export default function ArcTable({ data, x, name, description }: { data: {[key: string]: any}[]; x: string; name: string; description: string }) {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [sortColumn, setSortColumn] = useState(x);
 	const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");

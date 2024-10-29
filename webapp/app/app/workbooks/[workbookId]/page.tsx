@@ -12,16 +12,15 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useEffect, useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ArcBreadcrumb from "../../sub-components/navigation/arcBreadcrumb";
 import ArcAvatar from "../../sub-components/navigation/arcAvatar";
 import UploadCSV from "../(importData)/uploadCsv";
 import { useParams, useRouter } from "next/navigation";
 import axiosInstance from "@/services/axios";
-import { WorkbookInterface } from "@/interfaces/main";
+import { ErrorInterface, WorkbookInterface } from "@/interfaces/main";
 import ArcDataTable from "../(table)/dataTable";
-import AnalysisChat from "../(chat)/pqlChat";
 import Formulas from "../(formula)/formulas";
 import Report from "../(report)/report";
 import { useToast } from "@/hooks/use-toast";
@@ -49,12 +48,13 @@ export default function Page() {
             );
             const workbooksData = await workbooksResponse.data;
             setWorkbook(workbooksData);
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const err = error as ErrorInterface;
             toast({
                 variant: "destructive",
                 title: "Error to get workbook",
                 description:
-                    error.response?.data?.error || "Failed to load workbook",
+                    err.response?.data?.error || "Failed to load workbook",
             });
         }
     };
@@ -64,17 +64,18 @@ export default function Page() {
     const handleDeleteWorkbook = async () => {
         try {
             // Fetch all workbooks
-            const workbooksResponse = await axiosInstance.delete(
+            await axiosInstance.delete(
                 `${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/`
             );
             setWorkbook(null);
             router.push("/app/workbooks");
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const err = error as ErrorInterface;
             toast({
                 variant: "destructive",
                 title: "Error to get workbook",
                 description:
-                    error.response?.data?.error || "Failed to load workbook",
+                    err.response?.data?.error || "Failed to load workbook",
             });
         }
     }

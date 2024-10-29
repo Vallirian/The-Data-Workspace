@@ -5,16 +5,15 @@ import { Switch } from "@/components/ui/switch";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSub, ContextMenuSubContent, ContextMenuSubTrigger, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Share } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import axiosInstance from "@/services/axios";
-import { FormulaInterface, ReportInterface } from "@/interfaces/main";
+import { ErrorInterface, FormulaInterface, ReportInterface } from "@/interfaces/main";
 import KpiColumn from "./kpiColumn";
 import TableColumn from "./tableColumn";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Toast } from "@radix-ui/react-toast";
 import { Toaster } from "@/components/ui/toaster";
 
 export default function Report({ workbookId, reportId }: { workbookId: string; reportId: string }) {
@@ -50,11 +49,12 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 			const formulaIds = fetchedReport.rows.flatMap((row) => row.columns.map((col) => col.formula)).filter((id, index, self) => id && self.indexOf(id) === index);
 
 			await Promise.all(formulaIds.map((id) => fetchFormulaValue(id)));
-		} catch (error: any) {
+		} catch (error: unknown) {
+			const err = error as ErrorInterface;
 			toast({
 				variant: "destructive",
 				title: "Error fetching report",
-				description: error.response?.data?.error || "Failed to load report",
+				description: err.response?.data?.error || "Failed to load report",
 			});
 		}
 	};
@@ -63,11 +63,12 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 		try {
 			const response = await axiosInstance.get(`${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/formulas/`);
 			setFormulas(response.data);
-		} catch (error: any) {
+		} catch (error: unknown) {
+			const err = error as ErrorInterface;
 			toast({
 				variant: "destructive",
 				title: "Error fetching formulas",
-				description: error.response?.data?.error || "Failed to load formulas",
+				description: err.response?.data?.error || "Failed to load formulas",
 			});
 		}
 	};
@@ -82,11 +83,12 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 				title: "Report saved",
 				description: "Your report has been saved successfully",
 			});
-		} catch (error: any) {
+		} catch (error: unknown) {
+			const err = error as ErrorInterface;
 			toast({
 				variant: "destructive",
 				title: "Error saving report",
-				description: error.response?.data?.error || "Failed to save report",
+				description: err.response?.data?.error || "Failed to save report",
 			});
 		}
 	};
@@ -130,11 +132,12 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 				...prev,
 				[formulaId]: response.data,
 			}));
-		} catch (error: any) {
+		} catch (error: unknown) {
+			const err = error as ErrorInterface;
 			toast({
 				variant: "destructive",
 				title: "Error fetching formula value",
-				description: error.response.data.error,
+				description: err.response.data.error,
 			});
 		}
 	};
@@ -200,11 +203,12 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 				title: "Report shared",
 				description: "Your report has been shared successfully",
 			});
-		} catch (error: any) {
+		} catch (error: unknown) {
+			const err = error as ErrorInterface;
 			toast({
 				variant: "destructive",
 				title: "Error sharing report",
-				description: error.response?.data?.error || "Failed to share report",
+				description: err.response?.data?.error || "Failed to share report",
 			});
 		}
 	};

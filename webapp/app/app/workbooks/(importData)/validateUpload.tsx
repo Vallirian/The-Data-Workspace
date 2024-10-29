@@ -1,7 +1,5 @@
 import { useState } from 'react';
 
-// Allowed data types for columns
-const validDataTypes = ['string', 'integer', 'float', 'date'];
 
 const ImportDataService = () => {
   const [validationMessage, setValidationMessage] = useState<string>('');
@@ -59,7 +57,7 @@ const ImportDataService = () => {
    * @param sampleSize Number of rows to sample (e.g., 500).
    * @returns Object with result (boolean) and message (string).
    */
-  const validateDataTypes = (data: any[], selectedDataTypes: string[], sampleSize: number = 500): { result: boolean; message: string } => {
+  const validateDataTypes = (data: {[key: string]: any}[], selectedDataTypes: string[], sampleSize: number = 500): { result: boolean; message: string } => {
     const limitedData = data.slice(0, sampleSize);
 
     for (const row of limitedData) {
