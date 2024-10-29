@@ -82,7 +82,7 @@ function Signup() {
 
 export default function LoginPageWrapper() {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div>Loading... </div>}>
             <Signup />
         </Suspense>
     );
