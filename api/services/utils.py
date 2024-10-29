@@ -33,12 +33,10 @@ def validate_and_cast_value(value, data_type, data_format=None):
         else:
             return False, 'Invalid data type'
     except ValueError as e:
-        print(f'Error casting value: {value} to {data_type}')
         return False, str(e)
 
 def is_valid_date(date_str, date_format: str):
     if date_format not in svc_vals.ALLOWED_DATE_FORMATS:
-        print(f'Invalid date format: {date_format} for date {date_str}')
         return False, f'Invalid date format: {date_format} for date {date_str}'
     
     try:
@@ -70,7 +68,6 @@ def extract_json_from_md(md: str) -> dict:
     
         return (True, json.loads(json_strings[0]))
     except Exception as e:
-        print(f'Error extracting JSON: {md}')
         return (False, f"Error parsing JSON {str(e)}")
 
 # Interface
@@ -108,7 +105,7 @@ class ArcSQLUtils:
             if self.arc_sql.cte_tables_in_order:
                 # Start WITH clause for the first CTE
                 first_cte = self.arc_sql.cte_tables_in_order[0]
-                sql_parts.append(f"WITH {first_cte.name} AS (\n    {first_cte.sql_as_string}\n)")
+                sql_parts.append(f"WITH \"{first_cte.name}\" AS (\n{first_cte.sql_as_string}\n)")
                 
                 # Add remaining CTEs
                 for cte in self.arc_sql.cte_tables_in_order[1:]:

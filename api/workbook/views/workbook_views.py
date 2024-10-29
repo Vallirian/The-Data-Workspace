@@ -44,7 +44,6 @@ class WorkbookDetailAPIView(APIView):
             output_token += output_token
 
         arc_user = arcUser.objects.get(id=request.user.id)
-        print(arc_user)
         arc_user.inputTokensConsumedChatDeleted += input_token
         arc_user.outputTokensConsumedChatDeleted += output_token
         arc_user.save()

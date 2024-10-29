@@ -5,7 +5,7 @@ SQL_RESERVED_KEYWORDS = ['SELECT', 'FROM', 'WHERE', 'GROUP BY', 'HAVING', 'ORDER
 SQL_DDL_KEYWORDS = ['DROP', 'TRUNCATE', 'DELETE', 'INSERT', 'UPDATE', 'CREATE', 'ALTER', 'GRANT', 'REVOKE']
 
 # SQL execution
-DEFAULT_SCHEMA = os.getenv('MYSQL_DATABASE', 'arc')
+DEFAULT_SCHEMA = 'public' # Default schema for PostgreSQL execution
 DATA_TABLE_COLUMN_META = 'data_table_column_meta'
 DATA_TABLE_META = 'data_table_meta'
 FORMULA_MESSAGE = 'formula_message'
@@ -30,5 +30,5 @@ MAX_COLUMNS = 50
 ANALYSIS_AGENT_INSTRUCTION = """Write a structured and effective SQL query to derive meaningful insights from the company's data, using one table at a time. Your query will address business questions and be used in the backend to execute and generate final results.
 # Important Notes: The result from your query will be executed in Python so: 
 - Ensure the syntax is correct, including escaping characters like percent (%) sign.
-- always put column names and table names in backticks (`) to avoid SQL errors. Example: `column_name`, `table_name`.
+- always put column names and table names in quotes ("") to avoid PostgreSQL errors. Example: "column_name", "table_name".
 """

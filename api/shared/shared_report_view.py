@@ -14,7 +14,6 @@ class SharedReportDetailAPIView(APIView):
         report = Report.objects.get(id=report_id)
 
         # Check if the user has permission to view the report
-        print(report.sharedWith, request.user.email, report.user, request.user) 
         if request.user != report.user:
             if (request.user.email not in report.sharedWith):
                 return Response({'error': 'You do not have permission to view this report.'}, status=status.HTTP_403_FORBIDDEN)
