@@ -19,22 +19,20 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False 
 
-ALLOWED_HOSTS = ['127.0.0.1', 'http://localhost:8000', 'localhost', ".vercel.app", ".processly.ai"]
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', ".vercel.app", ".processly.ai"]
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "https://*.processly.ai",
+    "https://*.vercel.app",
 ]
 CORS_ALLOW_ALL_ORIGINS = False  # Disable allowing all origins
-CORS_ALLOWED_ORIGIN_REGEXES = [
-    r"^https?://.*\.processly\.ai$",  # Allow any subdomain of x.abc over http or https
-]
-
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
-    
-    
+        
     'https://*.processly.ai',
+    'https://*.vercel.app',
 ]
 
 
