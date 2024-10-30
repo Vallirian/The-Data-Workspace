@@ -23,8 +23,7 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost', ".vercel.app", ".processly.ai"]
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://*.processly.ai",
-    "https://*.vercel.app",
+    "https://app.processly.ai",
 ]
 CORS_ALLOW_ALL_ORIGINS = False  # Disable allowing all origins
 CSRF_TRUSTED_ORIGINS = [
