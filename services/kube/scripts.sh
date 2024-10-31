@@ -61,6 +61,8 @@ aws eks --region eu-west-2 update-kubeconfig --name my-cluster # update context
 kubectl config get-contexts # get all contexts
 kubectl config current-context # get current context
 
+kubectl get services
+
 kubectl get pods --all-namespaces
 kubectl get pods -o wide
 kubectl describe pod [pod-name]
