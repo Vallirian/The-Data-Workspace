@@ -53,65 +53,69 @@ class FormulaMessageListView(APIView):
     
     def post(self, request, formula_id, *args, **kwargs):
         # send a message to the specified formula
-        formula = get_object_or_404(Formula, id=formula_id, user=request.user)
-        datatable_meta = get_object_or_404(DataTableMeta, id=formula.dataTable.id, user=request.user)
+        try: 
+            formula = get_object_or_404(Formula, id=formula_id, user=request.user)
+            datatable_meta = get_object_or_404(DataTableMeta, id=formula.dataTable.id, user=request.user)
 
-        assert datatable_meta.dataSourceAdded and datatable_meta.extractionStatus == 'success', "Data extraction not successful"
+            assert datatable_meta.dataSourceAdded and datatable_meta.extractionStatus == 'success', "Data extraction not successful"
 
-        serializer = FormulaMessageSerializer(data=request.data, context={'request': request, 'formula': formula})
-        if serializer.is_valid():
-            user_message = serializer.save()
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        # Check if the user has exceeded the token limit
-        token_limit_exceeded, token_utilization, message = get_user_token_utilization(request)
-        if token_limit_exceeded:
-            return JsonResponse({'error': message, 'token_utilization': token_utilization}, status=403)
+            serializer = FormulaMessageSerializer(data=request.data, context={'request': request, 'formula': formula})
+            if serializer.is_valid():
+                user_message = serializer.save()
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Check if the user has exceeded the token limit
+            token_limit_exceeded, token_utilization, message = get_user_token_utilization(request)
+            if token_limit_exceeded:
+                return JsonResponse({'error': message, 'token_utilization': token_utilization}, status=403)
 
-        # Send the message to the AI chat agent
-        user_message = serializer.data.get('text')
-        agent = OpenAIAnalysisAgent(user_message=user_message, chat_id=formula.id, thread_id=formula.threadId, dt_meta_id=datatable_meta.id, request=request)
-        if formula.threadId is None:
-            agent_status, agent_run = agent.start_new_thread()
-            if not agent_status:
-                return Response({'error': agent_run}, status=status.HTTP_400_BAD_REQUEST)
-            formula.threadId = agent.thread_id
-            formula.save()
+            # Send the message to the AI chat agent
+            user_message = serializer.data.get('text')
+            agent = OpenAIAnalysisAgent(user_message=user_message, chat_id=formula.id, thread_id=formula.threadId, dt_meta_id=datatable_meta.id, request=request)
+            if formula.threadId is None:
+                agent_status, agent_run = agent.start_new_thread()
+                if not agent_status:
+                    return Response({'error': agent_run}, status=status.HTTP_400_BAD_REQUEST)
+                formula.threadId = agent.thread_id
+                formula.save()
 
-        agent.send_message()
-        model_run: AgentRunResponse = agent.run_response
-        if model_run.success:
-            _new_model_message = FormulaMessage(
-                user=request.user,
-                formula=formula,
+            agent.send_message()
+            model_run: AgentRunResponse = agent.run_response
+            if model_run.success:
+                _new_model_message = FormulaMessage(
+                    user=request.user,
+                    formula=formula,
 
-                userType='model',
-                messageType=model_run.message_type,
-                name=model_run.arc_sql.name,
-                description=model_run.arc_sql.description,
-                text=model_run.message,
-                rawArcSql=model_run.arc_sql.model_dump() if model_run.arc_sql else None,
+                    userType='model',
+                    messageType=model_run.message_type,
+                    name=model_run.arc_sql.name,
+                    description=model_run.arc_sql.description,
+                    text=model_run.message,
+                    rawArcSql=model_run.arc_sql.model_dump() if model_run.arc_sql else None,
 
-                retries=model_run.retries,
-                runDetails=model_run.run_details,
+                    retries=model_run.retries,
+                    runDetails=model_run.run_details,
 
-                inputTokensConsumed = model_run.input_tokens_consumed,
-                outputTokensConsumed = model_run.output_tokens_consumed
-            )
-            _new_model_message.save()
+                    inputTokensConsumed = model_run.input_tokens_consumed,
+                    outputTokensConsumed = model_run.output_tokens_consumed
+                )
+                _new_model_message.save()
 
-            formula.name=model_run.arc_sql.name
-            formula.description=model_run.arc_sql.description
-            formula.arcSql = model_run.translated_sql
-            formula.fromulaType = model_run.message_type
-            formula.rawArcSql = model_run.arc_sql.model_dump() if model_run.arc_sql else None
-            formula.save()
+                formula.name=model_run.arc_sql.name
+                formula.description=model_run.arc_sql.description
+                formula.arcSql = model_run.translated_sql
+                formula.fromulaType = model_run.message_type
+                formula.rawArcSql = model_run.arc_sql.model_dump() if model_run.arc_sql else None
+                formula.save()
 
-            return Response(FormulaMessageSerializer(_new_model_message).data, status=status.HTTP_201_CREATED)
+                return Response(FormulaMessageSerializer(_new_model_message).data, status=status.HTTP_201_CREATED)
 
-        else:
-            return Response({'error': model_run.message}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({'error': model_run.message}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print(e)
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
 class FormulaDetailValueView(APIView):
     def get(self, request, formula_id, *args, **kwargs):
