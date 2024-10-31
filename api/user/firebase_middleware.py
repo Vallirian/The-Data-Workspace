@@ -73,7 +73,10 @@ class FirebaseTokenAuthMiddleware(MiddlewareMixin):
                 request.user = user
                 
                 data_segregation = DataSegregation(request=request)
-                if created or not data_segregation.schema_exists():
+                print('going for data_segregation')
+                _user_scema_exists = data_segregation.schema_exists()
+                if created or (not _user_scema_exists):
+                    print('created', created, 'schema_exists', _user_scema_exists)
                     DataSegregation(request=request).create_user_schema()
                 
 
@@ -86,6 +89,7 @@ class FirebaseTokenAuthMiddleware(MiddlewareMixin):
                 return None  # Continue processing the request
 
             except Exception as e:
+                print('error', e)
                 return JsonResponse({'error': 'Authentication falied, please logout and login again'}, status=401)
         
         # If no token provided, deny access

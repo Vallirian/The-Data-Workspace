@@ -182,7 +182,7 @@ class DataSegregation:
         self.request = request
 
     def schema_exists(self):
-        user_schema = f"schema___{self.request.user.id}"
+        user_schema = f"\"schema___{self.request.user.id}\""
         query = f"SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = %s;"
         
         with connection.cursor() as cursor:

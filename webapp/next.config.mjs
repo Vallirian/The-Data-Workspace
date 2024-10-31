@@ -4,8 +4,8 @@ const nextConfig = {
 	async rewrites() {
 		return [
 			{
-				source: "/api/:path*",
-				destination: "http://api:8000/api/v1/app/:path*", // Proxy to Kubernetes service
+				source: "/api/v1/app/:path*",  // Adjust the source to match the full path
+				destination: "http://api:8000/api/v1/app/:path*", // Explicitly map to exact path
 			},
 		];
 	},
