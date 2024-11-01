@@ -7,9 +7,9 @@ spec:
         app: webapp
     ports:
         - protocol: TCP
-          port: 3000
+          port: 80
           targetPort: 3000
-    type: LoadBalancer
+    type: NodePort
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -32,8 +32,8 @@ spec:
                   command: ["npm", "run", "start"]
                   resources:
                       limits:
-                          memory: "1Gi"
-                          cpu: "750m"
+                          memory: "500Mi"
+                          cpu: "350m"
                   workingDir: /app
             imagePullSecrets:
                 - name: aws-ecr-reg-cred

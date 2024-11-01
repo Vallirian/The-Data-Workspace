@@ -1,0 +1,21 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+    name: webapp
+    annotations:
+        alb.ingress.kubernetes.io/scheme: internet-facing
+        alb.ingress.kubernetes.io/target-type: instance
+
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix # PathType is required for ALB Ingress Controller to properly get static files from nextjs
+            backend:
+              service:
+                name: webapp
+                port:
+                  number: 80
