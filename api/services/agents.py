@@ -37,8 +37,10 @@ class OpenAIAnalysisAgent:
                 self.thread = self.client.beta.threads.create()
                 self.thread_id = self.thread.id
                 self.run_response.retries = 0 # reset retries
+                print(f"New thread started with ID: {self.thread_id}")
                 return True, self.thread_id
             except Exception as e:
+                print(f"Failed to start new thread: {str(e)}")
                 self.run_response.retries += 1
                 self.run_response.message = f"Failed to start new thread: {str(e)}"
                 continue
@@ -93,6 +95,7 @@ class OpenAIAnalysisAgent:
                 _temp_arc_sql = ArcSQL.model_validate_json(self.current_agent_response)
                 self.run_response.arc_sql = _temp_arc_sql
             except Exception as e:
+                print(f"ArcSQL validation failed: {str(e)}")
                 arc_sql_validation_error = clean_pydantic_errors(str(e))
                 pass
             if arc_sql_validation_error:
@@ -117,6 +120,7 @@ class OpenAIAnalysisAgent:
             # construct SQL
             _arc_sql_util = ArcSQLUtils(arc_sql=_temp_arc_sql)
             _sql_query_status, _sql_query_value = _arc_sql_util.get_sql_query()
+            print('query status', _sql_query_status,'sql query value:', _sql_query_value)
             if not _sql_query_status:
                 self.last_error = str(_sql_query_value)
                 __temp_error_message = f"SQL construction failed\n error: {_sql_query_value}"

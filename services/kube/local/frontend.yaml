@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Service
+metadata:
+    name: webapp
+spec:
+    selector:
+        app: webapp
+    ports:
+        - protocol: TCP
+          port: 3000
+          targetPort: 3000
+    type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: webapp
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: webapp
+    template:
+        metadata:
+            labels:
+                app: webapp
+        spec:
+            containers:
+                - name: webapp
+                  image: webapp:latest
+                  imagePullPolicy: Never # for local development
+                  command: ["npm", "run", "start"]
+                  resources:
+                      limits:
+                          memory: "512Mi"
+                          cpu: "500m"
+                      requests:
+                          memory: "256Mi"
+                          cpu: "250m"
+                  workingDir: /app

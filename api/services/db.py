@@ -182,7 +182,7 @@ class DataSegregation:
         self.request = request
 
     def schema_exists(self):
-        user_schema = f"schema___{self.request.user.id}"
+        user_schema = f"\"schema___{self.request.user.id}\""
         query = f"SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = %s;"
         
         with connection.cursor() as cursor:
@@ -204,7 +204,7 @@ class DataSegregation:
         # PostgreSQL query to calculate the schema size in MB
         query = f"""
             SELECT
-                pg_size_pretty(sum(pg_total_relation_size(pg_class.oid))) AS size_mb
+                ROUND(sum(pg_total_relation_size(pg_class.oid)) / (1024 * 1024), 3) AS size_mb
             FROM
                 pg_class
             JOIN
@@ -218,8 +218,9 @@ class DataSegregation:
                 cursor.execute(query)
                 rows = dictfetchall(cursor)
                 # The result is returned as a text (with `MB` unit), so we need to strip it to return a float
-                size_mb = rows[0]['size_mb'] if rows[0]['size_mb'] else '0 MB' 
-                size_mb = float(size_mb.replace(' MB', ''))  # Convert size to float
+                size_mb = rows[0]['size_mb'] if rows[0]['size_mb'] else 0
+                print(size_mb)
+                size_mb = float(size_mb)  # Convert size to float
                 return True, size_mb
             except Exception as e:
                 return False, str(e)

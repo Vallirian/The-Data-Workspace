@@ -19,19 +19,17 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False 
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', ".vercel.app", ".processly.ai"]
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', "api"]
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "https://app.processly.ai",
+    "http://localhost",
+    "http://127.0.0.1",
+    "http://webapp", 
 ]
 CORS_ALLOW_ALL_ORIGINS = False  # Disable allowing all origins
 CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-        
-    'https://*.processly.ai',
-    'https://*.vercel.app',
+    'http://localhost',
+    'http://127.0.0.1',
+    "http://webapp", 
 ]
 
 
@@ -104,7 +102,7 @@ DATABASES = {
         'USER': os.getenv('POSTGRES_USER'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
         'HOST': os.getenv('POSTGRES_HOST', 'db'),
-        'PORT': os.getenv('POSTGRES_PORT', '5432')
+        'PORT': os.getenv('POSTGRES_PORT', '5432') # cast to int for postgres port
     }
 }
 

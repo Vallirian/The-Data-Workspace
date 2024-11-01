@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Service
+metadata:
+    name: webapp
+spec:
+    selector:
+        app: webapp
+    ports:
+        - protocol: TCP
+          port: 80
+          targetPort: 3000
+    type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: webapp
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: webapp
+    template:
+        metadata:
+            labels:
+                app: webapp
+        spec:
+            containers:
+                - name: webapp
+                  image: 975050343564.dkr.ecr.eu-west-2.amazonaws.com/webapp:latest
+                  imagePullPolicy: Always
+                  command: ["npm", "run", "start"]
+                  resources:
+                      limits:
+                          memory: "500Mi"
+                          cpu: "350m"
+                  workingDir: /app
+            imagePullSecrets:
+                - name: aws-ecr-reg-cred

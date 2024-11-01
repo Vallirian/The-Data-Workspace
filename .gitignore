@@ -164,6 +164,7 @@ cython_debug/
 # secret files
 .env*
 environments/
+*secret*
 
 # data
 data/

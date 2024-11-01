@@ -1,24 +1,15 @@
-# use full python image because mysqlclient requires compilation via gcc
-FROM python:3.10
+FROM python:3.10-slim
+
 WORKDIR /api
-
-# Python environment variables
 ENV PYTHONUNBUFFERED=1
-ENV PYTHONDONTWRITEBYTECODE=1
 
-# Update system packages and install dependencies
-RUN apt-get update && apt-get install -y \
-    pkg-config \
-    libmariadb-dev-compat \
-    # Cleaning up package lists to reduce the image size
-    && rm -rf /var/lib/apt/lists/*
-
-
-# Install dependencies
+# Copy requirements file and install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the source code
+# Copy the Django project code
 COPY . .
 
 EXPOSE 8000
+
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
