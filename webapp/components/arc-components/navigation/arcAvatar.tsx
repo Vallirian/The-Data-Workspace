@@ -47,7 +47,7 @@ export default function ArcAvatar() {
 	const handleLogout = async () => {
 		try {
 			await auth.signOut();
-			router.push("/app/account/login");
+			router.push("/account/login");
 		} catch (error: unknown) {
             const err = error as ErrorInterface;
             toast({

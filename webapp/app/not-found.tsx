@@ -14,7 +14,7 @@ export default function NotFound() {
 						<div className="grid gap-4">
 							<p>For now you can redirect to the home page, we will be looking into this one</p>
 							<div className="flex justify-center">
-								<Link href="/app/workbooks" className="mt-3 inline-block text-sm underline">
+								<Link href="/workbooks" className="mt-3 inline-block text-sm underline">
 									Workbooks
 								</Link>
 							</div>

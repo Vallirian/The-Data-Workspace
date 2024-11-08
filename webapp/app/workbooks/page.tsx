@@ -7,7 +7,7 @@ import { Plus } from "lucide-react";
 import axiosInstance from "@/services/axios";
 import { DataTableMetaInterface, ErrorInterface, WorkbookInterface } from "@/interfaces/main";
 import { format } from "date-fns";
-import ArcNavbar from "../sub-components/navigation/arcNavbar";
+import ArcNavbar from "../../sub-components/navigation/arcNavbar";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -35,7 +35,7 @@ export default function WorkbooksPage() {
 			const tableMetasData = await Promise.all(tableMetaPromises);
 			setTableMetas(tableMetasData);
 		} catch (error: unknown) {
-            const err = error as ErrorInterface;
+			const err = error as ErrorInterface;
 			toast({
 				variant: "destructive",
 				title: "Error getting workbooks",
@@ -49,12 +49,12 @@ export default function WorkbooksPage() {
 			const response = await axiosInstance.get(`${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/datatable/${tableId}/`);
 			return response.data;
 		} catch (error: unknown) {
-            const err = error as ErrorInterface;
+			const err = error as ErrorInterface;
 			toast({
-                variant: "destructive",
-                title: "Error getting table metadata",
-                description: err.response?.data?.error || "Failed to load table metadata",
-            });
+				variant: "destructive",
+				title: "Error getting table metadata",
+				description: err.response?.data?.error || "Failed to load table metadata",
+			});
 		}
 	};
 
@@ -64,13 +64,13 @@ export default function WorkbooksPage() {
 			const newWorkbook = await response.data;
 			setWorkbooks([...workbooks, newWorkbook]);
 		} catch (error: unknown) {
-            const err = error as ErrorInterface;
-            toast({
-                variant: "destructive",
-                title: "Error creating workbook",
-                description: err.response?.data?.error || "Failed to create workbook",
-            });
-        }
+			const err = error as ErrorInterface;
+			toast({
+				variant: "destructive",
+				title: "Error creating workbook",
+				description: err.response?.data?.error || "Failed to create workbook",
+			});
+		}
 	};
 
 	return (
@@ -82,7 +82,10 @@ export default function WorkbooksPage() {
 				<div className="my-5">
 					<h2 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">Workbooks</h2>
 					<p className="text-sm text-muted-foreground">
-						<span className="text-blue-600">{workbooks.length} workbook{workbooks.length === 1 ? "" : "s"}</span> | Create new or Open existing
+						<span className="text-blue-600">
+							{workbooks.length} workbook{workbooks.length === 1 ? "" : "s"}
+						</span>{" "}
+						| Create new or Open existing
 					</p>
 				</div>
 				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
@@ -94,7 +97,7 @@ export default function WorkbooksPage() {
 					</Card>
 					{workbooks.map((workbook) => (
 						<Card
-                            key={workbook.id}
+							key={workbook.id}
 							className="flex flex-col cursor-pointer hover:bg-accent"
 							onClick={() => {
 								router.push(`/app/workbooks/${workbook.id}`);

@@ -9,7 +9,7 @@ import KpiColumn from "../../../workbooks/(report)/kpiColumn";
 import TableColumn from "../../../workbooks/(report)/tableColumn";
 import { useParams, useRouter } from "next/navigation";
 import { Toaster } from "@/components/ui/toaster";
-import ArcNavbar from "@/app/app/sub-components/navigation/arcNavbar";
+import ArcNavbar from "@/components/arc-components/navigation/arcNavbar";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 export default function SharedReport() {
@@ -48,7 +48,7 @@ export default function SharedReport() {
 				}
 			}
 		};
-	
+
 		fetchReport();
 	}, [reportId]);
 
@@ -65,14 +65,14 @@ export default function SharedReport() {
 						<AlertDialogFooter>
 							<AlertDialogCancel
 								onClick={() => {
-									router.push("/app/workbooks");
+									router.push("/workbooks");
 								}}
 							>
 								Cancel
 							</AlertDialogCancel>
 							<AlertDialogAction
 								onClick={() => {
-									router.push("/app/account/login?redirect=" + window.location.pathname);
+									router.push("/account/login?redirect=" + window.location.pathname);
 								}}
 							>
 								Signin
