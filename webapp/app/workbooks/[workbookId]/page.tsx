@@ -4,8 +4,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useEffect, useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import ArcBreadcrumb from "../../../sub-components/navigation/arcBreadcrumb";
-import ArcAvatar from "../../../sub-components/navigation/arcAvatar";
+import ArcBreadcrumb from "@/components/arc-components/navigation/arcBreadcrumb";
 import UploadCSV from "../(importData)/uploadCsv";
 import { useParams, useRouter } from "next/navigation";
 import axiosInstance from "@/services/axios";
@@ -102,7 +101,6 @@ export default function Page() {
 							</AlertDialogFooter>
 						</AlertDialogContent>
 					</AlertDialog>
-					<ArcAvatar />
 				</div>
 			</nav>
 			<div className="flex flex-1 overflow-hidden">

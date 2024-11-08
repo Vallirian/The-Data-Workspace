@@ -20,7 +20,7 @@ function Signup() {
         signInWithPopup(auth, googleProvider)
             .then(() => {
                 // Check if there's a redirect path
-                const redirectPath = searchParams.get("redirect") || "/app/workbooks";
+                const redirectPath = searchParams.get("redirect") || "/workbooks";
                 router.push(redirectPath);
             })
             .catch((error) => {

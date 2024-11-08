@@ -20,7 +20,7 @@ function Login() {
         signInWithPopup(auth, googleProvider)
             .then(() => {
                 // Check if there's a redirect path
-                const redirectPath = searchParams.get("redirect") || "/app/workbooks";
+                const redirectPath = searchParams.get("redirect") || "/workbooks";
                 router.push(redirectPath);
             })
             .catch((error) => {
@@ -57,7 +57,7 @@ function Login() {
 
             <div className="flex w-full flex-col justify-between p-8 mb-12 lg:w-1/2">
                 <div className="flex justify-end">
-                    <Link className="text-sm text-gray-600 hover:underline" href="/app/account/signup" passHref>
+                    <Link className="text-sm text-gray-600 hover:underline" href="/account/signup" passHref>
                         Sign Up
                     </Link>
                 </div>

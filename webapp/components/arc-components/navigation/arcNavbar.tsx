@@ -7,7 +7,6 @@ export default function ArcNavbar() {
     return (
         <nav className="p-4 flex justify-between items-center">
             <ArcBreadcrumb />
-            <ArcAvatar />
         </nav>
     );
 }

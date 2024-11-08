@@ -268,7 +268,7 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 									</Button>
 									<div className="text-center">
 										<p className="my-3 text-muted-foreground">Report URL</p>
-										<p className="text-foreground">{<a href={`${window.location.origin}/app/shared/reports/${reportId}`}>{`${window.location.origin}/app/shared/reports/${reportId}`}</a>}</p>
+										<p className="text-foreground">{<a href={`${window.location.origin}/shared/reports/${reportId}`}>{`${window.location.origin}/shared/reports/${reportId}`}</a>}</p>
 									</div>
 								</div>
 							</DialogFooter>

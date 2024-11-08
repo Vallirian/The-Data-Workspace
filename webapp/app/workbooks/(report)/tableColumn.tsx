@@ -1,7 +1,7 @@
 import { FormulaInterface, ReportColumnInterface } from "@/interfaces/main";
-import ArcStackedBarChart from "../../../sub-components/navigation/report/arcStackedBarChart";
-import { ArcLineChart } from "../../../sub-components/navigation/report/arcLineChart";
-import ArcTable from "../../../sub-components/navigation/report/arcTable";
+import ArcStackedBarChart from "@/components/arc-components/report/arcStackedBarChart";
+import { ArcLineChart } from "@/components/arc-components/report/arcLineChart";
+import ArcTable from "@/components/arc-components/report/arcTable";
 
 export default function TableColumn({ column, formulaValues, formulas }: { column: ReportColumnInterface; formulaValues: { [key: string]: any }; formulas: FormulaInterface[] }) {
 	return (

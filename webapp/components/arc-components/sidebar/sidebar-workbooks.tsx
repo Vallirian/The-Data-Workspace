@@ -1,5 +1,9 @@
 "use client";
 
+import { Folder, Frame, MoreHorizontal, Share, SquareTerminal, Trash2, type LucideIcon } from "lucide-react";
+
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuAction, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +15,8 @@ import ArcNavbar from "@/components/arc-components/navigation/arcNavbar";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 
-export default function WorkbooksPage() {
+export function SidebarWorkbooks() {
+	const { isMobile } = useSidebar();
 	const { toast } = useToast();
 
 	const [workbooks, setWorkbooks] = useState<WorkbookInterface[]>([]);
@@ -74,48 +79,43 @@ export default function WorkbooksPage() {
 	};
 
 	return (
-		<div className="min-h-screen bg-background flex flex-col">
-			<ArcNavbar />
-			<Toaster />
-
-			<main className="flex-grow p-6 overflow-auto">
-				<div className="my-5">
-					<h2 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">Workbooks</h2>
-					<p className="text-sm text-muted-foreground">
-						<span className="text-blue-600">
-							{workbooks.length} workbook{workbooks.length === 1 ? "" : "s"}
-						</span>{" "}
-						| Create new or Open existing
-					</p>
-				</div>
-				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-					<Card className="flex flex-col items-center justify-center cursor-pointer hover:bg-accent" onClick={createWorkbook}>
-						<CardContent className="flex flex-col justify-center items-center">
-							<Plus className="h-6 w-6 mb-2" />
-							<p className="text-sm font-medium"> Add Workbook</p>
-						</CardContent>
-					</Card>
-					{workbooks.map((workbook) => (
-						<Card
-							key={workbook.id}
-							className="flex flex-col cursor-pointer hover:bg-accent"
-							onClick={() => {
-								router.push(`/workbooks/${workbook.id}`);
-							}}
-						>
-							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-								<CardTitle className="text-sm font-medium">{tableMetas.find((tableMeta) => tableMeta?.id === workbook.dataTable)?.name || "Unknown Table"}</CardTitle>
-							</CardHeader>
-							<CardContent>
-								<p className="text-xs text-muted-foreground">{tableMetas.find((tableMeta) => tableMeta?.id === workbook.dataTable)?.description || "No description"}</p>
-							</CardContent>
-							<CardFooter className="mt-auto">
-								<p className="text-xs text-muted-foreground">{format(workbook.createdAt, "PPP")}</p>
-							</CardFooter>
-						</Card>
-					))}
-				</div>
-			</main>
-		</div>
+		<SidebarGroup className="group-data-[collapsible=icon]:hidden">
+			<SidebarGroupLabel>Projects</SidebarGroupLabel>
+			<SidebarMenu>
+				{workbooks.map((workbookItem) => (
+					<SidebarMenuItem key={workbookItem.id}>
+						<SidebarMenuButton asChild>
+							<a href={`/workbooks/${workbookItem.id}`}>
+								<Frame />
+								<span>{tableMetas.find((tableMeta) => tableMeta?.id === workbookItem.dataTable)?.name || "Unknown Table"}</span>
+							</a>
+						</SidebarMenuButton>
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<SidebarMenuAction showOnHover>
+									<MoreHorizontal />
+									<span className="sr-only">More</span>
+								</SidebarMenuAction>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent className="w-48" side={isMobile ? "bottom" : "right"} align={isMobile ? "end" : "start"}>
+								<DropdownMenuItem>
+									<Folder className="text-muted-foreground" />
+									<span>View Project</span>
+								</DropdownMenuItem>
+								<DropdownMenuItem>
+									<Share className="text-muted-foreground" />
+									<span>Share Project</span>
+								</DropdownMenuItem>
+								<DropdownMenuSeparator />
+								<DropdownMenuItem>
+									<Trash2 className="text-muted-foreground" />
+									<span>Delete Project</span>
+								</DropdownMenuItem>
+							</DropdownMenuContent>
+						</DropdownMenu>
+					</SidebarMenuItem>
+				))}
+			</SidebarMenu>
+		</SidebarGroup>
 	);
 }

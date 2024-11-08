@@ -2,18 +2,22 @@ import { onAuthStateChanged, User } from "firebase/auth"; // Import necessary Fi
 import { auth } from "@/services/firebase";
 import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import axiosInstance from "@/services/axios";
 import { ErrorInterface, UserInfoInterface } from "@/interfaces/main";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 
+import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles } from "lucide-react";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
+
 export default function ArcAvatar() {
 	const [user, setUser] = useState<User | null>(null);
 	const [userInfo, setUserInfo] = useState<UserInfoInterface | null>(null);
 	const router = useRouter();
 	const { toast } = useToast();
+	const { isMobile } = useSidebar();
 
 	// Fetch the authenticated user's info
 	useEffect(() => {
@@ -35,13 +39,13 @@ export default function ArcAvatar() {
 			const userInfo = await axiosInstance.get(`${process.env.NEXT_PUBLIC_API_URL}/user/`);
 			setUserInfo(userInfo.data);
 		} catch (error: unknown) {
-            const err = error as ErrorInterface;
-            toast({
-                variant: "destructive",
-                title: "Error getting user info",
-                description: err.response?.data?.error || "Failed to load user info",
-            });
-        }
+			const err = error as ErrorInterface;
+			toast({
+				variant: "destructive",
+				title: "Error getting user info",
+				description: err.response?.data?.error || "Failed to load user info",
+			});
+		}
 	};
 
 	const handleLogout = async () => {
@@ -49,13 +53,13 @@ export default function ArcAvatar() {
 			await auth.signOut();
 			router.push("/account/login");
 		} catch (error: unknown) {
-            const err = error as ErrorInterface;
-            toast({
-                variant: "destructive",
-                title: "Error logging out",
-                description: err.response.data.error || "Failed to logout",
-            });
-        }
+			const err = error as ErrorInterface;
+			toast({
+				variant: "destructive",
+				title: "Error logging out",
+				description: err.response.data.error || "Failed to logout",
+			});
+		}
 	};
 
 	const getAverageTokenUtilization = () => {
@@ -71,24 +75,50 @@ export default function ArcAvatar() {
 	};
 
 	return (
-		<div>
-			<Toaster />
-			<DropdownMenu>
-				<DropdownMenuTrigger asChild>
-					<Avatar className="cursor-pointer">
-						<AvatarImage alt={user?.displayName || "User"} />
-						<AvatarFallback>{user?.displayName ? user.displayName.charAt(0) : "U"}</AvatarFallback>
-					</Avatar>
-				</DropdownMenuTrigger>
-				<DropdownMenuContent align="end">
-					<DropdownMenuItem>{user?.displayName || "User"}</DropdownMenuItem>
-					<DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
-					<DropdownMenuSeparator />
-					<DropdownMenuItem>
-						Token: {getAverageTokenUtilization()}% | Data: {getAverageDataUtilization()}%
-					</DropdownMenuItem>
-				</DropdownMenuContent>
-			</DropdownMenu>
-		</div>
+		<SidebarMenu>
+			<SidebarMenuItem>
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						<SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
+							<Avatar className="h-8 w-8 rounded-lg">
+								<AvatarImage alt={user?.displayName || "User"} />
+								<AvatarFallback>{user?.displayName ? user.displayName.charAt(0) : "U"}</AvatarFallback>
+							</Avatar>
+							<div className="grid flex-1 text-left text-sm leading-tight">
+								<span className="truncate font-semibold">{user?.displayName || "User"}</span>
+								<span className="truncate text-xs">{user?.email || "Email"}</span>
+							</div>
+							<ChevronsUpDown className="ml-auto size-4" />
+						</SidebarMenuButton>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg" side={isMobile ? "bottom" : "right"} align="end" sideOffset={4}>
+						<DropdownMenuLabel className="p-0 font-normal">
+							<div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+								<Avatar className="cursor-pointer">
+									<AvatarImage alt={user?.displayName || "User"} />
+									<AvatarFallback>{user?.displayName ? user.displayName.charAt(0) : "U"}</AvatarFallback>
+								</Avatar>
+								<div className="grid flex-1 text-left text-sm leading-tight">
+									<span className="truncate font-semibold">{user?.displayName || "User"}</span>
+									<span className="truncate text-xs">{user?.email || "Email"}</span>
+								</div>
+							</div>
+						</DropdownMenuLabel>
+						<DropdownMenuSeparator />
+						<DropdownMenuSeparator />
+						<DropdownMenuItem onClick={handleLogout}>
+							<LogOut className="h-5 w-5 mr-2" />
+							Log out
+						</DropdownMenuItem>
+						<DropdownMenuGroup>
+							<DropdownMenuItem>
+								<CreditCard className="h-5 w-5 mr-2" />
+								Token: {getAverageTokenUtilization()}% | Data: {getAverageDataUtilization()}%
+							</DropdownMenuItem>
+						</DropdownMenuGroup>
+					</DropdownMenuContent>
+				</DropdownMenu>
+			</SidebarMenuItem>
+		</SidebarMenu>
 	);
 }
