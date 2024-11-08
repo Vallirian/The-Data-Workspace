@@ -98,7 +98,7 @@ export default function Formulas({ workbookId, tableId }: { workbookId: string; 
 				<>
 					<div className="flex justify-between items-center px-4 py-2">
 						<div>
-							<small className="text-sm font-semibold leading-none">Select to Edit or Create New</small>
+							<small className="text-sm font-semibold leading-none">Metrics</small>
 						</div>
 						<div>
 							<Button variant="link" onClick={handleCreateFormula}>

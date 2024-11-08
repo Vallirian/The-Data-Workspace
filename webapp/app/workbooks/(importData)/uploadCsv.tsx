@@ -301,7 +301,7 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
 	}
 
 	return (
-		<div>
+		<div className="flex flex-col h-full overflow-hidden">
 			<Toaster />
 
 			<div className="flex justify-between">

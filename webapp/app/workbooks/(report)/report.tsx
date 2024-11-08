@@ -214,7 +214,7 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 	};
 
 	return (
-		<div className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
+		<div className="flex flex-col h-full overflow-hidden">
 			<Toaster />
 			<div className="flex justify-between items-center p-4">
 				<div className="flex justify-between items-center px-4">
