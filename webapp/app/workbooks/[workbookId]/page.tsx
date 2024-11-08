@@ -4,7 +4,6 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useEffect, useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import ArcBreadcrumb from "@/components/arc-components/navigation/arcBreadcrumb";
 import UploadCSV from "../(importData)/uploadCsv";
 import { useParams, useRouter } from "next/navigation";
 import axiosInstance from "@/services/axios";
@@ -15,12 +14,11 @@ import Report from "../(report)/report";
 import { useToast } from "@/hooks/use-toast";
 import { Trash2 } from "lucide-react";
 
-export default function Page() {
+export default function WorkbookByIdPage() {
 	const { toast } = useToast();
 
 	const { workbookId } = useParams();
 	const [workbook, setWorkbook] = useState<WorkbookInterface | null>(null);
-	const router = useRouter();
 
 	// Fetch tableId when workbookId is available
 	useEffect(() => {
@@ -47,22 +45,6 @@ export default function Page() {
 
 	const [activeLeftTab, setActiveLeftTab] = useState("table");
 
-	const handleDeleteWorkbook = async () => {
-		try {
-			// Fetch all workbooks
-			await axiosInstance.delete(`${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/`);
-			setWorkbook(null);
-			router.push("/workbooks");
-		} catch (error: unknown) {
-			const err = error as ErrorInterface;
-			toast({
-				variant: "destructive",
-				title: "Error to get workbook",
-				description: err.response?.data?.error || "Failed to load workbook",
-			});
-		}
-	};
-
 	if (!workbook || !workbookId || !workbook.dataTable) {
 		return (
 			<div className="flex flex-col justify-between m-auto items-center h-screen bg-background">
@@ -72,10 +54,9 @@ export default function Page() {
 	}
 
 	return (
-		<div className="flex flex-col h-screen bg-background">
+		<div className="flex flex-col h-full bg-background">
 			<nav className="px-4 py-2 flex justify-between items-center border-b">
 				<div className="flex flex-grow items-center justify-between">
-					<ArcBreadcrumb />
 					<Tabs value={activeLeftTab} onValueChange={setActiveLeftTab} className="w-auto">
 						<TabsList>
 							<TabsTrigger value="report">Report</TabsTrigger>
@@ -86,7 +67,7 @@ export default function Page() {
 					<div></div>
 				</div>
 				<div className="flex justify-end items-center gap-4 pl-2 w-1/4 ">
-					<AlertDialog>
+					{/* <AlertDialog>
 						<AlertDialogTrigger>
 							<Trash2 size={16} />
 						</AlertDialogTrigger>
@@ -100,7 +81,7 @@ export default function Page() {
 								<AlertDialogAction onClick={handleDeleteWorkbook}>Continue</AlertDialogAction>
 							</AlertDialogFooter>
 						</AlertDialogContent>
-					</AlertDialog>
+					</AlertDialog> */}
 				</div>
 			</nav>
 			<div className="flex flex-1 overflow-hidden">
