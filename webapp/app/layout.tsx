@@ -14,7 +14,7 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 
-import { Calendar, Command, Frame, Inbox, MoreHorizontal, Search, Settings, Trash2 } from "lucide-react";
+import { Calendar, Command, Frame, Inbox, MoreHorizontal, Plus, Search, Settings, Trash2 } from "lucide-react";
 import ArcAvatar from "@/components/arc-components/navigation/arcAvatar";
 import { useEffect, useState } from "react";
 import { DataTableMetaInterface, ErrorInterface, WorkbookInterface } from "@/interfaces/main";
@@ -26,6 +26,7 @@ import Image from "next/image";
 import WorkbookByIdPage from "./workbooks/[workbookId]/page";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { format } from "date-fns";
 
 const geistSans = localFont({
 	src: "./fonts/GeistVF.woff",
@@ -43,7 +44,7 @@ export default function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-  const router = useRouter();
+	const router = useRouter();
 	const [loading, setLoading] = React.useState(true);
 	const [user, setUser] = React.useState<User | null>(null);
 
@@ -51,7 +52,7 @@ export default function RootLayout({
 	const [workbooks, setWorkbooks] = useState<WorkbookInterface[]>([]);
 	const [tableMetas, setTableMetas] = useState<DataTableMetaInterface[]>([]);
 
-	// workbooks 
+	// workbooks
 	useEffect(() => {
 		// Fetch workbooks and metadata from API once to avoid multiple calls in render
 		fetchWorkbooksAndMetadata();
@@ -109,9 +110,9 @@ export default function RootLayout({
 
 	return (
 		<html lang="en">
-      <head>
-        <title>Processly</title>
-      </head>
+			<head>
+				<title>Processly</title>
+			</head>
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
 				<SidebarProvider>
 					<Sidebar variant="inset">
@@ -134,7 +135,10 @@ export default function RootLayout({
 						</SidebarHeader>
 						<SidebarContent>
 							<SidebarGroup className="group-data-[collapsible=icon]:hidden">
-								<SidebarGroupLabel>Projects</SidebarGroupLabel>
+								<SidebarGroupLabel>
+									Projects
+									<Plus className="ml-auto" onClick={createWorkbook} />
+								</SidebarGroupLabel>
 								<SidebarMenu>
 									{workbooks.map((workbookItem) => (
 										<SidebarMenuItem key={workbookItem.id}>
@@ -152,9 +156,12 @@ export default function RootLayout({
 													</SidebarMenuAction>
 												</DropdownMenuTrigger>
 												<DropdownMenuContent className="w-48" side={"right"} align={"start"}>
+													<DropdownMenuItem>
+														<span>{format(workbookItem.createdAt, "PPpp")}</span>
+													</DropdownMenuItem>
 													<DropdownMenuSeparator />
 													<DropdownMenuItem>
-														<Trash2 className="text-muted-foreground" />
+														<Trash2 className="text-muted-foreground"  className="h-4 w-4 mr-2" />
 														<span>Delete Project</span>
 													</DropdownMenuItem>
 												</DropdownMenuContent>

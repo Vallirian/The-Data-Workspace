@@ -9,7 +9,6 @@ import KpiColumn from "@/app/workbooks/(report)/kpiColumn";
 import TableColumn from "@/app/workbooks/(report)/tableColumn";
 import { useParams, useRouter } from "next/navigation";
 import { Toaster } from "@/components/ui/toaster";
-import ArcNavbar from "@/components/arc-components/navigation/arcNavbar";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 export default function SharedReport() {
@@ -54,7 +53,6 @@ export default function SharedReport() {
 
 	return (
 		<div className="min-h-screen bg-background flex flex-col">
-			<ArcNavbar />
 			{askToSignin && (
 				<AlertDialog defaultOpen={askToSignin}>
 					<AlertDialogContent>
