@@ -7,9 +7,8 @@ import axiosInstance from "@/services/axios";
 import { ErrorInterface, UserInfoInterface } from "@/interfaces/main";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
-import { Toaster } from "@/components/ui/toaster";
 
-import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles } from "lucide-react";
+import { ChevronsUpDown, CreditCard, Database, LogOut, Sparkles } from "lucide-react";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
 
 export default function ArcAvatar() {
@@ -105,15 +104,19 @@ export default function ArcAvatar() {
 							</div>
 						</DropdownMenuLabel>
 						<DropdownMenuSeparator />
-						<DropdownMenuSeparator />
 						<DropdownMenuItem onClick={handleLogout}>
 							<LogOut className="h-5 w-5 mr-2" />
 							Log out
 						</DropdownMenuItem>
+						<DropdownMenuSeparator />
 						<DropdownMenuGroup>
 							<DropdownMenuItem>
-								<CreditCard className="h-5 w-5 mr-2" />
-								Token: {getAverageTokenUtilization()}% | Data: {getAverageDataUtilization()}%
+								<Sparkles className="h-5 w-5 mr-2" />
+								Token: {getAverageTokenUtilization()}% 
+							</DropdownMenuItem>
+							<DropdownMenuItem>
+								<Database className="h-5 w-5 mr-2" />
+								Data: {getAverageDataUtilization()}%
 							</DropdownMenuItem>
 						</DropdownMenuGroup>
 					</DropdownMenuContent>
