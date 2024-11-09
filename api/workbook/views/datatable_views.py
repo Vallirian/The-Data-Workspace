@@ -43,11 +43,12 @@ class DataTableColumnMetaDetailAPIView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': str(serializer.errors)}, status=status.HTTP_400_BAD_REQUEST)
     
 class DataTableRawAPIView(APIView):
     def get(self, request, table_id, *args, **kwargs):
         try:
+            print(request.query_params)
             page = 1 if 'page' not in request.query_params else int(request.query_params['page'])
             page_size = int(os.getenv('PAGE_SIZE', 25))
 
@@ -62,7 +63,7 @@ class DataTableRawAPIView(APIView):
 
             return Response({
                 "items": _data_values,
-                "totalItemsCount": _count_result,
+                "totalItemsCount": list(_count_result[0].values())[0], # _count_result is a list of dict like [{'count': 100}]
                 "currentPage": page,
                 "pageSize": page_size
             })

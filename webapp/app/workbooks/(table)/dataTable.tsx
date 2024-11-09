@@ -16,17 +16,65 @@ import { DataTableColumnMetaInterface, DataTableMetaInterface, ErrorInterface } 
 export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
 	const { toast } = useToast();
 
-	const [data, setData] = useState([]);
+	const [data, setData] = useState<any[]>([]);
 	const [tableMeta, setTableMeta] = useState<DataTableMetaInterface | null>(null);
 	const [columns, setColumns] = useState<DataTableColumnMetaInterface[]>([]);
 
-	const [currentPage, setCurrentPage] = useState(1);
-	const [itemsPerPage, setItemsPerPage] = useState(10);
-	const [totalPages, setTotalPages] = useState(1);
+	const [currentPage, setCurrentPage] = useState<number>(1);
+	const [itemsPerPage, setItemsPerPage] = useState<number>(10);
+	const [totalCount, setTotalCount] = useState<number>(1);
 
 	const [sortColumn, setSortColumn] = useState("name");
 	const [sortDirection, setSortDirection] = useState("asc");
 	const [filterValue, setFilterValue] = useState("");
+
+	// Table tools
+	const [tableDescription, setTableDescription] = useState("Add table description");
+	const [editingTableDescription, setEditingTableDescription] = useState(false);
+	const [editingColumnDescription, setEditingColumnDescription] = useState("");
+	const tableDescriptionRef = useRef<HTMLTextAreaElement>(null);
+	const columnDescriptionRefs = useRef<{
+		[key: string]: HTMLTextAreaElement | null;
+	}>({});
+
+	const sortData = (column: SetStateAction<string>) => {
+		if (column === sortColumn) {
+			setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+		} else {
+			setSortColumn(column);
+			setSortDirection("asc");
+		}
+	};
+	const filterData = (data: { [key: string]: any }[]) => {
+		return data.filter((item) => columns.some((column) => String(item[column.name]).toLowerCase().includes(filterValue.toLowerCase())));
+	};
+	const [sortedAndFilteredData, setSortedAndFilteredData] = useState(data);
+
+	useEffect(() => {
+		if (editingTableDescription && tableDescriptionRef.current) {
+			tableDescriptionRef.current.focus();
+		}
+	}, [editingTableDescription]);
+
+	useEffect(() => {
+		if (editingColumnDescription && columnDescriptionRefs.current[editingColumnDescription]) {
+			columnDescriptionRefs.current[editingColumnDescription]?.focus();
+		}
+	}, [editingColumnDescription]);
+
+	useEffect(() => {
+		getData();
+	}, [currentPage]);
+
+	useEffect(() => {
+		setSortedAndFilteredData(
+			filterData([...data]).sort((a, b) => {
+				if (a[sortColumn] < b[sortColumn]) return sortDirection === "asc" ? -1 : 1;
+				if (a[sortColumn] > b[sortColumn]) return sortDirection === "asc" ? 1 : -1;
+				return 0;
+			})
+		);
+	}, [data, sortColumn, sortDirection, filterValue]);
 
 	// data tools
 	useEffect(() => {
@@ -36,14 +84,18 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
 
 	const getData = async () => {
 		try {
-			const response = await axiosInstance.get(`${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/datatable/${tableId}/raw/`);
+			const response = await axiosInstance.get(`${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/datatable/${tableId}/raw/`, {
+				params: {
+					page: currentPage,
+				},
+			});
 
 			setData(response.data.items);
 			setCurrentPage(response.data.currentPage);
 			setItemsPerPage(response.data.pageSize);
-			setTotalPages(Math.ceil(response.data.totalItemsCount / response.data.pageSize));
+			setTotalCount(response.data.totalItemsCount);
 		} catch (error: unknown) {
-            const err = error as ErrorInterface;
+			const err = error as ErrorInterface;
 			toast({
 				variant: "destructive",
 				title: "Error getting data",
@@ -72,11 +124,11 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
 				getData();
 			}
 		} catch (error: unknown) {
-            const err = error as ErrorInterface;
+			const err = error as ErrorInterface;
 			toast({
 				variant: "destructive",
 				title: "Error getting table meta",
-				description: err.response?.data?.error || "Failed to fetch table meta",   
+				description: err.response?.data?.error || "Failed to fetch table meta",
 				action: (
 					<ToastAction altText="Ok" onClick={getTableMeta}>
 						Ok
@@ -91,7 +143,7 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
 			const response = await axiosInstance.get(`${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/datatable/${tableId}/columns/`);
 			setColumns(response.data);
 		} catch (error: unknown) {
-            const err = error as ErrorInterface;
+			const err = error as ErrorInterface;
 			toast({
 				variant: "destructive",
 				title: "Error getting table meta columns",
@@ -105,48 +157,6 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
 		}
 	};
 
-	// Table tools
-	const sortData = (column: SetStateAction<string>) => {
-		if (column === sortColumn) {
-			setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-		} else {
-			setSortColumn(column);
-			setSortDirection("asc");
-		}
-	};
-
-	const filterData = (data: {[key: string]: any}[]) => {
-		return data.filter((item) => columns.some((column) => String(item[column.name]).toLowerCase().includes(filterValue.toLowerCase())));
-	};
-
-	const sortedAndFilteredData = filterData([...data]).sort((a, b) => {
-		if (a[sortColumn] < b[sortColumn]) return sortDirection === "asc" ? -1 : 1;
-		if (a[sortColumn] > b[sortColumn]) return sortDirection === "asc" ? 1 : -1;
-		return 0;
-	});
-
-	const paginatedData = sortedAndFilteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-	const [tableDescription, setTableDescription] = useState("Add table description");
-	const [editingTableDescription, setEditingTableDescription] = useState(false);
-	const [editingColumnDescription, setEditingColumnDescription] = useState("");
-	const tableDescriptionRef = useRef<HTMLTextAreaElement>(null);
-	const columnDescriptionRefs = useRef<{
-		[key: string]: HTMLTextAreaElement | null;
-	}>({});
-
-	useEffect(() => {
-		if (editingTableDescription && tableDescriptionRef.current) {
-			tableDescriptionRef.current.focus();
-		}
-	}, [editingTableDescription]);
-
-	useEffect(() => {
-		if (editingColumnDescription && columnDescriptionRefs.current[editingColumnDescription]) {
-			columnDescriptionRefs.current[editingColumnDescription]?.focus();
-		}
-	}, [editingColumnDescription]);
-
 	const putTableMeta = async (updatedMeta: DataTableMetaInterface) => {
 		try {
 			await axiosInstance.put(
@@ -159,7 +169,7 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
 				description: "Table description updated successfully.",
 			});
 		} catch (error: unknown) {
-            const err = error as ErrorInterface;
+			const err = error as ErrorInterface;
 			toast({
 				variant: "destructive",
 				title: "Error saving table description",
@@ -208,7 +218,7 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
 				description: "Column description saved successfully",
 			});
 		} catch (error: unknown) {
-            const err = error as ErrorInterface;
+			const err = error as ErrorInterface;
 			toast({
 				variant: "destructive",
 				title: "Error saving column description",
@@ -329,7 +339,7 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
 								</TableRow>
 							</TableHeader>
 							<TableBody>
-								{paginatedData.map((item, rowIndex) => (
+								{sortedAndFilteredData.map((item, rowIndex) => (
 									<TableRow key={rowIndex}>
 										{columns.map((column) => (
 											<TableCell key={`${rowIndex}${column.id}`}>{item[column.name]}</TableCell>
@@ -344,19 +354,47 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
 			<div className="flex-shrink-0 p-4 border-t">
 				<div className="flex justify-between items-center px-4">
 					<div>
-						Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, sortedAndFilteredData.length)} of {sortedAndFilteredData.length} entries
+						Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(Math.max(currentPage * itemsPerPage, sortedAndFilteredData.length), totalCount)} of {totalCount} entries
 					</div>
 					<div className="flex space-x-2">
-						<Button variant="outline" size="icon" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
+						<Button
+							variant="outline"
+							size="icon"
+							onClick={() => {
+								setCurrentPage(1);
+							}}
+							disabled={currentPage === 1}
+						>
 							<ChevronsLeft className="h-4 w-4" />
 						</Button>
-						<Button variant="outline" size="icon" onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} disabled={currentPage === 1}>
+						<Button
+							variant="outline"
+							size="icon"
+							onClick={() => {
+								setCurrentPage((prev) => Math.max(prev - 1, 1));
+							}}
+							disabled={currentPage === 1}
+						>
 							<ChevronLeft className="h-4 w-4" />
 						</Button>
-						<Button variant="outline" size="icon" onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages}>
+						<Button
+							variant="outline"
+							size="icon"
+							onClick={() => {
+								setCurrentPage((prev) => Math.min(prev + 1, Math.ceil(totalCount / itemsPerPage)));
+							}}
+							disabled={currentPage === Math.ceil(totalCount / itemsPerPage)}
+						>
 							<ChevronRight className="h-4 w-4" />
 						</Button>
-						<Button variant="outline" size="icon" onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages}>
+						<Button
+							variant="outline"
+							size="icon"
+							onClick={() => {
+								setCurrentPage(Math.ceil(totalCount / itemsPerPage));
+							}}
+							disabled={currentPage === Math.ceil(totalCount / itemsPerPage)}
+						>
 							<ChevronsRight className="h-4 w-4" />
 						</Button>
 					</div>

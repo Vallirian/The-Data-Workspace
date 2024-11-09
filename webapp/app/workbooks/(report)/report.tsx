@@ -202,6 +202,7 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 			toast({
 				title: "Report shared",
 				description: "Your report has been shared successfully",
+				duration: 3000,
 			});
 		} catch (error: unknown) {
 			const err = error as ErrorInterface;

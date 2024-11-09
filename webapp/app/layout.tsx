@@ -11,10 +11,10 @@ import { onAuthStateChanged, User } from "firebase/auth";
 import LoginPageWrapper from "./account/(signup-or-login)/login/page";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem, SidebarProvider, SidebarRail, SidebarTrigger } from "@/components/ui/sidebar";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 
-import { Calendar, Command, Frame, Inbox, MoreHorizontal, Plus, Search, Settings, Trash2 } from "lucide-react";
+import { Bot, Calendar, Cat, ChevronRight, Club, Command, Component, Dog, Fan, FerrisWheel, Flower, Frame, Grip, Inbox, InspectionPanel, Loader, MoreHorizontal, Nut, PiggyBank, Plus, Rat, Sailboat, Salad, Search, Settings, ShipWheel, Snail, Sprout, SquareTerminal, Trash2, TreePalm, Trees, Turtle } from "lucide-react";
 import ArcAvatar from "@/components/arc-components/navigation/arcAvatar";
 import { useEffect, useState } from "react";
 import { DataTableMetaInterface, ErrorInterface, WorkbookInterface } from "@/interfaces/main";
@@ -27,6 +27,7 @@ import WorkbookByIdPage from "./workbooks/[workbookId]/page";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { format } from "date-fns";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const geistSans = localFont({
 	src: "./fonts/GeistVF.woff",
@@ -51,6 +52,12 @@ export default function RootLayout({
 	const [selectedWorkbook, setSelectedWorkbook] = useState<WorkbookInterface | null>(null);
 	const [workbooks, setWorkbooks] = useState<WorkbookInterface[]>([]);
 	const [tableMetas, setTableMetas] = useState<DataTableMetaInterface[]>([]);
+
+	const workbookIcons = [
+		Frame, Command, Club, Component, FerrisWheel, Grip, InspectionPanel, Loader, TreePalm, Trees,
+		Turtle, Sprout, Snail, ShipWheel, Salad, Sailboat, Rat, PiggyBank, Nut, Flower, Fan, Dog, Cat,
+		Bot
+	]
 
 	// workbooks
 	useEffect(() => {
@@ -115,12 +122,12 @@ export default function RootLayout({
 			</head>
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
 				<SidebarProvider>
-					<Sidebar variant="inset">
+					<Sidebar collapsible="icon">
 						<SidebarHeader>
 							<SidebarMenu>
 								<SidebarMenuItem>
 									<SidebarMenuButton size="lg" asChild>
-										<a href="#">
+										<a href="/">
 											<div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
 												<Image src="/images/logo-1-white-png.png" alt="Logo" width={18} height={18} className="p-0" />
 											</div>
@@ -134,19 +141,24 @@ export default function RootLayout({
 							</SidebarMenu>
 						</SidebarHeader>
 						<SidebarContent>
-							<SidebarGroup className="group-data-[collapsible=icon]:hidden">
+							<SidebarGroup>
 								<SidebarGroupLabel>
-									Projects
+									Workbooks
 									<Plus className="ml-auto" onClick={createWorkbook} />
-								</SidebarGroupLabel>
+								</SidebarGroupLabel>{" "}
 								<SidebarMenu>
 									{workbooks.map((workbookItem) => (
-										<SidebarMenuItem key={workbookItem.id}>
-											<SidebarMenuButton asChild>
-												<Link href={`/workbooks/${workbookItem.id}`}>
-													<Frame />
-													<span>{tableMetas.find((tableMeta) => tableMeta?.id === workbookItem.dataTable)?.name || "Unknown Table"}</span>
-												</Link>
+										<SidebarMenuItem>
+											<SidebarMenuButton
+												tooltip={tableMetas.find((tableMeta) => tableMeta?.id === workbookItem.dataTable)?.name || "Unknown Table"}
+												onClick={() => {
+													setSelectedWorkbook(workbookItem);
+													router.push(`/workbooks/${workbookItem.id}`);
+												}}
+												isActive={selectedWorkbook?.id === workbookItem.id}
+											>
+												{React.createElement(workbookIcons[parseInt(workbookItem.id, 36) % workbookIcons.length], { className: "h-5 w-5" })}
+												<span>{tableMetas.find((tableMeta) => tableMeta?.id === workbookItem.dataTable)?.name || "Unknown Table"}</span>
 											</SidebarMenuButton>
 											<DropdownMenu>
 												<DropdownMenuTrigger asChild>
@@ -161,7 +173,7 @@ export default function RootLayout({
 													</DropdownMenuItem>
 													<DropdownMenuSeparator />
 													<DropdownMenuItem>
-														<Trash2 className="text-muted-foreground"  className="h-4 w-4 mr-2" />
+														<Trash2 className="text-muted-foreground h-4 w-4 mr-2" />
 														<span>Delete Project</span>
 													</DropdownMenuItem>
 												</DropdownMenuContent>
@@ -174,7 +186,9 @@ export default function RootLayout({
 						<SidebarFooter>
 							<ArcAvatar />
 						</SidebarFooter>
+						<SidebarRail />
 					</Sidebar>
+
 					<SidebarInset>
 						<main>{children}</main>
 					</SidebarInset>

@@ -167,7 +167,7 @@ export default function AnalysisChat({
                     );
                 })}
             </div>
-            <div className="py-4">
+            <div className="py-4 px-1">
                 <div className="flex flex-col space-y-2">
                     <Textarea
                         value={inputMessage}
