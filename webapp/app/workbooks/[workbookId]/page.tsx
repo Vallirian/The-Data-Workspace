@@ -81,25 +81,21 @@ export default function WorkbookByIdPage() {
 				<div className="w-1/4"></div>
 			</nav>
 			<div className="flex flex-1 overflow-hidden">
-				<div className="w-3/4 flex-grow border-r">
-					<ScrollArea className="h-full">
-						{activeLeftTab === "report" && <Report workbookId={workbookId as string} reportId={workbook.report} />}
-						{activeLeftTab === "table" && <ArcDataTable workbookId={workbookId as string} tableId={workbook.dataTable} />}
-						{activeLeftTab === "import" && (
-							<div className="p-4">
-								<UploadCSV workbookId={workbookId as string} tableId={workbook.dataTable} />
-							</div>
-						)}
-					</ScrollArea>
+				<div className="w-3/4 h-full flex-grow border-r">
+					{activeLeftTab === "report" && <Report workbookId={workbookId as string} reportId={workbook.report} />}
+					{activeLeftTab === "table" && <ArcDataTable workbookId={workbookId as string} tableId={workbook.dataTable} />}
+					{activeLeftTab === "import" && (
+						<div className="p-4">
+							<UploadCSV workbookId={workbookId as string} tableId={workbook.dataTable} />
+						</div>
+					)}
 				</div>
-				<div className="w-1/4">
-					<ScrollArea className="h-full">
-						<Formulas
-							workbookId={workbookId as string}
-							tableId={workbook.dataTable}
-							// trigger refresh when tab is active
-						/>
-					</ScrollArea>
+				<div className="w-1/4 h-full">
+					<Formulas
+						workbookId={workbookId as string}
+						tableId={workbook.dataTable}
+						// trigger refresh when tab is active
+					/>
 				</div>
 			</div>
 		</div>

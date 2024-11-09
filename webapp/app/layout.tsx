@@ -28,6 +28,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { format } from "date-fns";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { DiscordLogoIcon } from "@radix-ui/react-icons";
 
 const geistSans = localFont({
 	src: "./fonts/GeistVF.woff",
@@ -53,11 +54,7 @@ export default function RootLayout({
 	const [workbooks, setWorkbooks] = useState<WorkbookInterface[]>([]);
 	const [tableMetas, setTableMetas] = useState<DataTableMetaInterface[]>([]);
 
-	const workbookIcons = [
-		Frame, Command, Club, Component, FerrisWheel, Grip, InspectionPanel, Loader, TreePalm, Trees,
-		Turtle, Sprout, Snail, ShipWheel, Salad, Sailboat, Rat, PiggyBank, Nut, Flower, Fan, Dog, Cat,
-		Bot
-	]
+	const workbookIcons = [Frame, Command, Club, Component, FerrisWheel, Grip, InspectionPanel, Loader, TreePalm, Trees, Turtle, Sprout, Snail, ShipWheel, Salad, Sailboat, Rat, PiggyBank, Nut, Flower, Fan, Dog, Cat, Bot];
 
 	// workbooks
 	useEffect(() => {
@@ -121,7 +118,7 @@ export default function RootLayout({
 				<title>Processly</title>
 			</head>
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-				<SidebarProvider>
+				<SidebarProvider defaultOpen={false}>
 					<Sidebar collapsible="icon">
 						<SidebarHeader>
 							<SidebarMenu>
@@ -148,7 +145,9 @@ export default function RootLayout({
 								</SidebarGroupLabel>{" "}
 								<SidebarMenu>
 									{workbooks.map((workbookItem) => (
-										<SidebarMenuItem>
+										<SidebarMenuItem
+											key={workbookItem.id}
+										>
 											<SidebarMenuButton
 												tooltip={tableMetas.find((tableMeta) => tableMeta?.id === workbookItem.dataTable)?.name || "Unknown Table"}
 												onClick={() => {
@@ -156,6 +155,7 @@ export default function RootLayout({
 													router.push(`/workbooks/${workbookItem.id}`);
 												}}
 												isActive={selectedWorkbook?.id === workbookItem.id}
+												key={workbookItem.id}
 											>
 												{React.createElement(workbookIcons[parseInt(workbookItem.id, 36) % workbookIcons.length], { className: "h-5 w-5" })}
 												<span>{tableMetas.find((tableMeta) => tableMeta?.id === workbookItem.dataTable)?.name || "Unknown Table"}</span>
@@ -180,6 +180,19 @@ export default function RootLayout({
 											</DropdownMenu>
 										</SidebarMenuItem>
 									))}
+								</SidebarMenu>
+							</SidebarGroup>
+							<SidebarGroup>
+								<SidebarGroupLabel>Support</SidebarGroupLabel>{" "}
+								<SidebarMenu>
+									<SidebarMenuItem>
+										<a href="https://discord.gg/TsRMXHnF" target="_blank" rel="noopener noreferrer">
+											<SidebarMenuButton tooltip="Support" onClick={() => {}}>
+												<DiscordLogoIcon className="h-5 w-5" />
+												<span>Discord</span>
+											</SidebarMenuButton>
+										</a>
+									</SidebarMenuItem>
 								</SidebarMenu>
 							</SidebarGroup>
 						</SidebarContent>

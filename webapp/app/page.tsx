@@ -31,6 +31,7 @@ export default function Home() {
 	const router = useRouter();
 	const [loading, setLoading] = React.useState(true);
 	const [user, setUser] = React.useState<User | null>(null);
+	const sidebar = useSidebar();
 
 	const [selectedWorkbook, setSelectedWorkbook] = useState<WorkbookInterface | null>(null);
 	const [workbooks, setWorkbooks] = useState<WorkbookInterface[]>([]);
@@ -82,37 +83,53 @@ export default function Home() {
 		}
 	};
 	return (
-		<div className="flex flex-col gap-5 h-screen w-full items-center  justify-center px-4">
-			<div className="bg-gradient-to-r from-purple-900 to-indigo-600 text-center text-transparent bg-clip-text mb-5">
-				<h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-4xl mb-4">
-					{(() => {
-						const hours = new Date().getHours();
-						let greeting;
-						if (hours < 12) {
-							greeting = "Good morning";
-						} else if (hours < 18) {
-							greeting = "Good afternoon";
-						} else {
-							greeting = "Good evening";
-						}
-						return `${greeting}, ${auth.currentUser?.displayName?.split(" ")[0]}`;
-					})()}
-				</h1>{" "}
-				<p className="text-md text-muted-foreground">Welcome back to Processly, your zero-data exposure</p>
-				<p className="text-md text-muted-foreground">analytics tool powered by AI</p>
-			</div>
-			<div className="flex items-center justify-between">
-				<div className="flex items-center gap-2">
-					<span className="text-sm text-center text-muted-foreground">{workbooks.length} active workbooks</span>|{" "}
-					<Button
-						variant="link"
-						size="sm"
-						onClick={() => {
-							createWorkbook();
-						}}
-					>
-						+ Create New
-					</Button>
+		<div>
+			<nav className="px-4 py-2 flex bg-zinc-50">
+				<SidebarTrigger className="bg-zinc-50"/>
+			</nav>
+			<div className="flex flex-col gap-5 h-screen w-full items-center  justify-center px-4 bg-zinc-50">
+				<div className="bg-gradient-to-r from-purple-600 to-orange-600 text-center text-transparent bg-clip-text ">
+					<h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-4xl mb-1">
+						{(() => {
+							const hours = new Date().getHours();
+							let greeting;
+							if (hours < 12) {
+								greeting = "Good morning";
+							} else if (hours < 18) {
+								greeting = "Good afternoon";
+							} else {
+								greeting = "Good evening";
+							}
+							return `${greeting}, ${auth.currentUser?.displayName?.split(" ")[0]}`;
+						})()}
+					</h1>{" "}
+				</div>
+				<div className="text-center mb-5">
+					<p className="text-md text-muted-foreground">Welcome back to Processly, the zero-data exposure</p>
+					<p className="text-md text-muted-foreground">analytics tool powered by AI</p>
+				</div>
+				<div className="flex items-center justify-between">
+					<div className="flex items-center gap-2">
+						<Button
+							variant="link"
+							onClick={() => {
+								sidebar.setOpen(true);
+							}}
+							className="px-0"
+						>
+							<span>{workbooks.length} active workbooks</span>
+						</Button>
+						<span className="px-3">|</span>
+						<Button
+							variant="link"
+							onClick={() => {
+								createWorkbook();
+							}}
+							className="px-0"
+						>
+							+ Create New
+						</Button>
+					</div>
 				</div>
 			</div>
 		</div>

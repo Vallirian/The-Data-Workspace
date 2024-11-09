@@ -74,7 +74,7 @@ export default function ArcAvatar() {
 	};
 
 	return (
-		<SidebarMenu>
+		<SidebarMenu className="px-0">
 			<SidebarMenuItem>
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
