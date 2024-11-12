@@ -37,11 +37,12 @@ class WorkbookDetailAPIView(APIView):
         input_token, output_token = 0, 0
         for formula in formulas:
             data_segregation = DataSegregation(request=request)
-            get_token_status, (input_token, output_token), message = data_segregation.get_token_utilization(formula_id=formula.id)  
+            get_token_status, (_result_input_token, _result_output_token), message = data_segregation.get_token_utilization(formula_id=formula.id)  
+            print('get_token_status', get_token_status , 'input_token', _result_input_token, 'output_token', _result_output_token, 'message', message)
             if not get_token_status:
                 return Response({'message': message}, status=status.HTTP_400_BAD_REQUEST)
-            input_token += input_token
-            output_token += output_token
+            input_token += _result_input_token
+            output_token += _result_output_token
 
         arc_user = arcUser.objects.get(id=request.user.id)
         arc_user.inputTokensConsumedChatDeleted += input_token

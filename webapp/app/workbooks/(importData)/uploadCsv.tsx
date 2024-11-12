@@ -13,9 +13,10 @@ import { DataTableColumnMetaInterface, DataTableMetaInterface, ErrorInterface } 
 import ImportDataService from "./validateUpload";
 import axiosInstance from "@/services/axios";
 import { MoreVertical } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 const dataTypes = ["string", "integer", "float", "date"];
-const dateFormats = ["MM/DD/YYYY", "DD/MM/YYYY", "MM-DD-YYYY", "DD-MM-YYYY", ""];
+const dateFormats = ["MM/DD/YYYY", "DD/MM/YYYY", "MM-DD-YYYY", "DD-MM-YYYY", "YYYY/MM/DD", "YYYY-MM-DD"];
 
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
@@ -26,7 +27,7 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
 	const { toast } = useToast();
 
 	const [isOpen, setIsOpen] = useState(false);
-	const [data, setData] = useState<{[key: string]: any}[]>([]);
+	const [data, setData] = useState<{ [key: string]: any }[]>([]);
 
 	const [tableMeta, setTableMeta] = useState<DataTableMetaInterface | null>(null);
 	const [columns, setColumns] = useState<DataTableColumnMetaInterface[]>([]);
@@ -37,7 +38,7 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
 
 	useEffect(() => {
 		if (data.length > 0) {
-			setTableName("Untitled Table"); // Set table name from file, or adjust dynamically
+			setTableName(tableMeta?.name || "Unknown Table");
 		}
 	}, [data]);
 
@@ -79,7 +80,7 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
 						action: <ToastAction altText="Ok">Ok</ToastAction>,
 					});
 				} catch (error: unknown) {
-                    const err = error as ErrorInterface;
+					const err = error as ErrorInterface;
 					toast({
 						variant: "destructive",
 						title: "Error parsing CSV",
@@ -210,7 +211,7 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
 			});
 			refreshTableMeta();
 		} catch (error: unknown) {
-            const err = error as ErrorInterface;
+			const err = error as ErrorInterface;
 			toast({
 				variant: "destructive",
 				title: "Error saving data",
@@ -236,7 +237,7 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
 
 			refreshTableMeta();
 		} catch (error: unknown) {
-            const err = error as ErrorInterface;
+			const err = error as ErrorInterface;
 			toast({
 				variant: "destructive",
 				title: "Error deleting data",
@@ -264,7 +265,7 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
 				const response = await axiosInstance.get(`${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/datatable/${tableId}/`);
 				setTableMeta(response.data);
 			} catch (error: unknown) {
-                const err = error as ErrorInterface;
+				const err = error as ErrorInterface;
 				toast({
 					variant: "destructive",
 					title: "Error fetching table meta",
@@ -282,7 +283,7 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
 			const response = await axiosInstance.get(`${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/datatable/${tableId}/`);
 			setTableMeta(response.data);
 		} catch (error: unknown) {
-            const err = error as ErrorInterface;
+			const err = error as ErrorInterface;
 			toast({
 				variant: "destructive",
 				title: "Error refreshing table meta",
@@ -306,26 +307,37 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
 
 			<div className="flex justify-between">
 				<div>
-					<h2 className="text-2xl font-bold mb-4">Import Data: {tableName || "Untitled Table"}</h2>
+					<h2 className="text-2xl font-bold mb-4">Import Data: {tableMeta?.name || "Untitled Table"}</h2>
 				</div>
 				<div>
-					<Button
-						variant="link"
-						onClick={() => {
-							if (tableMeta?.dataSourceAdded) {
-								toast({
-									variant: "destructive",
-									title: "Data source already added",
-									description: "Please delete existing data source to upload new data",
-									action: <ToastAction altText="Ok">Ok</ToastAction>,
-								});
-							} else {
+					{tableMeta?.dataSourceAdded && tableMeta?.extractionStatus === "success" ? (
+						<AlertDialog>
+							<AlertDialogTrigger asChild>
+								<Button variant="link"> + Upload CSV</Button>
+							</AlertDialogTrigger>
+							<AlertDialogContent>
+								<AlertDialogHeader>
+									<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+									<AlertDialogDescription>
+										<p>This will delete the existing data and replace it with the new data. This action cannot be undone. If the new data fails to validate, you will lose the existing data.</p>
+									</AlertDialogDescription>
+								</AlertDialogHeader>
+								<AlertDialogFooter>
+									<AlertDialogCancel>Cancel</AlertDialogCancel>
+									<AlertDialogAction onClick={() => fileInputRef.current?.click()}>Continue</AlertDialogAction>
+								</AlertDialogFooter>
+							</AlertDialogContent>
+						</AlertDialog>
+					) : (
+						<Button
+							variant="link"
+							onClick={() => {
 								fileInputRef.current?.click();
-							}
-						}}
-					>
-						+ Upload CSV
-					</Button>
+							}}
+						>
+							+ Upload CSV
+						</Button>
+					)}
 				</div>
 			</div>
 			<input type="file" ref={fileInputRef} onChange={handleFileSelect} accept=".csv" style={{ display: "none" }} />
@@ -391,8 +403,10 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
 														<SelectContent>
 															<SelectItem value="MM/DD/YYYY">MM/DD/YYYY</SelectItem>
 															<SelectItem value="DD/MM/YYYY">DD/MM/YYYY</SelectItem>
+															<SelectItem value="YYYY/MM/DD">YYYY/MM/DD</SelectItem>
 															<SelectItem value="MM-DD-YYYY">MM-DD-YYYY</SelectItem>
 															<SelectItem value="DD-MM-YYYY">DD-MM-YYYY</SelectItem>
+															<SelectItem value="YYYY-MM-DD">YYYY-MM-DD</SelectItem>
 														</SelectContent>
 													</Select>
 												)}
@@ -402,7 +416,7 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
 								</TableRow>
 							</TableHeader>
 							<TableBody>
-								{data.slice(0, 15).map((row, index) => (
+								{data.slice(0, 5).map((row, index) => (
 									<TableRow key={index}>
 										{columns.map((column) => (
 											<TableCell key={column.name}>{row[column.name]}</TableCell>

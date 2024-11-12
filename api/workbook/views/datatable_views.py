@@ -72,9 +72,6 @@ class DataTableRawAPIView(APIView):
 class DataTableExtractionAPIView(APIView):
     def post(self, request, table_id, *args, **kwargs):
         datatable_meta = get_object_or_404(DataTableMeta, id=table_id, user=request.user)
-
-        if datatable_meta.dataSourceAdded:
-            return Response({"error": "Data source already added"}, status=status.HTTP_400_BAD_REQUEST)
         
         assert request.data, "No data  information provided"
         assert 'dataSource' in request.data, "No dataSource provided"
@@ -92,6 +89,9 @@ class DataTableExtractionAPIView(APIView):
         datatable_meta.dataSource = request.data['dataSource']
         datatable_meta.extractionStatus = 'pending'
         datatable_meta.save()
+
+        # delete existing columns
+        DataTableColumnMeta.objects.filter(dataTable=datatable_meta, user=request.user).delete()
 
         # create columns
         _columns = []

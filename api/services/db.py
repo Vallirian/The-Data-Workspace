@@ -235,6 +235,7 @@ class DataSegregation:
 
         total_input_tokens_consumed = 0
         total_output_tokens_consumed = 0
+        
         with connection.cursor() as cursor:
             try:
                 cursor.execute(query, inputs)

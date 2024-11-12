@@ -78,8 +78,9 @@ class OpenAIAnalysisAgent:
                 }
             )
 
-            self.run_response.input_tokens_consumed = _temp_run.usage.prompt_tokens
-            self.run_response.output_tokens_consumed = _temp_run.usage.completion_tokens
+            # run response is setup with a 0 value for tokens consumed
+            self.run_response.input_tokens_consumed += int(_temp_run.usage.prompt_tokens)
+            self.run_response.output_tokens_consumed += int(_temp_run.usage.completion_tokens)
 
             # increment retries here because we continue in the loops
             self.run_response.retries += 1

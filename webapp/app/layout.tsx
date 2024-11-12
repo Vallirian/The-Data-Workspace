@@ -13,7 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem, SidebarProvider, SidebarRail, SidebarTrigger } from "@/components/ui/sidebar";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 
-import { Bot, Calendar, Cat, ChevronRight, Club, Command, Component, Dog, Fan, FerrisWheel, Flower, FoldVertical, Frame, Grip, Inbox, InspectionPanel, Loader, MailQuestion, MoreHorizontal, Nut, PiggyBank, Plus, Rat, Sailboat, Salad, Search, Settings, ShipWheel, Snail, Sprout, SquareTerminal, Trash2, TreePalm, Trees, Turtle } from "lucide-react";
+import { Bot, Calendar, Cat, ChevronRight, Club, Command, Component, Dog, Dot, Fan, FerrisWheel, Flower, FoldVertical, Frame, Grip, Inbox, InspectionPanel, Loader, MailQuestion, MoreHorizontal, Nut, PiggyBank, Plus, Rat, Sailboat, Salad, Search, Settings, ShipWheel, Snail, Sprout, SquareTerminal, Trash2, TreePalm, Trees, Turtle } from "lucide-react";
 import ArcAvatar from "@/components/arc-components/navigation/arcAvatar";
 import { useEffect, useState } from "react";
 import { DataTableMetaInterface, ErrorInterface, WorkbookInterface } from "@/interfaces/main";
@@ -138,7 +138,10 @@ export default function RootLayout({
 											</div>
 											<div className="grid flex-1 text-left text-sm leading-tight">
 												<span className="truncate font-semibold">Processly</span>
-												<span className="truncate text-xs">Free</span>
+												<div className="flex items-center text-xs text-muted-foreground">
+													<span className="truncate text-xs">Free</span>
+													<span className="truncate text-xs">{" (Beta)"}</span>
+												</div>
 											</div>
 										</a>
 									</SidebarMenuButton>
