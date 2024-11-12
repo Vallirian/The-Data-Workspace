@@ -28,6 +28,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { DiscordLogoIcon } from "@radix-ui/react-icons";
+import useAuth from "@/hooks/useAuth";
 
 const geistSans = localFont({
 	src: "./fonts/GeistVF.woff",
@@ -46,20 +47,27 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	const router = useRouter();
-	const [loading, setLoading] = React.useState(true);
-	const [user, setUser] = React.useState<User | null>(null);
-
 	const [selectedWorkbook, setSelectedWorkbook] = useState<WorkbookInterface | null>(null);
 	const [workbooks, setWorkbooks] = useState<WorkbookInterface[]>([]);
 	const [tableMetas, setTableMetas] = useState<DataTableMetaInterface[]>([]);
+	const { user, loading } = useAuth();
 
 	const workbookIcons = [Frame, Command, Club, Component, FerrisWheel, Grip, InspectionPanel, Loader, TreePalm, Trees, Turtle, Sprout, Snail, ShipWheel, Salad, Sailboat, Rat, PiggyBank, Nut, Flower, Fan, Dog, Cat, Bot];
 
+	// Redirect to login if user is not authenticated and loading is complete
+	useEffect(() => {
+		if (!loading && !user) {
+			router.push("/account/login");
+		}
+	}, [user, loading, router]);
+
 	// workbooks
 	useEffect(() => {
-		// Fetch workbooks and metadata from API once to avoid multiple calls in render
-		fetchWorkbooksAndMetadata();
-	}, []);
+		if (user) {
+			// Fetch workbooks and metadata from API once to avoid multiple calls in render
+			fetchWorkbooksAndMetadata();
+		}
+	}, [user]);
 
 	const fetchWorkbooksAndMetadata = async () => {
 		try {
@@ -144,9 +152,7 @@ export default function RootLayout({
 								</SidebarGroupLabel>{" "}
 								<SidebarMenu>
 									{workbooks.map((workbookItem) => (
-										<SidebarMenuItem
-											key={workbookItem.id}
-										>
+										<SidebarMenuItem key={workbookItem.id}>
 											<SidebarMenuButton
 												tooltip={tableMetas.find((tableMeta) => tableMeta?.id === workbookItem.dataTable)?.name || "Unknown Table"}
 												onClick={() => {

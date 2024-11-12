@@ -20,7 +20,7 @@ function Signup() {
         signInWithPopup(auth, googleProvider)
             .then(() => {
                 // Check if there's a redirect path
-                const redirectPath = searchParams.get("redirect") || "/workbooks";
+                const redirectPath = searchParams.get("redirect") || "/";
                 router.push(redirectPath);
             })
             .catch((error) => {
@@ -36,14 +36,22 @@ function Signup() {
     return (
         <div className="flex min-h-screen">
             <Toaster />
-            <div className="hidden w-1/2 bg-black text-white lg:block">
+            <div className="hidden w-1/2 bg-zinc-50 lg:block">
                 <div className="flex h-full flex-col justify-between p-8">
                     <div className="flex items-center space-x-2">
-                        <div className="flex items-center space-x-2">
-                            <Image src="/images/logo-1-white-png.png" alt="Logo" width={24} height={24} /> <span className="text-xl font-semibold">Processly</span>
-                        </div>
+                        {/* <div className="flex items-center space-x-2">
+                            <Image
+                                src="/images/logo-1-black-png.png"
+                                alt="Logo"
+                                width={24}
+                                height={24}
+                            />
+                            <span className="text-xl font-semibold">Processly</span>
+                        </div> */}
                     </div>
-                    <div className="space-y-4"></div>
+                    <div className="space-y-4">
+                        <p className="text-2xl font-semibold">Zero data exposure analytics - powered by AI</p>
+                    </div>
                 </div>
             </div>
 
