@@ -34,6 +34,9 @@ export default function SharedReport() {
 				setReport(fetchedReport);
 			} catch (error: unknown) {
 				const err = error as ErrorInterface;
+				if (err.response?.status === 401) {
+					return; // the useAuth hook in ~/layout.tsx will redirect to login
+				}
 				toast({
 					variant: "destructive",
 					title: "Error fetching report",
