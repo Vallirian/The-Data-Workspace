@@ -29,6 +29,9 @@ import { format } from "date-fns";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { DiscordLogoIcon } from "@radix-ui/react-icons";
 import useAuth from "@/hooks/useAuth";
+import { ToastAction } from "@radix-ui/react-toast";
+import { Toaster } from "@/components/ui/toaster";
+import { Button } from "@/components/ui/button";
 
 const geistSans = localFont({
 	src: "./fonts/GeistVF.woff",
@@ -120,12 +123,41 @@ export default function RootLayout({
 		}
 	};
 
+	const confirmDeleteWorkbook = async ({ workbookId }: { workbookId: string }) => {
+		toast({
+			variant: "default",
+			title: "Are you sure?",
+			description: "This will permanently delete the workbook and all its data.",
+			action: (
+				<ToastAction altText="Confirm Delete" onClick={() => handleDeleteWorkbook({ workbookId })}>
+					<Button variant="destructive">Delete</Button>
+				</ToastAction>
+			),
+		});
+	};
+
+	const handleDeleteWorkbook = async ({ workbookId }: { workbookId: string }) => {
+		try {
+			// Fetch all workbooks
+			await axiosInstance.delete(`${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/`);
+			setWorkbooks(workbooks.filter((workbook) => workbook.id !== workbookId));
+		} catch (error: unknown) {
+			const err = error as ErrorInterface;
+			toast({
+				variant: "destructive",
+				title: "Error deleting workbook",
+				description: err.response?.data?.error || "Failed to delete workbook",
+			});
+		}
+	};
+
 	return (
 		<html lang="en">
 			<head>
 				<title>Processly</title>
 			</head>
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+				<Toaster />
 				<SidebarProvider defaultOpen={false}>
 					<Sidebar collapsible="icon">
 						<SidebarHeader>
@@ -181,7 +213,7 @@ export default function RootLayout({
 														<span>{format(workbookItem.createdAt, "PPpp")}</span>
 													</DropdownMenuItem>
 													<DropdownMenuSeparator />
-													<DropdownMenuItem>
+													<DropdownMenuItem onClick={() => confirmDeleteWorkbook({ workbookId: workbookItem.id })}>
 														<Trash2 className="text-muted-foreground h-4 w-4 mr-2" />
 														<span>Delete Project</span>
 													</DropdownMenuItem>

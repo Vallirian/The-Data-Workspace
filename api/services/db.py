@@ -219,7 +219,6 @@ class DataSegregation:
                 rows = dictfetchall(cursor)
                 # The result is returned as a text (with `MB` unit), so we need to strip it to return a float
                 size_mb = rows[0]['size_mb'] if rows[0]['size_mb'] else 0
-                print(size_mb)
                 size_mb = float(size_mb)  # Convert size to float
                 return True, size_mb
             except Exception as e:
@@ -240,6 +239,7 @@ class DataSegregation:
             try:
                 cursor.execute(query, inputs)
                 tokens_consumed = dictfetchall(cursor)
+                print('tokens_consumed from formula message', tokens_consumed, query, inputs)
 
                 input_token_utilization = 0
                 output_token_utilization = 0
@@ -256,6 +256,7 @@ class DataSegregation:
                     inputs = [str(self.request.user.id).replace('-', '')]
                     cursor.execute(query, inputs)
                     tokens_consumed = dictfetchall(cursor)
+                    print('tokens_consumed stored at user model', tokens_consumed)
 
                     for t in tokens_consumed:
                         total_input_tokens_consumed += t['inputTokensConsumedChatDeleted']

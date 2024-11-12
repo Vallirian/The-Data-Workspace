@@ -210,7 +210,7 @@ class FormulaUserMessage:
     def enhance_message(self):
         self.final_message += f"The following is the table information: {self.table_information}\n"
         self.final_message += f"The following is the column information in the table: {self.column_information}\n"
-        self.final_message += f"Right now, the date and time is {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}.\n"
+        self.final_message += f"Right now, the date and time is {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}. Unless instructed, do not limit analysis by time.\n"
         self.final_message += self.user_message
 
     def resolve_dt_meta_information(self):
