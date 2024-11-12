@@ -76,7 +76,7 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
 					setIsOpen(true);
 					toast({
 						title: "Success",
-						description: "CSV file uploaded successfully",
+						description: "CSV file parsed successfully",
 						action: <ToastAction altText="Ok">Ok</ToastAction>,
 					});
 				} catch (error: unknown) {

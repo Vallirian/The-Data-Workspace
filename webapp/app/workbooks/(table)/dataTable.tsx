@@ -8,10 +8,11 @@ import { SetStateAction, useEffect, useRef, useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Save } from "lucide-react";
+import { Calendar, CaseLower, ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ChevronUp, Hash, Save } from "lucide-react";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import axiosInstance from "@/services/axios";
 import { DataTableColumnMetaInterface, DataTableMetaInterface, ErrorInterface } from "@/interfaces/main";
+import { Badge } from "@/components/ui/badge";
 
 export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
 	const { toast } = useToast();
@@ -24,7 +25,7 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
 	const [itemsPerPage, setItemsPerPage] = useState<number>(10);
 	const [totalCount, setTotalCount] = useState<number>(1);
 
-	const [sortColumn, setSortColumn] = useState("name");
+	const [sortColumn, setSortColumn] = useState("");
 	const [sortDirection, setSortDirection] = useState("asc");
 	const [filterValue, setFilterValue] = useState("");
 
@@ -297,9 +298,15 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
 								<TableRow>
 									{columns.map((column) => (
 										<TableHead className="cursor-pointer" key={column.id} onClick={() => sortData(column.name)}>
-											<div>{column.name}</div>
-
-											{sortColumn === column.id && <span className="ml-1 text-sm font-medium leading-none">{sortDirection === "asc" ? "↑" : "↓"}</span>}
+											<div className="flex items-center justify-between">
+												{column.name}
+												<Badge variant="secondary">
+													{column.dtype == "string" && <CaseLower className="h-4 w-4" />}
+													{(column.dtype == "integer" || column.dtype == "float") && <Hash className="h-3 w-3" />}
+													{column.dtype == "date" && <Calendar className="h-4 w-4" />}
+												</Badge>
+												{sortColumn === column.name && (sortDirection === "asc" ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />)}
+											</div>
 										</TableHead>
 									))}
 								</TableRow>

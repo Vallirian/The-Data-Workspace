@@ -11,7 +11,7 @@ const ImportDataService = () => {
    * @returns Object with result (boolean) and message (string).
    */
   const validateTableName = (tableName: string): { result: boolean; message: string } => {
-    const tableNameRegex = /^[a-zA-Z_][a-zA-Z0-9_]{0,63}$/;
+    const tableNameRegex = /^[a-zA-Z_][a-zA-Z0-9_ ]{0,63}$/;
     if (tableName.length === 0) {
       return { result: false, message: 'Table name is required.' };
     }
@@ -33,13 +33,14 @@ const ImportDataService = () => {
    * @returns Object with result (boolean) and message (string).
    */
   const validateColumnNames = (columnNames: string[]): { result: boolean; message: string } => {
-    const columnNameRegex = /^[a-zA-Z_][a-zA-Z0-9_]{0,63}$/;
+    const columnNameRegex = /^[a-zA-Z_][a-zA-Z0-9_ ]{0,63}$/;
     if (columnNames.length > 50) {
       return { result: false, message: 'Column limit exceeded. No more than 50 columns are allowed.' };
     }
 
     for (const columnName of columnNames) {
       if (!columnNameRegex.test(columnName)) {
+        console.log('Invalid column name: ', columnNameRegex.test(columnName))
         return {
           result: false,
           message: `Invalid column name: '${columnName}'. It must start with a letter or underscore and contain only alphanumeric characters or underscores. It cannot exceed 64 characters.`,

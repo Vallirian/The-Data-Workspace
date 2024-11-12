@@ -11,7 +11,16 @@ class RawData:
         self.table_id = table_id
         self.table: TypeDataTableMeta = RawDataUtils.get_data_table_meta(table_id)
         
-    def create_table_if_not_exists(self):
+    def drop_and_create_table(self):
+        # we need to drop and create the table before inserting data because if not, the data might get appended
+        # first drop the table if it exists
+        query = f"DROP TABLE IF EXISTS \"{self.table.name}\";"
+        _raw_exec = RawSQLExecution(sql=query, inputs=[], request=self.request)
+        _raw_exec_status, _raw_exec_value = _raw_exec.execute(fetch_results=False)
+        if not _raw_exec_status:
+            return False, _raw_exec_value
+        
+        # create the table
         query = f"CREATE TABLE IF NOT EXISTS \"{self.table.name}\" ("
         for column in self.table.columns:
             query += f"\"{column.name}\" {svc_vals.DATA_TYPE_MAP[column.dtype]}, "
@@ -41,7 +50,7 @@ class RawData:
         data_valid, message = self.validate_data(data)
         if not data_valid:
             return False, message
-        self.create_table_if_not_exists()
+        self.drop_and_create_table()
         
         try:
             # validate rows            

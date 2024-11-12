@@ -52,7 +52,7 @@ export default function SharedReport() {
 		<div className="min-h-screen bg-background flex flex-col">
 			<div className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
 				<Toaster />
-				<div className="flex justify-between items-center px-4">
+				<div className="flex justify-between items-center px-4 mt-2">
 					<h2 className="text-2xl font-bold mb-4">Report</h2>
 				</div>
 				<div className="flex-grow overflow-y-auto p-4 space-y-4">
@@ -62,13 +62,20 @@ export default function SharedReport() {
 								<div
 									key={`${rowIndex}-${columnIndex}`}
 									className={`
-                  ${row.rowType === "kpi" ? (row.columns.length > 1 ? `w-1/${row.columns.length}` : "w-full h-36") : `w-full ${row.columns.length > 1 ? "sm:w-1/2" : ""} h-84`}
-                  ${row.rowType !== "kpi" ? "mb-4 sm:mb-0" : ""}
-                  border rounded-md
-                `}
+										${	
+											row.rowType === "kpi" 
+											? (row.columns.length > 1 ? `w-1/${row.columns.length}` : "w-full h-36") 
+											: `w-full ${row.columns.length > 1 ? "sm:w-1/2" : ""} h-84`}
+										${
+											row.rowType !== "kpi" 
+											? "mb-4 sm:mb-0" 
+											: ""
+										}
+										rounded-md w-full px-1
+									`}
 								>
 									<ContextMenu>
-										<ContextMenuTrigger className="flex flex-col h-full w-full p-2 justify-center rounded-md border border-dashed text-sm">
+									<ContextMenuTrigger className="flex flex-col h-full w-full p-2 justify-center rounded-md text-sm border">
 											{row.rowType === "kpi" && <KpiColumn column={column} formulaValues={report?.formulaValues || []} formulas={report?.formulas || []} />}
 											{row.rowType === "table" && <TableColumn column={column} formulaValues={report?.formulaValues || []} formulas={report?.formulas || []} />}
 										</ContextMenuTrigger>

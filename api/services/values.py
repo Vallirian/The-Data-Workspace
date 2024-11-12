@@ -18,7 +18,7 @@ DATA_TYPE_MAP = {
     'date': 'DATE',
 }
 INVALID_CHARACTERS_IN_NAME = [
-    ' ', '-', '.', ',', ';', ':', '__'
+    '-', '.', ',', ';', ':', '__'
 ]
 ALLOWED_DATE_FORMATS = [
      'MM/DD/YYYY', 'DD/MM/YYYY', 'MM-DD-YYYY', 'DD-MM-YYYY', 'YYYY/MM/DD', 'YYYY-MM-DD'

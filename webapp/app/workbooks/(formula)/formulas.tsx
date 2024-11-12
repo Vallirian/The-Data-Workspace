@@ -140,6 +140,17 @@ export default function Formulas({ workbookId, tableId }: { workbookId: string; 
 				if (newMessageResponseData) {
 					newMessageResponseData.userId = auth.currentUser?.uid || "";
 					setMessages([...messages, _newMessage, newMessageResponseData]);
+
+					// Scroll to bottom when new message is added
+					if (scrollRef.current) {
+						scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+					}
+
+					// update the active formula name so it can be displayed in the chat header
+					if (activeFormula && newMessageResponseData.name) {
+						activeFormula.name = newMessageResponseData.name;
+					}
+
 					setWaitingServerMessage(false);
 				}
 			} catch (error: unknown) {
