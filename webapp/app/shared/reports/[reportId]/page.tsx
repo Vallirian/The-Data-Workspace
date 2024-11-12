@@ -16,7 +16,6 @@ export default function SharedReport() {
 	const router = useRouter();
 	const { reportId } = useParams();
 	const [report, setReport] = useState<SharedReportInterface | null>(null);
-	const [askToSignin, setAskToSignin] = useState(false);
 
 	const visibleColumns = useMemo(() => {
 		if (!report) return [];
@@ -35,16 +34,11 @@ export default function SharedReport() {
 				setReport(fetchedReport);
 			} catch (error: unknown) {
 				const err = error as ErrorInterface;
-				if (err.response?.status === 401) {
-					setAskToSignin(true);
-					return;
-				} else {
-					toast({
-						variant: "destructive",
-						title: "Error fetching report",
-						description: err.response?.data?.error || "Failed to load report",
-					});
-				}
+				toast({
+					variant: "destructive",
+					title: "Error fetching report",
+					description: err.response?.data?.error || "Failed to load report",
+				});
 			}
 		};
 
@@ -53,32 +47,6 @@ export default function SharedReport() {
 
 	return (
 		<div className="min-h-screen bg-background flex flex-col">
-			{askToSignin && (
-				<AlertDialog defaultOpen={askToSignin}>
-					<AlertDialogContent>
-						<AlertDialogHeader>
-							<AlertDialogTitle>Login or Signup to view report</AlertDialogTitle>
-							<AlertDialogDescription>Please signin or login to view this report.</AlertDialogDescription>
-						</AlertDialogHeader>
-						<AlertDialogFooter>
-							<AlertDialogCancel
-								onClick={() => {
-									router.push("/workbooks");
-								}}
-							>
-								Cancel
-							</AlertDialogCancel>
-							<AlertDialogAction
-								onClick={() => {
-									router.push("/account/login?redirect=" + window.location.pathname);
-								}}
-							>
-								Signin
-							</AlertDialogAction>
-						</AlertDialogFooter>
-					</AlertDialogContent>
-				</AlertDialog>
-			)}
 			<div className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
 				<Toaster />
 				<div className="flex justify-between items-center px-4">
