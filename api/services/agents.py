@@ -162,9 +162,17 @@ class OpenAIAnalysisAgent:
             # identify message type
             if arc_sql_execution_pass:
                 print(f"SQL execution result: {arc_sql_execution_result}")
+                # arc_sql_execution_result = [{'column': 1234}]
                 if len(arc_sql_execution_result) == 1:
-                    self.run_response.message_type = "kpi"
-                    self.run_response.message = list(arc_sql_execution_result[0].values())[0]
+                    # if there is only one row, see whether it has multiple columns
+                    # if it has multiple columns, it is a table
+                    # if it has only one column, it is a KPI
+                    if len(list(arc_sql_execution_result[0].keys())) == 1:
+                        self.run_response.message_type = "kpi"
+                        self.run_response.message = list(arc_sql_execution_result[0].values())[0]
+                    else:
+                        self.run_response.message_type = "table"
+                        self.run_response.message = f"Table with {len(arc_sql_execution_result)} rows"
                 else: # tables can have 0 rows or more than 1 row
                     self.run_response.message_type = "table"
                     self.run_response.message = f"Table with {len(arc_sql_execution_result)} rows"

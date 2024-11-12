@@ -298,8 +298,18 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
 									{columns.map((column) => (
 										<TableHead className="cursor-pointer" key={column.id} onClick={() => sortData(column.name)}>
 											<div>{column.name}</div>
-											<div className="text-xs text-gray-500">
-												{editingColumnDescription === column.id ? (
+
+											{sortColumn === column.id && <span className="ml-1 text-sm font-medium leading-none">{sortDirection === "asc" ? "↑" : "↓"}</span>}
+										</TableHead>
+									))}
+								</TableRow>
+							</TableHeader>
+							<TableBody>
+								<TableRow className="text-muted-foreground" key={"descriptionRow"}>
+									{columns.map((column) => (
+										<>
+											{editingColumnDescription === column.id ? (
+												<TableCell key={`descriptionRow${column.id}`}>
 													<div className="flex items-center">
 														<textarea
 															ref={(el) => {
@@ -322,26 +332,22 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
 															<Save className="h-3 w-3" />
 														</Button>
 													</div>
-												) : (
-													<div className="flex items-center">
-														<span
-															onClick={(e) => {
-																e.stopPropagation();
-																setEditingColumnDescription(column.id);
-															}}
-															className="ml-1"
-														>
-															{column.description || "Add column description"}
-														</span>
-													</div>
-												)}
-											</div>
-											{sortColumn === column.id && <span className="ml-1 text-sm font-medium leading-none">{sortDirection === "asc" ? "↑" : "↓"}</span>}
-										</TableHead>
+												</TableCell>
+											) : (
+												<TableCell
+													key={column.id}
+													onClick={(e) => {
+														e.stopPropagation();
+														setEditingColumnDescription(column.id);
+													}}
+												>
+													{column.description || "Ckick to add description"}
+												</TableCell>
+											)}
+										</>
 									))}
 								</TableRow>
-							</TableHeader>
-							<TableBody>
+
 								{sortedAndFilteredData.map((item, rowIndex) => (
 									<TableRow key={rowIndex}>
 										{columns.map((column) => (

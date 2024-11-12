@@ -85,7 +85,6 @@ class FirebaseTokenAuthMiddleware(MiddlewareMixin):
                 return None  # Continue processing the request
 
             except Exception as e:
-                print('error', e)
                 return JsonResponse({'error': 'Authentication falied, please logout and login again'}, status=401)
         
         # If no token provided, deny access

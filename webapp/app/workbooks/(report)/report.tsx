@@ -77,8 +77,23 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 		try {
 			if (!report) return;
 
+			// clear empty cells before saving manually because clearemptycells does not do them asynchrounously
+			const cleanRows = report.rows.map((row) => ({
+				...row,
+				columns: row.columns.filter((column) => column.formula != null && column.formula.trim() !== ""),
+			}));
+	
+			const filteredRows = cleanRows.filter((row) => row.columns.length > 0);
+			const updatedReport = { ...report, rows: filteredRows };
+
+			
+			
+			await axiosInstance.put(`${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/reports/${reportId}/`, updatedReport);
+
+			// clear empty cells so that the UI is updated
 			clearEmtyCells();
-			await axiosInstance.put(`${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/reports/${reportId}/`, report);
+
+			
 			toast({
 				title: "Report saved",
 				description: "Your report has been saved successfully",

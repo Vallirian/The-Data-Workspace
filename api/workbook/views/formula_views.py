@@ -114,7 +114,6 @@ class FormulaMessageListView(APIView):
             else:
                 return Response({'error': model_run.message}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            print(e)
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
 class FormulaDetailValueView(APIView):
@@ -129,9 +128,9 @@ class FormulaDetailValueView(APIView):
             
             _response = None
 
-            if len(arc_sql_execution_result) == 1:
+            if formula.fromulaType == 'kpi':
                 _response = list(arc_sql_execution_result[0].values())[0]
-            elif len(arc_sql_execution_result) > 1:
+            elif formula.fromulaType == 'table':
                 _response = arc_sql_execution_result
             else:
                 assert False, "No data returned"

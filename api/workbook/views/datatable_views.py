@@ -48,7 +48,6 @@ class DataTableColumnMetaDetailAPIView(APIView):
 class DataTableRawAPIView(APIView):
     def get(self, request, table_id, *args, **kwargs):
         try:
-            print(request.query_params)
             page = 1 if 'page' not in request.query_params else int(request.query_params['page'])
             page_size = int(os.getenv('PAGE_SIZE', 25))
 
