@@ -12,14 +12,10 @@ import { buildInitialConfig, formatXAxisTick } from "@/services/chartServices";
 
 export default function ArcStackedBarChart({
     data,
-    x,
-    name,
-    description,
+    x
 }: {
     data: {[key: string]: any}[];
     x: string;
-    name: string;
-    description: string;
 }) {
     if (!data || data.length === 0) {
         return <div>No data</div>;
@@ -30,10 +26,8 @@ export default function ArcStackedBarChart({
     const chartConfig = buildInitialConfig(categories);
 
     return (
-        <div className="w-full">
-            <h5 className="mb-2 font-semibold">{name}</h5>
-            <p className="mb-2 line-clamp-2">{description}</p>
-            <ChartContainer config={chartConfig}>
+        <div className="w-full h-full">
+            <ChartContainer config={chartConfig} className="h-full w-full">
                 <BarChart
                     accessibilityLayer
                     data={data}
@@ -50,7 +44,7 @@ export default function ArcStackedBarChart({
                         axisLine={false}
                         tickFormatter={formatXAxisTick}
                     />
-                    <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+                    <ChartTooltip content={<ChartTooltipContent  />} />
                     <ChartLegend content={<ChartLegendContent />} />
                     {categories.map((category) => (
                         <Bar

@@ -14,7 +14,7 @@ export default function KpiColumn({column, formulaValues, formulas}: {column: Re
         ) : (
             <>
                 <h5 className="mb-2 font-semibold">{formulas.find((f) => f.id === column.formula)?.name}</h5>
-                <p className="mb-2 line-clamp-2">{formulas.find((f) => f.id === column.formula)?.description}</p>
+                <p className="mb-2">{formulas.find((f) => f.id === column.formula)?.description}</p>
                 <h3 className="scroll-m-20 text-xl font-semibold tracking-tight">{ArcAutoFormat(formulaValues[column.formula])}</h3>
             </>
         )}

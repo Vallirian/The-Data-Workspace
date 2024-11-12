@@ -215,7 +215,7 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 	};
 
 	return (
-		<div className="flex flex-col h-full overflow-hidden">
+		<div className="flex flex-col h-full overflow-hidden ">
 			<Toaster />
 			<div className="flex justify-between items-center p-4">
 				<div className="flex justify-between items-center px-4">
@@ -291,7 +291,7 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
                 `}
 							>
 								<ContextMenu>
-									<ContextMenuTrigger className="flex flex-col h-full w-full p-2 justify-center rounded-md border border-dashed text-sm">
+									<ContextMenuTrigger className="flex flex-col h-full w-full p-2 justify-center rounded-md text-sm border">
 										{row.rowType === "kpi" && <KpiColumn column={column} formulaValues={formulaValues} formulas={formulas} />}
 										{row.rowType === "table" && <TableColumn column={column} formulaValues={formulaValues} formulas={formulas} />}
 									</ContextMenuTrigger>

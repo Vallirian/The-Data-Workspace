@@ -6,7 +6,7 @@ import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from "lucide-react";
 
-export default function ArcTable({ data, x, name, description }: { data: {[key: string]: any}[]; x: string; name: string; description: string }) {
+export default function ArcTable({ data, x }: { data: { [key: string]: any }[]; x: string }) {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [sortColumn, setSortColumn] = useState(x);
 	const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
@@ -50,36 +50,32 @@ export default function ArcTable({ data, x, name, description }: { data: {[key: 
 	};
 
 	return (
-		<div className="w-full">
-			<h5 className="mb-2 font-semibold">{name}</h5>
-			<p className="mb-2 line-clamp-2">{description}</p>
-			<div className="overflow-auto">
+		<div className="w-full h-full flex flex-col">
+			<div className="flex-grow overflow-auto">
 				<ScrollArea className="h-full">
-					<div className="p-4">
-						<Table>
-							<TableHeader>
-								<TableRow>
+					<Table>
+						<TableHeader>
+							<TableRow>
+								{columns.map((column) => (
+									<TableHead className="cursor-pointer" key={column.id} onClick={() => handleSort(column.name)}>
+										<div className="flex items-center">
+											{column.name}
+											{sortColumn === column.name && (sortDirection === "asc" ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />)}
+										</div>
+									</TableHead>
+								))}
+							</TableRow>
+						</TableHeader>
+						<TableBody>
+							{paginatedData.map((item, rowIndex) => (
+								<TableRow key={rowIndex}>
 									{columns.map((column) => (
-										<TableHead className="cursor-pointer" key={column.id} onClick={() => handleSort(column.name)}>
-											<div className="flex items-center">
-												{column.name}
-												{sortColumn === column.name && (sortDirection === "asc" ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />)}
-											</div>
-										</TableHead>
+										<TableCell key={`${rowIndex}${column.id}`}>{item[column.name]}</TableCell>
 									))}
 								</TableRow>
-							</TableHeader>
-							<TableBody>
-								{paginatedData.map((item, rowIndex) => (
-									<TableRow key={rowIndex}>
-										{columns.map((column) => (
-											<TableCell key={`${rowIndex}${column.id}`}>{item[column.name]}</TableCell>
-										))}
-									</TableRow>
-								))}
-							</TableBody>
-						</Table>
-					</div>
+							))}
+						</TableBody>
+					</Table>
 				</ScrollArea>
 			</div>
 			<div className="flex justify-between items-center mt-4">

@@ -231,6 +231,12 @@ export default function Formulas({ workbookId, tableId }: { workbookId: string; 
 						</Button>
 					</div>
 				</div>
+				{formulas.length === 0 && (
+					<div className="flex-grow flex items-center justify-center">
+						<p className="text-muted-foreground">No formulas found</p>
+					</div>
+				)}
+				{formulas.length > 0 && (
 				<div className="flex-grow overflow-y-auto p-4">
 					{formulas.map((formula) => (
 						<div key={formula.id}>
@@ -327,6 +333,7 @@ export default function Formulas({ workbookId, tableId }: { workbookId: string; 
 						</div>
 					))}
 				</div>
+				)}
 			</div>
 		);
 	}

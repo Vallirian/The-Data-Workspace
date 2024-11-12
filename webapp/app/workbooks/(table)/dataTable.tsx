@@ -63,7 +63,9 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
 	}, [editingColumnDescription]);
 
 	useEffect(() => {
-		getData();
+		if (tableMeta?.dataSourceAdded === true && tableMeta?.extractionStatus && tableMeta?.extractionStatus.toLowerCase() === "success") {
+			getData();
+		}
 	}, [currentPage]);
 
 	useEffect(() => {
@@ -115,8 +117,8 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
 
 			setTableMeta(response.data);
 			setTableDescription(response.data.description);
-
-			if (response.data.dataSourceAdded) {
+			console.log(response.data);
+			if (response.data.dataSourceAdded === true && response.data.extractionStatus && response.data.extractionStatus.toLowerCase() === "success") {
 				/*
                     added here because we need to wait for the table meta to be fetched
                     and its hard to perfect the async timing in useEffect
@@ -125,6 +127,7 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
 			}
 		} catch (error: unknown) {
 			const err = error as ErrorInterface;
+			console.log(err);
 			toast({
 				variant: "destructive",
 				title: "Error getting table meta",
@@ -354,7 +357,7 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
 			<div className="flex-shrink-0 p-4 border-t">
 				<div className="flex justify-between items-center px-4">
 					<div>
-						Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(Math.max(currentPage * itemsPerPage, sortedAndFilteredData.length), totalCount)} of {totalCount} entries
+						Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(Math.max(currentPage * itemsPerPage, sortedAndFilteredData.length), totalCount)} of {totalCount} entries
 					</div>
 					<div className="flex space-x-2">
 						<Button

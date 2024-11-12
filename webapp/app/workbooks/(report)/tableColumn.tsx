@@ -5,7 +5,7 @@ import ArcTable from "@/components/arc-components/report/arcTable";
 
 export default function TableColumn({ column, formulaValues, formulas }: { column: ReportColumnInterface; formulaValues: { [key: string]: any }; formulas: FormulaInterface[] }) {
 	return (
-		<>
+		<div className="h-full">
 			{!column.formula || !formulaValues[column.formula] || !column.config.x || column.config.x === "" ? (
 				<>
 					<div className="mb-1">Chart Type: {column.config.chartType || "Not selected"}</div>
@@ -13,12 +13,18 @@ export default function TableColumn({ column, formulaValues, formulas }: { colum
 					<div className="mb-1">X-Axis: {column.config.x || "Not selected"}</div>
 				</>
 			) : (
-				<>
-					{column.config.chartType === "bar-chart" && <ArcStackedBarChart data={formulaValues[column.formula]} x={column.config.x} name={formulas.find((f) => f.id === column.formula)?.name || ""} description={formulas.find((f) => f.id === column.formula)?.description || ""} />}
-					{column.config.chartType === "line-chart" && <ArcLineChart data={formulaValues[column.formula]} x={column.config.x} name={formulas.find((f) => f.id === column.formula)?.name || ""} description={formulas.find((f) => f.id === column.formula)?.description || ""} />}
-					{column.config.chartType === "table" && <ArcTable data={formulaValues[column.formula]} x={column.config.x} name={formulas.find((f) => f.id === column.formula)?.name || ""} description={formulas.find((f) => f.id === column.formula)?.description || ""} />}
-				</>
+				<div className="h-full">
+					<div className="w-full">
+						<h5 className="mb-2 font-semibold">{formulas.find((f) => f.id === column.formula)?.name || ""}</h5>
+						<p className="mb-2">{formulas.find((f) => f.id === column.formula)?.description || ""}</p>
+					</div>
+					<div className="h-[300px]">
+						{column.config.chartType === "bar-chart" && <ArcStackedBarChart data={formulaValues[column.formula]} x={column.config.x} />}
+						{column.config.chartType === "line-chart" && <ArcLineChart data={formulaValues[column.formula]} x={column.config.x} />}
+						{column.config.chartType === "table" && <ArcTable data={formulaValues[column.formula]} x={column.config.x} />}
+					</div>
+				</div>
 			)}
-		</>
+		</div>
 	);
 }

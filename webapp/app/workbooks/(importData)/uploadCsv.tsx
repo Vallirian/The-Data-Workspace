@@ -306,7 +306,7 @@ export default function UploadCSV({ workbookId, tableId }: UploadCSVProps) {
 
 			<div className="flex justify-between">
 				<div>
-					<h2 className="text-2xl font-bold mb-4">Import Data: {tableName}</h2>
+					<h2 className="text-2xl font-bold mb-4">Import Data: {tableName || "Untitled Table"}</h2>
 				</div>
 				<div>
 					<Button

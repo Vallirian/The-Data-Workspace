@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 
 import * as React from "react";
-import WorkbooksPage from "./workbooks/page";
 import { auth } from "@/services/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
 import LoginPageWrapper from "./account/(signup-or-login)/login/page";
