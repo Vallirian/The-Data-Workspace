@@ -215,7 +215,7 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 	};
 
 	return (
-		<div className="flex flex-col h-full overflow-hidden ">
+		<div className="flex w-full flex-col h-full overflow-hidden ">
 			<Toaster />
 			<div className="flex justify-between items-center p-4">
 				<div className="flex justify-between items-center px-4">
@@ -278,17 +278,28 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 				</div>
 			</div>
 
-			<div className="flex-grow overflow-y-auto p-4 space-y-4">
+			<div className="flex-grow overflow-y-auto p-4 space-y-4 w-full">
 				{visibleColumns?.map((row, rowIndex) => (
-					<div key={rowIndex} className={`flex ${row.rowType !== "kpi" && !editMode ? "flex-col sm:flex-row" : ""} space-x-4`}>
+					<div key={rowIndex} className={
+								`flex ${row.rowType !== "kpi" && !editMode ? "flex-col sm:flex-row" : ""} w-full`
+						}>
+
 						{row.columns.map((column, columnIndex) => (
 							<div
 								key={`${rowIndex}-${columnIndex}`}
 								className={`
-					${row.rowType === "kpi" ? (row.columns.length > 1 ? `w-1/${row.columns.length}` : "w-full h-36") : `w-full ${row.columns.length > 1 ? "sm:w-1/2" : ""} h-84`}   
-					${!editMode && row.rowType !== "kpi" ? "mb-4 sm:mb-0" : ""}
-                  border rounded-md
-                `}
+									${
+										row.rowType === "kpi" 
+											? (row.columns.length > 1 ? `w-1/${row.columns.length}` : "w-full h-36") 
+											: `w-full ${row.columns.length > 1 ? "sm:w-1/2" : ""} h-84`
+									}   
+									${	
+										!editMode && row.rowType !== "kpi" 
+											? "mb-4 sm:mb-0" 
+											: ""
+									}
+									rounded-md w-full px-1
+                				`}
 							>
 								<ContextMenu>
 									<ContextMenuTrigger className="flex flex-col h-full w-full p-2 justify-center rounded-md text-sm border">

@@ -14,7 +14,7 @@ export function ArcLineChart({ data, x }: { data: { [key: string]: any }[]; x: s
 	const chartConfig = buildInitialConfig(categories);
 
 	return (
-		<div className="w-full h-full flex flex-col">
+		<div className="w-full h-full">
 			<ChartContainer config={chartConfig} className="h-full w-full">
 				<LineChart
 					accessibilityLayer
@@ -29,7 +29,9 @@ export function ArcLineChart({ data, x }: { data: { [key: string]: any }[]; x: s
 					<ChartTooltip cursor={false} content={<ChartTooltipContent />} />
 					<ChartLegend content={<ChartLegendContent />} />
 					{categories.map((category) => (
-						<Line key={category} dataKey={category} type="linear" stroke={`var(--color-${category})`} strokeWidth={2} dot={false} height={100} />
+						<Line key={category} dataKey={category} type="linear" stroke={
+							chartConfig[category].color
+						} strokeWidth={2} dot={false} height={100} />
 					))}
 				</LineChart>
 			</ChartContainer>

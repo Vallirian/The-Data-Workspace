@@ -50,7 +50,7 @@ export default function ArcStackedBarChart({
                         <Bar
                             key={category}
                             dataKey={category}
-                            fill={`var(--color-${category})`}
+                            fill={chartConfig[category].color}
                             radius={4}
                         />
                     ))}
