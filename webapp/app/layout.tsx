@@ -13,7 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem, SidebarProvider, SidebarRail, SidebarTrigger } from "@/components/ui/sidebar";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 
-import { Bot, Calendar, Cat, ChevronRight, Club, Command, Component, Dog, Fan, FerrisWheel, Flower, Frame, Grip, Inbox, InspectionPanel, Loader, MoreHorizontal, Nut, PiggyBank, Plus, Rat, Sailboat, Salad, Search, Settings, ShipWheel, Snail, Sprout, SquareTerminal, Trash2, TreePalm, Trees, Turtle } from "lucide-react";
+import { Bot, Calendar, Cat, ChevronRight, Club, Command, Component, Dog, Fan, FerrisWheel, Flower, FoldVertical, Frame, Grip, Inbox, InspectionPanel, Loader, MailQuestion, MoreHorizontal, Nut, PiggyBank, Plus, Rat, Sailboat, Salad, Search, Settings, ShipWheel, Snail, Sprout, SquareTerminal, Trash2, TreePalm, Trees, Turtle } from "lucide-react";
 import ArcAvatar from "@/components/arc-components/navigation/arcAvatar";
 import { useEffect, useState } from "react";
 import { DataTableMetaInterface, ErrorInterface, WorkbookInterface } from "@/interfaces/main";
@@ -50,6 +50,7 @@ export default function RootLayout({
 	const [selectedWorkbook, setSelectedWorkbook] = useState<WorkbookInterface | null>(null);
 	const [workbooks, setWorkbooks] = useState<WorkbookInterface[]>([]);
 	const [tableMetas, setTableMetas] = useState<DataTableMetaInterface[]>([]);
+
 	const { user, loading } = useAuth();
 
 	const workbookIcons = [Frame, Command, Club, Component, FerrisWheel, Grip, InspectionPanel, Loader, TreePalm, Trees, Turtle, Sprout, Snail, ShipWheel, Salad, Sailboat, Rat, PiggyBank, Nut, Flower, Fan, Dog, Cat, Bot];
@@ -187,6 +188,7 @@ export default function RootLayout({
 									))}
 								</SidebarMenu>
 							</SidebarGroup>
+							<Separator className="mx-auto w-[80%]" />
 							<SidebarGroup>
 								<SidebarGroupLabel>Support</SidebarGroupLabel>{" "}
 								<SidebarMenu>
@@ -195,6 +197,14 @@ export default function RootLayout({
 											<SidebarMenuButton tooltip="Support" onClick={() => {}}>
 												<DiscordLogoIcon className="h-5 w-5" />
 												<span>Discord</span>
+											</SidebarMenuButton>
+										</a>
+									</SidebarMenuItem>
+									<SidebarMenuItem>
+										<a href="mailto:founder@processly.ai" target="_blank" rel="noopener noreferrer">
+											<SidebarMenuButton tooltip="founder@processly.ai" onClick={() => {}}>
+												<MailQuestion className="h-5 w-5" />
+												<span>Email The Founder</span>
 											</SidebarMenuButton>
 										</a>
 									</SidebarMenuItem>

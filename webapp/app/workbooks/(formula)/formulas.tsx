@@ -265,7 +265,7 @@ export default function Formulas({ workbookId, tableId }: { workbookId: string; 
 														<DialogTitle>SQL for {formula.name}</DialogTitle>
 														<div>
 															<Copy
-																className="h-5 w-5"
+																className="h-4 w-4"
 																onClick={() => {
 																	navigator.clipboard.writeText(formula.arcSql || "");
 																	toast({ title: "Copied", description: "SQL copied to clipboard", duration: 2000 });

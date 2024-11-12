@@ -105,17 +105,17 @@ export default function ArcAvatar() {
 						</DropdownMenuLabel>
 						<DropdownMenuSeparator />
 						<DropdownMenuItem onClick={handleLogout}>
-							<LogOut className="h-5 w-5 mr-2" />
+							<LogOut className="h-4 w-4 mr-2" />
 							Log out
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
 						<DropdownMenuGroup>
 							<DropdownMenuItem>
-								<Sparkles className="h-5 w-5 mr-2" />
+								<Sparkles className="h-4 w-4 mr-2" />
 								Token: {getAverageTokenUtilization()}% 
 							</DropdownMenuItem>
 							<DropdownMenuItem>
-								<Database className="h-5 w-5 mr-2" />
+								<Database className="h-4 w-4 mr-2" />
 								Data: {getAverageDataUtilization()}%
 							</DropdownMenuItem>
 						</DropdownMenuGroup>
