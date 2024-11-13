@@ -265,19 +265,19 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
 		}
 	};
 
-	const testFunction = async () => {	
-		const response = await axiosInstance.put(`${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/datatable/${tableId}/raw/`, {
-			params: {
-				page: currentPage,
-			},
-		});
-	}
+	// const testFunction = async () => {	
+	// 	const response = await axiosInstance.put(`${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/datatable/${tableId}/raw/`, {
+	// 		params: {
+	// 			page: currentPage,
+	// 		},
+	// 	});
+	// }
 
 	return (
 		<div className="flex flex-col h-full">
-			<button onClick={testFunction}>
+			{/* <button onClick={testFunction}>
 				Test
-			</button>
+			</button> */}
 			<Toaster />
 			<div className="flex justify-between items-center p-4">
 				<h1 className="text-2xl font-bold">{tableMeta?.name || "Untitled Table"}</h1>

@@ -76,8 +76,13 @@ class FirebaseTokenAuthMiddleware(MiddlewareMixin):
                     DataSegregation(request=request).create_user_schema()
 
                 # if newlly created user, create a demo workbook
-                if created:
-                    DataSegregation(request=request).create_demo_workbook()
+                print('created', created)
+                try:
+                    if created:
+                        DataSegregation(request=request).create_demo_workbook()
+                except Exception as e:
+                    print('Error creating demo workbook', str(e))
+                    pass
                 
 
                 if resolve(request.path_info).route.startswith('api/v1/app/'): 
