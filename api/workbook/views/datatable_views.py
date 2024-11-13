@@ -8,6 +8,7 @@ from workbook.serializers.datatable_serializers import DataTableMetaSerializer, 
 from services.db import RawData
 from user.firebase_middleware import get_user_data_utilization
 from django.http import JsonResponse
+from services.db import DataSegregation
 
 
 class DataTableMetaDetailAPIView(APIView):
@@ -68,6 +69,11 @@ class DataTableRawAPIView(APIView):
             })
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    def put(self, request, table_id, *args, **kwargs):
+        # test
+        DataSegregation(request=request).create_demo_workbook()
+
+        return Response(status=status.HTTP_200_OK)
 
 class DataTableExtractionAPIView(APIView):
     def post(self, request, table_id, *args, **kwargs):
@@ -126,26 +132,30 @@ class DataTableExtractionAPIView(APIView):
         # TODO: run on a separate thread ---------- END ----------
     
     def delete(self, request, table_id, *args, **kwargs):
-        datatable_meta = get_object_or_404(DataTableMeta, id=table_id, user=request.user)
+        try:
+            datatable_meta = get_object_or_404(DataTableMeta, id=table_id, user=request.user)
 
-        # delete raw data
-        # delete before columns because of foreign key constraint
-        raw_data_ops = RawData(request=request, table_id=table_id)
-        _delete_status, _delete_message = raw_data_ops.delete_table()
+            # delete raw data
+            # delete before columns because of foreign key constraint
+            raw_data_ops = RawData(request=request, table_id=table_id)
+            _delete_status, _delete_message = raw_data_ops.delete_table()
 
-        # delete columns
-        DataTableColumnMeta.objects.filter(dataTable=datatable_meta, user=request.user).delete()
+            # delete columns
+            DataTableColumnMeta.objects.filter(dataTable=datatable_meta, user=request.user).delete()
 
-        # Reset fields related to data source
-        datatable_meta.dataSourceAdded = False
-        datatable_meta.name = 'Untitled Table'
-        datatable_meta.dataSource = None
-        datatable_meta.extractionStatus = 'pending'
-        datatable_meta.extractionDetails = ""
+            # Reset fields related to data source
+            datatable_meta.dataSourceAdded = False
+            datatable_meta.name = 'Untitled Table'
+            datatable_meta.dataSource = None
+            datatable_meta.extractionStatus = 'pending'
+            datatable_meta.extractionDetails = ""
 
 
-        if _delete_status:
-            datatable_meta.save()
-            return Response(status=status.HTTP_200_OK)
-        else:
-            return Response({"error": _delete_message}, status=status.HTTP_400_BAD_REQUEST)
+            if _delete_status:
+                datatable_meta.save()
+                return Response(status=status.HTTP_200_OK)
+            else:
+                return Response({"error": _delete_message}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print('error', str(e))
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

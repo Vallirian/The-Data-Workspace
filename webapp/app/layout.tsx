@@ -158,7 +158,7 @@ export default function RootLayout({
 			</head>
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
 				<Toaster />
-				<SidebarProvider defaultOpen={false}>
+				<SidebarProvider defaultOpen={false} className="h-screen overflow-auto">
 					<Sidebar collapsible="icon">
 						<SidebarHeader>
 							<SidebarMenu>

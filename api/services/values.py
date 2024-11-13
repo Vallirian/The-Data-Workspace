@@ -18,7 +18,7 @@ DATA_TYPE_MAP = {
     'date': 'DATE',
 }
 INVALID_CHARACTERS_IN_NAME = [
-    '-', '.', ',', ';', ':', '__'
+    '-', '.', ',', ';', ':', '__', '[', ']', '{', '}', '(', ')', '!', '@', '#', '$', '%', '^', '&', '*', '+', '=', '?', '<', '>', '~', '`', '\\', '/'
 ]
 ALLOWED_DATE_FORMATS = [
      'MM/DD/YYYY', 'DD/MM/YYYY', 'MM-DD-YYYY', 'DD-MM-YYYY', 'YYYY/MM/DD', 'YYYY-MM-DD'
@@ -32,3 +32,4 @@ ANALYSIS_AGENT_INSTRUCTION = f"""Write a structured and effective SQL query to d
 - Ensure the syntax is correct, including escaping characters like percent (%) sign.
 - always put column names and table names in quotes ("") to avoid PostgreSQL errors. Example: "column_name", "table_name".
 """
+
