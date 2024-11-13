@@ -69,11 +69,6 @@ class DataTableRawAPIView(APIView):
             })
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-    def put(self, request, table_id, *args, **kwargs):
-        # test
-        DataSegregation(request=request).create_demo_workbook()
-
-        return Response(status=status.HTTP_200_OK)
 
 class DataTableExtractionAPIView(APIView):
     def post(self, request, table_id, *args, **kwargs):

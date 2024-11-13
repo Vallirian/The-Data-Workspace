@@ -52,8 +52,8 @@ export default function SharedReport() {
 		<div className="min-h-screen bg-background flex flex-col">
 			<div className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
 				<Toaster />
-				<div className="flex justify-between items-center px-4 mt-2">
-					<h2 className="text-2xl font-bold mb-4">Report</h2>
+				<div className="flex justify-between items-center px-4 mt-5">
+					<h2 className="text font-bold mb-4">Report {report ? `for ${report.dataTableMetaName}` : ""}</h2>
 				</div>
 				<div className="flex-grow overflow-y-auto p-4 space-y-4">
 					{visibleColumns?.map((row, rowIndex) => (

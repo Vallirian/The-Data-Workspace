@@ -25,18 +25,27 @@ class CTETable(BaseModel):
     @field_validator('name')
     def validate_name(cls, v):
         # Validate name against SQL reserved words
-        if v.upper() in svc_vals.SQL_RESERVED_KEYWORDS:
+        # add a space before and after the keyword to avoid partial match
+        if f' {v.upper() }' in svc_vals.SQL_RESERVED_KEYWORDS:
             raise ValueError(f"CTE name cannot be a SQL reserved word: {v}")
         return v
 
     @field_validator('sql_as_string')
     def validate_sql_as_string(cls, v):
         # Validate against SQL injection
-        if any(keyword in v.upper() for keyword in svc_vals.SQL_DDL_KEYWORDS):
+        # add a space before and after the keyword to avoid partial match
+        if any(f' {keyword} ' in v.upper() for keyword in svc_vals.SQL_DDL_KEYWORDS):
+            raise ValueError(f"SQL injection detected in CTE sql_as_string: {v}")
+        
+        if any(f'{keyword} ' in v.upper() for keyword in svc_vals.SQL_DDL_KEYWORDS):
+            raise ValueError(f"SQL injection detected in CTE sql_as_string: {v}")
+        
+        if any(f' {keyword}' in v.upper() for keyword in svc_vals.SQL_DDL_KEYWORDS):
             raise ValueError(f"SQL injection detected in CTE sql_as_string: {v}")
         
         # Validate against 'WITH' and 'AS' clauses
-        if ('WITH' in v.upper()) or ('AS' in v.upper()):
+        # add a space before and after the keyword to avoid partial match
+        if (' WITH ' in v.upper()) or (' AS ' in v.upper()) or ('WITH ' in v.upper()) or ('AS ' in v.upper()) or (' WITH' in v.upper()) or (' AS' in v.upper()):
             cte_pattern = r"^\s*(WITH|,)\s+.*\s+AS\s*\(.*\)"
             if re.match(cte_pattern, v, re.IGNORECASE):
                 raise ValueError(f"CTE sql_as_string detected invalid CTE pattern: '{v}'")
@@ -62,11 +71,17 @@ class ArcSQL(BaseModel):
             raise ValueError("final_select_sql_as_string must contain 'SELECT' and 'FROM' clauses")
         
         # Keeping `WITH` disallowed here and relaxing `AS` for necessary context
-        if 'WITH' in v.upper():
+        if (' WITH ' in v.upper()) or ('WITH ' in v.upper()) or (' WITH' in v.upper()):
             raise ValueError(f"final_select_sql_as_string cannot contain 'WITH': detected {v}")
 
         # Restrict SQL injection patterns
-        if any(keyword in v.upper() for keyword in svc_vals.SQL_DDL_KEYWORDS):
+        if any(f' {keyword} ' in v.upper() for keyword in svc_vals.SQL_DDL_KEYWORDS):
+            raise ValueError(f"SQL injection detected in final_select_sql_as_string: found disallowed pattern in {v}")
+        
+        if any(f'{keyword} ' in v.upper() for keyword in svc_vals.SQL_DDL_KEYWORDS):
+            raise ValueError(f"SQL injection detected in final_select_sql_as_string: found disallowed pattern in {v}")
+        
+        if any(f' {keyword}' in v.upper() for keyword in svc_vals.SQL_DDL_KEYWORDS):
             raise ValueError(f"SQL injection detected in final_select_sql_as_string: found disallowed pattern in {v}")
         
         return v

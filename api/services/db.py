@@ -6,7 +6,7 @@ import services.demo_data as svc_demo_data
 from services.utils import dictfetchall, validate_and_cast_value
 from services.interface import TypeColumnMeta, TypeDataTableMeta
 from workbook.serializers.workbook_serializers import WorkbookSerializer
-from workbook.models import Workbook, DataTableColumnMeta, DataTableMeta
+from workbook.models import Workbook, DataTableColumnMeta, DataTableMeta, Report
 from django.shortcuts import get_object_or_404
 
 class RawData:
@@ -290,6 +290,13 @@ class DataSegregation:
             demo_workbook.dataTable = demo_data_table_meta
             demo_workbook.save()
             
+            # create report
+            report = Report.objects.create(user=self.request.user)
+            report.save()
+            
+            demo_workbook.report = report
+            demo_workbook.save()
+            
             # create a demo data table meta
             demo_data_table_meta.dataSourceAdded = True
             demo_data_table_meta.name = demo_data_info['metadata']['table_meta_name']
@@ -297,6 +304,7 @@ class DataSegregation:
             demo_data_table_meta.extractionStatus = 'success'
             demo_data_table_meta.extractionDetails = 'Uploaded successfully'
             demo_data_table_meta.save()
+
 
             # delete existing columns
             DataTableColumnMeta.objects.filter(dataTable=demo_data_table_meta, user=self.request.user).delete()

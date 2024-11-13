@@ -6,9 +6,13 @@ from workbook.serializers.report_serializers import ReportSerializer
 
 class ReportDetailAPIView(APIView):
     def get(self, request, workbook_id, report_id, *args, **kwargs):
-        report = Report.objects.get(id=report_id, user=request.user)
-        serializer = ReportSerializer(report)
-        return Response(serializer.data)
+        try:
+            report = Report.objects.get(id=report_id, user=request.user)
+            serializer = ReportSerializer(report)
+            return Response(serializer.data)
+        except Exception as e:
+            print('error', e)
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, workbook_id, report_id, *args, **kwargs):
         report = Report.objects.get(id=report_id, user=request.user)

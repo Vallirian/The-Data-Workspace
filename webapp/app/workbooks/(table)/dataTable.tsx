@@ -118,7 +118,6 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
 
 			setTableMeta(response.data);
 			setTableDescription(response.data.description);
-			console.log(response.data);
 			if (response.data.dataSourceAdded === true && response.data.extractionStatus && response.data.extractionStatus.toLowerCase() === "success") {
 				/*
                     added here because we need to wait for the table meta to be fetched
@@ -128,7 +127,6 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
 			}
 		} catch (error: unknown) {
 			const err = error as ErrorInterface;
-			console.log(err);
 			toast({
 				variant: "destructive",
 				title: "Error getting table meta",
@@ -265,19 +263,8 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
 		}
 	};
 
-	// const testFunction = async () => {	
-	// 	const response = await axiosInstance.put(`${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/datatable/${tableId}/raw/`, {
-	// 		params: {
-	// 			page: currentPage,
-	// 		},
-	// 	});
-	// }
-
 	return (
 		<div className="flex flex-col h-full">
-			{/* <button onClick={testFunction}>
-				Test
-			</button> */}
 			<Toaster />
 			<div className="flex justify-between items-center p-4">
 				<h1 className="text-2xl font-bold">{tableMeta?.name || "Untitled Table"}</h1>
@@ -308,14 +295,12 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
 							<TableHeader>
 								<TableRow>
 									{columns.map((column) => (
-										<TableHead className="cursor-pointer" key={column.id} onClick={() => sortData(column.name)}>
+										<TableHead className="cursor-pointer" key={`header${column.id}`} onClick={() => sortData(column.name)}>
 											<div className="flex items-center justify-between">
 												{column.name}
-												<Badge variant="secondary">
 													{column.dtype == "string" && <CaseLower className="h-4 w-4" />}
 													{(column.dtype == "integer" || column.dtype == "float") && <Hash className="h-3 w-3" />}
 													{column.dtype == "date" && <Calendar className="h-4 w-4" />}
-												</Badge>
 												{sortColumn === column.name && (sortDirection === "asc" ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />)}
 											</div>
 										</TableHead>
@@ -324,46 +309,44 @@ export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
 							</TableHeader>
 							<TableBody>
 								<TableRow className="text-muted-foreground" key={"descriptionRow"}>
-									{columns.map((column) => (
-										<>
-											{editingColumnDescription === column.id ? (
-												<TableCell key={`descriptionRow${column.id}`}>
-													<div className="flex items-center">
-														<textarea
-															ref={(el) => {
-																columnDescriptionRefs.current[column.id] = el;
-															}}
-															defaultValue={column.description}
-															className="p-1 border rounded-md"
-															rows={2}
-															onClick={(e) => e.stopPropagation()}
-														/>
-														<Button
-															size="sm"
-															variant="ghost"
-															onClick={(e) => {
-																e.stopPropagation();
-																handleColumnDescriptionSave(column.id);
-															}}
-															className="ml-1"
-														>
-															<Save className="h-3 w-3" />
-														</Button>
-													</div>
-												</TableCell>
-											) : (
-												<TableCell
-													key={column.id}
-													onClick={(e) => {
-														e.stopPropagation();
-														setEditingColumnDescription(column.id);
-													}}
-												>
-													{column.description || "Ckick to add description"}
-												</TableCell>
-											)}
-										</>
-									))}
+									{columns.map((column) =>
+										editingColumnDescription === column.id ? (
+											<TableCell key={`descriptionRow${column.id}`}>
+												<div className="flex items-center">
+													<textarea
+														ref={(el) => {
+															columnDescriptionRefs.current[column.id] = el;
+														}}
+														defaultValue={column.description}
+														className="p-1 border rounded-md"
+														rows={2}
+														onClick={(e) => e.stopPropagation()}
+													/>
+													<Button
+														size="sm"
+														variant="ghost"
+														onClick={(e) => {
+															e.stopPropagation();
+															handleColumnDescriptionSave(column.id);
+														}}
+														className="ml-1"
+													>
+														<Save className="h-3 w-3" />
+													</Button>
+												</div>
+											</TableCell>
+										) : (
+											<TableCell
+												key={`cell${column.id}`}
+												onClick={(e) => {
+													e.stopPropagation();
+													setEditingColumnDescription(column.id);
+												}}
+											>
+												{column.description || "Ckick to add description"}
+											</TableCell>
+										)
+									)}
 								</TableRow>
 
 								{sortedAndFilteredData.map((item, rowIndex) => (
