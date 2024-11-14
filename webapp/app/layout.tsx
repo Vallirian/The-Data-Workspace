@@ -1,32 +1,24 @@
 "use client";
 
-import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 
 import * as React from "react";
-import { auth } from "@/services/firebase";
-import { onAuthStateChanged, User } from "firebase/auth";
-import LoginPageWrapper from "./account/(signup-or-login)/login/page";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
-import { SidebarInset, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem, SidebarProvider, SidebarRail, SidebarTrigger } from "@/components/ui/sidebar";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider, SidebarRail } from "@/components/ui/sidebar";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 
-import { Bot, Calendar, Cat, ChevronRight, Club, Command, Component, Dog, Dot, Fan, FerrisWheel, Flower, FoldVertical, Frame, Grip, Inbox, InspectionPanel, Loader, MailQuestion, MoreHorizontal, Nut, PiggyBank, Plus, Rat, Sailboat, Salad, Search, Settings, ShipWheel, Snail, Sprout, SquareTerminal, Trash2, TreePalm, Trees, Turtle } from "lucide-react";
+import { Bot, Cat, Club, Command, Component, Dog, Fan, FerrisWheel, Flower, Frame, Grip, InspectionPanel, Loader, MailQuestion, MoreHorizontal, Nut, PiggyBank, Plus, Rat, Sailboat, Salad, ShipWheel, Snail, Sprout, Trash2, TreePalm, Trees, Turtle } from "lucide-react";
 import ArcAvatar from "@/components/arc-components/navigation/arcAvatar";
 import { useEffect, useState } from "react";
 import { DataTableMetaInterface, ErrorInterface, WorkbookInterface } from "@/interfaces/main";
 import axiosInstance from "@/services/axios";
 import { toast } from "@/hooks/use-toast";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { SidebarMenuAction, useSidebar } from "@/components/ui/sidebar";
+import { SidebarMenuAction } from "@/components/ui/sidebar";
 import Image from "next/image";
-import WorkbookByIdPage from "./workbooks/[workbookId]/page";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { format } from "date-fns";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { DiscordLogoIcon } from "@radix-ui/react-icons";
 import useAuth from "@/hooks/useAuth";
 import { ToastAction } from "@radix-ui/react-toast";

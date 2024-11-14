@@ -1,6 +1,5 @@
 "use client"; // Error boundaries must be Client Components
 
-import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 

@@ -12,7 +12,6 @@ import { Calendar, CaseLower, ChevronDown, ChevronLeft, ChevronRight, ChevronsLe
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import axiosInstance from "@/services/axios";
 import { DataTableColumnMetaInterface, DataTableMetaInterface, ErrorInterface } from "@/interfaces/main";
-import { Badge } from "@/components/ui/badge";
 
 export default function ArcDataTable({ workbookId, tableId }: UploadCSVProps) {
 	const { toast } = useToast();
