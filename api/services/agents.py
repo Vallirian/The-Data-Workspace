@@ -54,6 +54,7 @@ class OpenAIAnalysisAgent:
             self.thread = self.client.beta.threads.retrieve(thread_id=self.thread_id)
 
         _temp_user_message = FormulaUserMessage(user_message=self.current_user_message, datatable_meta_id=self.dt_meta_id, request=self.request)
+        print(f"Final user message: {_temp_user_message.final_message}")
         self.current_user_message = self.client.beta.threads.messages.create(
             thread_id=self.thread.id,
             role=_temp_user_message.role,
@@ -77,8 +78,9 @@ class OpenAIAnalysisAgent:
                 }
             )
 
-            self.run_response.input_tokens_consumed = _temp_run.usage.prompt_tokens
-            self.run_response.output_tokens_consumed = _temp_run.usage.completion_tokens
+            # run response is setup with a 0 value for tokens consumed
+            self.run_response.input_tokens_consumed += int(_temp_run.usage.prompt_tokens)
+            self.run_response.output_tokens_consumed += int(_temp_run.usage.completion_tokens)
 
             # increment retries here because we continue in the loops
             self.run_response.retries += 1
@@ -159,11 +161,20 @@ class OpenAIAnalysisAgent:
                 continue
 
             # identify message type
-            if arc_sql_execution_result:
+            if arc_sql_execution_pass:
+                print(f"SQL execution result: {arc_sql_execution_result}")
+                # arc_sql_execution_result = [{'column': 1234}]
                 if len(arc_sql_execution_result) == 1:
-                    self.run_response.message_type = "kpi"
-                    self.run_response.message = list(arc_sql_execution_result[0].values())[0]
-                elif len(arc_sql_execution_result) > 1:
+                    # if there is only one row, see whether it has multiple columns
+                    # if it has multiple columns, it is a table
+                    # if it has only one column, it is a KPI
+                    if len(list(arc_sql_execution_result[0].keys())) == 1:
+                        self.run_response.message_type = "kpi"
+                        self.run_response.message = list(arc_sql_execution_result[0].values())[0]
+                    else:
+                        self.run_response.message_type = "table"
+                        self.run_response.message = f"Table with {len(arc_sql_execution_result)} rows"
+                else: # tables can have 0 rows or more than 1 row
                     self.run_response.message_type = "table"
                     self.run_response.message = f"Table with {len(arc_sql_execution_result)} rows"
 
@@ -199,6 +210,7 @@ class FormulaUserMessage:
     def enhance_message(self):
         self.final_message += f"The following is the table information: {self.table_information}\n"
         self.final_message += f"The following is the column information in the table: {self.column_information}\n"
+        self.final_message += f"Right now, the date and time is {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}. Unless instructed, do not limit analysis by time.\n"
         self.final_message += self.user_message
 
     def resolve_dt_meta_information(self):
@@ -206,9 +218,11 @@ class FormulaUserMessage:
         assert datatable_meta, "Datatable meta not found"
 
         # Get the table and column information
-        _table_information = f"""Table information:\n
-        Table name: {datatable_meta.name}\n
-        Table description: {datatable_meta.description}\n"""
+        _table_information = f"Table information:\n"
+        _table_information += f"""Table name: {datatable_meta.name}\n"""
+        if datatable_meta.description:
+            _table_information += f"Table description: {datatable_meta.description}\n"
+            
         self.table_information = _table_information
 
         datatable_column_meta = DataTableColumnMeta.objects.filter(dataTable=datatable_meta, user=self.request.user)
@@ -217,7 +231,8 @@ class FormulaUserMessage:
         # Get the column information
         _column_information = "Column information:\n"
         for column in datatable_column_meta:
-            _column_information += f"""Column name: {column.name}\n
-            Column description: {column.description}\n
-            Column data type: {column.dtype}\n"""
+            _column_information += f"Column name: {column.name}\n"
+            _column_information += f"Column data type: {column.dtype}\n"
+            if column.description:
+                _column_information += f"Column description: {column.description}\n"
         self.column_information = _column_information 

@@ -2,8 +2,12 @@ import os
 from django.http import HttpRequest
 from django.db import connection
 import services.values as svc_vals
+import services.demo_data as svc_demo_data
 from services.utils import dictfetchall, validate_and_cast_value
 from services.interface import TypeColumnMeta, TypeDataTableMeta
+from workbook.serializers.workbook_serializers import WorkbookSerializer
+from workbook.models import Workbook, DataTableColumnMeta, DataTableMeta, Report
+from django.shortcuts import get_object_or_404
 
 class RawData:
     def __init__(self, request: HttpRequest, table_id: str) -> None:
@@ -11,7 +15,16 @@ class RawData:
         self.table_id = table_id
         self.table: TypeDataTableMeta = RawDataUtils.get_data_table_meta(table_id)
         
-    def create_table_if_not_exists(self):
+    def drop_and_create_table(self):
+        # we need to drop and create the table before inserting data because if not, the data might get appended
+        # first drop the table if it exists
+        query = f"DROP TABLE IF EXISTS \"{self.table.name}\";"
+        _raw_exec = RawSQLExecution(sql=query, inputs=[], request=self.request)
+        _raw_exec_status, _raw_exec_value = _raw_exec.execute(fetch_results=False)
+        if not _raw_exec_status:
+            return False, _raw_exec_value
+        
+        # create the table
         query = f"CREATE TABLE IF NOT EXISTS \"{self.table.name}\" ("
         for column in self.table.columns:
             query += f"\"{column.name}\" {svc_vals.DATA_TYPE_MAP[column.dtype]}, "
@@ -41,7 +54,7 @@ class RawData:
         data_valid, message = self.validate_data(data)
         if not data_valid:
             return False, message
-        self.create_table_if_not_exists()
+        self.drop_and_create_table()
         
         try:
             # validate rows            
@@ -136,7 +149,6 @@ class RawSQLExecution:
                 cursor.execute(f"SET search_path TO {svc_vals.DEFAULT_SCHEMA}")
 
 class RawDataUtils:
-        
     def get_data_table_meta(table_id: str) -> TypeDataTableMeta:
         query = f"""
         SELECT 
@@ -152,7 +164,7 @@ class RawDataUtils:
         with connection.cursor() as cursor:
             cursor.execute(query, [table_id])
             rows = dictfetchall(cursor)
-            
+
             if rows:
                 return TypeDataTableMeta(
                     id=rows[0]['id'],
@@ -174,7 +186,6 @@ class RawDataUtils:
                         for row in rows if row['column_id'] is not None
                     ]
                 )
-            
             return None
         
 class DataSegregation:
@@ -219,7 +230,6 @@ class DataSegregation:
                 rows = dictfetchall(cursor)
                 # The result is returned as a text (with `MB` unit), so we need to strip it to return a float
                 size_mb = rows[0]['size_mb'] if rows[0]['size_mb'] else 0
-                print(size_mb)
                 size_mb = float(size_mb)  # Convert size to float
                 return True, size_mb
             except Exception as e:
@@ -235,6 +245,7 @@ class DataSegregation:
 
         total_input_tokens_consumed = 0
         total_output_tokens_consumed = 0
+        
         with connection.cursor() as cursor:
             try:
                 cursor.execute(query, inputs)
@@ -264,3 +275,64 @@ class DataSegregation:
             except Exception as e:
                 return False, (0, 0), str(e)
             
+    def create_demo_workbook(self):
+        try:
+            print('create_demo_workbook')
+            demo_data_info = svc_demo_data.DEMO_DATA_0
+            
+            # create a demo workbook
+            demo_workbook = Workbook.objects.create(user=self.request.user).save()
+            demo_workbook = Workbook.objects.latest('createdAt')
+
+            demo_data_table_meta = DataTableMeta(user=self.request.user)
+            demo_data_table_meta.save()
+
+            demo_workbook.dataTable = demo_data_table_meta
+            demo_workbook.save()
+            
+            # create report
+            report = Report.objects.create(user=self.request.user)
+            report.save()
+            
+            demo_workbook.report = report
+            demo_workbook.save()
+            
+            # create a demo data table meta
+            demo_data_table_meta.dataSourceAdded = True
+            demo_data_table_meta.name = demo_data_info['metadata']['table_meta_name']
+            demo_data_table_meta.description = demo_data_info['metadata']['table_meta_description']
+            demo_data_table_meta.extractionStatus = 'success'
+            demo_data_table_meta.extractionDetails = 'Uploaded successfully'
+            demo_data_table_meta.save()
+
+
+            # delete existing columns
+            DataTableColumnMeta.objects.filter(dataTable=demo_data_table_meta, user=self.request.user).delete()
+
+            # create demo data table columns
+            demo_columns = []
+            for idx, column in enumerate(demo_data_info['metadata']['table_column_meta']):
+                column_name = list(column.keys())[0]
+
+                demo_data_table_column = DataTableColumnMeta()
+                demo_data_table_column.name = column_name
+                demo_data_table_column.dtype = column[column_name]['dtype']
+                demo_data_table_column.format = column[column_name]['format']
+                demo_data_table_column.description = column[column_name]['description']
+                demo_data_table_column.dataTable = demo_data_table_meta
+                demo_data_table_column.order = idx+1
+                demo_data_table_column.user = self.request.user
+
+                demo_columns.append(demo_data_table_column)
+            DataTableColumnMeta.objects.bulk_create(demo_columns)
+            
+            # extract demo data
+            raw_data_ops = RawData(request=self.request, table_id=str(demo_data_table_meta.id))
+            _extraction_status, _extraction_message = raw_data_ops.extract_data(data=demo_data_info['data'])
+            if not _extraction_status:
+                return False, _extraction_message
+            
+            return True, 'Demo workbook created successfully'
+        
+        except Exception as e:
+            return False, str(e)

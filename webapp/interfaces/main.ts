@@ -92,6 +92,7 @@ export interface ReportColumnInterface {
 }
 
 export interface SharedReportInterface extends ReportInterface {
+	dataTableMetaName: string;
     formulas: FormulaInterface[];
     formulaValues: {
         [key: string]: any;

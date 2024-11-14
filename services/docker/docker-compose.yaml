@@ -1,5 +1,15 @@
 version: '3.8'
 services:
+  db:
+    image: postgres:16.4
+    container_name: db
+    volumes:
+      - ./data:/var/lib/pgsql
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+
   api:
     build:
       context: ../../api
@@ -12,11 +22,14 @@ services:
     volumes:
       - ../../api:/api
     command: python manage.py runserver 0.0.0.0:8000
+    depends_on:
+      - db
 
   webapp:
     build:
       context: ../../webapp
       dockerfile: Dockerfile
+      target: dev   # Use the 'dev' stage for local development
     container_name: webapp
     ports:
       - "3000:3000"
