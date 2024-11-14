@@ -43,7 +43,16 @@ ECR_PASSWORD=$(aws ecr get-login-password --region eu-west-2)
 kubectl create secret docker-registry aws-ecr-reg-cred \
   --docker-server=975050343564.dkr.ecr.eu-west-2.amazonaws.com \
   --docker-username=AWS \
-  --docker-password="$ECR_PASSWORD"
+  --docker-password="$ECR_PASSWORD" 
+
+kubectl delete secret aws-ecr-reg-cred # delete secret
+
+# login to ecr: required for docker buildx (from local to ecr)
+aws ecr get-login-password \
+    --region eu-west-2 \
+| docker login \
+    --username AWS \
+    --password-stdin 975050343564.dkr.ecr.eu-west-2.amazonaws.com
 
 
 apply all
@@ -77,6 +86,8 @@ kubectl delete rs <replicaset-name>
 
 kubectl scale deployment <deployment-name> --replicas=0
 kubectl scale deployment <deployment-name> --replicas=1
+
+kubectl exec -it <pod-name> -- <command>
 
 
 tag subnets

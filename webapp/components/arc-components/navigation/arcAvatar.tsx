@@ -8,7 +8,7 @@ import { ErrorInterface, UserInfoInterface } from "@/interfaces/main";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 
-import { ChevronsUpDown, CreditCard, Database, LogOut, Sparkles } from "lucide-react";
+import { ChevronsUpDown, Database, LogOut, Sparkles } from "lucide-react";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
 
 export default function ArcAvatar() {

@@ -13,10 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { format } from "sql-formatter";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { base16AteliersulphurpoolLight, oneLight, duotoneLight, gruvboxLight, materialLight, vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { vs, a11yLight, xcode } from "react-syntax-highlighter/dist/esm/styles/hljs";
-import { vsDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
-import { vs2015 } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import { xcode } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import { auth } from "@/services/firebase";
 import { Textarea } from "@/components/ui/textarea";
 import ArcFormatDate from "@/services/formatDate";

@@ -4,27 +4,15 @@ import { Button } from "@/components/ui/button";
 
 import * as React from "react";
 import { auth } from "@/services/firebase";
-import { onAuthStateChanged, User } from "firebase/auth";
-import LoginPageWrapper from "./account/(signup-or-login)/login/page";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { Separator } from "@/components/ui/separator";
-import { SidebarInset, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem, SidebarProvider, SidebarRail, SidebarTrigger } from "@/components/ui/sidebar";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
-
-import { Bot, Calendar, Cat, ChevronRight, Club, Command, Component, Dog, Fan, FerrisWheel, Flower, Frame, Grip, Inbox, InspectionPanel, Loader, MoreHorizontal, Nut, PiggyBank, Plus, Rat, Sailboat, Salad, Search, Settings, ShipWheel, Snail, Sprout, SquareTerminal, Trash2, TreePalm, Trees, Turtle } from "lucide-react";
-import ArcAvatar from "@/components/arc-components/navigation/arcAvatar";
+import { User } from "firebase/auth";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Bot, Cat, Club, Command, Component, Dog, Fan, FerrisWheel, Flower, Frame, Grip, InspectionPanel, Loader, Nut, PiggyBank, Rat, Sailboat, Salad, ShipWheel, Snail, Sprout, TreePalm, Trees, Turtle } from "lucide-react";
 import { useEffect, useState } from "react";
-import { DataTableMetaInterface, ErrorInterface, WorkbookInterface } from "@/interfaces/main";
+import { ErrorInterface, WorkbookInterface } from "@/interfaces/main";
 import axiosInstance from "@/services/axios";
 import { toast } from "@/hooks/use-toast";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { SidebarMenuAction, useSidebar } from "@/components/ui/sidebar";
-import Image from "next/image";
-import WorkbookByIdPage from "./workbooks/[workbookId]/page";
+import { useSidebar } from "@/components/ui/sidebar";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { format } from "date-fns";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 export default function Home() {
 	const router = useRouter();
@@ -84,7 +72,7 @@ export default function Home() {
 	return (
 		<div>
 			<nav className="px-4 py-2 flex bg-zinc-50">
-				<SidebarTrigger className="bg-zinc-50"/>
+				<SidebarTrigger className="bg-zinc-50" />
 			</nav>
 			<div className="flex flex-col gap-5 h-screen w-full items-center  justify-center px-4 bg-zinc-50">
 				<div className="bg-gradient-to-r from-purple-600 to-orange-600 text-center text-transparent bg-clip-text ">

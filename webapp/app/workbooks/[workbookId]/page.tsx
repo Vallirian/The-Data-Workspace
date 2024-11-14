@@ -1,18 +1,16 @@
 "use client";
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useEffect, useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import UploadCSV from "../(importData)/uploadCsv";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import axiosInstance from "@/services/axios";
 import { ErrorInterface, WorkbookInterface } from "@/interfaces/main";
 import ArcDataTable from "../(table)/dataTable";
 import Formulas from "../(formula)/formulas";
 import Report from "../(report)/report";
 import { useToast } from "@/hooks/use-toast";
-import { ChartNoAxesColumn, Table2, Trash2, Upload } from "lucide-react";
+import { ChartNoAxesColumn, Table2, Upload } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function WorkbookByIdPage() {
