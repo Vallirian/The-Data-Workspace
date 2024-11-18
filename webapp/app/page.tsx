@@ -4,32 +4,43 @@ import { Button } from "@/components/ui/button";
 
 import * as React from "react";
 import { auth } from "@/services/firebase";
-import { User } from "firebase/auth";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Bot, Cat, Club, Command, Component, Dog, Fan, FerrisWheel, Flower, Frame, Grip, InspectionPanel, Loader, Nut, PiggyBank, Rat, Sailboat, Salad, ShipWheel, Snail, Sprout, TreePalm, Trees, Turtle } from "lucide-react";
+import { CircleHelp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ErrorInterface, WorkbookInterface } from "@/interfaces/main";
 import axiosInstance from "@/services/axios";
 import { toast } from "@/hooks/use-toast";
-import { useSidebar } from "@/components/ui/sidebar";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
 	const router = useRouter();
-	const [loading, setLoading] = React.useState(true);
-	const [user, setUser] = React.useState<User | null>(null);
-	const sidebar = useSidebar();
 
-	const [selectedWorkbook, setSelectedWorkbook] = useState<WorkbookInterface | null>(null);
 	const [workbooks, setWorkbooks] = useState<WorkbookInterface[]>([]);
 	const [activeWorkbook, setActiveWorkbook] = useState<WorkbookInterface | undefined>(undefined);
-
-	const workbookIcons = [Frame, Command, Club, Component, FerrisWheel, Grip, InspectionPanel, Loader, TreePalm, Trees, Turtle, Sprout, Snail, ShipWheel, Salad, Sailboat, Rat, PiggyBank, Nut, Flower, Fan, Dog, Cat, Bot];
 
 	// workbooks
 	useEffect(() => {
 		// Fetch workbooks and metadata from API once to avoid multiple calls in render
-		fetchWorkbooksAndMetadata();
+		// HACK: this is to avoid gettin destructive toast when the user is not authenticated or first sign in
+		const fetchData = async () => {
+			try {
+				await fetchWorkbooksAndMetadata();
+			} catch (error) {
+				setTimeout(async () => {
+					try {
+						await fetchWorkbooksAndMetadata();
+					} catch (error) {
+						const err = error as ErrorInterface;
+						toast({
+							variant: "destructive",
+							title: "Error getting workbooks",
+							description: err.response?.data?.error || "Failed to load workbooks",
+						});
+					}
+				}, 2000);
+			}
+		};
+		fetchData();
 	}, []);
 
 	useEffect(() => {
@@ -69,6 +80,8 @@ export default function Home() {
 			});
 		}
 	};
+
+
 	return (
 		<div>
 			<nav className="px-4 py-2 flex bg-zinc-50">
@@ -100,21 +113,16 @@ export default function Home() {
 						<Button
 							variant="link"
 							onClick={() => {
-								sidebar.setOpen(true);
-							}}
-							className="px-0"
-						>
-							<span>{workbooks.length} active workbooks</span>
-						</Button>
-						<span className="px-3">|</span>
-						<Button
-							variant="link"
-							onClick={() => {
 								createWorkbook();
 							}}
 							className="px-0"
 						>
 							+ Create New
+						</Button>
+						<span className="px-3">|</span>
+						<Button variant="link" onClick={() => {}} className="px-0">
+							<CircleHelp className="w-5 h-5" />
+							<span>How to Use</span>
 						</Button>
 					</div>
 				</div>

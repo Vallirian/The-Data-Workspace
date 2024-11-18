@@ -11,10 +11,11 @@ import Formulas from "../(formula)/formulas";
 import Report from "../(report)/report";
 import { useToast } from "@/hooks/use-toast";
 import { ChartNoAxesColumn, Table2, Upload } from "lucide-react";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 
 export default function WorkbookByIdPage() {
 	const { toast } = useToast();
+	const sidebar = useSidebar();
 
 	const { workbookId } = useParams();
 	const [workbook, setWorkbook] = useState<WorkbookInterface | null>(null);
@@ -24,6 +25,7 @@ export default function WorkbookByIdPage() {
 		if (workbookId) {
 			fetchWorkbook();
 		}
+		sidebar.setOpen(false);
 	}, [workbookId]);
 
 	const fetchWorkbook = async () => {

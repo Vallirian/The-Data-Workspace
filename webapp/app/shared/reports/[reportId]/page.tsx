@@ -2,17 +2,19 @@
 
 import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { useToast } from "@/hooks/use-toast";
-import { useEffect, useMemo, useState } from "react";
+import { use, useEffect, useMemo, useState } from "react";
 import axiosInstance from "@/services/axios";
 import { ErrorInterface, SharedReportInterface } from "@/interfaces/main";
 import KpiColumn from "@/app/workbooks/(report)/kpiColumn";
 import TableColumn from "@/app/workbooks/(report)/tableColumn";
 import { useParams, useRouter } from "next/navigation";
 import { Toaster } from "@/components/ui/toaster";
+import { useSidebar } from "@/components/ui/sidebar";
 
 export default function SharedReport() {
 	const { toast } = useToast();
 	const router = useRouter();
+	const sidebar = useSidebar();
 	const { reportId } = useParams();
 	const [report, setReport] = useState<SharedReportInterface | null>(null);
 
@@ -24,6 +26,10 @@ export default function SharedReport() {
 			columns: row.columns.filter((column) => column.formula && column.formula.trim() !== ""),
 		}));
 	}, [report]);
+
+	useEffect(() => {
+		sidebar.setOpen(false);
+	});
 
 	useEffect(() => {
 		const fetchReport = async () => {
@@ -61,20 +67,13 @@ export default function SharedReport() {
 								<div
 									key={`${rowIndex}-${columnIndex}`}
 									className={`
-										${	
-											row.rowType === "kpi" 
-											? (row.columns.length > 1 ? `w-1/${row.columns.length}` : "w-full h-36") 
-											: `w-full ${row.columns.length > 1 ? "sm:w-1/2" : ""} h-84`}
-										${
-											row.rowType !== "kpi" 
-											? "mb-4 sm:mb-0" 
-											: ""
-										}
+										${row.rowType === "kpi" ? (row.columns.length > 1 ? `w-1/${row.columns.length}` : "w-full h-36") : `w-full ${row.columns.length > 1 ? "sm:w-1/2" : ""} h-84`}
+										${row.rowType !== "kpi" ? "mb-4 sm:mb-0" : ""}
 										rounded-md w-full px-1
 									`}
 								>
 									<ContextMenu>
-									<ContextMenuTrigger className="flex flex-col h-full w-full p-2 justify-center rounded-md text-sm border">
+										<ContextMenuTrigger className="flex flex-col h-full w-full p-2 justify-center rounded-md text-sm border">
 											{row.rowType === "kpi" && <KpiColumn column={column} formulaValues={report?.formulaValues || []} formulas={report?.formulas || []} />}
 											{row.rowType === "table" && <TableColumn column={column} formulaValues={report?.formulaValues || []} formulas={report?.formulas || []} />}
 										</ContextMenuTrigger>

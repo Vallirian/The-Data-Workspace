@@ -11,7 +11,7 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel
 import { Bot, Cat, Club, Command, Component, Dog, Fan, FerrisWheel, Flower, Frame, Grip, InspectionPanel, Loader, MailQuestion, MoreHorizontal, Nut, PiggyBank, Plus, Rat, Sailboat, Salad, ShipWheel, Snail, Sprout, Trash2, TreePalm, Trees, Turtle } from "lucide-react";
 import ArcAvatar from "@/components/arc-components/navigation/arcAvatar";
 import { useEffect, useState } from "react";
-import { DataTableMetaInterface, ErrorInterface, WorkbookInterface } from "@/interfaces/main";
+import { DataTableMetaInterface, ErrorInterface, SharedReportInterface, WorkbookInterface } from "@/interfaces/main";
 import axiosInstance from "@/services/axios";
 import { toast } from "@/hooks/use-toast";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -44,6 +44,7 @@ export default function RootLayout({
 	const router = useRouter();
 	const [selectedWorkbook, setSelectedWorkbook] = useState<WorkbookInterface | null>(null);
 	const [workbooks, setWorkbooks] = useState<WorkbookInterface[]>([]);
+	const [sharedReports, setSharedReports] = useState<SharedReportInterface[]>([]);
 	const [tableMetas, setTableMetas] = useState<DataTableMetaInterface[]>([]);
 
 	const { user, loading } = useAuth();
@@ -150,7 +151,7 @@ export default function RootLayout({
 			</head>
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
 				<Toaster />
-				<SidebarProvider defaultOpen={false} className="h-screen overflow-auto">
+				<SidebarProvider defaultOpen={true} className="h-screen overflow-auto">
 					<Sidebar collapsible="icon">
 						<SidebarHeader>
 							<SidebarMenu>
@@ -163,8 +164,7 @@ export default function RootLayout({
 											<div className="grid flex-1 text-left text-sm leading-tight">
 												<span className="truncate font-semibold">Processly</span>
 												<div className="flex items-center text-xs text-muted-foreground">
-													<span className="truncate text-xs">Free</span>
-													<span className="truncate text-xs">{" (Beta)"}</span>
+													<span className="text-xs">Free (Beta)</span>
 												</div>
 											</div>
 										</a>
@@ -178,6 +178,46 @@ export default function RootLayout({
 									Workbooks
 									<Plus className="ml-auto" onClick={createWorkbook} />
 								</SidebarGroupLabel>{" "}
+								<SidebarMenu>
+									{workbooks.map((workbookItem) => (
+										<SidebarMenuItem key={workbookItem.id}>
+											<SidebarMenuButton
+												tooltip={tableMetas.find((tableMeta) => tableMeta?.id === workbookItem.dataTable)?.name || "Unknown Table"}
+												onClick={() => {
+													setSelectedWorkbook(workbookItem);
+													router.push(`/workbooks/${workbookItem.id}`);
+												}}
+												isActive={selectedWorkbook?.id === workbookItem.id}
+												key={workbookItem.id}
+											>
+												{React.createElement(workbookIcons[parseInt(workbookItem.id, 36) % workbookIcons.length], { className: "h-5 w-5" })}
+												<span>{tableMetas.find((tableMeta) => tableMeta?.id === workbookItem.dataTable)?.name || "Unknown Table"}</span>
+											</SidebarMenuButton>
+											<DropdownMenu>
+												<DropdownMenuTrigger asChild>
+													<SidebarMenuAction showOnHover>
+														<MoreHorizontal />
+														<span className="sr-only">More</span>
+													</SidebarMenuAction>
+												</DropdownMenuTrigger>
+												<DropdownMenuContent className="w-48" side={"right"} align={"start"}>
+													<DropdownMenuItem>
+														<span>{format(workbookItem.createdAt, "PPpp")}</span>
+													</DropdownMenuItem>
+													<DropdownMenuSeparator />
+													<DropdownMenuItem onClick={() => confirmDeleteWorkbook({ workbookId: workbookItem.id })}>
+														<Trash2 className="text-muted-foreground h-4 w-4 mr-2" />
+														<span>Delete Project</span>
+													</DropdownMenuItem>
+												</DropdownMenuContent>
+											</DropdownMenu>
+										</SidebarMenuItem>
+									))}
+								</SidebarMenu>
+							</SidebarGroup>
+							<Separator className="mx-auto w-[80%]" />
+							<SidebarGroup>
+								<SidebarGroupLabel>Shared</SidebarGroupLabel>{" "}
 								<SidebarMenu>
 									{workbooks.map((workbookItem) => (
 										<SidebarMenuItem key={workbookItem.id}>
