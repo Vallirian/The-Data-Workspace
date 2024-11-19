@@ -119,11 +119,6 @@ export default function Home() {
 						>
 							+ Create New
 						</Button>
-						<span className="px-3">|</span>
-						<Button variant="link" onClick={() => {}} className="px-0">
-							<CircleHelp className="w-5 h-5" />
-							<span>How to Use</span>
-						</Button>
 					</div>
 				</div>
 			</div>
