@@ -54,9 +54,9 @@ export default function SharedReport() {
 	return (
 		<div className="min-h-screen bg-background flex flex-col">
 			<div className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
-				<div className="flex items-center px-4 my-4 gap-3">
+				<div className="flex items-center px-4 my-4 gap-2">
 					<SidebarTrigger/>
-					<h2 className="text font-bold">{report?.name || "Untitled Report"}</h2>
+					<p>{report?.name || "Untitled Report"}</p>
 				</div>
 				<div className="flex-grow overflow-y-auto p-4 space-y-4">
 					{visibleColumns?.map((row, rowIndex) => (

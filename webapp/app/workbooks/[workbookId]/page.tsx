@@ -44,6 +44,21 @@ export default function WorkbookByIdPage() {
 		}
 	};
 
+	const updateWorkbook = async (data: Partial<WorkbookInterface>) => {
+		try {
+			const response = await axiosInstance.patch(`${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/`, data);
+			const updatedWorkbook = response.data;
+			setWorkbook(updatedWorkbook);
+		} catch (error: unknown) {
+			const err = error as ErrorInterface;
+			toast({
+				variant: "destructive",
+				title: "Error updating workbook",
+				description: err.response?.data?.error || "Failed to update workbook",
+			});
+		}
+	};
+
 	const [activeLeftTab, setActiveLeftTab] = useState("table");
 
 	if (!workbook || !workbookId || !workbook.dataTable) {
@@ -59,7 +74,10 @@ export default function WorkbookByIdPage() {
 			{/* having h-screen allows separate scroll areas */}
 			<nav className="px-4 py-2 flex justify-between items-center border-b">
 				<div className="flex flex-grow items-center justify-between">
-					<SidebarTrigger />
+					<div className="flex items-center gap-2">
+						<SidebarTrigger />
+						<input type="text" placeholder="Untitled Workbook" className="border-none focus:outline-none" defaultValue={workbook.name || "Untitled Workbook"} onBlur={(e) => updateWorkbook({ name: e.target.value })} />
+					</div>
 					<Tabs value={activeLeftTab} onValueChange={setActiveLeftTab} className="w-auto">
 						<TabsList>
 							<TabsTrigger value="report">

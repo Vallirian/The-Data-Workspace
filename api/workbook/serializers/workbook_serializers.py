@@ -6,7 +6,7 @@ class WorkbookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Workbook
         fields = ['id', 'name', 'createdAt', 'dataTable', 'report']  
-        read_only_fields = ['id', 'createdAt', 'user'] 
+        read_only_fields = ['id', 'createdAt', 'user', 'dataTable', 'report'] 
     
     def create(self, validated_data):
         user = validated_data['user']
