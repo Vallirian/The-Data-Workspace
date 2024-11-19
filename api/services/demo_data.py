@@ -1,8 +1,8 @@
 # demo data
 DEMO_DATA_0 = {
 	"metadata": {
-		"table_meta_name": "Demo InStoreSales",
-		"table_meta_description": "In-store sales data for a retail store",
+		"table_meta_name": "Demo OnlineSales",
+		"table_meta_description": "Online sales data for a retail store",
 		"table_column_meta": [
 			{ "Category": { "dtype": "string", "format": "", "description": "Catergory of the product. Each product belongs to a category" } },
 			{ "Product Name": { "dtype": "string", "format": "", "description": "Name of the product. Each product has a unique name" } },

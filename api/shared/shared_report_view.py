@@ -10,6 +10,12 @@ from workbook.serializers.formula_serializers import FormulaSerializer
 from services.db import RawSQLExecution
 from workbook.models import Workbook
 
+class SharedReportListAPIView(APIView):
+    def get(self, request, *args, **kwargs):
+        reports = Report.objects.filter(sharedWith__contains=[request.user.email])
+        serializer = ReportSerializer(reports, many=True)
+        return Response(serializer.data)
+
 class SharedReportDetailAPIView(APIView):
     def get(self, request, report_id, *args, **kwargs):
         try:
@@ -56,14 +62,6 @@ class SharedReportDetailAPIView(APIView):
                 else:
                     assert False, "No data returned"
                 share_report_data['formulaValues'][report_formula['id']] = _response
-
-            # get the datatable meta for this report
-            workbook = Workbook.objects.get(report=report)
-            if workbook is None:
-                return Response({'error': 'Invalid report'}, status=status.HTTP_400_BAD_REQUEST)
-            
-            data_table_meta = workbook.dataTable
-            share_report_data['dataTableMetaName'] = data_table_meta.name
 
             return Response(share_report_data)
         except Exception as e:

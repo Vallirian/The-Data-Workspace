@@ -11,7 +11,7 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel
 import { Bot, Cat, Club, Command, Component, Dog, Fan, FerrisWheel, Flower, Frame, Grip, InspectionPanel, Loader, MailQuestion, MoreHorizontal, Nut, PiggyBank, Plus, Rat, Sailboat, Salad, ShipWheel, Snail, Sprout, Trash2, TreePalm, Trees, Turtle } from "lucide-react";
 import ArcAvatar from "@/components/arc-components/navigation/arcAvatar";
 import { useEffect, useState } from "react";
-import { DataTableMetaInterface, ErrorInterface, WorkbookInterface } from "@/interfaces/main";
+import { ErrorInterface, SharedReportInterface, WorkbookInterface } from "@/interfaces/main";
 import axiosInstance from "@/services/axios";
 import { toast } from "@/hooks/use-toast";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -44,11 +44,12 @@ export default function RootLayout({
 	const router = useRouter();
 	const [selectedWorkbook, setSelectedWorkbook] = useState<WorkbookInterface | null>(null);
 	const [workbooks, setWorkbooks] = useState<WorkbookInterface[]>([]);
-	const [tableMetas, setTableMetas] = useState<DataTableMetaInterface[]>([]);
+	const [sharedReports, setSharedReports] = useState<SharedReportInterface[]>([]);
 
 	const { user, loading } = useAuth();
 
-	const workbookIcons = [Frame, Command, Club, Component, FerrisWheel, Grip, InspectionPanel, Loader, TreePalm, Trees, Turtle, Sprout, Snail, ShipWheel, Salad, Sailboat, Rat, PiggyBank, Nut, Flower, Fan, Dog, Cat, Bot];
+	const workbookIcons = [Frame, Command, Club, Component, FerrisWheel, Grip, InspectionPanel, Loader, TreePalm, Trees, Turtle, Sprout, Snail, ShipWheel, Salad, Sailboat];
+	const sharedReportIcons = [Rat, PiggyBank, Nut, Flower, Fan, Dog, Cat, Bot];
 
 	// Redirect to login if user is not authenticated and loading is complete
 	useEffect(() => {
@@ -61,21 +62,17 @@ export default function RootLayout({
 	useEffect(() => {
 		if (user) {
 			// Fetch workbooks and metadata from API once to avoid multiple calls in render
-			fetchWorkbooksAndMetadata();
+			fetchWorkbooks();
+			fetchSharedReports();
 		}
 	}, [user]);
 
-	const fetchWorkbooksAndMetadata = async () => {
+	const fetchWorkbooks = async () => {
 		try {
 			// Fetch all workbooks
 			const workbooksResponse = await axiosInstance.get(`${process.env.NEXT_PUBLIC_API_URL}/workbooks/`);
 			const workbooksData = await workbooksResponse.data;
 			setWorkbooks(workbooksData);
-
-			// Fetch metadata for each workbook's table
-			const tableMetaPromises = workbooksData.map((workbook: WorkbookInterface) => fetchTableMeta(workbook.id, workbook.dataTable));
-			const tableMetasData = await Promise.all(tableMetaPromises);
-			setTableMetas(tableMetasData);
 		} catch (error: unknown) {
 			const err = error as ErrorInterface;
 			toast({
@@ -86,16 +83,18 @@ export default function RootLayout({
 		}
 	};
 
-	const fetchTableMeta = async (workbookId: string, tableId: string) => {
+	const fetchSharedReports = async () => {
 		try {
-			const response = await axiosInstance.get(`${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/datatable/${tableId}/`);
-			return response.data;
+			// Fetch all workbooks
+			const sharedReportsResponse = await axiosInstance.get(`${process.env.NEXT_PUBLIC_API_URL}/shared/reports/`);
+			const sharedReportsData = await sharedReportsResponse.data;
+			setSharedReports(sharedReportsData);
 		} catch (error: unknown) {
 			const err = error as ErrorInterface;
 			toast({
 				variant: "destructive",
-				title: "Error getting table metadata",
-				description: err.response?.data?.error || "Failed to load table metadata",
+				title: "Error getting shared reports",
+				description: err.response?.data?.error || "Failed to load shared reports",
 			});
 		}
 	};
@@ -150,7 +149,7 @@ export default function RootLayout({
 			</head>
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
 				<Toaster />
-				<SidebarProvider defaultOpen={false} className="h-screen overflow-auto">
+				<SidebarProvider defaultOpen={true} className="h-screen overflow-auto">
 					<Sidebar collapsible="icon">
 						<SidebarHeader>
 							<SidebarMenu>
@@ -163,8 +162,7 @@ export default function RootLayout({
 											<div className="grid flex-1 text-left text-sm leading-tight">
 												<span className="truncate font-semibold">Processly</span>
 												<div className="flex items-center text-xs text-muted-foreground">
-													<span className="truncate text-xs">Free</span>
-													<span className="truncate text-xs">{" (Beta)"}</span>
+													<span className="text-xs">Free (Beta)</span>
 												</div>
 											</div>
 										</a>
@@ -182,7 +180,7 @@ export default function RootLayout({
 									{workbooks.map((workbookItem) => (
 										<SidebarMenuItem key={workbookItem.id}>
 											<SidebarMenuButton
-												tooltip={tableMetas.find((tableMeta) => tableMeta?.id === workbookItem.dataTable)?.name || "Unknown Table"}
+												tooltip={workbookItem.name || "Untitled Workbook"}
 												onClick={() => {
 													setSelectedWorkbook(workbookItem);
 													router.push(`/workbooks/${workbookItem.id}`);
@@ -191,7 +189,7 @@ export default function RootLayout({
 												key={workbookItem.id}
 											>
 												{React.createElement(workbookIcons[parseInt(workbookItem.id, 36) % workbookIcons.length], { className: "h-5 w-5" })}
-												<span>{tableMetas.find((tableMeta) => tableMeta?.id === workbookItem.dataTable)?.name || "Unknown Table"}</span>
+												<span>{workbookItem.name || "Untitled Workbook"}</span>
 											</SidebarMenuButton>
 											<DropdownMenu>
 												<DropdownMenuTrigger asChild>
@@ -202,7 +200,7 @@ export default function RootLayout({
 												</DropdownMenuTrigger>
 												<DropdownMenuContent className="w-48" side={"right"} align={"start"}>
 													<DropdownMenuItem>
-														<span>{format(workbookItem.createdAt, "PPpp")}</span>
+														<span>{format(workbookItem.createdAt, "PPp")}</span>
 													</DropdownMenuItem>
 													<DropdownMenuSeparator />
 													<DropdownMenuItem onClick={() => confirmDeleteWorkbook({ workbookId: workbookItem.id })}>
@@ -216,6 +214,30 @@ export default function RootLayout({
 								</SidebarMenu>
 							</SidebarGroup>
 							<Separator className="mx-auto w-[80%]" />
+							{sharedReports.length > 0 && (
+								<>
+									<SidebarGroup>
+										<SidebarGroupLabel>Shared</SidebarGroupLabel>{" "}
+										<SidebarMenu>
+											{sharedReports.map((sharedReportItem) => (
+												<SidebarMenuItem key={sharedReportItem.id}>
+													<SidebarMenuButton
+														tooltip={sharedReportItem.name || "Untitled Report"}
+														onClick={() => {
+															router.push(`/shared/reports/${sharedReportItem.id}`);
+														}}
+														key={sharedReportItem.id}
+													>
+														{React.createElement(workbookIcons[parseInt(sharedReportItem.id, 36) % workbookIcons.length], { className: "h-5 w-5" })}
+														<span>{sharedReportItem.name || "Untitled Report"}</span>
+													</SidebarMenuButton>
+												</SidebarMenuItem>
+											))}
+										</SidebarMenu>
+									</SidebarGroup>
+									<Separator className="mx-auto w-[80%]" />
+								</>
+							)}
 							<SidebarGroup>
 								<SidebarGroupLabel>Support</SidebarGroupLabel>{" "}
 								<SidebarMenu>

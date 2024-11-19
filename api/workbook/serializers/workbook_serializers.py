@@ -1,11 +1,12 @@
 from rest_framework import serializers
 from workbook.models import Workbook, DataTableMeta, DataTableColumnMeta, Report
+import services.values as svc_vals
 
 class WorkbookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Workbook
-        fields = ['id', 'createdAt', 'dataTable', 'report']  
-        read_only_fields = ['id', 'createdAt', 'user'] 
+        fields = ['id', 'name', 'createdAt', 'dataTable', 'report']  
+        read_only_fields = ['id', 'createdAt', 'user', 'dataTable', 'report'] 
     
     def create(self, validated_data):
         user = validated_data['user']
@@ -22,3 +23,25 @@ class WorkbookSerializer(serializers.ModelSerializer):
         )
 
         return workbook
+    
+    def validate_name(self, value):
+        if len(value) > 255:
+            raise serializers.ValidationError("Name must be 255 characters or fewer.")
+        
+        if value.lower() in svc_vals.SQL_RESERVED_KEYWORDS:
+            raise serializers.ValidationError(f"'{value}' is a reserved SQL keyword.")
+        
+        if value.lower() in svc_vals.SQL_DDL_KEYWORDS:
+            raise serializers.ValidationError(f"'{value}' is a reserved for SQL, and invalid.")
+        
+        for char in svc_vals.INVALID_CHARACTERS_IN_NAME:
+            if char in value:
+                raise serializers.ValidationError(f"'{char}' is not allowed in a name.")
+            
+            return value
+        
+    def validate(self, data):
+        if 'name' in data:
+            data['name'] = self.validate_name(data.get('name', 'Untitled Workbook'))
+        
+        return data

@@ -16,6 +16,7 @@ export interface UserInfoInterface {
 
 export interface WorkbookInterface {
 	id: string;
+	name: string;
 	createdAt: Date;
 	dataTable: string;
 	report: string;
@@ -74,6 +75,7 @@ export interface FormulaInterface {
 
 export interface ReportInterface {
 	id: string;
+	name: string;
 	rows: ReportRowInterface[];
     sharedWith: string[];
 }
@@ -92,7 +94,7 @@ export interface ReportColumnInterface {
 }
 
 export interface SharedReportInterface extends ReportInterface {
-	dataTableMetaName: string;
+	name: string;
     formulas: FormulaInterface[];
     formulaValues: {
         [key: string]: any;

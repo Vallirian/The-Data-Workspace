@@ -2,6 +2,7 @@ from rest_framework import serializers
 from workbook.models import Report
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+import services.values as svc_vals
 
 class ColumnSerializer(serializers.Serializer):
     config = serializers.DictField(child=serializers.CharField(allow_null=True))
@@ -31,7 +32,7 @@ class ReportSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Report
-        fields = ['id', 'rows', 'sharedWith']
+        fields = ['id', 'name', 'rows', 'sharedWith']
 
     def validate_sharedWith(self, value):
         # Remove any empty elements and ensure uniqueness
@@ -45,8 +46,28 @@ class ReportSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(f"'{email}' is not a valid email address.")
 
         return list(valid_emails)
+    
+    def validate_name(self, value):
+        if len(value) > 255:
+            raise serializers.ValidationError("Name must be 255 characters or fewer.")
+        
+        if value.lower() in svc_vals.SQL_RESERVED_KEYWORDS:
+            raise serializers.ValidationError(f"'{value}' is a reserved SQL keyword.")
+        
+        if value.lower() in svc_vals.SQL_DDL_KEYWORDS:
+            raise serializers.ValidationError(f"'{value}' is a reserved for SQL, and invalid.")
+        
+        for char in svc_vals.INVALID_CHARACTERS_IN_NAME:
+            if char in value:
+                raise serializers.ValidationError(f"'{char}' is not allowed in the name.")
+            
+        return value
 
     def validate(self, data):
         # Call the 'validate_sharedWith' method to clean and validate the emails
-        data['sharedWith'] = self.validate_sharedWith(data.get('sharedWith', []))
+        if 'sharedWith' in data:
+            data['sharedWith'] = self.validate_sharedWith(data.get('sharedWith', []))
+        if 'name' in data:
+            data['name'] = self.validate_name(data.get('name', 'Untitled Report'))
+            
         return data

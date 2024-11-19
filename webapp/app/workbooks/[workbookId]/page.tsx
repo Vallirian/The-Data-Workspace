@@ -11,10 +11,11 @@ import Formulas from "../(formula)/formulas";
 import Report from "../(report)/report";
 import { useToast } from "@/hooks/use-toast";
 import { ChartNoAxesColumn, Table2, Upload } from "lucide-react";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 
 export default function WorkbookByIdPage() {
 	const { toast } = useToast();
+	const sidebar = useSidebar();
 
 	const { workbookId } = useParams();
 	const [workbook, setWorkbook] = useState<WorkbookInterface | null>(null);
@@ -24,6 +25,7 @@ export default function WorkbookByIdPage() {
 		if (workbookId) {
 			fetchWorkbook();
 		}
+		sidebar.setOpen(false);
 	}, [workbookId]);
 
 	const fetchWorkbook = async () => {
@@ -38,6 +40,21 @@ export default function WorkbookByIdPage() {
 				variant: "destructive",
 				title: "Error to get workbook",
 				description: err.response?.data?.error || "Failed to load workbook",
+			});
+		}
+	};
+
+	const updateWorkbook = async (data: Partial<WorkbookInterface>) => {
+		try {
+			const response = await axiosInstance.patch(`${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/`, data);
+			const updatedWorkbook = response.data;
+			setWorkbook(updatedWorkbook);
+		} catch (error: unknown) {
+			const err = error as ErrorInterface;
+			toast({
+				variant: "destructive",
+				title: "Error updating workbook",
+				description: err.response?.data?.error || "Failed to update workbook",
 			});
 		}
 	};
@@ -57,8 +74,11 @@ export default function WorkbookByIdPage() {
 			{/* having h-screen allows separate scroll areas */}
 			<nav className="px-4 py-2 flex justify-between items-center border-b">
 				<div className="flex flex-grow items-center justify-between">
-					<SidebarTrigger />
-					<Tabs value={activeLeftTab} onValueChange={setActiveLeftTab} className="w-auto">
+					<div className="flex items-center gap-2 w-full">
+						<SidebarTrigger />
+						<input type="text" placeholder="Untitled Workbook" className="border-none focus:outline-none w-full" defaultValue={workbook.name || "Untitled Workbook"} onBlur={(e) => updateWorkbook({ name: e.target.value })} />
+					</div>
+					<Tabs value={activeLeftTab} onValueChange={setActiveLeftTab} className="w-full">
 						<TabsList>
 							<TabsTrigger value="report">
 								<ChartNoAxesColumn className="h-4 w-4 mr-1" />

@@ -2,6 +2,7 @@ import uuid
 from django.db import models
 from user.models import ArcUser
 import services.values as svc_vals
+import services.utils as svc_utils
 
 class DataTableMeta(models.Model):
     id = models.CharField(primary_key=True, default=uuid.uuid4, editable=False, unique=True, max_length=36)
@@ -51,6 +52,7 @@ class DataTableColumnMeta(models.Model):
 class Report(models.Model):
     id = models.CharField(primary_key=True, default=uuid.uuid4, editable=False, unique=True, max_length=36)
     user = models.ForeignKey(ArcUser, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255, default='Untitled Report')
     rows = models.JSONField(default=list)
     sharedWith = models.JSONField(default=list)
 
@@ -123,10 +125,10 @@ class FormulaMessage(models.Model):
 class Workbook(models.Model):
     id = models.CharField(primary_key=True, default=uuid.uuid4, editable=False, unique=True, max_length=36)
     user = models.ForeignKey(ArcUser, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255, default=svc_utils.generate_random_name)
     createdAt = models.DateTimeField(auto_now_add=True)
     dataTable = models.OneToOneField(DataTableMeta, on_delete=models.CASCADE, related_name='workbook', null=True, blank=True)
     report = models.OneToOneField(Report, on_delete=models.CASCADE, related_name='workbook', null=True, blank=True)
 
     class Meta:
         db_table = f'workbook'
-
