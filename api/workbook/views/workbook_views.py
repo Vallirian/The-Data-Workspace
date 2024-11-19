@@ -30,6 +30,16 @@ class WorkbookDetailAPIView(APIView):
         serializer = WorkbookSerializer(workbook)
         return Response(serializer.data)
     
+    def patch(self, request, workbook_id):
+        workbook = get_object_or_404(Workbook, id=workbook_id, user=request.user)
+        serializer = WorkbookSerializer(workbook, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        
+        return Response({'error': str(list(serializer.errors))}, status=status.HTTP_400_BAD_REQUEST)
+    
     def delete(self, request, workbook_id, *args, **kwargs):
         # backup consumed input and output tokens for this workbook
         formulas = Formula.objects.filter(workbook_id=workbook_id)

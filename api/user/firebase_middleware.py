@@ -54,21 +54,24 @@ class FirebaseTokenAuthMiddleware(MiddlewareMixin):
         if auth_header and auth_header.startswith('Bearer '):
             token = auth_header.split(' ')[1]
             try:
-                # Verify the token using Firebase Admin SDK
-                decoded_token = auth.verify_id_token(token)
-                firebase_uid = decoded_token['uid']  # Get the Firebase UID from the token
-                email = decoded_token.get('email', '')
+                try:
+                    # Verify the token using Firebase Admin SDK
+                    decoded_token = auth.verify_id_token(token)
+                    firebase_uid = decoded_token['uid']  # Get the Firebase UID from the token
+                    email = decoded_token.get('email', '')
 
-                user, created = arcUser.objects.get_or_create(
-                    firebase_uid=firebase_uid,
-                    defaults={
-                        'email': email,
-                    }
-                )
-                
-                # Attach the Django User to request.user. Needs to happen before
-                # the DataSegregation is called because it uses the request.user
-                request.user = user
+                    user, created = arcUser.objects.get_or_create(
+                        firebase_uid=firebase_uid,
+                        defaults={
+                            'email': email,
+                        }
+                    )
+                    
+                    # Attach the Django User to request.user. Needs to happen before
+                    # the DataSegregation is called because it uses the request.user
+                    request.user = user
+                except Exception as e:
+                    return JsonResponse({'error': 'Authentication falied, please logout and login again'}, status=401)
                 
                 data_segregation = DataSegregation(request=request)
                 _user_scema_exists = data_segregation.schema_exists()
@@ -76,12 +79,10 @@ class FirebaseTokenAuthMiddleware(MiddlewareMixin):
                     DataSegregation(request=request).create_user_schema()
 
                 # if newlly created user, create a demo workbook
-                print('created', created)
                 try:
                     if created:
                         DataSegregation(request=request).create_demo_workbook()
                 except Exception as e:
-                    print('Error creating demo workbook', str(e))
                     pass
                 
 
@@ -94,7 +95,7 @@ class FirebaseTokenAuthMiddleware(MiddlewareMixin):
                 return None  # Continue processing the request
 
             except Exception as e:
-                return JsonResponse({'error': 'Authentication falied, please logout and login again'}, status=401)
+                return JsonResponse({'error': str(e)}, status=401)
         
         # If no token provided, deny access
         return JsonResponse({'error': 'Authentication falied, please logout and login again'}, status=401)

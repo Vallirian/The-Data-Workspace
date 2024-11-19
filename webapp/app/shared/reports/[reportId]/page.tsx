@@ -2,18 +2,16 @@
 
 import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { useToast } from "@/hooks/use-toast";
-import { use, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axiosInstance from "@/services/axios";
 import { ErrorInterface, SharedReportInterface } from "@/interfaces/main";
 import KpiColumn from "@/app/workbooks/(report)/kpiColumn";
 import TableColumn from "@/app/workbooks/(report)/tableColumn";
-import { useParams, useRouter } from "next/navigation";
-import { Toaster } from "@/components/ui/toaster";
-import { useSidebar } from "@/components/ui/sidebar";
+import { useParams } from "next/navigation";
+import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 
 export default function SharedReport() {
 	const { toast } = useToast();
-	const router = useRouter();
 	const sidebar = useSidebar();
 	const { reportId } = useParams();
 	const [report, setReport] = useState<SharedReportInterface | null>(null);
@@ -29,7 +27,7 @@ export default function SharedReport() {
 
 	useEffect(() => {
 		sidebar.setOpen(false);
-	});
+	}, []);
 
 	useEffect(() => {
 		const fetchReport = async () => {
@@ -56,9 +54,9 @@ export default function SharedReport() {
 	return (
 		<div className="min-h-screen bg-background flex flex-col">
 			<div className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
-				<Toaster />
-				<div className="flex justify-between items-center px-4 mt-5">
-					<h2 className="text font-bold mb-4">Report {report ? `for ${report.dataTableMetaName}` : ""}</h2>
+				<div className="flex items-center px-4 my-4 gap-3">
+					<SidebarTrigger/>
+					<h2 className="text font-bold">{report?.name || "Untitled Report"}</h2>
 				</div>
 				<div className="flex-grow overflow-y-auto p-4 space-y-4">
 					{visibleColumns?.map((row, rowIndex) => (

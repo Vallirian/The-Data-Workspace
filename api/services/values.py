@@ -1,5 +1,17 @@
 import datetime
 
+# models
+RANDOM_NAME_ADJECTIVES = [
+    "Brave", "Swift", "Mysterious", "Gentle", "Fierce",
+    "Radiant", "Daring", "Silent", "Majestic", "Witty",
+    "Bold", "Serene", "Mystic", "Glorious", "Vivid"
+]
+RANDOM_NAME_NOUNS = [
+    "Falcon", "Shadow", "Star", "River", "Phoenix",
+    "Moon", "Blade", "Thorn", "Echo", "Ember",
+    "Pearl", "Wolf", "Whisper", "Flame", "Horizon"
+]
+
 # Arc SQL
 SQL_RESERVED_KEYWORDS = ['SELECT', 'FROM', 'WHERE', 'GROUP BY', 'HAVING', 'ORDER BY', 'LIMIT', 'JOIN', 'ON', 'IN', 'EXISTS', 'LIKE', 'BETWEEN', 'UNION', 'INTERSECT', 'EXCEPT']
 SQL_DDL_KEYWORDS = ['DROP', 'TRUNCATE', 'DELETE', 'INSERT', 'UPDATE', 'CREATE', 'ALTER', 'GRANT', 'REVOKE', 'SEARCH_PATH']

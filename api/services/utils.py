@@ -1,8 +1,20 @@
 import re
+import random
 from services.interface import ArcSQL
 from typing import Union
 from datetime import datetime
 import services.values as svc_vals
+
+# random
+def generate_random_name():
+    """Generate a random name using an adjective and a noun."""
+
+    try:
+        adjective = random.choice(svc_vals.RANDOM_NAME_ADJECTIVES)
+        noun = random.choice(svc_vals.RANDOM_NAME_NOUNS)
+        return f"{adjective} {noun}"
+    except Exception as e:
+        return "Untitled Workbook"
 
 # SQL
 def dictfetchall(cursor):

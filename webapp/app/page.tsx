@@ -105,8 +105,8 @@ export default function Home() {
 					</h1>{" "}
 				</div>
 				<div className="text-center mb-5">
-					<p className="text-md text-muted-foreground">Welcome back to Processly, the zero-data exposure</p>
-					<p className="text-md text-muted-foreground">analytics tool powered by AI</p>
+					<p className="text-md text-muted-foreground">Welcome back to Processly, AI-powered business analysis</p>
+					<p className="text-md text-muted-foreground">to build reports 3.3x faster</p>
 				</div>
 				<div className="flex items-center justify-between">
 					<div className="flex items-center gap-2">

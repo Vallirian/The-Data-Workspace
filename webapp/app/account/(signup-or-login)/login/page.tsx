@@ -49,7 +49,7 @@ function Login() {
                         </div> */}
                     </div>
                     <div className="space-y-4">
-                        <p className="text-2xl font-semibold">Zero data exposure analytics - powered by AI</p>
+                        <p className="text-2xl font-semibold">AI-powered business analysis to build reports 3.3x faster</p>
                     </div>
                 </div>
             </div>

@@ -82,18 +82,15 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 				...row,
 				columns: row.columns.filter((column) => column.formula != null && column.formula.trim() !== ""),
 			}));
-	
+
 			const filteredRows = cleanRows.filter((row) => row.columns.length > 0);
 			const updatedReport = { ...report, rows: filteredRows };
 
-			
-			
 			await axiosInstance.put(`${process.env.NEXT_PUBLIC_API_URL}/workbooks/${workbookId}/reports/${reportId}/`, updatedReport);
 
 			// clear empty cells so that the UI is updated
 			clearEmtyCells();
 
-			
 			toast({
 				title: "Report saved",
 				description: "Your report has been saved successfully",
@@ -232,11 +229,14 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 	return (
 		<div className="flex w-full flex-col h-full overflow-hidden ">
 			<Toaster />
-			<div className="flex justify-between items-center p-4">
-				<div className="flex justify-between items-center px-4">
-					<h2 className="text-2xl font-bold mb-4">Report</h2>
+			<div className="flex justify-between items-center p-4 mb-4">
+				<div className="flex flex-grow items-center px-4">
+					{!editMode && <h2 className="text-2xl font-bold">{report?.name || "Untitled Report"}</h2>}
+					{editMode && <input 
+					placeholder="Untitled Report" 
+					className="text-2xl font-bold focus:outline-none w-full" defaultValue={report?.name} onBlur={(e) => setReport(report ? { ...report, name: e.target.value } : report)} />}
 				</div>
-				<div className="flex items-center ">
+				<div className="flex items-center">
 					<div className="flex items-center space-x-2">
 						<Switch id="edit-mode" onCheckedChange={setEditMode} checked={editMode} />
 						<Label htmlFor="edit-mode">Edit Mode</Label>
@@ -268,8 +268,8 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 							<ScrollArea className="h-72">
 								<div className="grid gap-4 py-4">
 									{report?.sharedWith.map((email, index) => (
-										<div key={email} className="grid grid-cols-3 items-center gap-4">
-											<Input id={`email-${index}`} placeholder="alan@turing.com" className="col-span-3" onBlur={(e) => updateSharedViewer(index, e.target.value)} defaultValue={email} />
+										<div key={email} className="flex items-center gap-4">
+											<Input id={`email-${index}`} placeholder="alan@turing.com" className="mx-1" onBlur={(e) => updateSharedViewer(index, e.target.value)} defaultValue={email} />
 										</div>
 									))}
 								</div>
@@ -282,8 +282,8 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 									<Button type="submit" onClick={() => patchReport({ sharedWith: report?.sharedWith })}>
 										Save changes
 									</Button>
-									<div className="text-center">
-										<p className="my-3 text-muted-foreground">Report URL</p>
+									<div className="text-center mt-2">
+										<p className="my-3 text-muted-foreground">Share this report URL</p>
 										<p className="text-foreground">{<a href={`${window.location.origin}/shared/reports/${reportId}`}>{`${window.location.origin}/shared/reports/${reportId}`}</a>}</p>
 									</div>
 								</div>
@@ -295,24 +295,13 @@ export default function Report({ workbookId, reportId }: { workbookId: string; r
 
 			<div className="flex-grow overflow-y-auto p-4 space-y-4 w-full">
 				{visibleColumns?.map((row, rowIndex) => (
-					<div key={rowIndex} className={
-								`flex ${row.rowType !== "kpi" && !editMode ? "flex-col sm:flex-row" : ""} w-full`
-						}>
-
+					<div key={rowIndex} className={`flex ${row.rowType !== "kpi" && !editMode ? "flex-col sm:flex-row" : ""} w-full`}>
 						{row.columns.map((column, columnIndex) => (
 							<div
 								key={`${rowIndex}-${columnIndex}`}
 								className={`
-									${
-										row.rowType === "kpi" 
-											? (row.columns.length > 1 ? `w-1/${row.columns.length}` : "w-full h-36") 
-											: `w-full ${row.columns.length > 1 ? "sm:w-1/2" : ""} h-84`
-									}   
-									${	
-										!editMode && row.rowType !== "kpi" 
-											? "mb-4 sm:mb-0" 
-											: ""
-									}
+									${row.rowType === "kpi" ? (row.columns.length > 1 ? `w-1/${row.columns.length}` : "w-full h-36") : `w-full ${row.columns.length > 1 ? "sm:w-1/2" : ""} h-84`}   
+									${!editMode && row.rowType !== "kpi" ? "mb-4 sm:mb-0" : ""}
 									rounded-md w-full px-1
                 				`}
 							>
