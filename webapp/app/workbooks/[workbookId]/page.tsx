@@ -74,11 +74,11 @@ export default function WorkbookByIdPage() {
 			{/* having h-screen allows separate scroll areas */}
 			<nav className="px-4 py-2 flex justify-between items-center border-b">
 				<div className="flex flex-grow items-center justify-between">
-					<div className="flex items-center gap-2">
+					<div className="flex items-center gap-2 w-full">
 						<SidebarTrigger />
-						<input type="text" placeholder="Untitled Workbook" className="border-none focus:outline-none" defaultValue={workbook.name || "Untitled Workbook"} onBlur={(e) => updateWorkbook({ name: e.target.value })} />
+						<input type="text" placeholder="Untitled Workbook" className="border-none focus:outline-none w-full" defaultValue={workbook.name || "Untitled Workbook"} onBlur={(e) => updateWorkbook({ name: e.target.value })} />
 					</div>
-					<Tabs value={activeLeftTab} onValueChange={setActiveLeftTab} className="w-auto">
+					<Tabs value={activeLeftTab} onValueChange={setActiveLeftTab} className="w-full">
 						<TabsList>
 							<TabsTrigger value="report">
 								<ChartNoAxesColumn className="h-4 w-4 mr-1" />
