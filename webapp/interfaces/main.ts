@@ -14,6 +14,32 @@ export interface UserInfoInterface {
 	dataUtilizationMB: number;
 }
 
+export interface WorkspaceInterface {
+	id: string;
+	name: string;
+	created: Date;
+	lastModified: Date;
+	analysis: string[];
+}
+
+
+export interface TableMetaDataInterface {
+	id: string;
+	tableName: string;
+	columns: string[];
+	created: Date;
+	lastModified: Date;
+	totalIssues: number;
+	issuesResolved: number;
+	status: "not-processed" | "preprocessed" | "issues";
+}
+
+
+
+
+
+
+
 export interface WorkbookInterface {
 	id: string;
 	name: string;

@@ -27,16 +27,16 @@ class DataImporter:
         assert len(self.data) <= row_limit, f"Error occured when impoting data: Maximum {row_limit} rows allowed, {len(self.data)} found"
         assert len(self.metadata.columns) <= column_limit, f"Error occured when impoting data: Maximum {column_limit} columns allowed, {len(self.metadata.columns)} found"
         
-        SQLExecutor(sql="DROP TABLE IF EXISTS %s", inputs=[self.metadata.tableName], request=self.request).execute()
+        SQLExecutor(sql=f'DROP TABLE IF EXISTS "{self.metadata.tableName}"', inputs=[], request=self.request).execute()
 
-        columns_definition = ', '.join([f"{column} VARCHAR" for column in self.metadata.columns])
-        SQLExecutor(sql=f"CREATE TABLE {self.metadata.tableName} ({columns_definition})", inputs=[], request=self.request).execute()
+        columns_definition = ', '.join([f'"{column}" VARCHAR' for column in self.metadata.columns])
+        SQLExecutor(sql=f'CREATE TABLE "{self.metadata.tableName}" ({columns_definition})', inputs=[], request=self.request).execute()
 
         # Insert data into the table
-        columns = ', '.join(self.metadata.columns)
+        columns = ', '.join([f'"{column}"' for column in self.metadata.columns])
         placeholders = ', '.join(['%s' for _ in self.metadata.columns])
         SQLExecutor(
-            sql=f"INSERT INTO {self.metadata.tableName} ({columns}) VALUES ({placeholders})", 
+            sql=f'INSERT INTO "{self.metadata.tableName}" ({columns}) VALUES ({placeholders})', 
             inputs=[[row.get(column) for column in self.metadata.columns] for row in self.data],
             request=self.request
         ).execute(many=True)

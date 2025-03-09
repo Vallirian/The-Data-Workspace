@@ -1,6 +1,6 @@
 from django.http import HttpRequest
-from django.db import connection, DatabaseError
-from values import DEFAULT_SCHEMA
+from django.db import connection
+from services.values import DEFAULT_SCHEMA
 
 class SQLExecutor:
     """
@@ -31,12 +31,12 @@ class SQLExecutor:
             - An empty list (which is falsy)
         """
         user_schema = f"schema___{self.request.user.id}"
-
         try:
             with connection.cursor() as cursor:
                 # Switch to the user-specific schema
                 cursor.execute("SET search_path TO %s", [user_schema])  # Parameterized query to prevent injection
 
+                print('executing', self.sql)
                 if many:
                     cursor.executemany(self.sql, self.inputs)
                 else:
@@ -46,7 +46,7 @@ class SQLExecutor:
                 if fetch_results:
                     result = self.dictfetchall(cursor)
                 return result
-        except DatabaseError as e:
+        except Exception as e:
             raise f"""Error occured when executing SQL query {str(e)}
             SQL Query: {self.sql}
             Inputs: {self.inputs}
@@ -57,7 +57,7 @@ class SQLExecutor:
             try:
                 with connection.cursor() as cursor:
                     cursor.execute("SET search_path TO %s", [DEFAULT_SCHEMA])
-            except DatabaseError:
+            except Exception as e:
                 pass  # Avoid masking original errors (in case of previous errors + this error, do not overwrite the previous error)
 
     def dictfetchall(self, cursor):
