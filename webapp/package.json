@@ -45,7 +45,8 @@
     "recharts": "^2.13.0",
     "sql-formatter": "^15.4.5",
     "tailwind-merge": "^2.5.2",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "vaul": "^1.1.2"
   },
   "devDependencies": {
     "@types/d3": "^7.4.3",

@@ -3,13 +3,12 @@ from django.http import HttpRequest
 from services.helpers.db_manager import SQLExecutor
 from services.helpers.interfaces import MetaData
 
-class DataImporter:
-    def __init__(self, request: HttpRequest, data: list['dict'], metadata: MetaData) -> None:
+class Preprocessor:
+    def __init__(self, request: HttpRequest, metadata: MetaData) -> None:
         self.request = request
-        self.data = data
         self.metadata = metadata
 
-    def import_data(self) -> dict:
+    def import_data(self,  data: list['dict']) -> dict:
         """
         Import data into the database.
 
@@ -24,7 +23,7 @@ class DataImporter:
         # enforce data limits
         row_limit = int(os.environ.get('DATASET_ROW_LIMIT'))
         column_limit = int(os.environ.get('DATASET_COLUMN_LIMIT'))
-        assert len(self.data) <= row_limit, f"Error occured when impoting data: Maximum {row_limit} rows allowed, {len(self.data)} found"
+        assert len(data) <= row_limit, f"Error occured when impoting data: Maximum {row_limit} rows allowed, {len(data)} found"
         assert len(self.metadata.columns) <= column_limit, f"Error occured when impoting data: Maximum {column_limit} columns allowed, {len(self.metadata.columns)} found"
         
         SQLExecutor(sql=f'DROP TABLE IF EXISTS "{self.metadata.tableName}"', inputs=[], request=self.request).execute()
@@ -37,10 +36,24 @@ class DataImporter:
         placeholders = ', '.join(['%s' for _ in self.metadata.columns])
         SQLExecutor(
             sql=f'INSERT INTO "{self.metadata.tableName}" ({columns}) VALUES ({placeholders})', 
-            inputs=[[row.get(column) for column in self.metadata.columns] for row in self.data],
+            inputs=[[row.get(column) for column in self.metadata.columns] for row in data],
             request=self.request
         ).execute(many=True)
 
+    def get_data(self) -> list[dict]:
+        """
+        Retrieve data from the database.
+
+        Returns:
+        - a list of dictionaries representing the rows in the table
+        """
+        result = SQLExecutor(
+            sql=f'SELECT * FROM "{self.metadata.tableName}"',
+            inputs=[],
+            request=self.request
+        ).execute(fetch_results=True)
+        
+        return result
 
 
 
