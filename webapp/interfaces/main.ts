@@ -22,7 +22,6 @@ export interface WorkspaceInterface {
 	analysis: string[];
 }
 
-
 export interface TableMetaDataInterface {
 	id: string;
 	tableName: string;
@@ -33,6 +32,22 @@ export interface TableMetaDataInterface {
 	issuesResolved: number;
 	status: "not-processed" | "preprocessed" | "issues";
 }
+
+export interface DataProfileInterface {
+	id: string;
+	name: string;
+	profileType: "Data Type";
+	status: "resolved" | "identified";
+	description: string;
+	details: any[];
+}
+
+
+
+
+
+
+
 
 
 

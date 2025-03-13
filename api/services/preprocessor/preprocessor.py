@@ -2,6 +2,8 @@ import os
 from django.http import HttpRequest
 from services.helpers.db_manager import SQLExecutor
 from services.helpers.interfaces import MetaData
+from services.helpers.values import PGSQL_TYPE_MAPPING
+from services.preprocessor.profiler import Profiler
 
 class Preprocessor:
     def __init__(self, request: HttpRequest, metadata: MetaData) -> None:
@@ -54,6 +56,45 @@ class Preprocessor:
         ).execute(fetch_results=True)
         
         return result
+
+    def get_data_types(self) -> list[dict]:
+        """
+        Retrieve the data types of the columns in the table.
+
+        Returns:
+        - a list of strings representing the data types of the columns
+        """
+        query = f"""SELECT
+            column_name, 
+            data_type 
+        FROM information_schema.columns
+        WHERE "table_name" = '{self.metadata.tableName}';
+        """
+        result = SQLExecutor(
+            sql=query,
+            inputs=[],
+            request=self.request
+        ).execute(fetch_results=True)
+        
+        for r in result:
+            # r = [{'column_name': 'name', 'data_type': 'character varying'}, ...]
+            r['data_type'] = PGSQL_TYPE_MAPPING.get(r['data_type'].lower())
+
+        simplified_result = {r['column_name']: r['data_type'] for r in result}
+        return simplified_result
+    
+    def get_profile(self, profile_type: str) -> dict:
+        """
+        Profile the data in the table.
+
+        Returns:
+        - a dictionary containing the profile of the data
+        """
+        if profile_type == 'dtypes':
+
+            return Profiler(data=self.get_data()).profile_dtypes(current_db_dtypes=self.get_data_types())
+        else: 
+            return {}
 
 
 
