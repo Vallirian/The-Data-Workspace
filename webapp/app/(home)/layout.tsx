@@ -9,7 +9,7 @@ import { Mail } from "lucide-react";
 export default function Layout({ children }: { children: React.ReactNode }) {
 	return (
 		<div className="flex flex-col min-h-screen">
-			<div className="flex h-16 items-center justify-between py-4 px-28 border-b sticky top-0 z-50 w-full bg-white">
+			<div className="flex h-16 items-center justify-between py-4 px-28 border-b top-0 z-50 w-full bg-white">
 				<div className="flex items-center gap-2">
 					<Link href="/">
 						<Image src="/images/tds1.png" alt="TheDataWorkspace" width={50} height={50} className="object-cover rounded" />

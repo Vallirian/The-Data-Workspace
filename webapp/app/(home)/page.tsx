@@ -169,95 +169,85 @@ export default function Home() {
 					</div>
 				</section>
 
-				{/* How It Works */}
-				<section id="how-it-works" className="py-20 bg-black text-white">
+				{/* How it Works */}
+				<section id="how-it-works" className="py-20 bg-white">
 					<div className="container max-w-6xl mx-auto px-4">
 						<motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} viewport={{ once: true }} className="text-center mb-16">
 							<h2 className="text-3xl font-medium md:text-4xl mb-4">How It Works</h2>
-							<p className="text-gray-400 text-lg">Preprocess and analyze your data without writing a single line of code</p>
+							<p className="text-muted-foreground text-lg">Preprocess and analyze your data without writing a single line of code</p>
 						</motion.div>
 
 						<div className="relative">
 							{/* Timeline line */}
-							<div className="absolute left-1/2 transform -translate-x-1/2 h-full w-0.5 bg-white"></div>
+							<div className="absolute left-1/2 transform -translate-x-1/2 h-full w-0.5 bg-gray-200"></div>
 
 							{/* First step */}
-							<TimelineItem title="Data Cleaning" description="Your analysis should be done on the data you trust. Clean and preprocess your data, with a click of a button." position="left" icon={<Upload className="h-6 w-6 text-white" />} iconBg="bg-white">
-								<div className="grid md:grid-cols-2 gap-4 mt-4">
-									<div className="bg-white/10 p-6 rounded-lg border hover:border-white transition-all">
-										<div className="p-3 rounded-full w-fit mb-4">
-											<Upload className="h-6 w-6 text-white" />
+							<TimelineItem title="Connect" description="Your analysis should be done on the data you trust. Clean and preprocess your data, with a click of a button." position="left" >
+								<div className="max-w-sm">
+									<div className="bg-blue-50 p-6 rounded-lg border border-blue-100 hover:shadow-md transition-all">
+										<div className="bg-blue-100 p-2 rounded-full w-fit mb-4">
+											<Upload className="h-3 w-3 text-blue-600" />
 										</div>
 										<h4 className="text-xl font-medium mb-2">Connect Your Data</h4>
-										<p className="text-gray-400">Upload spreadsheets or connect to your systems - continuously expanding integrations</p>
-									</div>
-									<div className="bg-white/10 p-6 rounded-lg border hover:border-white transition-all">
-										<div className="p-3 rounded-full w-fit mb-4">
-											<Wand2 className="h-6 w-6 text-white" />
-										</div>
-										<h4 className="text-xl font-medium mb-2">Create Repeatable Workflows</h4>
-										<p className="text-gray-400">Save your cleaning process for future use and maintain data consistency</p>
+										<p className="text-muted-foreground">Upload spreadsheets or connect to your systems with our continuously expanding integrations</p>
 									</div>
 								</div>
 							</TimelineItem>
 
-							{/* Second step */}
-							<TimelineItem title="Set Yor Goal" description="Say what matters to you, what you wnt to get out of the analysis in your own words." position="right" icon={<HelpCircle className="h-6 w-6 text-white" />} iconBg="bg-white">
-								<div className="grid md:grid-cols-1 gap-4 mt-4">
-									<div className="bg-white/10 p-6 rounded-lg border hover:border-white transition-all">
-										<div className="p-3 rounded-full w-fit mb-4">
-											<Route className="h-6 w-6 text-white" />
+							<TimelineItem title="Automated Cleaning" description="Our advanced algorithms handle the grunt work for you." position="right" icon={<Repeat2 className="h-3 w-3 text-blue-600" />} iconBg="bg-blue-100">
+								<div className="max-w-sm">
+									<div className="bg-blue-50 p-6 rounded-lg border border-blue-100 hover:shadow-md transition-all">
+										<div className="bg-blue-100 p-2 rounded-full w-fit mb-4">
+											<Repeat2 className="h-3 w-3 text-blue-600" />
 										</div>
-										<h4 className="text-xl font-medium mb-2">Define Your Question</h4>
-										<p className="text-gray-400">Tell us what business decision you need to make</p>
-									</div>
-								</div>
-							</TimelineItem>
-
-							{/* Fourth step */}
-							<TimelineItem title="AI-Powered Analysis" description="Launched our decision-focused analysis framework powered by advanced AI." position="left" icon={<Lightbulb className="h-6 w-6 text-white" />} iconBg="bg-white">
-								<div className="bg-white/10 p-6 rounded-lg border hover:border-white transition-all">
-									<div className="p-3 rounded-full w-fit mb-4">
-										<HelpCircle className="h-6 w-6 text-white" />
-									</div>
-									<h4 className="text-xl font-medium mb-2">AI-Powered, Decision Focused Analysis</h4>
-									<p className="text-gray-400">Follow a guided analysis path, powered by AI, to the right answer and make impactful decisions fast</p>
-									<Button variant="outline" size="sm" className="mt-4 bg-transparent text-white border-white hover:bg-white/10" onClick={handleButtonClick}>
-										Start Your Analysis
-									</Button>
-								</div>
-							</TimelineItem>
-
-							<TimelineItem title="Data Analysis" description="Showcased our unique blend of AI-powered analysis and business insights." position="right" icon={<HelpCircle className="h-6 w-6 text-white" />} iconBg="bg-white">
-								<div className="grid md:grid-cols-2 gap-4 mt-4">
-									<div className="bg-white/10 p-6 rounded-lg border hover:border-white transition-all">
-										<div className="p-3 rounded-full w-fit mb-4">
-											<Route className="h-6 w-6 text-white" />
-										</div>
-										<h4 className="text-xl font-medium mb-2">Define Your Question</h4>
-										<p className="text-gray-400">Tell us what business decision you need to make</p>
-									</div>
-									<div className="bg-white/10 p-6 rounded-lg border hover:border-white transition-all">
-										<div className="p-3 rounded-full w-fit mb-4">
-											<CheckCircle className="h-6 w-6 text-white" />
-										</div>
-										<h4 className="text-xl font-medium mb-2">Get Actionable Results</h4>
-										<p className="text-gray-400">Get analysis summaries written in clear, easy-to-understand language</p>
+										<h4 className="text-xl font-medium mb-2">Automated Cleaning</h4>
+										<p className="text-muted-foreground">Our algorithm identifies and fixes inconsistencies, duplicates, and formatting issues—giving you trustworthy data</p>
+										<Button variant="outline" size="sm" className="mt-4" onClick={handleButtonClick}>
+											Clean Your First Dataset
+										</Button>
 									</div>
 								</div>
 							</TimelineItem>
 
 							{/* Third step */}
-							<TimelineItem title="Automated Cleaning" description="Expanded our reach by bringing our advanced algorithms to the digital world." position="left" icon={<Repeat2 className="h-6 w-6 text-white" />} iconBg="bg-white">
-								<div className="bg-white/10 p-6 rounded-lg border hover:border-white transition-all">
-									<div className="p-3 rounded-full w-fit mb-4">
-										<Repeat2 className="h-6 w-6 text-white" />
+							<TimelineItem title="Set Your Goal" description="Say what matters to you, what you want to get out of the analysis in your own words." position="left" icon={<HelpCircle className="h-3 w-3 text-green-600" />} iconBg="bg-green-100">
+								<div className="max-w-sm">
+									<div className="bg-green-50 p-6 rounded-lg border border-green-100 hover:shadow-md transition-all">
+										<div className="bg-green-100 p-2 rounded-full w-fit mb-4">
+											<Route className="h-3 w-3 text-green-600" />
+										</div>
+										<h4 className="text-xl font-medium mb-2">Define Your Question</h4>
+										<p className="text-muted-foreground">Tell us what business decision you need to make</p>
 									</div>
-									<h4 className="text-xl font-medium mb-2">Automated Cleaning</h4>
-									<p className="text-gray-400">Our algorithm identifies and fixes inconsistencies, duplicates, and formatting issues—giving you trustworthy data</p>
-									<Button variant="outline" size="sm" className="mt-4 bg-transparent text-white border-white hover:bg-white/10" onClick={handleButtonClick}>
-										Clean Your First Dataset
-									</Button>
+								</div>
+							</TimelineItem>
+
+							{/* Fourth step */}
+							<TimelineItem title="AI-Powered Analysis" description="Let our AI guide you through the analysis process." position="right" icon={<Lightbulb className="h-3 w-3 text-green-600" />} iconBg="bg-green-100">
+								<div className="max-w-sm">
+									<div className="bg-green-50 p-6 rounded-lg border border-green-100 hover:shadow-md transition-all">
+										<div className="bg-green-100 p-2 rounded-full w-fit mb-4">
+											<HelpCircle className="h-3 w-3 text-green-600" />
+										</div>
+										<h4 className="text-xl font-medium mb-2">AI-Powered, Decision Focused Analysis</h4>
+										<p className="text-muted-foreground">Follow a guided analysis path, powered by AI, to the right answer and make impactful decisions fast</p>
+										<Button variant="outline" size="sm" className="mt-4" onClick={handleButtonClick}>
+											Start Your Analysis
+										</Button>
+									</div>
+								</div>
+							</TimelineItem>
+
+							{/* Fifth step */}
+							<TimelineItem title="Get Results" description="Receive clear, actionable insights you can implement immediately." position="left" icon={<CheckCircle className="h-3 w-3 text-green-600" />} iconBg="bg-green-100">
+								<div className="max-w-sm">
+									<div className="bg-green-50 p-6 rounded-lg border border-green-100 hover:shadow-md transition-all">
+										<div className="bg-green-100 p-2 rounded-full w-fit mb-4">
+											<CheckCircle className="h-3 w-3 text-green-600" />
+										</div>
+										<h4 className="text-xl font-medium mb-2">Get Actionable Results</h4>
+										<p className="text-muted-foreground">Get analysis summaries written in clear, easy-to-understand language</p>
+									</div>
 								</div>
 							</TimelineItem>
 						</div>
