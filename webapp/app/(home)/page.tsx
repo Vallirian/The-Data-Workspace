@@ -1,10 +1,39 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { Mail, BrushIcon as Broom, Lightbulb, Zap, Users, Package, BarChart3, Upload, Wand2, Repeat2, HelpCircle, Route, CheckCircle, Leaf, Shield, PianoIcon as ChessPawn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { TrendingUp } from "lucide-react";
+import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from "recharts";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+
+const chartData = [
+	{ month: "January", safetyStock: 120, projectedDemand: 100 },
+	{ month: "February", safetyStock: 130, projectedDemand: 110 },
+	{ month: "March", safetyStock: 140, projectedDemand: 115 },
+	{ month: "April", safetyStock: 150, projectedDemand: 125 },
+	{ month: "May", safetyStock: 160, projectedDemand: 130 },
+	{ month: "June", safetyStock: 170, projectedDemand: 140 },
+];
+
+const chartConfig = {
+	safetyStock: {
+		label: "SafetyStock",
+		color: "hsl(var(--chart-1))",
+	},
+	projectedDemand: {
+		label: "Projected Demand",
+		color: "hsl(var(--chart-2))",
+	},
+} satisfies ChartConfig;
 
 export default function Home() {
+	const thisMonthData = chartData[chartData.length - 1];
+	const prevMonthData = chartData[chartData.length - 2];
+	const difference = ((thisMonthData.safetyStock - prevMonthData.safetyStock) / prevMonthData.safetyStock) * 100;
 	return (
 		<div className="flex flex-col min-h-screen">
 			<div className="flex h-16 items-center justify-between py-4 px-28 border-b sticky top-0 z-50 w-full">
@@ -51,16 +80,16 @@ export default function Home() {
 									</div>
 									<h3 className="font-medium">Effortless Data Cleaning</h3>
 								</div>
-								<p className="mt-2 text-muted-foreground">Eliminate 70% of the repetitive work with our AI-powered cleaning engine</p>
+								<p className="mt-2 text-muted-foreground">Eliminate 70% of repetitive work with our cleaning engine</p>
 							</div>
 							<div className="bg-primary/10 p-6 rounded-lg border border-primary/20 hover:border-primary/40 transition-all">
 								<div className="flex items-center gap-4">
 									<div className="bg-green-100 p-3 rounded-full">
 										<Lightbulb className="h-6 w-6 text-green-600" />
 									</div>
-									<h3 className="font-medium">Guided Insights</h3>
+									<h3 className="font-medium">AI-Powered Insights</h3>
 								</div>
-								<p className="mt-2 text-muted-foreground">Follow our decision-focused analysis framework to extract meaningful business insights</p>
+								<p className="mt-2 text-muted-foreground">- Follow AI-powered, decision-focused analysis framework to extract meaningful business insights</p>
 							</div>
 							<div className="col-span-2 bg-primary/10 p-6 rounded-lg border border-primary/20 hover:border-primary/40 transition-all">
 								<div className="flex items-center gap-4">
@@ -75,7 +104,7 @@ export default function Home() {
 					</div>
 				</section>
 
-				{/* For eCommerce Businesses */}
+				{/* use Cases */}
 				<section className="py-20 bg-white">
 					<div className="container max-w-6xl mx-auto px-4">
 						<div className="text-center mb-16">
@@ -84,9 +113,35 @@ export default function Home() {
 						</div>
 
 						<div className="grid md:grid-cols-2 gap-12 items-center mb-16">
-							<div className="mx-auto">
-								<Image src="/placeholder.svg?height=400&width=500" alt="Dashboard visualization" width={500} height={400} className="rounded-lg shadow-lg" />
-							</div>
+							<Card>
+								<CardHeader>
+									<CardTitle>Stock Profile</CardTitle>
+									<CardDescription>January - June 2024</CardDescription>
+								</CardHeader>
+								<CardContent>
+									<ChartContainer config={chartConfig}>
+										<BarChart accessibilityLayer data={chartData}>
+											<CartesianGrid vertical={false} />
+											<XAxis dataKey="month" tickLine={false} tickMargin={10} axisLine={false} tickFormatter={(value) => value.slice(0, 3)} />
+											<ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dashed" />} />
+											<Bar dataKey="safetyStock" fill={chartConfig.safetyStock.color} radius={4}>
+												<LabelList dataKey="safetyStock" position="top" />
+											</Bar>
+											<Bar dataKey="projectedDemand" fill={chartConfig.projectedDemand.color} radius={4}>
+												<LabelList dataKey="projectedDemand" position="top" />
+											</Bar>
+										</BarChart>
+									</ChartContainer>
+								</CardContent>
+								<CardFooter className="flex-col items-start gap-2 text-sm">
+									<div className="flex gap-2 font-medium leading-none">
+										{`Trending ${difference >= 0 ? "up" : "down"} by ${Math.abs(Number(difference.toFixed(2)))}% this month`}
+										<TrendingUp className="h-4 w-4" />
+									</div>
+									<div className="leading-none text-muted-foreground">Comparing Safety Stock vs Projected Demand</div>
+								</CardFooter>
+							</Card>
+
 							<div className="space-y-6 mx-auto max-w-xl">
 								<h3 className="text-2xl font-bold">For eCommerce Businesses</h3>
 								<p className="text-lg text-muted-foreground">Increase conversion rates, optimize inventory, and understand customer behavior</p>
@@ -123,78 +178,86 @@ export default function Home() {
 					</div>
 				</section>
 
-				{/* How It Works */}
-				<section id="how-it-works" className="py-20 bg-muted/30">
-					<div className="container max-w-6xl mx-auto px-4">
-						<div className="text-center mb-16">
-							<h2 className="text-3xl md:text-4xl font-bold mb-4">How It Works</h2>
-						</div>
+                {/* How It Works */}
+                <section id="how-it-works" className="py-20 bg-muted/30">
+                    <div className="container max-w-6xl mx-auto px-4">
+                        <div className="text-center mb-16">
+                            <h2 className="text-3xl md:text-4xl font-bold mb-4">How It Works</h2>
+                        </div>
 
-						<div className="space-y-20">
-							{/* Data Cleaning */}
-							<div>
-								<h3 className="text-2xl font-bold text-center mb-10">Data Cleaning</h3>
-								<div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-									<div className="bg-blue-50 p-6 rounded-lg border border-blue-100 hover:shadow-md transition-all">
-										<div className="bg-blue-100 p-3 rounded-full w-fit mb-4">
-											<Upload className="h-6 w-6 text-blue-600" />
-										</div>
-										<h4 className="text-xl font-medium mb-2">Connect Your Data</h4>
-										<p className="text-muted-foreground">Upload spreadsheets or connect directly to your eCommerce platform</p>
-									</div>
-									<div className="bg-blue-50 p-6 rounded-lg border border-blue-100 hover:shadow-md transition-all">
-										<div className="bg-blue-100 p-3 rounded-full w-fit mb-4">
-											<Wand2 className="h-6 w-6 text-blue-600" />
-										</div>
-										<h4 className="text-xl font-medium mb-2">Automated Cleaning</h4>
-										<p className="text-muted-foreground">Our AI identifies and fixes inconsistencies, duplicates, and formatting issues</p>
-									</div>
-									<div className="bg-blue-50 p-6 rounded-lg border border-blue-100 hover:shadow-md transition-all">
-										<div className="bg-blue-100 p-3 rounded-full w-fit mb-4">
-											<Repeat2 className="h-6 w-6 text-blue-600" />
-										</div>
-										<h4 className="text-xl font-medium mb-2">Create Repeatable Workflows</h4>
-										<p className="text-muted-foreground">Save your cleaning process for future use and maintain data consistency</p>
-									</div>
-								</div>
-								<div className="text-center mt-8">
-									<Button size="lg">Clean Your First Dataset</Button>
-								</div>
-							</div>
+                        <div className="grid md:grid-cols-2 gap-8">
+                            {/* Left Column: Data Cleaning */}
+                            <div>
+                                <h3 className="text-2xl font-bold text-center mb-10">Data Cleaning</h3>
+                                <div className="flex flex-col gap-8">
+                                    <div className="grid md:grid-cols-2 gap-8">
+                                        <div className="bg-blue-50 p-6 rounded-lg border border-blue-100 hover:shadow-md transition-all">
+                                            <div className="bg-blue-100 p-3 rounded-full w-fit mb-4">
+                                                <Upload className="h-6 w-6 text-blue-600" />
+                                            </div>
+                                            <h4 className="text-xl font-medium mb-2">Connect Your Data</h4>
+                                            <p className="text-muted-foreground">Upload spreadsheets or connect directly to your eCommerce platform</p>
+                                        </div>
+                                        <div className="bg-blue-50 p-6 rounded-lg border border-blue-100 hover:shadow-md transition-all">
+                                            <div className="bg-blue-100 p-3 rounded-full w-fit mb-4">
+                                                <Wand2 className="h-6 w-6 text-blue-600" />
+                                            </div>
+                                            <h4 className="text-xl font-medium mb-2">Automated Cleaning</h4>
+                                            <p className="text-muted-foreground">Our AI identifies and fixes inconsistencies, duplicates, and formatting issues</p>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div className="bg-blue-50 p-6 rounded-lg border border-blue-100 hover:shadow-md transition-all">
+                                            <div className="bg-blue-100 p-3 rounded-full w-fit mb-4">
+                                                <Repeat2 className="h-6 w-6 text-blue-600" />
+                                            </div>
+                                            <h4 className="text-xl font-medium mb-2">Create Repeatable Workflows</h4>
+                                            <p className="text-muted-foreground">Save your cleaning process for future use and maintain data consistency</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-center mt-8">
+                                        <Button size="lg">Clean Your First Dataset</Button>
+                                    </div>
+                                </div>
+                            </div>
 
-							{/* Data Analysis */}
-							<div>
-								<h3 className="text-2xl font-bold text-center mb-10">Data Analysis</h3>
-								<div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-									<div className="bg-green-50 p-6 rounded-lg border border-green-100 hover:shadow-md transition-all">
-										<div className="bg-green-100 p-3 rounded-full w-fit mb-4">
-											<HelpCircle className="h-6 w-6 text-green-600" />
-										</div>
-										<h4 className="text-xl font-medium mb-2">Define Your Question</h4>
-										<p className="text-muted-foreground">Tell us what business decision you need to make</p>
-									</div>
-									<div className="bg-green-50 p-6 rounded-lg border border-green-100 hover:shadow-md transition-all">
-										<div className="bg-green-100 p-3 rounded-full w-fit mb-4">
-											<Route className="h-6 w-6 text-green-600" />
-										</div>
-										<h4 className="text-xl font-medium mb-2">Follow Guided Analysis</h4>
-										<p className="text-muted-foreground">Our platform suggests relevant analyses and visualizations</p>
-									</div>
-									<div className="bg-green-50 p-6 rounded-lg border border-green-100 hover:shadow-md transition-all">
-										<div className="bg-green-100 p-3 rounded-full w-fit mb-4">
-											<CheckCircle className="h-6 w-6 text-green-600" />
-										</div>
-										<h4 className="text-xl font-medium mb-2">Get Actionable Results</h4>
-										<p className="text-muted-foreground">Receive clear, jargon-free recommendations you can implement</p>
-									</div>
-								</div>
-								<div className="text-center mt-8">
-									<Button size="lg">Start Your Analysis</Button>
-								</div>
-							</div>
-						</div>
-					</div>
-				</section>
+                            {/* Right Column: Data Analysis */}
+                            <div>
+                                <h3 className="text-2xl font-bold text-center mb-10">Data Analysis</h3>
+                                <div className="flex flex-col gap-8">
+                                    <div>
+                                        <div className="bg-green-50 p-6 rounded-lg border border-green-100 hover:shadow-md transition-all">
+                                            <div className="bg-green-100 p-3 rounded-full w-fit mb-4">
+                                                <HelpCircle className="h-6 w-6 text-green-600" />
+                                            </div>
+                                            <h4 className="text-xl font-medium mb-2">Define Your Question</h4>
+                                            <p className="text-muted-foreground">Tell us what business decision you need to make</p>
+                                        </div>
+                                    </div>
+                                    <div className="grid md:grid-cols-2 gap-8">
+                                        <div className="bg-green-50 p-6 rounded-lg border border-green-100 hover:shadow-md transition-all">
+                                            <div className="bg-green-100 p-3 rounded-full w-fit mb-4">
+                                                <Route className="h-6 w-6 text-green-600" />
+                                            </div>
+                                            <h4 className="text-xl font-medium mb-2">Follow Guided Analysis</h4>
+                                            <p className="text-muted-foreground">Our platform suggests relevant analyses and visualizations</p>
+                                        </div>
+                                        <div className="bg-green-50 p-6 rounded-lg border border-green-100 hover:shadow-md transition-all">
+                                            <div className="bg-green-100 p-3 rounded-full w-fit mb-4">
+                                                <CheckCircle className="h-6 w-6 text-green-600" />
+                                            </div>
+                                            <h4 className="text-xl font-medium mb-2">Get Actionable Results</h4>
+                                            <p className="text-muted-foreground">Receive clear, jargon-free recommendations you can implement</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-center mt-8">
+                                        <Button size="lg">Start Your Analysis</Button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
 				{/* Technical Edge */}
 				<section className="py-20 bg-white">
