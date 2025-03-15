@@ -34,31 +34,31 @@ const timelineEvents = [
 	{
 		title: "Connect",
 		description: "Clean and preprocess your data with one click.",
-		details: "Upload spreadsheets or connect to your systems with our continuously expanding integrations.",
+        details: "Our platform's user-friendly interface makes it simple to upload spreadsheets or connect to your systems with our continuously expanding integrations. By centralizing all your data in one place, you ensure that you're always analyzing the most accurate and up-to-date information, so you can make confident decisions and avoid the headaches associated with scattered or inconsistent datasets.",
 		icon: <Wand2 className="h-5 w-5" />,
 	},
 	{
 		title: "Automated Cleaning",
 		description: "Our advanced algorithms handle the grunt work for you.",
-		details: "Our algorithm identifies and fixes inconsistencies, duplicates, and formatting issues—giving you trustworthy data.",
+        details: "By employing sophisticated machine learning methods, our automated cleaning process identifies and corrects inconsistencies, duplicates, and formatting issues. This not only saves you valuable time but also ensures that you're working with trustworthy data, empowering you to focus on strategic analysis rather than manual clean-up tasks.",
 		icon: <Broom className="h-5 w-5" />,
 	},
 	{
 		title: "Set Your Goal",
 		description: "Tell us what business decision you need to make.",
-		details: "Say what matters to you, what you want to get out of the analysis in your own words.",
+        details: "Rather than sifting through endless columns and tables of raw information, simply define your key business objective—from forecasting sales to optimizing marketing campaigns. By articulating your goal upfront, the platform can tailor its analysis to surface the insights most relevant to your needs, eliminating unnecessary noise and boosting your decision-making process.",
 		icon: <Lightbulb className="h-5 w-5" />,
 	},
 	{
 		title: "AI-Powered Analysis",
 		description: "Let our AI guide you through the analysis process.",
-		details: "Follow a guided analysis path, powered by AI, to the right answer and make impactful decisions fast.",
+        details: "Our system leverages top-tier Large Language Models to break down complex datasets into clear, meaningful insights. With guided suggestions and real-time feedback, you can uncover hidden correlations, predict future outcomes, and craft targeted strategies, all while significantly reducing the time and expertise required for thorough analysis.",
 		icon: <Zap className="h-5 w-5" />,
 	},
 	{
 		title: "Get Results",
 		description: "Receive clear, actionable insights you can implement immediately.",
-		details: "Get analysis summaries written in clear, easy-to-understand language.",
+        details: "Once your analysis is complete, our platform delivers concise, straightforward summaries that highlight the key findings and recommendations. By translating technical data points into practical advice, you gain instant clarity on the steps you need to take, enabling you to quickly execute improvements, optimize performance, and achieve your desired outcomes.",
 		icon: <TrendingUp className="h-5 w-5" />,
 	},
 ];
@@ -107,87 +107,6 @@ export default function Home() {
 						</div>
 					</div>
 				</section>
-
-				{/* Data-Driven Decisions */}
-				{/* <section className="py-24 bg-white">
-					<div className="container mx-auto px-6 max-w-7xl">
-						<div className="text-center mb-16">
-							<h2 className="text-3xl md:text-4xl font-semibold text-[#1D1D1F]">Data-Driven Decisions Made Simple</h2>
-							<p className="mt-4 text-[#86868B] max-w-2xl mx-auto">Stop drowning in spreadsheets and start making informed decisions</p>
-						</div>
-
-						<div className="grid md:grid-cols-2 gap-12 items-center mb-20">
-							<motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }} viewport={{ once: true }}>
-								<Card className="overflow-hidden border-gray-300 shadow-lg rounded-2xl">
-									<CardHeader className="pb-2">
-										<CardTitle className="text-[#1D1D1F]">Stock Profile</CardTitle>
-										<CardDescription>January - June 2024</CardDescription>
-									</CardHeader>
-									<CardContent className="pt-6">
-										<ChartContainer config={chartConfig}>
-											<BarChart accessibilityLayer data={chartData}>
-												<CartesianGrid vertical={false} stroke="#EEEEEE" />
-												<XAxis dataKey="month" tickLine={false} tickMargin={10} axisLine={false} tickFormatter={(value) => value.slice(0, 3)} />
-												<ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dashed" />} />
-												<Bar dataKey="safetyStock" fill={chartConfig.safetyStock.color} radius={4}>
-													<LabelList dataKey="safetyStock" position="top" />
-												</Bar>
-												<Bar dataKey="projectedDemand" fill={chartConfig.projectedDemand.color} radius={4}>
-													<LabelList dataKey="projectedDemand" position="top" />
-												</Bar>
-											</BarChart>
-										</ChartContainer>
-									</CardContent>
-									<CardFooter className="flex-col items-start gap-2 text-sm py-4">
-										<div className="flex gap-2 font-medium leading-none text-[#1D1D1F]">
-											{`Trending ${difference >= 0 ? "up" : "down"} by ${Math.abs(Number(difference.toFixed(2)))}% this month`}
-											<TrendingUp className="h-4 w-4" />
-										</div>
-										<div className="leading-none text-[#86868B]">Comparing Safety Stock vs Projected Demand</div>
-									</CardFooter>
-								</Card>
-							</motion.div>
-
-							<motion.div className="flex flex-col justify-between h-full" initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }} viewport={{ once: true }}>
-								<div className="mb-16">
-									<p className="text-xl text-[#1D1D1F]">Increase conversion rates, optimize inventory, and understand customer behavior</p>
-								</div>
-								<div>
-									<p className="text-lg mb-6 text-[#86868B]">Connect your store data and get actionable insights within minutes</p>
-									<Button onClick={handleButtonClick} className="bg-[#0071E3] hover:bg-[#0077ED] text-white px-6 py-5 rounded-full text-base font-medium">
-										Connect Your Store
-									</Button>
-								</div>
-							</motion.div>
-						</div>
-
-						<div className="grid md:grid-cols-3 gap-6">
-							{[
-								{
-									icon: <Users className="h-6 w-6 text-[#0071E3]" />,
-									title: "Customer Segmentation",
-									description: "Identify high-value customers and tailor your marketing efforts",
-								},
-								{
-									icon: <Package className="h-6 w-6 text-[#0071E3]" />,
-									title: "Inventory Optimization",
-									description: "Identify overstock and increase working capital while preventing stockouts",
-								},
-								{
-									icon: <BarChart3 className="h-6 w-6 text-[#0071E3]" />,
-									title: "Marketing ROI Analysis",
-									description: "See which channels deliver the best returns on your ad spend",
-								},
-							].map((item, index) => (
-								<motion.div key={index} className="p-6 rounded-2xl bg-white shadow-sm border border-[#E5E5E5]" whileHover={{ y: -5, boxShadow: "0 10px 30px rgba(0, 0, 0, 0.05)" }} transition={{ duration: 0.2 }}>
-									<div className="bg-[#E9F5FF] p-3 rounded-full w-fit mb-4">{item.icon}</div>
-									<h3 className="text-xl font-medium mb-2 text-[#1D1D1F]">{item.title}</h3>
-									<p className="text-[#86868B]">{item.description}</p>
-								</motion.div>
-							))}
-						</div>
-					</div>
-				</section> */}
 
 				{/* How It Works */}
 				<section ref={containerRef} className="py-24 bg-[#F5F5F7] overflow-hidden" id="how-it-works">
