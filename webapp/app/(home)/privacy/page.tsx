@@ -2,7 +2,7 @@ export default function PrivacyPage() {
 	return (
 		<section className="min-h-screen grid lg:grid-cols-2 gap-8 lg:gap-12 items-center px-4 lg:px-12 py-8 lg:py-0">
 			<div className="flex-col justify-center space-y-6 lg:space-y-8 my-28">
-				<p>Last Updated: March 14, 2025</p>
+				<p>Last Updated: March 01, 2025</p>
 
 				<h2>1. Introduction</h2>
 				<p>At TheDataWorkspace, we take your privacy seriously. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our data analysis platform.</p>

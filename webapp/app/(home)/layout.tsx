@@ -2,9 +2,6 @@ import React from "react";
 
 import Image from "next/image";
 import Link from "next/link";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Mail } from "lucide-react";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
 	return (
@@ -22,9 +19,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 					<Link href="https://www.youtube.com/channel/UCrUeGsvs-MulA7JNveDjDBQ" target="_" className="text-sm font-medium hover:text-primary hidden md:block">
 						Demo
 					</Link>
-					{/* <Link href="/demo" className="text-sm font-medium hover:text-primary hidden md:block">
-						Sign In
-					</Link> */}
 				</div>
 			</div>
 			<div>{children}</div>

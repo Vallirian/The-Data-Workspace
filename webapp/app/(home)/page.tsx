@@ -1,14 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { BrushIcon as Broom, Lightbulb, Zap, Users, Package, BarChart3, Wand2, Shield, PawPrint, Network } from "lucide-react";
+import { BrushIcon as Broom, Lightbulb, Zap, Wand2, Shield, Network } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TrendingUp } from "lucide-react";
-import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from "recharts";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { ChartConfig } from "@/components/ui/chart";
 import { useState, useRef } from "react";
-import { motion, useScroll, useTransform, useSpring, useInView } from "framer-motion";
+import { motion, useScroll, useSpring } from "framer-motion";
 
 const chartData = [
 	{ month: "January", safetyStock: 120, projectedDemand: 100 },
@@ -34,31 +32,31 @@ const timelineEvents = [
 	{
 		title: "Connect",
 		description: "Clean and preprocess your data with one click.",
-        details: "Our platform's user-friendly interface makes it simple to upload spreadsheets or connect to your systems with our continuously expanding integrations. By centralizing all your data in one place, you ensure that you're always analyzing the most accurate and up-to-date information, so you can make confident decisions and avoid the headaches associated with scattered or inconsistent datasets.",
+		details: "Our platform's user-friendly interface makes it simple to upload spreadsheets or connect to your systems with our continuously expanding integrations. By centralizing all your data in one place, you ensure that you're always analyzing the most accurate and up-to-date information, so you can make confident decisions and avoid the headaches associated with scattered or inconsistent datasets.",
 		icon: <Wand2 className="h-5 w-5" />,
 	},
 	{
 		title: "Automated Cleaning",
 		description: "Our advanced algorithms handle the grunt work for you.",
-        details: "By employing sophisticated machine learning methods, our automated cleaning process identifies and corrects inconsistencies, duplicates, and formatting issues. This not only saves you valuable time but also ensures that you're working with trustworthy data, empowering you to focus on strategic analysis rather than manual clean-up tasks.",
+		details: "By employing sophisticated machine learning methods, our automated cleaning process identifies and corrects inconsistencies, duplicates, and formatting issues. This not only saves you valuable time but also ensures that you're working with trustworthy data, empowering you to focus on strategic analysis rather than manual clean-up tasks.",
 		icon: <Broom className="h-5 w-5" />,
 	},
 	{
 		title: "Set Your Goal",
 		description: "Tell us what business decision you need to make.",
-        details: "Rather than sifting through endless columns and tables of raw information, simply define your key business objective—from forecasting sales to optimizing marketing campaigns. By articulating your goal upfront, the platform can tailor its analysis to surface the insights most relevant to your needs, eliminating unnecessary noise and boosting your decision-making process.",
+		details: "Rather than sifting through endless columns and tables of raw information, simply define your key business objective—from forecasting sales to optimizing marketing campaigns. By articulating your goal upfront, the platform can tailor its analysis to surface the insights most relevant to your needs, eliminating unnecessary noise and boosting your decision-making process.",
 		icon: <Lightbulb className="h-5 w-5" />,
 	},
 	{
 		title: "AI-Powered Analysis",
 		description: "Let our AI guide you through the analysis process.",
-        details: "Our system leverages top-tier Large Language Models to break down complex datasets into clear, meaningful insights. With guided suggestions and real-time feedback, you can uncover hidden correlations, predict future outcomes, and craft targeted strategies, all while significantly reducing the time and expertise required for thorough analysis.",
+		details: "Our system leverages top-tier Large Language Models to break down complex datasets into clear, meaningful insights. With guided suggestions and real-time feedback, you can uncover hidden correlations, predict future outcomes, and craft targeted strategies, all while significantly reducing the time and expertise required for thorough analysis.",
 		icon: <Zap className="h-5 w-5" />,
 	},
 	{
 		title: "Get Results",
 		description: "Receive clear, actionable insights you can implement immediately.",
-        details: "Once your analysis is complete, our platform delivers concise, straightforward summaries that highlight the key findings and recommendations. By translating technical data points into practical advice, you gain instant clarity on the steps you need to take, enabling you to quickly execute improvements, optimize performance, and achieve your desired outcomes.",
+		details: "Once your analysis is complete, our platform delivers concise, straightforward summaries that highlight the key findings and recommendations. By translating technical data points into practical advice, you gain instant clarity on the steps you need to take, enabling you to quickly execute improvements, optimize performance, and achieve your desired outcomes.",
 		icon: <TrendingUp className="h-5 w-5" />,
 	},
 ];
@@ -66,7 +64,6 @@ const timelineEvents = [
 export default function Home() {
 	const thisMonthData = chartData[chartData.length - 1];
 	const prevMonthData = chartData[chartData.length - 2];
-	const difference = ((thisMonthData.safetyStock - prevMonthData.safetyStock) / prevMonthData.safetyStock) * 100;
 
 	const [expandedEvent, setExpandedEvent] = useState<number | null>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -98,7 +95,7 @@ export default function Home() {
 							<p className="mt-6 text-xl text-[#86868B] max-w-2xl">Make impactful business decisions with zero-code data cleaning and guided analysis designed for businesses</p>
 							<div className="flex flex-col sm:flex-row gap-5 mt-10">
 								<Button size="lg" onClick={handleButtonClick} className="bg-[#0071E3] hover:bg-[#0077ED] rounded-full text-white px-8 py-6 text-base font-medium">
-									Get Started
+									Demo
 								</Button>
 								<Button size="lg" variant="outline" asChild className="border-[#0071E3] text-[#0071E3] rounded-full hover:bg-[#0071E3]/10 px-8 py-6 text-base font-medium">
 									<Link href="#how-it-works">See How It Works</Link>

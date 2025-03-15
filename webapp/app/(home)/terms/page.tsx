@@ -2,7 +2,7 @@ export default function TermsPage() {
 	return (
 		<section className="min-h-screen grid lg:grid-cols-2 gap-8 lg:gap-12 items-center px-4 lg:px-12 py-8 lg:py-0">
 			<div className="flex-col justify-center space-y-6 lg:space-y-8 my-28">
-				<p>Last Updated: March 14, 2025</p>
+				<p>Last Updated: March 01, 2025</p>
 
 				<h2>1. Agreement to Terms</h2>
 				<p>By accessing or using TheDataWorkspace, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this site.</p>
@@ -20,7 +20,7 @@ export default function TermsPage() {
 				<p>You may not use TheDataWorkspace for any illegal or unauthorized purpose. You must not attempt to gain unauthorized access to any part of the service.</p>
 
 				<h2>6. Limitation of Liability</h2>
-				<p>In no event shall TheDataWorkspace be liable for any damages arising out of the use or inability to use the materials on TheDataWorkspace's website or services.</p>
+				<p>In no event shall TheDataWorkspace be liable for any damages arising out of the use or inability to use the materials on the website or services.</p>
 
 				<h2>7. Governing Law</h2>
 				<p>These terms shall be governed by and construed in accordance with the laws of England and Wales, without regard to its conflict of law provisions.</p>

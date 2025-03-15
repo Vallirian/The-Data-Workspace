@@ -37,7 +37,7 @@ export default function RootLayout({
 	return (
 		<html lang="en">
 			<head>
-				<title>Processly</title>
+				<title>The Data Workspace</title>
 			</head>
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
 		</html>
