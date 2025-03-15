@@ -4,9 +4,6 @@ import localFont from "next/font/local";
 import "./globals.css";
 
 import * as React from "react";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import useAuth from "@/hooks/useAuth";
 
 const geistSans = localFont({
 	src: "./fonts/GeistVF.woff",
@@ -24,16 +21,6 @@ export default function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	const router = useRouter();
-	const { user, loading } = useAuth();
-
-	// Redirect to login if user is not authenticated and loading is complete
-	useEffect(() => {
-		if (!loading && !user) {
-			router.push("/account/login");
-		}
-	}, [user, loading, router]);
-
 	return (
 		<html lang="en">
 			<head>
