@@ -12,7 +12,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 			<div className="flex h-16 items-center justify-between py-4 px-28 border-b top-0 z-50 w-full bg-white">
 				<div className="flex items-center gap-2">
 					<Link href="/">
-						<Image src="/images/tds1.png" alt="TheDataWorkspace" width={50} height={50} className="object-cover rounded" />
+						<Image src="/images/tds2.png" alt="TheDataWorkspace" width={75} height={50} className="object-cover rounded" />
 					</Link>
 				</div>
 				<div className="flex items-center gap-4">

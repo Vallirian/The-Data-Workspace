@@ -6,7 +6,7 @@ export default function AboutPage() {
 		<section className="min-h-screen grid lg:grid-cols-2 gap-8 lg:gap-12 items-center px-4 lg:px-12 py-8 lg:py-0">
 			<div className="flex-col">
 				<div className="flex-col mb-6 lg:mb-12">
-					<h1 className="text-4xl sm:text-6xl lg:text-8xl font-bold tracking-tight">Data Shouldn't Be This Hard</h1>
+					<h1 className="text-4xl sm:text-6xl lg:text-8xl font-bold tracking-tight">Data Shouldn't Be This <span className="text-[#D70015]">Hard</span></h1>
 				</div>
 				<div className="text-sm sm:text-base mb-6 lg:mb-9">
 					Make impactful business decisions with zero-code data cleaning
