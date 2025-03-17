@@ -3,7 +3,7 @@
 codename: Arc  
 lastest active version: `v0.1.1-beta`  
 current work in progress: `v0.1.1`  
-found on: [processly.ai](processly.ai) | [thedataworkspace.com](thedataworkspace.com)
+found on: [processly.ai](https://processly.ai) | [thedataworkspace.com](https://thedataworkspace.com)
 
 ## Problem
 Businesses have a large amount of data they are not able to extract insights from. Cleaning the data (70% of the work) requires technical skills and is unenjoyable. Extracting insights (30% of the work) requires a combination of technical and business skills which leads to long back-and-forth and low-impact decisions.  
