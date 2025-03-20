@@ -4,29 +4,9 @@ import Link from "next/link";
 import { BrushIcon as Broom, Lightbulb, Zap, Wand2, Shield, Network } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TrendingUp } from "lucide-react";
-import { ChartConfig } from "@/components/ui/chart";
+import type { ChartConfig } from "@/components/ui/chart";
 import { useState, useRef } from "react";
 import { motion, useScroll, useSpring } from "framer-motion";
-
-const chartData = [
-	{ month: "January", safetyStock: 120, projectedDemand: 100 },
-	{ month: "February", safetyStock: 130, projectedDemand: 110 },
-	{ month: "March", safetyStock: 140, projectedDemand: 115 },
-	{ month: "April", safetyStock: 150, projectedDemand: 125 },
-	{ month: "May", safetyStock: 160, projectedDemand: 130 },
-	{ month: "June", safetyStock: 170, projectedDemand: 140 },
-];
-
-const chartConfig = {
-	safetyStock: {
-		label: "SafetyStock",
-		color: "rgba(0, 122, 255, 0.8)",
-	},
-	projectedDemand: {
-		label: "Projected Demand",
-		color: "rgba(88, 86, 214, 0.6)",
-	},
-} satisfies ChartConfig;
 
 const timelineEvents = [
 	{
@@ -62,9 +42,6 @@ const timelineEvents = [
 ];
 
 export default function Home() {
-	const thisMonthData = chartData[chartData.length - 1];
-	const prevMonthData = chartData[chartData.length - 2];
-
 	const [expandedEvent, setExpandedEvent] = useState<number | null>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const { scrollYProgress } = useScroll({
@@ -83,23 +60,23 @@ export default function Home() {
 	};
 
 	return (
-		<div className="flex flex-col min-h-screen bg-[#FAFAFA]">
+		<div className="flex flex-col min-h-screen bg-white">
 			<main className="flex-1">
 				{/* Hero Section */}
-				<section className="py-24 md:py-32">
-					<div className="container mx-auto px-6 max-w-7xl">
-						<div className="flex flex-col items-center text-center mb-16">
-							<h1 className="text-4xl md:text-6xl font-semibold tracking-tight text-[#1D1D1F] max-w-4xl">
+				<section className="py-28 md:py-36">
+					<div className="container mx-auto px-6 max-w-6xl">
+						<div className="flex flex-col items-center text-center mb-20">
+							<h1 className="text-4xl md:text-6xl font-semibold tracking-tight text-[#111111] max-w-4xl leading-tight">
 								Transform Your Business Data Without <span className="text-[#D70015]">The Grunt Work</span>
 							</h1>
-							<p className="mt-6 text-xl text-[#86868B] max-w-2xl">Make impactful business decisions with zero-code data cleaning and guided analysis designed for businesses</p>
-							<div className="flex flex-col sm:flex-row gap-5 mt-10">
-								<Button size="lg" className="bg-[#0071E3] hover:bg-[#0077ED] rounded-full text-white px-8 py-6 text-base font-medium">
-									<Link href="/workspaces" className="text-sm font-medium hover:text-primary">
+							<p className="mt-8 text-xl text-[#555555] max-w-2xl leading-relaxed">Make impactful business decisions with zero-code data cleaning and guided analysis designed for businesses</p>
+							<div className="flex flex-col sm:flex-row gap-6 mt-12">
+								<Button size="lg" className="bg-[#0071E3] hover:bg-[#0077ED] text-white px-8 py-6 text-base font-bold shadow-sm transition-all duration-200 rounded-lg">
+									<Link href="/workspaces" className="text-sm font-bold">
 										Try with Demo Data
 									</Link>
 								</Button>
-								<Button size="lg" variant="outline" asChild className="border-[#0071E3] text-[#0071E3] rounded-full hover:bg-[#0071E3]/10 px-8 py-6 text-base font-medium">
+								<Button size="lg" variant="outline" asChild className="border-none bg-blue-200 text-blue-700 hover:bg-blue-400 hover:text-blue-800 font-bold px-8 py-6 text-base transition-all duration-200 rounded-lg">
 									<Link href="#how-it-works">See How It Works</Link>
 								</Button>
 							</div>
@@ -107,29 +84,88 @@ export default function Home() {
 					</div>
 				</section>
 
+				{/* Technical Edge - Moved up as requested */}
+				<section className="py-28 bg-[#FAFAFA]">
+					<div className="container mx-auto px-6 max-w-6xl">
+						<div className="text-center mb-20">
+							<h2 className="text-3xl md:text-4xl font-semibold text-[#111111]">Why Our Technology Stands Apart</h2>
+						</div>
+
+						<div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+							{[
+								{
+									title: "Resource Efficiency",
+									description: "Our proprietary algorithms reduce AI token consumption by up to 80%",
+									color: "bg-[#F8F5FF]",
+									textColor: "text-[#AF52DE]",
+									icon: <Zap className="h-6 w-6" />,
+								},
+								{
+									title: "Data Security",
+									description: "Minimized data exposure with our targeted processing approach",
+									color: "bg-[#F5FFF7]",
+									textColor: "text-[#34C759]",
+									icon: <Shield className="h-6 w-6" />,
+								},
+								{
+									title: "Task Delegation",
+									description: "Smart prioritization of AI models to give you the best results at the lowest cost",
+									color: "bg-[#FFFAF0]",
+									textColor: "text-[#FF9500]",
+									icon: <Network className="h-6 w-6" />,
+								},
+							].map((item, index) => (
+								<div key={index} className="p-10 rounded-lg bg-white border border-[#EEEEEE] shadow-sm transition-all duration-300">
+									<motion.div
+										whileHover={{
+											y: -4,
+											scale: 1.02,
+											boxShadow: "0 0 0 rgba(255, 255, 255, 0)",
+											transition: { duration: 0.3, ease: "easeOut" },
+										}}
+									>
+										<div className={`${item.color} p-4 rounded-full w-fit mb-6`}>
+											<span className={`${item.textColor}`}>{item.icon}</span>
+										</div>
+										<h3 className="text-xl font-medium mb-4 text-[#111111]">{item.title}</h3>
+										<p className="text-[#555555] leading-relaxed">{item.description}</p>
+									</motion.div>
+								</div>
+							))}
+						</div>
+					</div>
+				</section>
+
 				{/* How It Works */}
-				<section ref={containerRef} className="py-24 bg-[#F5F5F7] overflow-hidden" id="how-it-works">
-					<div className="container mx-auto px-6 max-w-7xl">
-						<motion.div className="text-center mb-16" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} viewport={{ once: true }}>
-							<h2 className="text-3xl md:text-4xl font-semibold text-[#1D1D1F]">How It Works</h2>
-							<p className="mt-4 text-lg text-[#86868B]">Preprocess and analyze your data without writing a single line of code</p>
+				<section ref={containerRef} className="py-28 bg-white overflow-hidden" id="how-it-works">
+					<div className="container mx-auto px-6 max-w-6xl">
+						<motion.div className="text-center mb-20" initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: "easeOut" }} viewport={{ once: true, margin: "-100px" }}>
+							<h2 className="text-3xl md:text-4xl font-semibold text-[#111111]">How It Works</h2>
+							<p className="mt-5 text-lg text-[#555555] max-w-2xl mx-auto">Preprocess and analyze your data without writing a single line of code</p>
 						</motion.div>
 
 						<div className="max-w-3xl mx-auto">
 							{timelineEvents.map((event, index) => (
-								<motion.div key={index} className="mb-16" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: index * 0.1 }} viewport={{ once: true, amount: 0.3 }}>
-									<div className="flex gap-6">
+								<motion.div key={index} className="mb-20 last:mb-0" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: index * 0.1 }} viewport={{ once: true, amount: 0.3 }}>
+									<div className="flex gap-8">
 										<div className="flex-shrink-0">
-											<div className="flex items-center justify-center w-12 h-12 bg-white rounded-full shadow-sm border border-[#E5E5E5]">
-												<span className="text-[#0071E3]">{event.icon}</span>
+											<div className="flex items-center justify-center w-14 h-14 bg-white rounded-full shadow-sm border border-[#EEEEEE]">
+												<span className="text-[#111111]">{event.icon}</span>
 											</div>
 										</div>
 										<div>
-											<h3 className="text-xl font-medium mb-2 text-[#1D1D1F]">{event.title}</h3>
-											<p className="text-[#86868B] mb-2">{event.description}</p>
-											<Button variant="ghost" size="sm" onClick={() => setExpandedEvent(expandedEvent === index ? null : index)} className="text-[#0071E3] hover:bg-[#0071E3]/10 p-0 h-auto">
-												{expandedEvent === index ? "Show less" : "Learn more"}
-											</Button>
+											<h3 className="text-xl font-medium mb-3 text-[#111111]">{event.title}</h3>
+											<p className="text-[#555555] mb-3 leading-relaxed">{event.description}</p>
+											<Link
+												href="#"
+												onClick={(e) => {
+													e.preventDefault();
+													setExpandedEvent(expandedEvent === index ? null : index);
+												}}
+												className="text-[#0071E3] hover:text-[#0077ED] font-medium text-sm inline-flex items-center"
+											>
+												{expandedEvent === index ? "Show less" : "Learn more"} →
+											</Link>
 
 											<motion.div
 												initial={{ height: 0, opacity: 0 }}
@@ -138,9 +174,9 @@ export default function Home() {
 													opacity: expandedEvent === index ? 1 : 0,
 												}}
 												transition={{ duration: 0.3 }}
-												className="overflow-hidden mt-2"
+												className="overflow-hidden mt-3"
 											>
-												<p className="pt-2 text-sm text-[#86868B] pl-0">{event.details}</p>
+												<p className="pt-2 text-sm text-[#666666] pl-0 leading-relaxed">{event.details}</p>
 											</motion.div>
 										</div>
 									</div>
@@ -150,55 +186,15 @@ export default function Home() {
 					</div>
 				</section>
 
-				{/* Technical Edge */}
-				<section className="py-24 bg-white">
-					<div className="container mx-auto px-6 max-w-7xl">
-						<div className="text-center mb-16">
-							<h2 className="text-3xl md:text-4xl font-semibold text-[#1D1D1F]">Why Our Technology Stands Apart</h2>
-						</div>
-
-						<div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-							{[
-								{
-									title: "Resource Efficiency",
-									description: "Our proprietary algorithms reduce AI token consumption by up to 80%",
-									color: "bg-[#F5F0FF]",
-									textColor: "text-[#AF52DE]",
-								},
-								{
-									title: "Data Security",
-									description: "Minimized data exposure with our targeted processing approach",
-									color: "bg-[#F0FEF4]",
-									textColor: "text-[#34C759]",
-								},
-								{
-									title: "Task Delegation",
-									description: "Smart prioritization of AI models to give you the best results at the lowest cost",
-									color: "bg-[#FFF9EB]",
-									textColor: "text-[#FF9500]",
-								},
-							].map((item, index) => (
-								<motion.div key={index} className="p-8 rounded-2xl bg-white shadow-sm border border-[#E5E5E5]" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: index * 0.1 }} whileHover={{ y: -5, boxShadow: "0 10px 30px rgba(0, 0, 0, 0.05)" }} viewport={{ once: true }}>
-									<div className={`${item.color} p-3 rounded-full w-fit mb-4`}>
-										<span className={`${item.textColor}`}>{index === 0 ? <Zap className="h-6 w-6" /> : index === 1 ? <Shield className="h-6 w-6" /> : <Network className="h-6 w-6" />}</span>
-									</div>
-									<h3 className="text-xl font-medium mb-3 text-[#1D1D1F]">{item.title}</h3>
-									<p className="text-[#86868B]">{item.description}</p>
-								</motion.div>
-							))}
-						</div>
-					</div>
-				</section>
-
 				{/* CTA Section */}
-				<section className="py-24 bg-white">
-					<div className="container mx-auto px-6 max-w-7xl">
+				<section className="py-28 bg-[#FAFAFA]">
+					<div className="container mx-auto px-6 max-w-6xl">
 						<div className="text-center max-w-2xl mx-auto">
-							<h2 className="text-3xl md:text-4xl font-semibold mb-6 text-[#1D1D1F]">Ready to Transform Your Data Experience?</h2>
-							<p className="text-xl mb-8 text-[#86868B]">Join businesses that are making smarter decisions with cleaner data and guided analysis.</p>
-							<Button size="lg" variant="secondary" onClick={handleButtonClick} className="bg-[#0071E3] hover:bg-[#0077ED] rounded-full text-white px-8 py-6 text-base font-medium">
-								Get Started with a Free Demo
-							</Button>
+							<h2 className="text-3xl md:text-4xl font-semibold mb-8 text-[#111111]">Ready to Transform Your Data Experience?</h2>
+							<p className="text-xl mb-10 text-[#555555] leading-relaxed">Join businesses that are making smarter decisions with cleaner data and guided analysis.</p>
+							<Link href="#" onClick={handleButtonClick} className="inline-flex items-center text-[#0071E3] hover:text-[#0077ED] font-medium text-lg">
+								Get Started with a Free Demo →
+							</Link>
 						</div>
 					</div>
 				</section>
