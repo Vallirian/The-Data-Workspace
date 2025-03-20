@@ -19,7 +19,7 @@ function Signup() {
         signInWithPopup(auth, googleProvider)
             .then(() => {
                 // Check if there's a redirect path
-                const redirectPath = searchParams.get("redirect") || "/";
+                const redirectPath = searchParams.get("redirect") || "/workspaces";
                 router.push(redirectPath);
             })
             .catch((error) => {
@@ -49,7 +49,7 @@ function Signup() {
                         </div> */}
                     </div>
                     <div className="space-y-4">
-                        <p className="text-2xl font-semibold">AI-powered business analysis to build reports 3.3x faster</p>
+                        <p className="text-2xl font-semibold">AI-powered business analysis to build reports 70% faster, 80% cheaper</p>
                     </div>
                 </div>
             </div>
@@ -73,11 +73,11 @@ function Signup() {
                 </div>
                 <p className="text-center text-sm text-gray-500">
                     By clicking continue, you agree to our{" "}
-                    <Link className="underline hover:text-gray-800" href="https://www.processly.ai" target="_blank" rel="noopener noreferrer">
+                    <Link className="underline hover:text-gray-800" href="https://www.thedataworkspace.com" target="_blank" rel="noopener noreferrer">
                         Terms of Service
                     </Link>{" "}
                     and{" "}
-                    <Link className="underline hover:text-gray-800" href="https://www.processly.ai" target="_blank" rel="noopener noreferrer">
+                    <Link className="underline hover:text-gray-800" href="https://www.thedataworkspace.com" target="_blank" rel="noopener noreferrer">
                         Privacy Policy
                     </Link>
                     .

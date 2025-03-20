@@ -19,7 +19,7 @@ function Login() {
         signInWithPopup(auth, googleProvider)
             .then(() => {
                 // Check if there's a redirect path
-                const redirectPath = searchParams.get("redirect") || "/";
+                const redirectPath = searchParams.get("redirect") || "/workspaces";
                 router.push(redirectPath);
             })
             .catch((error) => {

@@ -94,8 +94,10 @@ export default function Home() {
 							</h1>
 							<p className="mt-6 text-xl text-[#86868B] max-w-2xl">Make impactful business decisions with zero-code data cleaning and guided analysis designed for businesses</p>
 							<div className="flex flex-col sm:flex-row gap-5 mt-10">
-								<Button size="lg" onClick={handleButtonClick} className="bg-[#0071E3] hover:bg-[#0077ED] rounded-full text-white px-8 py-6 text-base font-medium">
-									Demo
+								<Button size="lg" className="bg-[#0071E3] hover:bg-[#0077ED] rounded-full text-white px-8 py-6 text-base font-medium">
+									<Link href="/workspaces" className="text-sm font-medium hover:text-primary">
+										Try with Demo Data
+									</Link>
 								</Button>
 								<Button size="lg" variant="outline" asChild className="border-[#0071E3] text-[#0071E3] rounded-full hover:bg-[#0071E3]/10 px-8 py-6 text-base font-medium">
 									<Link href="#how-it-works">See How It Works</Link>

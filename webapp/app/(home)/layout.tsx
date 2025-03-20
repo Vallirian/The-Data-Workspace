@@ -16,8 +16,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 					<Link href="/about" className="text-sm font-medium hover:text-primary">
 						About
 					</Link>
-					<Link href="https://www.youtube.com/channel/UCrUeGsvs-MulA7JNveDjDBQ" target="_" className="text-sm font-medium hover:text-primary hidden md:block">
-						Demo
+					<Link href="/account/signup" className="text-sm font-medium hover:text-primary">
+						Sign In
 					</Link>
 				</div>
 			</div>
@@ -25,7 +25,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 			<footer className="bg-muted pt-12">
 				<div className="grid grid-cols-1 md:grid-cols-4 gap-8 p-12">
 					<div>
-						<h3 className="font-bold text-lg mb-4">TheDataWorkspace</h3>
+						<h3 className="font-bold text-lg mb-4">The Data Workspace</h3>
 						<p className="text-muted-foreground">Making data analysis accessible for every business user.</p>
 					</div>
 					<div>
