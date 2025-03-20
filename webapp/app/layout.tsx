@@ -150,15 +150,16 @@ export default function RootLayout({
 			</head>
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
 				<Toaster />
-				<SidebarProvider defaultOpen={true} className="h-screen overflow-auto">
+				<SidebarProvider defaultOpen={true} className="h-screen overflow-auto bg-white">
 					<Sidebar collapsible="icon">
 						<SidebarHeader>
 							<SidebarMenu>
 								<SidebarMenuItem>
 									<SidebarMenuButton size="lg" asChild>
 										<a href="/">
-											<div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-												<Image src="/images/logo-1-white-png.png" alt="Logo" width={18} height={18} className="p-0" />
+											<div className="flex aspect-square size-8 items-center justify-center rounded-lg">
+												{/* <Image src="/images/tds1.png" alt="Logo" width={50} height={50} className="p-0" /> */}
+												<p className="font-bold text-2xl text-muted-foreground">T.</p>
 											</div>
 											<div className="grid flex-1 text-left text-sm leading-tight">
 												<span className="truncate font-semibold">The Data Worksapce</span>
@@ -243,12 +244,12 @@ export default function RootLayout({
 								<SidebarGroupLabel>Support</SidebarGroupLabel>{" "}
 								<SidebarMenu>
 									<SidebarMenuItem>
-											<SidebarMenuButton tooltip="/in/naol-basaye" onClick={() => {}}>
+										<SidebarMenuButton tooltip="/in/naol-basaye" onClick={() => {}}>
 											<Linkedin className="h-5 w-5" />
-												<Link href="https://www.linkedin.com/in/naol-basaye/" target="_" className="text-muted-foreground hover:text-foreground">
-													Contact Me
-												</Link>
-											</SidebarMenuButton>
+											<Link href="https://www.linkedin.com/in/naol-basaye/" target="_" className="text-muted-foreground hover:text-foreground">
+												Contact Me
+											</Link>
+										</SidebarMenuButton>
 									</SidebarMenuItem>
 								</SidebarMenu>
 							</SidebarGroup>
