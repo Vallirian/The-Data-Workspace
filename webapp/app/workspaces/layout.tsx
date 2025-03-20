@@ -226,7 +226,7 @@ export default function RootLayout({
 													<SidebarMenuButton
 														tooltip={sharedReportItem.name || "Untitled Report"}
 														onClick={() => {
-															router.push(`/shared/reports/${sharedReportItem.id}`);
+															router.push(`/workspaces/shared/reports/${sharedReportItem.id}`);
 														}}
 														key={sharedReportItem.id}
 													>
