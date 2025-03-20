@@ -17,9 +17,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True 
+DEBUG = False 
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', "api"]
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', "api", "api-w3tsm.ondigitalocean.app"]
 CORS_ALLOWED_ORIGINS = [
     "http://localhost",
     "http://127.0.0.1",
