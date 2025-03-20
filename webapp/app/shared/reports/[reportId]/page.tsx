@@ -5,8 +5,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useEffect, useMemo, useState } from "react";
 import axiosInstance from "@/services/axios";
 import { ErrorInterface, SharedReportInterface } from "@/interfaces/main";
-import KpiColumn from "@/app/workbooks/(report)/kpiColumn";
-import TableColumn from "@/app/workbooks/(report)/tableColumn";
+import KpiColumn from "@/app/workspaces/(report)/kpiColumn";
+import TableColumn from "@/app/workspaces/(report)/tableColumn";
 import { useParams } from "next/navigation";
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 
@@ -55,7 +55,7 @@ export default function SharedReport() {
 		<div className="min-h-screen bg-background flex flex-col">
 			<div className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
 				<div className="flex items-center px-4 my-4 gap-2">
-					<SidebarTrigger/>
+					<SidebarTrigger />
 					<p>{report?.name || "Untitled Report"}</p>
 				</div>
 				<div className="flex-grow overflow-y-auto p-4 space-y-4">

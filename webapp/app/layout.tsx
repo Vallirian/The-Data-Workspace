@@ -24,6 +24,7 @@ import useAuth from "@/hooks/useAuth";
 import { ToastAction } from "@radix-ui/react-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const geistSans = localFont({
 	src: "./fonts/GeistVF.woff",
@@ -145,7 +146,7 @@ export default function RootLayout({
 	return (
 		<html lang="en">
 			<head>
-				<title>Processly</title>
+				<title>The Data Workspace</title>
 			</head>
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
 				<Toaster />
@@ -160,9 +161,9 @@ export default function RootLayout({
 												<Image src="/images/logo-1-white-png.png" alt="Logo" width={18} height={18} className="p-0" />
 											</div>
 											<div className="grid flex-1 text-left text-sm leading-tight">
-												<span className="truncate font-semibold">Processly</span>
+												<span className="truncate font-semibold">The Data Worksapce</span>
 												<div className="flex items-center text-xs text-muted-foreground">
-													<span className="text-xs">Free (Beta)</span>
+													<span className="text-xs">Beta</span>
 												</div>
 											</div>
 										</a>
@@ -183,7 +184,7 @@ export default function RootLayout({
 												tooltip={workbookItem.name || "Untitled Workbook"}
 												onClick={() => {
 													setSelectedWorkbook(workbookItem);
-													router.push(`/workbooks/${workbookItem.id}`);
+													router.push(`/workspaces/${workbookItem.id}`);
 												}}
 												isActive={selectedWorkbook?.id === workbookItem.id}
 												key={workbookItem.id}
@@ -242,20 +243,11 @@ export default function RootLayout({
 								<SidebarGroupLabel>Support</SidebarGroupLabel>{" "}
 								<SidebarMenu>
 									<SidebarMenuItem>
-										<a href="https://discord.gg/TsRMXHnF" target="_blank" rel="noopener noreferrer">
-											<SidebarMenuButton tooltip="Support" onClick={() => {}}>
-												<DiscordLogoIcon className="h-5 w-5" />
-												<span>Discord</span>
+											<SidebarMenuButton tooltip="/in/naol-basaye" onClick={() => {}}>
+												<Link href="https://www.linkedin.com/in/naol-basaye/" target="_" className="text-muted-foreground hover:text-foreground">
+													Contact Me
+												</Link>
 											</SidebarMenuButton>
-										</a>
-									</SidebarMenuItem>
-									<SidebarMenuItem>
-										<a href="mailto:founder@processly.ai" target="_blank" rel="noopener noreferrer">
-											<SidebarMenuButton tooltip="founder@processly.ai" onClick={() => {}}>
-												<MailQuestion className="h-5 w-5" />
-												<span>Email The Founder</span>
-											</SidebarMenuButton>
-										</a>
 									</SidebarMenuItem>
 								</SidebarMenu>
 							</SidebarGroup>

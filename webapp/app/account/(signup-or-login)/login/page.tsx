@@ -19,7 +19,7 @@ function Login() {
         signInWithPopup(auth, googleProvider)
             .then(() => {
                 // Check if there's a redirect path
-                const redirectPath = searchParams.get("redirect") || "/";
+                const redirectPath = searchParams.get("redirect") || "/workbooks";
                 router.push(redirectPath);
             })
             .catch((error) => {
@@ -37,17 +37,7 @@ function Login() {
             <Toaster />
             <div className="hidden w-1/2 bg-zinc-50 lg:block">
                 <div className="flex h-full flex-col justify-between p-8">
-                    <div className="flex items-center space-x-2">
-                        {/* <div className="flex items-center space-x-2">
-                            <Image
-                                src="/images/logo-1-black-png.png"
-                                alt="Logo"
-                                width={24}
-                                height={24}
-                            />
-                            <span className="text-xl font-semibold">Processly</span>
-                        </div> */}
-                    </div>
+                    <div className="flex items-center space-x-2"></div>
                     <div className="space-y-4">
                         <p className="text-2xl font-semibold">AI-powered business analysis to build reports 3.3x faster</p>
                     </div>
@@ -73,11 +63,11 @@ function Login() {
                 </div>
                 <p className="text-center text-sm text-gray-500">
                     By clicking continue, you agree to our{" "}
-                    <Link className="underline hover:text-gray-800" href="https://www.processly.ai" target="_blank" rel="noopener noreferrer">
+                    <Link className="underline hover:text-gray-800" href="https://www.thedataworkspace.com" target="_blank" rel="noopener noreferrer">
                         Terms of Service
                     </Link>{" "}
                     and{" "}
-                    <Link className="underline hover:text-gray-800" href="https://www.processly.ai" target="_blank" rel="noopener noreferrer">
+                    <Link className="underline hover:text-gray-800" href="https://www.thedataworkspace.com" target="_blank" rel="noopener noreferrer">
                         Privacy Policy
                     </Link>
                     .

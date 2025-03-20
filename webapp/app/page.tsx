@@ -45,7 +45,7 @@ export default function Home() {
 
 	useEffect(() => {
 		if (activeWorkbook) {
-			router.push(`/workbooks/${activeWorkbook?.id}`);
+			router.push(`/workspaces/${activeWorkbook?.id}`);
 		}
 	}, [activeWorkbook]);
 
@@ -105,8 +105,8 @@ export default function Home() {
 					</h1>{" "}
 				</div>
 				<div className="text-center mb-5">
-					<p className="text-md text-muted-foreground">Welcome back to Processly, AI-powered business analysis</p>
-					<p className="text-md text-muted-foreground">to build reports 3.3x faster</p>
+					<p className="text-md text-muted-foreground">Welcome back to The Data Workspace,</p>
+					<p className="text-md text-muted-foreground">70% Faster Analytics for 20% the Cost</p>
 				</div>
 				<div className="flex items-center justify-between">
 					<div className="flex items-center gap-2">
