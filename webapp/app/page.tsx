@@ -105,8 +105,8 @@ export default function Home() {
 					</h1>{" "}
 				</div>
 				<div className="text-center mb-5">
-					<p className="text-md text-muted-foreground">Welcome back to The Data Workspace,</p>
-					<p className="text-md text-muted-foreground">70% Faster Analytics for 20% the Cost</p>
+					<p className="text-md text-muted-foreground">Welcome back to The Data Workspace</p>
+					<p className="text-md text-muted-foreground">AI-powered Analytics 70% Faster, 80% Cheaper</p>
 				</div>
 				<div className="flex items-center justify-between">
 					<div className="flex items-center gap-2">

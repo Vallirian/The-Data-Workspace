@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarRail } from "@/components/ui/sidebar";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 
-import { Bot, Cat, Club, Command, Component, Dog, Fan, FerrisWheel, Flower, Frame, Grip, InspectionPanel, Loader, MailQuestion, MoreHorizontal, Nut, PiggyBank, Plus, Rat, Sailboat, Salad, ShipWheel, Snail, Sprout, Trash2, TreePalm, Trees, Turtle } from "lucide-react";
+import { Bot, Cat, Club, Command, Component, Dog, Fan, FerrisWheel, Flower, Frame, Grip, InspectionPanel, Linkedin, Loader, MailQuestion, MoreHorizontal, Nut, PiggyBank, Plus, Rat, Sailboat, Salad, ShipWheel, Snail, Sprout, Trash2, TreePalm, Trees, Turtle } from "lucide-react";
 import ArcAvatar from "@/components/arc-components/navigation/arcAvatar";
 import { useEffect, useState } from "react";
 import { ErrorInterface, SharedReportInterface, WorkbookInterface } from "@/interfaces/main";
@@ -49,7 +49,7 @@ export default function RootLayout({
 
 	const { user, loading } = useAuth();
 
-	const workbookIcons = [Frame, Command, Club, Component, FerrisWheel, Grip, InspectionPanel, Loader, TreePalm, Trees, Turtle, Sprout, Snail, ShipWheel, Salad, Sailboat];
+	const workbookIcons = [Frame, Command, Club, Component, FerrisWheel, Grip, InspectionPanel, Loader, TreePalm, Trees, Turtle, Sprout, Snail, ShipWheel, Salad, Sailboat, Linkedin];
 	const sharedReportIcons = [Rat, PiggyBank, Nut, Flower, Fan, Dog, Cat, Bot];
 
 	// Redirect to login if user is not authenticated and loading is complete
@@ -244,6 +244,7 @@ export default function RootLayout({
 								<SidebarMenu>
 									<SidebarMenuItem>
 											<SidebarMenuButton tooltip="/in/naol-basaye" onClick={() => {}}>
+											<Linkedin className="h-5 w-5" />
 												<Link href="https://www.linkedin.com/in/naol-basaye/" target="_" className="text-muted-foreground hover:text-foreground">
 													Contact Me
 												</Link>

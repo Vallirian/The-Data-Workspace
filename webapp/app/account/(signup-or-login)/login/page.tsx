@@ -19,7 +19,7 @@ function Login() {
         signInWithPopup(auth, googleProvider)
             .then(() => {
                 // Check if there's a redirect path
-                const redirectPath = searchParams.get("redirect") || "/workbooks";
+                const redirectPath = searchParams.get("redirect") || "/";
                 router.push(redirectPath);
             })
             .catch((error) => {
@@ -39,7 +39,7 @@ function Login() {
                 <div className="flex h-full flex-col justify-between p-8">
                     <div className="flex items-center space-x-2"></div>
                     <div className="space-y-4">
-                        <p className="text-2xl font-semibold">AI-powered business analysis to build reports 3.3x faster</p>
+                        <p className="text-2xl font-semibold">AI-powered Analytics 70% Faster, 80% Cheaper</p>
                     </div>
                 </div>
             </div>
