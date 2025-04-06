@@ -1,6 +1,6 @@
 
 # The Data Workspace
-codename: Arc, Processly
+codename: Arc, Processly  
 lastest active version: `v0.1.1-beta`  
 current work in progress: `v0.1.1`  
 found on: [processly.ai](https://processly.ai) | [thedataworkspace.com](https://thedataworkspace.com)
